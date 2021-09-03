@@ -35,7 +35,7 @@ pyincore_data.egg-info
 # incore pw file
 tests/.incorepw
 
-# incore download data or test data
+# download data or test data
 tests/data/
 cache_data/
 original/

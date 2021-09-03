@@ -1,3 +1,9 @@
+# Copyright (c) 2021 University of Illinois and others. All rights reserved.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Mozilla Public License v2.0 which accompanies this distribution,
+# and is available at https://www.mozilla.org/en-US/MPL/2.0/
+
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
@@ -6,37 +12,51 @@ import time
 import warnings
 warnings.filterwarnings("ignore")
 
+
 class Preprocessor:
 
     def __init__(self, input_path, output_path, missing_timeslot_threshold):
+        """Constructor for the class
+
+            Args:
+                input_path (str): A file path for the input data.
+                output_path (str): A file path for the output data.
+                missing_time_threshold (int): Number of 30min timeslot threshold
+
+            Returns:
+            obj: Pandas DataFrame object.
+
         """
-        Constructor for the class
-        """
-        self.data_path=input_path
+        self.data_path = input_path
         self.output_data_path = output_path
         self.missing_timeslot_threshold = missing_timeslot_threshold
 
-
     def read_data(self):
-        """
-        Reads data and returns dataframe
-        :return: df
+        """Reads data and returns dataframe
+
+            Args: None
+
+            Returns:
+                obj: Pandas DataFrame object
+
         """
         self.df = pd.read_csv(self.data_path)
         return self.df
 
     def write_data(self):
-        """
-        Write the dataframe to csv file
-        :return: None
+        """Write the dataframe to csv file
+
+            Args: None
+
         """
         self.df.to_csv(self.output_data_path, index=False)
         pass
 
     def sync_time(self):
-        """
-        Sync time by delaying by 30min
-        :return: None
+        """Sync time by delaying by 30min
+
+            Args: None
+
         """
         # convert string timedate to pandas datetime type and store in another column
         self.df['timestamp'] = pd.to_datetime(self.df['TIMESTAMP'])
@@ -45,20 +65,25 @@ class Preprocessor:
         # timestamp_sync will be used for all further calculations
         pass
 
-
     def insert_missing_timestamp(self):
+        """function to check and insert missing timestamps
+
+            Args: None
+
+            Returns:
+                str: A string for confirming yes or no
+
         """
-        function to check and insert missing timestamps
-        Check if number of missing timeslots are greater than a threshold.
-        If greater than threshold, ask for user confirmation and insert missing timestamps
-        :return: string:'Y' / 'N' - denotes user confirmation to insert missing timestamps
-        """
+        # Check if number of missing timeslots are greater than a threshold.
+        # If greater than threshold, ask for user confirmation and insert missing timestamps
+        # :return: string:'Y' / 'N' - denotes user confirmation to insert missing timestamps
         # if all TimeDelta is not 30.0, the below returns non-zero value
         if self.df.loc[self.df['timedelta'] != 30.0].shape[0]:
             # get the row indexes where TimeDelta!=30.0
             row_indexes = list(self.df.loc[self.df['timedelta'] != 30.0].index)
 
-            # iterate through missing rows, create new df with empty rows and correct timestamps, concat new and old dataframes
+            # iterate through missing rows, create new df with empty rows and correct timestamps,
+            # concat new and old dataframes
             for i in row_indexes[1:]:
                 # ignore the first row index as it is always 0 (timedelta = NaN)
                 df1 = self.df[:i]  # slice the upper half of df
@@ -68,7 +93,7 @@ class Preprocessor:
                 insert_num_rows = int(self.df['timedelta'].iloc[i]) // 30
                 # 48 slots in 24hrs(one day)
                 # ask for user confirmation if more than 96 timeslots (2 days) are missing
-                if insert_num_rows>96:
+                if insert_num_rows > 96:
                     user_confirmation = input("Enter Y to insert", insert_num_rows, "rows. Else enter N")
 
                     if user_confirmation in ['Y', 'y', 'yes', 'Yes']:
@@ -93,9 +118,10 @@ class Preprocessor:
         return 'Y'
 
     def timestamp_format(self):
-        """
-        Function to convert datetime to string and correct timestamp format
-        :return: None
+        """Function to convert datetime to string and correct timestamp format
+
+            Args: None
+
         """
         # convert datetime to string, replace - with /
         self.df['TIMESTAMP'] = self.df['timestamp_sync'].map(lambda t: t.strftime('%Y-%m-%d %H:%M'))\
@@ -103,12 +129,13 @@ class Preprocessor:
 
         return
 
-
     def data_preprocess(self):
-        """
-        Cleans and process the dataframe as per the guide
-        Returns the processed dataframe
-        :return: df: processed dataframe
+        """Cleans and process the dataframe as per the guide
+
+            Args: None
+
+            Returns:
+                obj: Pandas DataFrame object
         """
         # sync time
         self.sync_time()
@@ -117,12 +144,12 @@ class Preprocessor:
 
         # create missing timestamps
         user_confirmation = self.insert_missing_timestamp()
-        if user_confirmation =='N':
+        if user_confirmation == 'N':
             # user confirmed not to insert missing timestamps. Return to main program
             return self.df
 
         # Step 4 in guide
-        self.df = self.df.replace('', 'NAN') # replace empty cells with 'NAN'
+        self.df = self.df.replace('', 'NAN')  # replace empty cells with 'NAN'
         self.df = self.df.replace(np.nan, 'NAN', regex=True)  # replace NaN with 'NAN'
 
         # correct timestamp string format - step 1 in guide
@@ -131,5 +158,3 @@ class Preprocessor:
         return self.df
 
         pass
-
-
