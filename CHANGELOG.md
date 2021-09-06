@@ -8,4 +8,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - se/INCORE1-1273)
 - Data preprocessing steps till step 4 in guide
+- Data preprocessing steps till step 6 in guide
+- Added user prompt to insert timestamps if missing for more than 2 days
 
