@@ -52,6 +52,18 @@ class Preprocessor:
         self.df.to_csv(self.output_data_path, index=False)
         pass
 
+    def data_ok(self, value):
+        """
+        Logical function to test if a variable is a number or not
+        :param value: variable value
+        :return: bool : true or false
+        """
+        if (type(value) == int or type(value) == float) and value!=-9999:
+            return True
+        else:
+            return False
+
+
     def sync_time(self):
         """Sync time by delaying by 30min
 
@@ -77,6 +89,7 @@ class Preprocessor:
         # Check if number of missing timeslots are greater than a threshold.
         # If greater than threshold, ask for user confirmation and insert missing timestamps
         # :return: string:'Y' / 'N' - denotes user confirmation to insert missing timestamps
+
         # if all TimeDelta is not 30.0, the below returns non-zero value
         if self.df.loc[self.df['timedelta'] != 30.0].shape[0]:
             # get the row indexes where TimeDelta!=30.0
@@ -94,13 +107,15 @@ class Preprocessor:
                 # 48 slots in 24hrs(one day)
                 # ask for user confirmation if more than 96 timeslots (2 days) are missing
                 if insert_num_rows > 96:
-                    user_confirmation = input("Enter Y to insert", insert_num_rows, "rows. Else enter N")
+                    print(insert_num_rows, "missing timeslots found")
+                    print("Enter Y to insert", insert_num_rows, "rows. Else enter N")
+                    user_confirmation = input("Enter Y/N : ")
 
                     if user_confirmation in ['Y', 'y', 'yes', 'Yes']:
                         # insert missing timestamps
                         end_timestamp = self.df['timestamp_sync'].iloc[i]
                         start_timestamp = end_timestamp - timedelta(minutes=30 * insert_num_rows)
-                        print("inserting ", insert_num_rows, "rows between ", start_timestamp, end_timestamp)
+                        print("inserting ", insert_num_rows, "rows between ", start_timestamp, "and ", end_timestamp)
                         # create a series of 30min timestamps
                         timestamp_series = pd.date_range(start=start_timestamp, end=end_timestamp, freq='30T')
 
@@ -129,9 +144,67 @@ class Preprocessor:
 
         return
 
+    def soil_heat_flux(self, shf_mV, shf_cal):
+        """
+        Additional calculation for soil heat flux if needed. Step 5 in guide
+        shf_Avg=[shf_mV]*[shf_cal]
+        Args:
+                shf_mV (float): soil heat flux calculation variable
+                shf_cal (float): soil heat flux variable
+
+        Returns:
+            shf_Avg (float): calculated soil heat flux
+        """
+        return shf_mV * shf_cal
+
+    def es(self, T):
+        """
+        es calculation for absolute humidity
+        Args:
+                T (float): air temperature in celsius
+        Returns:
+            es (float): calculated T
+        """
+        if self.data_ok(T):
+            es = 0.6106 * (17.27 * T / (T + 237.3))
+        else:
+            es = ''
+        return es
+
+    def AhFromRH(self, T, RH):
+        """
+        Absolute humidity from relative humidity and temperature
+        Args:
+                T (float): air temperature in celsius
+                RH (float): relative humidity in percentage
+            Returns:
+            AhFromRH (float) : absolute humidity in g/m3
+        """
+        if self.data_ok(T) and self.data_ok(RH):
+            VPsat = self.es(T)
+            vp = RH * VPsat / 100
+            ### TO DO : Ask Bethany about the below formula. 1000000# -- #?  Rv ?
+            #AhFromRH = 1000000# * vp / ((T + 273.15) * Rv)
+            AhFromRH = 1000000 * vp / ((T + 273.15) * RH)
+        else:
+            AhFromRH = ''
+
+        return AhFromRH
+
+    def replace_empty(self):
+        """
+        Function to replace empty and NaN cells
+            Args: None
+            Returns : None
+        """
+        self.df = self.df.replace('', 'NAN')  # replace empty cells with 'NAN'
+        self.df = self.df.replace(np.nan, 'NAN', regex=True)  # replace NaN with 'NAN'
+
+
+    # main method which calls other functions
     def data_preprocess(self):
         """Cleans and process the dataframe as per the guide
-
+            Process dataframe inplace
             Args: None
 
             Returns:
@@ -148,13 +221,25 @@ class Preprocessor:
             # user confirmed not to insert missing timestamps. Return to main program
             return self.df
 
-        # Step 4 in guide
-        self.df = self.df.replace('', 'NAN')  # replace empty cells with 'NAN'
-        self.df = self.df.replace(np.nan, 'NAN', regex=True)  # replace NaN with 'NAN'
-
         # correct timestamp string format - step 1 in guide
         self.timestamp_format()
 
+        # step 5 in guide. Calculation of soil heat flux
+        ### TO DO : need to check column names with Bethany
+        if 'shg_mV_Avg' in self.df.columns:
+            if 'shf_cal_Avg(1)' in self.df.columns and \
+                self.data_ok(self.df['shf_mV_Avg(1)']) and self.data_ok(self.df['shf_cal_Avg(1)']):
+                self.df['shf_1_Avg'] = self.soil_heat_flux(self.df['shf_mV_Avg(1)'], self.df['shf_cal_Avg(1)'])
+
+        # Step 6 in guide. Absolute humidity check
+        self.df['Ah_fromRH'] = self.df.apply(lambda x: self.AhFromRH( self.df['AirTC_Avg'], self.df['RH_Avg'] ), axis=1 )
+
+
+        # Step 4 in guide
+        self.replace_empty()
+
+
+        # return processed df
         return self.df
 
         pass

@@ -39,9 +39,9 @@ def main(*args):
     """
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--input", action="store", default=os.path.join(os.getcwd(), "tests", "data", "FLUXSB_EC_Jul_week1.csv"),
+    parser.add_argument("--input", action="store", default=os.path.join(os.getcwd(), "tests", "data", "FLUXSB_EC_Oct_week34.csv"),
                         help="input data path")
-    parser.add_argument("--output", action="store", default=os.path.join(os.getcwd(), "tests", "FLUXSB_EC_Jul_week1_output.csv"),
+    parser.add_argument("--output", action="store", default=os.path.join(os.getcwd(), "tests", "FLUXSB_EC_Oct_week34_output.csv"),
                         help="output data path")
     parser.add_argument("--missingTime", action="store", default=96,
                         help="Number of 30min timeslot threshold to ask for user confirmation")
