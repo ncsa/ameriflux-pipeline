@@ -15,7 +15,7 @@ warnings.filterwarnings("ignore")
 
 class Preprocessor:
 
-    def __init__(self, input_path, output_path, missing_timeslot_threshold):
+    def __init__(self, input_path, output_path, missing_timeslot_threshold, meta_data_path):
         """Constructor for the class
 
             Args:
@@ -27,9 +27,13 @@ class Preprocessor:
             obj: Pandas DataFrame object.
 
         """
-        self.data_path = input_path
-        self.output_data_path = output_path
-        self.missing_timeslot_threshold = missing_timeslot_threshold
+        self.data_path = input_path # path of data csv file
+        self.output_data_path = output_path # path to write the processed meteorological data file
+        self.missing_timeslot_threshold = missing_timeslot_threshold # threshold for number of missing timestamps
+        self.meta_data_path = meta_data_path # path of meta data file for meteorological file
+
+        # list to store newly created variables/columns in df
+        self.new_variables = [] # these will be deleted after all preprocessing
 
     def read_data(self):
         """Reads data and returns dataframe
@@ -42,6 +46,16 @@ class Preprocessor:
         """
         self.df = pd.read_csv(self.data_path)
         return self.df
+
+    def read_meta_data_file(self):
+        """
+        Method to read meta data csv file. Returns the df
+            Args : None
+            Returns : df_meta (object) : pandas dataframe object of the read meta data csv
+        """
+        print(self.meta_data_path)
+        df_meta = pd.read_csv(self.meta_data_path)
+        return df_meta
 
     def write_data(self):
         """Write the dataframe to csv file
@@ -74,7 +88,20 @@ class Preprocessor:
         self.df['timestamp'] = pd.to_datetime(self.df['TIMESTAMP'])
         # shift each timestamp 30min behind and store in another column
         self.df['timestamp_sync'] = self.df['timestamp'] - timedelta(minutes=30)
-        # timestamp_sync will be used for all further calculations
+        # add the newly created columns to new_variables
+        self.new_variables.append('timestamp')
+        self.new_variables.append('timestamp_sync')
+        pass
+
+    def get_timedelta(self):
+        """
+        Method to calculate time difference between two rows. Calculate timedelta and create new column 'timedelta'
+            Args : None
+            Returns : None
+        """
+        self.df['timedelta'] = self.df['timestamp_sync'].diff().astype('timedelta64[m]')
+        # add the new column to new_variables
+        self.new_variables.append('timedelta')
         pass
 
     def insert_missing_timestamp(self):
@@ -200,6 +227,15 @@ class Preprocessor:
         self.df = self.df.replace('', 'NAN')  # replace empty cells with 'NAN'
         self.df = self.df.replace(np.nan, 'NAN', regex=True)  # replace NaN with 'NAN'
 
+    def delete_new_variables(self):
+        """
+        Method to delete newly created variables in df. Delete columns in place
+            Args : None
+            Returns : None
+        """
+        self.df.drop(self.new_variables, axis=1, inplace=True)
+        pass
+
 
     # main method which calls other functions
     def data_preprocess(self):
@@ -212,8 +248,8 @@ class Preprocessor:
         """
         # sync time
         self.sync_time()
-        # check for missing timestamps
-        self.df['timedelta'] = self.df['timestamp_sync'].diff().astype('timedelta64[m]')
+        # check for missing timestamps. create timedelta between 2 rows
+        self.get_timedelta()
 
         # create missing timestamps
         user_confirmation = self.insert_missing_timestamp()
@@ -238,6 +274,13 @@ class Preprocessor:
         # Step 4 in guide
         self.replace_empty()
 
+        # delete newly created variables
+        self.delete_new_variables()
+
+        df_meta = self.read_meta_data_file()
+        # concat the meta df and df if number of columns is the same
+        if df_meta.shape[1]==self.df.shape[1]:
+            self.df = pd.concat([df_meta, self.df], ignore_index=True)
 
         # return processed df
         return self.df

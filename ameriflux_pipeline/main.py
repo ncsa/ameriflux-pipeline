@@ -11,7 +11,7 @@ import utils.data_util as data_util
 from preprocessor import Preprocessor
 
 
-def preprocessing(input_path, output_path, missing_time_threshold):
+def preprocessing(input_path, output_path, missing_time_threshold, meta_data_path):
     """Create processed dataframe
 
         Args:
@@ -23,7 +23,7 @@ def preprocessing(input_path, output_path, missing_time_threshold):
             obj: Pandas DataFrame object.
 
     """
-    preprocessor = Preprocessor(input_path, output_path, missing_time_threshold)
+    preprocessor = Preprocessor(input_path, output_path, missing_time_threshold, meta_data_path)
     df = preprocessor.read_data()
     print("Data contains ", df.shape[0], "rows ", df.shape[1], "columns")
     df = preprocessor.data_preprocess()
@@ -45,12 +45,15 @@ def main(*args):
                         help="output data path")
     parser.add_argument("--missingTime", action="store", default=96,
                         help="Number of 30min timeslot threshold to ask for user confirmation")
+    parser.add_argument("--metadata", action="store", default=os.path.join(os.getcwd(), "tests", "data", "FLUXSB_EC.dat.meta.csv"),
+                        help="meta data file path")
+
     # parse arguments
 
     args = parser.parse_args()
 
     # start preprocessing data
-    df = preprocessing(args.input, args.output, args.missingTime)
+    df = preprocessing(args.input, args.output, args.missingTime, args.metadata)
     # write processed df to output path
     data_util.write_data(df, args.output)
 
