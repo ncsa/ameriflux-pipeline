@@ -133,7 +133,7 @@ class Preprocessor:
                 insert_num_rows = int(self.df['timedelta'].iloc[i]) // 30
                 # 48 slots in 24hrs(one day)
                 # ask for user confirmation if more than 96 timeslots (2 days) are missing
-                if insert_num_rows > 96:
+                if insert_num_rows > self.missing_timeslot_threshold:
                     print(insert_num_rows, "missing timeslots found")
                     print("Enter Y to insert", insert_num_rows, "rows. Else enter N")
                     user_confirmation = input("Enter Y/N : ")
