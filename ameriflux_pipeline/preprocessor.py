@@ -35,6 +35,7 @@ class Preprocessor:
         # list to store newly created variables/columns in df
         self.new_variables = [] # these will be deleted after all preprocessing
 
+
     def read_data(self):
         """Reads data and returns dataframe
 
@@ -47,15 +48,17 @@ class Preprocessor:
         self.df = pd.read_csv(self.data_path)
         return self.df
 
+
     def read_meta_data_file(self):
         """
-        Method to read meta data csv file. Returns the df
+        Method to read meta data csv file. Meta data file contains the column names and corresponding units. 2 rows.
+        Returns the df
             Args : None
             Returns : df_meta (object) : pandas dataframe object of the read meta data csv
         """
-        print(self.meta_data_path)
         df_meta = pd.read_csv(self.meta_data_path)
         return df_meta
+
 
     def write_data(self):
         """Write the dataframe to csv file
@@ -66,15 +69,29 @@ class Preprocessor:
         self.df.to_csv(self.output_data_path, index=False)
         pass
 
+    def change_datatype(self):
+        """
+        Change datatypes of all columns, except TIMESTAMP to numeric
+            Args: None
+            Returns: None
+        """
+        cols = self.df.columns.drop('TIMESTAMP')
+        self.df[cols] = self.df[cols].apply(pd.to_numeric, errors='coerce')
+        print(self.df.info())
+
     def data_ok(self, value):
         """
-        Logical function to test if a variable is a number or not
-        :param value: variable value
-        :return: bool : true or false
+        Logical function to test if a variable is a number or not.
+        Currently not used as data types are changed for all columns except TIMESTMAP
+            Args:
+                value: variable
+            Returns:
+                bool : true or false
         """
-        if (type(value) == int or type(value) == float) and value!=-9999:
+        if (isinstance(value, int) or isinstance(value, float)) and value!=-9999:
             return True
         else:
+            print(value , "data not a number")
             return False
 
 
@@ -92,6 +109,7 @@ class Preprocessor:
         self.new_variables.append('timestamp')
         self.new_variables.append('timestamp_sync')
         pass
+
 
     def get_timedelta(self):
         """
@@ -133,7 +151,7 @@ class Preprocessor:
                 insert_num_rows = int(self.df['timedelta'].iloc[i]) // 30
                 # 48 slots in 24hrs(one day)
                 # ask for user confirmation if more than 96 timeslots (2 days) are missing
-                if insert_num_rows > 96:
+                if insert_num_rows > self.missing_timeslot_threshold:
                     print(insert_num_rows, "missing timeslots found")
                     print("Enter Y to insert", insert_num_rows, "rows. Else enter N")
                     user_confirmation = input("Enter Y/N : ")
@@ -171,7 +189,26 @@ class Preprocessor:
 
         return
 
-    def soil_heat_flux(self, shf_mV, shf_cal):
+
+    def soil_heat_flux_check(self):
+        """
+        Check if soil heat flux calculation is required
+        Check if shf_Avg(1) and shf_Avg(2) exists.
+        If yes, shf calculation is not required, return False
+        If no, check if shg_mV_Avg exists. If yes, shf calculation is required, return True. Else return False
+            Args: None
+            Returns:
+                bool : True or False
+        """
+        if 'shf_Avg(1)' in self.df.columns and 'shf_Avg(2)' in self.df.columns:
+            return False
+        elif 'shg_mV_Avg' in self.df.columns:
+            return True
+        else:
+            return False
+
+
+    def soil_heat_flux_calculation(self, shf_mV, shf_cal):
         """
         Additional calculation for soil heat flux if needed. Step 5 in guide
         shf_Avg=[shf_mV]*[shf_cal]
@@ -192,11 +229,9 @@ class Preprocessor:
         Returns:
             es (float): calculated T
         """
-        if self.data_ok(T):
-            es = 0.6106 * (17.27 * T / (T + 237.3))
-        else:
-            es = ''
+        es = 0.6106 * (17.27 * T / (T + 237.3))
         return es
+
 
     def AhFromRH(self, T, RH):
         """
@@ -207,16 +242,13 @@ class Preprocessor:
         Returns:
             AhFromRH (float) : absolute humidity in g/m3
         """
-        if self.data_ok(T) and self.data_ok(RH):
-            VPsat = self.es(T)
-            vp = RH * VPsat / 100
-            ### TO DO : Ask Bethany about the below formula. 1000000# -- #?  Rv ?
-            #AhFromRH = 1000000# * vp / ((T + 273.15) * Rv)
-            AhFromRH = 1000000 * vp / ((T + 273.15) * RH)
-        else:
-            AhFromRH = ''
+        VPsat = self.es(T)
+        vp = RH * VPsat / 100
+        Rv = 461.5 # constant : gas constant for water vapour, J/kg/K
+        AhFromRH = 1000000 * vp / ((T + 273.15) * Rv)
 
         return AhFromRH
+
 
     def replace_empty(self):
         """
@@ -226,6 +258,7 @@ class Preprocessor:
         """
         self.df = self.df.replace('', 'NAN')  # replace empty cells with 'NAN'
         self.df = self.df.replace(np.nan, 'NAN', regex=True)  # replace NaN with 'NAN'
+
 
     def delete_new_variables(self):
         """
@@ -246,6 +279,11 @@ class Preprocessor:
             Returns:
                 obj: Pandas DataFrame object
         """
+        # read meta data file
+        df_meta = self.read_meta_data_file()
+
+        # change column data types
+        self.change_datatype()
         # sync time
         self.sync_time()
         # check for missing timestamps. create timedelta between 2 rows
@@ -261,26 +299,39 @@ class Preprocessor:
         self.timestamp_format()
 
         # step 5 in guide. Calculation of soil heat flux
-        ### TO DO : need to check column names with Bethany
-        if 'shg_mV_Avg' in self.df.columns:
-            if 'shf_cal_Avg(1)' in self.df.columns and \
-                self.data_ok(self.df['shf_mV_Avg(1)']) and self.data_ok(self.df['shf_cal_Avg(1)']):
-                self.df['shf_1_Avg'] = self.soil_heat_flux(self.df['shf_mV_Avg(1)'], self.df['shf_cal_Avg(1)'])
+        ### TODO : test with old data
+        if self.soil_heat_flux_check():
+            self.df['shf_1_Avg'] = self.soil_heat_flux_calculation(self.df['shf_mV_Avg(1)'], self.df['shf_cal_Avg(1)'])
 
         # Step 6 in guide. Absolute humidity check
-        self.df['Ah_fromRH'] = self.df.apply(lambda x: self.AhFromRH( self.df['AirTC_Avg'], self.df['RH_Avg'] ), axis=1 )
-
+        self.df['Ah_fromRH'] = self.AhFromRH(self.df['AirTC_Avg'], self.df['RH_Avg'])
+        #self.df['Ah_fromRH'] = self.df.apply(lambda x: self.AhFromRH( self.df['AirTC_Avg'], self.df['RH_Avg'] ), axis=1 )
+        # add Ah_fromRH column and unit to df_meta
+        Ah_fromRH_unit = 'g/m^3'
+        df_meta['Ah_fromRH'] = Ah_fromRH_unit
 
         # Step 4 in guide
         self.replace_empty()
 
-        # delete newly created variables
+        # delete newly created temp variables
         self.delete_new_variables()
 
-        df_meta = self.read_meta_data_file()
+        # step 7 in guide - calculation of shortwave radiation
+        SW_unit = 'W/m^2' # unit for shortwave radiation
+        self.df['SW_out_Avg'] = self.df['SWUp_Avg']
+        df_meta['SW_out_Avg'] = SW_unit # add shortwave radiation units
+        if 'albedo_Avg' not in self.df.columns:
+            # calculate albedo_avg from shortwave out and shortwave in
+            self.df['Albedo_Avg'] = self.df['SWUp_Avg'] / self.df['SWDn_Avg']
+            df_meta['Albedo_Avg'] = SW_unit # add shortwave radiation units
+
         # concat the meta df and df if number of columns is the same
         if df_meta.shape[1]==self.df.shape[1]:
             self.df = pd.concat([df_meta, self.df], ignore_index=True)
+        else:
+            print("Meta and data file columns not matching")
+
+        ### TODO: add precipitation data from IWS. Pending as data not available.
 
         # return processed df
         return self.df
