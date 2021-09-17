@@ -8,4 +8,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 - se/INCORE1-1273)
-- Data preprocessing steps till step 6 in guide
+- Data preprocessing completed for creation of master met data file as per guide.
