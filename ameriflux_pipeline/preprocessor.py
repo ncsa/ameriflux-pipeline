@@ -69,6 +69,7 @@ class Preprocessor:
         self.df.to_csv(self.output_data_path, index=False)
         pass
 
+
     def change_datatype(self):
         """
         Change datatypes of all columns, except TIMESTAMP to numeric
@@ -121,6 +122,7 @@ class Preprocessor:
         # add the new column to new_variables
         self.new_variables.append('timedelta')
         pass
+
 
     def insert_missing_timestamp(self):
         """function to check and insert missing timestamps
@@ -177,6 +179,7 @@ class Preprocessor:
 
         return 'Y'
 
+
     def timestamp_format(self):
         """Function to convert datetime to string and correct timestamp format
 
@@ -220,6 +223,7 @@ class Preprocessor:
             shf_Avg (float): calculated soil heat flux
         """
         return shf_mV * shf_cal
+
 
     def es(self, T):
         """
