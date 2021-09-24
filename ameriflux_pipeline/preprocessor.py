@@ -6,8 +6,7 @@
 
 import pandas as pd
 import numpy as np
-from datetime import datetime, timedelta
-import time
+from datetime import timedelta
 
 import warnings
 warnings.filterwarnings("ignore")
