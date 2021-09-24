@@ -204,15 +204,14 @@ class Preprocessor:
 
     @staticmethod
     def get_timedelta(df, new_variables):
-        """
-        Method to calculate time difference between two rows. Calculate timedelta and create new column 'timedelta'
+        """Method to calculate time difference between two rows. Calculate timedelta and create new column 'timedelta'
 
-        Args:
-            df (object): Input pandas DataFrame object
-            new_variables (list): List of new variables
+            Args:
+                df (object): Input pandas DataFrame object
+                new_variables (list): List of new variables
 
-        Returns:
-            obj, list: Pandas DataFrame object and list of variables
+            Returns:
+                obj, list: Pandas DataFrame object and list of variables
 
         """
         df['timedelta'] = df['timestamp_sync'].diff().astype('timedelta64[m]')
