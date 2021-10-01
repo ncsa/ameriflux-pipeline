@@ -33,6 +33,12 @@ def preprocessing(input_path, output_path, meta_data_path, missing_time_threshol
     return df
 
 def formatting(input_met_data, output_eddypro_data):
+    """
+    ### TODO: write docstring
+    :param input_met_data:
+    :param output_eddypro_data:
+    :return:
+    """
     format = Format(input_met_data, output_eddypro_data)
     df = format.data_formatting()
     return df

@@ -70,15 +70,22 @@ class Format:
         Returns:
             dict : a dict of required column names as key and eddypro labels as value
         """
-        ### TODO : omitted RAIN_ variable for now as data is not yet available
-        ### TODO: ask Bethany if SoilTemp0_Avg is the one that's needed for EddyPro label Ts - many SoilTemp(x)_Avg measurements
+        ### TODO : omitted RAIN_ variable for now as data is not yet available - not present in new data
+        # new rain data will be Precip_IWS - get this variable from new data - unprocessed data from email and processed data with met data
+        ### TODO: ask Bethany if SoilTemp0_Avg is the one that's needed for EddyPro label Ts - many SoilTemp(x)_Avg measurements - pending
+        # use TC_10cm_Avg: Ts, TC1_10cm_Avg or TC2_10cm_Avg --use regex, choose the least number of missing values.
         ### TODO: ask Bethany if soil heal flux variable is 'shf_Avg(1)' or 'shf_Avg(2)' or shf_cal_Avg (old data)
-        ### TODO: ask Bethany if 'Moisture0_Avg' is the one used for SWC
+        # use shf_Avg(1)' or 'shf_Avg(2)' - whichever has the least missing values.
+        ### TODO: ask Bethany if 'Moisture0_Avg' is the one used for SWC - pending. need table to match keys.
+        # depends on field / filename
+        # 'WindSpeed_Avg':'MWS', 'WindDir_Avg':'WD' - needed for older than 2020.
+        # if yyyy==2000, do not use 'WindSpeed_Avg':'MWS', 'WindDir_Avg':'WD'
         col_label = {chosen_air_temp:'Ta', 'RH_Avg':'RH', 'TargTempK_Avg':'Tc', 'albedo_Avg':'Rr',
                     'Rn_Avg':'Rn', 'LWDnCo_Avg':'LWin', 'LWUpCo_Avg':'LWout', 'SWDn_Avg':'SWin', 'SWUp_Avg':'SWout',
                      'PARDown_Avg':'PPFD', 'PARUp_Avg':'PPFDr', 'WindSpeed_Avg':'MWS', 'WindDir_Avg':'WD',
                      'SoilTemp0_Avg':'Ts', 'shf_Avg(1)':'SHF', 'Moisture0_Avg' : 'SWC'
                      }
+        # dynamic naming of met tower variable duplicates. _1_2_1.
         return col_label
 
 
@@ -121,7 +128,7 @@ class Format:
         self.read_rename()
 
         # step 3 of guide. change timestamp format
-        self.timestamp_format()
+        self.timestamp_format() # / to -
         # choose air temperature from 2 measurements
         chosen_air_temp = self.choose_air_temp()
         # step 4. get required columns and the corresponding EddyPro labels
