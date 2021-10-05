@@ -12,7 +12,7 @@ import utils.data_util as data_util
 from preprocessor import Preprocessor
 
 
-def preprocessing(input_path, output_path, meta_data_path, missing_time_threshold):
+def perform_data_processing(input_path, output_path, missing_time_threshold, meta_data_path):
     """Create processed dataframe
 
         Args:
@@ -24,10 +24,7 @@ def preprocessing(input_path, output_path, meta_data_path, missing_time_threshol
             obj: Pandas DataFrame object.
 
     """
-    preprocessor = Preprocessor(input_path, output_path, missing_time_threshold, meta_data_path)
-    df = preprocessor.read_data()
-    print("Data contains ", df.shape[0], "rows ", df.shape[1], "columns")
-    df = preprocessor.data_preprocess()
+    df = Preprocessor.data_preprocess(input_path, output_path, missing_time_threshold, meta_data_path)
 
     return df
 
@@ -41,9 +38,11 @@ def main(*args):
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--input", action="store", default=os.path.join(os.getcwd(), "tests", "data", "FLUXSB_EC.dat.csv"),
+    parser.add_argument("--input", action="store",
+                        default=os.path.join(os.getcwd(), "tests", "data", "FLUXSB_EC_Oct_week34.csv"),
                         help="input data path")
-    parser.add_argument("--output", action="store", default=os.path.join(os.getcwd(), "tests", "data", "FLUXSB_EC_output.csv"),
+    parser.add_argument("--output", action="store",
+                        default=os.path.join(os.getcwd(), "tests", "data", "FLUXSB_EC_Oct_week34_output.csv"),
                         help="output data path")
     parser.add_argument("--metadata", action="store", default=os.path.join(os.getcwd(), "tests", "data", "FLUXSB_EC.dat.meta.csv"),
                         help="meta data file path")
@@ -59,7 +58,7 @@ def main(*args):
     # start preprocessing data
     df = preprocessing(args.input, args.output, args.metadata, missingTime)
     # write processed df to output path
-    data_util.write_data(df, args.output)
+    data_util.write_dataframe_to_csv(df, args.output)
 
 
 # Press the green button in the gutter to run the script.
