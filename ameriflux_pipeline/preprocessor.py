@@ -107,7 +107,6 @@ class Preprocessor:
 
         """
         df = pd.read_csv(data_path)
-
         return df
 
     @staticmethod
@@ -127,22 +126,6 @@ class Preprocessor:
         return df_meta
 
     @staticmethod
-    def write_data(df, output_data_path):
-        """Write the dataframe to csv file
-
-            Args:
-                df (object): Pandas DataFrame object
-                output_data_path (str): File path to save output data
-
-            Returns:
-                None
-
-        """
-        df.to_csv(output_data_path, index=False)
-
-        return
-
-    @staticmethod
     def change_datatype(df):
         """Change datatypes of all columns, except TIMESTAMP to numeric
 
@@ -154,9 +137,7 @@ class Preprocessor:
 
         """
         cols = df.columns.drop('TIMESTAMP')
-        df[cols] = df[cols].apply(pd.to_numeric, errors='coerce')
-        print(df.info())
-
+        df[cols] = df[cols].apply(pd.to_numeric, errors='coerce') # coerce will replace all non-numeric values with NaN
         return df
 
     @staticmethod
@@ -365,6 +346,7 @@ class Preprocessor:
 
         return AhFromRH
 
+
     @staticmethod
     def replace_empty(df):
         """Function to replace empty and NaN cells
@@ -377,8 +359,8 @@ class Preprocessor:
         """
         df = df.replace('', 'NAN')  # replace empty cells with 'NAN'
         df = df.replace(np.nan, 'NAN', regex=True)  # replace NaN with 'NAN'
-
         return df
+
 
     @staticmethod
     def delete_new_variables(df, new_variables):
@@ -393,5 +375,4 @@ class Preprocessor:
 
         """
         df.drop(new_variables, axis=1, inplace=True)
-
         return df
