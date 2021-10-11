@@ -40,7 +40,8 @@ def perform_data_formatting(input_path, output_path):
         Returns:
             obj: Pandas DataFrame object.
     """
-    df = Format.data_formatting()
+    df = Format.data_formatting(input_path, output_path)
+    return df
 
 
 def main(*args):
@@ -68,13 +69,19 @@ def main(*args):
     config = configparser.ConfigParser()
     config.read('config.ini')
     missingTime = int(config['MetDataPreprocessor']['missingTime'])
+
     # start preprocessing data
     df = perform_data_processing(args.input, args.output, args.metadata, missingTime)
-
     # write processed df to output path
-    data_util.write_dataframe_to_csv(df, args.output)
+    data_util.write_data(df, args.output)
 
-    ### TODO : add perform_data_formatting method
+    output_filename = os.path.basename(args.output)
+    eddypro_output_filename = os.path.splitext(output_filename)[0] + '_eddypro.csv'
+    eddypro_output_file = os.path.join(os.getcwd(), "tests", "data", eddypro_output_filename)
+    # start formatting data
+    df = perform_data_formatting(args.output, eddypro_output_file)
+    # write formatted df to output path
+    data_util.write_data(df, eddypro_output_file)
 
 
 # Press the green button in the gutter to run the script.

@@ -43,7 +43,7 @@ class Format:
         chosen_air_temp = Format.choose_air_temp(df)
         # if airtemp is null, write df to file and exit
         if len(chosen_air_temp)<1:
-            print("Air temp measures not present in data")
+            print("ERROR : Air temp measures not present in data")
             # write processed df to output path
             data_util.write_dataframe_to_csv(df, output_path)
             return
@@ -61,11 +61,11 @@ class Format:
         # skip step 5 as it will be managed in pyfluxPro
 
         # step 6 in guide. convert temperature measurements from celsius to kelvin
-        Format.convert_temp_unit()
+        Format.convert_temp_unit(df)
 
         # step 7 in guide. Change all NaN or non-numeric values to -9999.0
-        Format.convert_numeric()
-
+        Format.convert_numeric(df)
+        print(df.columns)
         # get units for labels as first row
         df = Format.add_units(df)
 
@@ -98,6 +98,7 @@ class Format:
             df (object): Pandas DataFrame object
         """
         df['TIMESTAMP'] = df['TIMESTAMP'].map(lambda t: t.replace('/', '-'))
+        return df
 
 
     @staticmethod
@@ -130,6 +131,7 @@ class Format:
         if len(df[df['shf_Avg(1)']=='NAN']) < len(df[df['shf_Avg(2)']=='NAN']):
             return 'shf_Avg(1)'
         else:
+            # TODO : ask Bethany if its ok to use ahf_Avg(2) if both equal
             return 'shf_Avg(2)'
 
     @staticmethod
@@ -146,7 +148,7 @@ class Format:
         pattern = 'TC\d*_10cm_Avg'
         match = re.findall(pattern, column_string)
         if len(match)==1:
-            return match
+            return match[0]
         else:
             # multiple field names match. choose one with min NAN
             col_numNAN={}
@@ -177,13 +179,12 @@ class Format:
         ### TODO: check with Bethany WindSpeed_Avg and WindDir_Avg - what to do if timestamp != 2000. what to do for other timestamps
         # 'WindSpeed_Avg':'MWS', 'WindDir_Avg':'WD' - needed for older than 2020.
         # if yyyy==2000, do not use 'WindSpeed_Avg':'MWS', 'WindDir_Avg':'WD'
-        col_label = {
-                    chosen_air_temp:'Ta', 'RH_Avg':'RH', 'TargTempK_Avg':'Tc', 'albedo_Avg':'Rr',
+        col_label = { 'TIMESTAMP':'TIMESTAMP', chosen_air_temp:'Ta', 'RH_Avg':'RH', 'TargTempK_Avg':'Tc', 'albedo_Avg':'Rr',
                     'Rn_Avg':'Rn', 'LWDnCo_Avg':'LWin', 'LWUpCo_Avg':'LWout', 'SWDn_Avg':'SWin', 'SWUp_Avg':'SWout',
                     'PARDown_Avg':'PPFD', 'PARUp_Avg':'PPFDr', 'WindSpeed_Avg':'MWS', 'WindDir_Avg':'WD',
-                    chosen_tc:'Ts', chosen_shf:'SHF', 'Moisture0_Avg' : 'SWC'
-                     }
-        # dynamic naming of met tower variable duplicates. _1_2_1.
+                    chosen_tc:'Ts', chosen_shf:'SHF', 'Moisture0_Avg':'SWC'}
+        # step 5 in guide
+        # TODO : check with Bethany on dynamic naming of met tower variable duplicates. _1_2_1.
         return col_label
 
 
@@ -198,10 +199,11 @@ class Format:
             Returns:
                 df (object): Processed Pandas DataFrame object
         """
-        label_unit_row = pd.DataFrame( { 'Ta': 'K', 'RH': '%', 'Tc': 'K', 'Rr': 'W+1m-2', 'Rn': 'W+1m-2', 'LWin': 'W+1m-2', 'LWout': 'W+1m-2',
-                    'SWin': 'W+1m-2', 'SWout': 'W+1m-2', 'PPFD': 'umol+1m-2s-1', 'PPFDr': 'umol+1m-2s-1',
-                    'MWS': 'm+1m-1', 'WD': 'degrees', 'Ts': 'K', 'SHF': 'W+1m-2', 'SWC': 'm+3m-3'
-                    } )
+        label_unit_row = pd.DataFrame({'TIMESTAMP': ['TIMESTAMP'], 'Ta': ['K'], 'RH': ['%'], 'Tc': ['K'],
+                      'Rr': ['W+1m-2'], 'Rn': ['W+1m-2'], 'LWin': ['W+1m-2'], 'LWout': ['W+1m-2'],
+                      'SWin': ['W+1m-2'], 'SWout': ['W+1m-2'],
+                      'PPFD': ['umol+1m-2s-1'], 'PPFDr': ['umol+1m-2s-1'],
+                      'MWS': ['m+1m-1'], 'WD': ['degrees'], 'Ts': ['K'], 'SHF': ['W+1m-2'], 'SWC': ['m+3m-3']})
         df = pd.concat([label_unit_row,df]).reset_index(drop=True)
         return df
 

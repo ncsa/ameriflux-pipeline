@@ -90,7 +90,7 @@ class Preprocessor:
         else:
             print("Meta and data file columns not matching")
 
-        # TODO: add precipitation data from IWS. Pending as data not available.
+        # TODO: add precipitation data from IWS
 
         # return processed df
         return df
