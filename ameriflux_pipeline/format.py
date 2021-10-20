@@ -34,6 +34,9 @@ class Format:
 
         # extract site name from file meta data
         file_site_name = file_meta.iloc[0][5]
+        # match file site name to site names in soil key file. this is used as lookup in soil key table
+        site_name = Format.get_site_name(file_site_name)
+
         # read data file to dataframe. step 1 of guide
         df = Format.read_rename(input_path, output_path)
 
@@ -84,6 +87,28 @@ class Format:
 
         # return formatted df
         return df
+
+
+    @staticmethod
+    def get_site_name(file_site_name):
+        """
+        Match the file site name to site names in soil key data. From the input file site name, return the matching site name
+        Site name is used as lookup in soil key table
+        Args:
+            file_site_name (str): file site name from file meta data, first row of input met file
+        Returns:
+            (str): matching site name
+        """
+        if re.match('^CPU:Maize_Control_*', file_site_name):
+            return 'Maize-Control'
+        elif re.match('^CPU:Maize_*', file_site_name):
+            return 'Maize-Basalt'
+        elif re.match('^CPU:Miscanthus_Control_*', file_site_name):
+            return 'Miscanthus-Control'
+        elif re.match('^CPU:Miscanthus_*', file_site_name):
+            return 'Miscanthus-Basalt'
+        elif re.match('^CPU:Sorghum_*', file_site_name):
+            return 'Sorghum'
 
 
     @staticmethod

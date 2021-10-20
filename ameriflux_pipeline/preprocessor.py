@@ -17,13 +17,12 @@ class Preprocessor:
 
     # main method which calls other functions
     @staticmethod
-    def data_preprocess(input_met_path, input_precip_path, output_path, missing_time_threshold, meta_data_path):
-        """Cleans and process the dataframe as per the guide
-            Process dataframe inplace
-
+    def data_preprocess(input_met_path, input_precip_path, missing_time_threshold):
+        """Cleans and process the dataframe as per the guide. Process dataframe inplace
+            Returns processed df and file meta df which is used in format.py
             Args:
                 input_path (str): A file path for the input data.
-                output_path (str): A file path for the output data.
+                input_precip_path(str): A file path for the input precipitation data.
                 missing_time_threshold (int): Number of 30min timeslot threshold
 
             Returns:
@@ -34,24 +33,19 @@ class Preprocessor:
 
         # read input meteorological data file
         df, file_df_meta = Preprocessor.read_met_data(input_met_path)
-        file_meta = file_df_meta.head(1) # the first row contains meta data of file. Used to match the filename to soil key. returned with the processed df
-        df_meta = file_df_meta.iloc[1:, :] # second and third row contains meta data of met tower variables (column names and units)
-        ### TODO : Check if the indexing of df_meta is correct
+        print("Data contains ", df.shape[0], "rows ", df.shape[1], "columns")
+
+        # get meta data
+        df_meta, file_meta = Preprocessor.get_meta_data(file_df_meta)
+        # Write meta data to another file
+        input_filename = os.path.basename(input_met_path)
+        meta_data_filename = os.path.splitext(input_filename)[0] + '_meta.csv'
+        meta_data_file = os.path.join(os.getcwd(), "tests", "data", meta_data_filename)  # write first df_meta to this path
+        df_meta.to_csv(meta_data_file)
 
         # read input precipitation data file
         df_precip = Preprocessor.read_precip_data(input_precip_path)
         ### TODO : what to be done if there are missing timestamps in df_precip? Check with Bethany
-
-        # Write meta data to another file
-        input_filename = os.path.basename(input_met_path)
-        meta_data_filename = os.path.splitext(input_filename)[0] + '_meta.csv'
-        meta_data_file = os.path.join(os.getcwd(), "tests", "data", meta_data_filename) # write first df_meta to this path
-        df_meta.to_csv(meta_data_file)
-
-        print("Data contains ", df.shape[0], "rows ", df.shape[1], "columns")
-
-        # read meta data file. not used currently as meta data is read from input file itself
-        #df_meta = Preprocessor.read_meta_data_file(meta_data_path)
 
         # change column data types
         df = Preprocessor.change_datatype(df)
@@ -92,7 +86,6 @@ class Preprocessor:
 
         # step 8 in guide - add precip data. join df and df_precip
         df = pd.merge(df, df_precip, on='TIMESTAMP')
-        print(df.head())
         # add precipitation unit mm to df_meta
         df_meta['Precip_IWS'] = 'mm'
 
@@ -142,6 +135,27 @@ class Preprocessor:
 
 
     @staticmethod
+    def get_meta_data(file_df_meta):
+        """
+            Method to get file meta data and df meta data from meta data. Meta data from file contains the file meta data, column names and corresponding units in 3 rows
+            Returns the file meta data df and meteorological meta data.
+            Args :
+                file_df_meta (obj): pandas dataframe consisting of all meta data
+
+            Returns :
+                obj : pandas dataframe object of the read meta data csv
+
+        """
+        file_meta = file_df_meta.head(1)  # the first row contains meta data of file. Used to match the filename to soil key. returned with the processed df
+        df_meta = file_df_meta.iloc[1:,:]  # second and third row contains meta data of met tower variables (column names and units)
+        ### TODO : Check if the indexing of df_meta is correct
+        df_meta.columns = df_meta.iloc[0]
+        df_meta.drop(df_meta.index[0], inplace=True)
+        df_meta.reset_index(drop=True, inplace=True)  # reset index after dropping first row
+        return df_meta, file_meta
+
+
+    @staticmethod
     def read_precip_data(data_path):
         """Reads precipitation data from excel file and returns processed dataframe
             Args:
@@ -166,23 +180,6 @@ class Preprocessor:
 
 
     @staticmethod
-    def read_meta_data_file(meta_data_path):
-        """ No longer used as meta data is created from the input met file itself
-            Method to read meta data csv file. Meta data file contains the column names and corresponding units. 2 rows.
-            Returns the df
-
-            Args :
-                meta_data_path (str): meta data file path
-
-            Returns :
-                obj : pandas dataframe object of the read meta data csv
-
-        """
-        df_meta = pd.read_csv(meta_data_path)
-        return df_meta
-
-
-    @staticmethod
     def change_datatype(df):
         """Change datatypes of all columns, except TIMESTAMP to numeric
             Args:
@@ -195,6 +192,7 @@ class Preprocessor:
         cols = df.columns.drop('TIMESTAMP')
         df[cols] = df[cols].apply(pd.to_numeric, errors='coerce') # coerce will replace all non-numeric values with NaN
         return df
+
 
     @staticmethod
     def data_ok(value):
@@ -213,6 +211,7 @@ class Preprocessor:
         else:
             print(value, "data not a number")
             return False
+
 
     @staticmethod
     def sync_time(df, new_variables):
@@ -235,8 +234,8 @@ class Preprocessor:
         # add the newly created columns to new_variables
         new_variables.append('timestamp')
         new_variables.append('timestamp_sync')
-
         return df, new_variables
+
 
     @staticmethod
     def get_timedelta(df, new_variables):
@@ -251,11 +250,10 @@ class Preprocessor:
 
         """
         df['timedelta'] = df['timestamp_sync'].diff().astype('timedelta64[m]')
-
         # add the new column to new_variables
         new_variables.append('timedelta')
-
         return df, new_variables
+
 
     @staticmethod
     def insert_missing_timestamp(df, missing_timeslot_threshold):
@@ -315,6 +313,7 @@ class Preprocessor:
 
         return df, 'Y'
 
+
     @staticmethod
     def timestamp_format(df):
         """Function to convert datetime to string and correct timestamp format
@@ -331,6 +330,7 @@ class Preprocessor:
             .map(lambda t: t.replace('-', '/'))
 
         return df
+
 
     @staticmethod
     def soil_heat_flux_check(df):
@@ -353,6 +353,7 @@ class Preprocessor:
         else:
             return False
 
+
     @staticmethod
     def soil_heat_flux_calculation(shf_mV, shf_cal):
         """Additional calculation for soil heat flux if needed. Step 5 in guide
@@ -368,6 +369,7 @@ class Preprocessor:
         """
         return shf_mV * shf_cal
 
+
     @staticmethod
     def es(T):
         """es calculation for absolute humidity
@@ -382,6 +384,7 @@ class Preprocessor:
         es = 0.6106 * (17.27 * T / (T + 237.3))
 
         return es
+
 
     @staticmethod
     def AhFromRH(T, RH):
