@@ -15,18 +15,25 @@ class Format:
 
     # main method which calls other functions
     @staticmethod
-    def data_formatting(input_path, output_path):
+    def data_formatting(input_data_path, input_soil_key, file_meta, output_path):
         """Constructor for the class
 
             Args:
-                input_path (str): A file path for the input data.
+                input_data_path (str): A file path for the input data.
+                input_soil_key (str): A file path for input soil key sheet
+                file_meta (obj) : A pandas dataframe containing meta data about the input met data file
                 output_path (str): A file path for the output data.
 
             Returns:
             obj: Pandas DataFrame object.
         """
-        input_path = input_path  # path of input data csv file
+        input_path = input_data_path  # path of input data csv file
+        input_soil_key = input_soil_key # path for soil key
+        file_meta = file_meta # df containing meta data of file
         output_path = output_path  # path to write the formatted meteorological data file
+
+        # extract site name from file meta data
+        file_site_name = file_meta.iloc[0][5]
         # read data file to dataframe. step 1 of guide
         df = Format.read_rename(input_path, output_path)
 
@@ -35,22 +42,22 @@ class Format:
 
         # all empty values are replaced by 'NAN' in preprocessor.replace_empty() function
         # replace 'NAN' with np.nan for ease of manipulation
+        ### TODO : check if this conversion is needed.
         df.replace('NAN', np.nan)
 
         # step 3 of guide. change timestamp format
         df = Format.timestamp_format(df)  # / to -
-        # choose air temperature from 2 measurements
-        chosen_air_temp = Format.choose_air_temp(df)
-        # if airtemp is null, write df to file and exit
-        if len(chosen_air_temp)<1:
-            print("ERROR : Air temp measures not present in data")
-            # write processed df to output path
-            data_util.write_dataframe_to_csv(df, output_path)
-            return
+
+        # read soil key file
+        df_soil_key = Format.read_soil_key(input_soil_key)
+
+        # rename air temp column names
+        air_temp_colnames = Format.air_temp_colnames(df)
 
         # choose shf measurement
-        chosen_shf = Format.choose_shf(df)
+        shf_colnames = Format.shf_colnames(df)
         chosen_tc = Format.choose_soil_temp(df) # choose soil temp measurement
+        # TODO : update all dictionary column renames air_temp_colnames, shf_colnames,
         # step 4. get required columns and the corresponding EddyPro labels
         col_label = Format.required_columns(chosen_air_temp, chosen_shf, chosen_tc)
         required_cols = col_label.keys()  # get the required cols from met data
@@ -65,9 +72,15 @@ class Format:
 
         # step 7 in guide. Change all NaN or non-numeric values to -9999.0
         Format.convert_numeric(df)
-        print(df.columns)
         # get units for labels as first row
         df = Format.add_units(df)
+        # check if required columns are in df
+        ### TODO : check with Bethany variable name for air pressure
+        req_cols = ['Ta', 'air_pressure', 'RH_Avg','SWin', 'LWin', 'PPFDr'] # list of required columns
+
+        ### TODO : create a function to check for required columns
+        #if not Format.check_columns(df, req_cols):
+            #print("ERROR in dataframe")
 
         # return formatted df
         return df
@@ -100,44 +113,60 @@ class Format:
         df['TIMESTAMP'] = df['TIMESTAMP'].map(lambda t: t.replace('/', '-'))
         return df
 
+    @staticmethod
+    def read_soil_key(input_soil_key):
+        """
+        Method to read soil key excel file. Soil key file contains the mapping for met variables and eddypro labels for soil temp and moisture
+        Returns the df
+            Args :
+                input_soil_key (str): soil key file path
+            Returns :
+                obj : pandas dataframe object of the soil keys
+        """
+        soil_key_df = pd.read_excel(input_soil_key)  # read excel file
+        return soil_key_df
 
     @staticmethod
-    def choose_air_temp(df):
+    def air_temp_colnames(df):
         """
-        Function to choose air temperature measurements. Either AirTC_Avg or RTD_C_Avg.
-        RTD being more accurate measurement, choose RTD_C_Avg for eddypro. If not present, choose AirTC_Avg
+        Function to rename air temperature measurements. Rename AirTC_Avg, RTD_C_Avg to Ta_1_1_1 and Ta_1_1_2, where Ta_1_1_1 must be present.
+        RTD being more accurate measurement, rename RTD_C_Avg to Ta_1_1_1 for eddypro. If not present, rename AirTC_Avg
         Args:
             df (object): Pandas DataFrame object
         Returns:
-            str: the chosen column name
+            dictionary: met column name and eddypro label mapping
         """
-        if 'RTD_C_Avg' in df.columns:
-            return 'RTD_C_Avg'
-        elif 'AirTC_Avg' in df.columns:
-            return 'AirTC_Avg'
+        air_temp_cols = ['RTD_C_Avg', 'AirTC_Avg' ]
+        if set(air_temp_cols).issubset(set(df.columns)):
+            return {'RTD_C_Avg':'Ta_1_1_1', 'AirTC_Avg':'Ta_1_1_2'}
+        elif 'RTD_C_Avg' in df.columns:
+            return {'RTD_C_Avg':'Ta_1_1_1'}
         else:
-            return ''
+            return {'AirTC_Avg':'Ta_1_1_1'}
 
 
     @staticmethod
-    def choose_shf(df):
+    def shf_colnames(df):
         """
-        Function to choose soil heat flux measurements. Either shf_Avg(1), shf_Avg(2), whichever has the least null values.
+        Function to rename soil heat flux measurements. shf_Avg(1), shf_Avg(2) to be renamed as SHF_1_1_1 and SHF_2_1_1.
         Args:
             df (object): Pandas DataFrame object
         Returns:
-            str: the chosen column name
+            dictionary: mapping from met variable to eddypro label
         """
-        if len(df[df['shf_Avg(1)']=='NAN']) < len(df[df['shf_Avg(2)']=='NAN']):
-            return 'shf_Avg(1)'
+        shf_cols = ['shf_Avg(1)', 'shf_Avg(2)']
+        if set(shf_cols).issubset(set(df.columns)):
+            return {'shf_Avg(1)': 'SHF_1_1_1', 'shf_Avg(2)': 'SHF_2_1_1'}
+        elif 'shf_Avg(1)' in df.columns:
+            return {'shf_Avg(1)': 'SHF_1_1_1'}
         else:
-            # TODO : ask Bethany if its ok to use ahf_Avg(2) if both equal
-            return 'shf_Avg(2)'
+            return {'shf_Avg(2)': 'SHF_2_1_1'}
+
 
     @staticmethod
-    def choose_soil_temp(df):
+    def soil_temp_colnames(df):
         """
-        Function to choose soil temp measurements.
+        Function to rename soil temp measurements.
         Either TC_10cm_Avg, TC1_10cm_Avg or TC2_10cm_Avg - use regex to match. If multiple fields present, choose the one with least missing values.
         Args:
             df (object): Pandas DataFrame object
@@ -170,7 +199,6 @@ class Format:
         Returns:
             dict : a dict of required column names as key and eddypro labels as value
         """
-        ### TODO : need to include RAIN_ variable from Precip_IWS data
         ### TODO: Soil Temp - confirm with Bethany if the method is right. Currently using TC_10cm_Avg field - many SoilTemp(x)_Avg measurements
 
         ### TODO: check with Bethany if 'Moisture0_Avg' is the one used for SWC - pending. Bethany working on table to match keys.
@@ -181,7 +209,7 @@ class Format:
         # if yyyy==2000, do not use 'WindSpeed_Avg':'MWS', 'WindDir_Avg':'WD'
         col_label = { 'TIMESTAMP':'TIMESTAMP', chosen_air_temp:'Ta', 'RH_Avg':'RH', 'TargTempK_Avg':'Tc', 'albedo_Avg':'Rr',
                     'Rn_Avg':'Rn', 'LWDnCo_Avg':'LWin', 'LWUpCo_Avg':'LWout', 'SWDn_Avg':'SWin', 'SWUp_Avg':'SWout',
-                    'PARDown_Avg':'PPFD', 'PARUp_Avg':'PPFDr', 'WindSpeed_Avg':'MWS', 'WindDir_Avg':'WD',
+                    'PARDown_Avg':'PPFD', 'PARUp_Avg':'PPFDr', 'Precip_IWS': 'P_rain', 'WindSpeed_Avg':'MWS', 'WindDir_Avg':'WD',
                     chosen_tc:'Ts', chosen_shf:'SHF', 'Moisture0_Avg':'SWC'}
         # step 5 in guide
         # TODO : check with Bethany on dynamic naming of met tower variable duplicates. _1_2_1.
@@ -202,7 +230,7 @@ class Format:
         label_unit_row = pd.DataFrame({'TIMESTAMP': ['TIMESTAMP'], 'Ta': ['K'], 'RH': ['%'], 'Tc': ['K'],
                       'Rr': ['W+1m-2'], 'Rn': ['W+1m-2'], 'LWin': ['W+1m-2'], 'LWout': ['W+1m-2'],
                       'SWin': ['W+1m-2'], 'SWout': ['W+1m-2'],
-                      'PPFD': ['umol+1m-2s-1'], 'PPFDr': ['umol+1m-2s-1'],
+                      'PPFD': ['umol+1m-2s-1'], 'PPFDr': ['umol+1m-2s-1'], 'P_rain' :['m'],
                       'MWS': ['m+1m-1'], 'WD': ['degrees'], 'Ts': ['K'], 'SHF': ['W+1m-2'], 'SWC': ['m+3m-3']})
         df = pd.concat([label_unit_row,df]).reset_index(drop=True)
         return df
@@ -218,6 +246,7 @@ class Format:
             df (object): Processed Pandas DataFrame object
         """
         #temp_cols = ['Ta', 'Tc', 'Ts'] # list of variables to convert units
+        ### TODO : if there is a zero value for Ta, Tc or Ts, the kelvin measurement will read 273.15K instead of 0. Check if change the calculation to ((celsius * 9/5) + 32 ) )
         df['cel_to_K'] = 273.15
         df['Ta'] = df[['Ta', 'cel_to_K']].sum(axis=1) # sum will skip NaNs
         df['Tc'] = df[['Tc', 'cel_to_K']].sum(axis=1)
@@ -229,7 +258,7 @@ class Format:
     @staticmethod
     def convert_numeric(df):
         """
-        Method to convert all NaNsto -9999.0 inplace. Step 7 in guide.
+        Method to convert all NaNs to -9999.0 inplace. Step 7 in guide.
         Args:
             df (object): Pandas DataFrame object
         Returns:
@@ -237,6 +266,22 @@ class Format:
         """
         df.fillna(value=-9999.0, inplace=True)
         return df
+
+
+    @staticmethod
+    def check_columns(df, req_cols):
+        """
+        Method to check if all required columns are in df
+        Args:
+            df (object): Pandas DataFrame object
+        Returns:
+            True / False (bool) : True if all required columns are present. False if not.
+        """
+        if not set(req_cols).issubset(set(df.columns)):
+            print("{' and '.join(set(req_cols).difference(df.columns))} are not present")
+            return False
+        print( "All required columns are present in dataframe" )
+        return True
 
 
 
