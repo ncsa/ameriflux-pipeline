@@ -46,13 +46,12 @@ class Format:
         df = Format.read_rename(input_path, output_path)
 
         # drop the first row having units. done to make df easier to manipulate. units will be added as the end.
-        ### TODO: remove the first row later, after all processing is done
-        #df = df.iloc[1:,:]
+        #df = df.iloc[1:,:] # not currently used
 
         # all empty values are replaced by 'NAN' in preprocessor.replace_empty() function
         # replace 'NAN' with np.nan for ease of manipulation
-        ### TODO : check if this conversion is needed.
-        df.replace('NAN', np.nan)
+        ### TODO : check if this conversion is needed. Currently it is used in fillna function
+        df.replace('NAN', np.nan, inplace=True)
 
         # step 3 of guide. change timestamp format
         df = Format.timestamp_format(df)  # / to -
@@ -73,24 +72,18 @@ class Format:
 
         # skip step 5 as it will be managed in pyfluxPro
 
-        # get all temp variables : get all variables where the unit(2nd row) is 'Deg C' or 'degC'
-        temp_cols = [c for c in df.columns if df.iloc[0][c] in ['Deg C', 'degC']]
-        ### TODO : use temp_cols to convert to kelvin
-        ### TODO : use the same technique for other unit conversions
-        ### TODO: change writing style of units in the first row
-
         # step 6 in guide. convert temperature measurements from celsius to kelvin
         df = Format.convert_temp_unit(df)
 
         # step 7 in guide. Change all NaN or non-numeric values to -9999.0
-        df = Format.convert_numeric(df)
-        # get units for labels as first row
-        df = Format.add_units(df)
-        # check if required columns are in df
-        ### TODO : check with Bethany variable name for air pressure
-        req_cols = ['Ta', 'air_pressure', 'RH_Avg','SWin', 'LWin', 'PPFDr'] # list of required columns
+        df = Format.replace_nonnumeric(df)
+        # get units for EddyPro labels
+        df = Format.replace_units(df)
 
-        ### TODO : create a function to check for required columns
+        # check if required columns are in df
+        ### TODO : Delete air pressure variables. Air pressure is from ghg file. create a function to check for required columns
+        ### TODO : create a function to throw a warning if WindSpeed and WindDir is present for 2021 timeframe
+        # req_cols = ['Ta', 'air_pressure', 'RH_Avg','SWin', 'LWin', 'PPFDr'] # list of required columns
         #if not Format.check_columns(df, req_cols):
             #print("ERROR in dataframe")
 
@@ -286,41 +279,13 @@ class Format:
         Returns:
             dict : a dict of required column names as key and eddypro labels as value
         """
-        ### TODO: Soil Temp - confirm with Bethany if the method is right. Currently using TC_10cm_Avg field - many SoilTemp(x)_Avg measurements
-
-        ### TODO: check with Bethany if 'Moisture0_Avg' is the one used for SWC - pending. Bethany working on table to match keys.
-        # depends on field / filename
-
-        ### TODO: check with Bethany WindSpeed_Avg and WindDir_Avg - what to do if timestamp != 2000. what to do for other timestamps
         # 'WindSpeed_Avg':'MWS', 'WindDir_Avg':'WD' - needed for older than 2020.
         # if yyyy==2000, do not use 'WindSpeed_Avg':'MWS', 'WindDir_Avg':'WD'
         col_label = { 'TIMESTAMP':'TIMESTAMP', chosen_air_temp:'Ta', 'RH_Avg':'RH', 'TargTempK_Avg':'Tc', 'albedo_Avg':'Rr',
                     'Rn_Avg':'Rn', 'LWDnCo_Avg':'LWin', 'LWUpCo_Avg':'LWout', 'SWDn_Avg':'SWin', 'SWUp_Avg':'SWout',
                     'PARDown_Avg':'PPFD', 'PARUp_Avg':'PPFDr', 'Precip_IWS': 'P_rain', 'WindSpeed_Avg':'MWS', 'WindDir_Avg':'WD',
                     chosen_tc:'Ts', chosen_shf:'SHF', 'Moisture0_Avg':'SWC'}
-        # step 5 in guide
-        # TODO : check with Bethany on dynamic naming of met tower variable duplicates. _1_2_1.
         return col_label
-
-
-    @staticmethod
-    def add_units(df):
-        """
-            Create a dictionary of required labels with its units. This dict is as per the guide and the met variables key.
-            Change this dict if variables need to be added / deleted.
-            Update the first row of dataframe with new units and return the processed df
-            Args:
-                df (object): Pandas DataFrame object
-            Returns:
-                df (object): Processed Pandas DataFrame object
-        """
-        label_unit_row = pd.DataFrame({'TIMESTAMP': ['TIMESTAMP'], 'Ta': ['K'], 'RH': ['%'], 'Tc': ['K'],
-                      'Rr': ['W+1m-2'], 'Rn': ['W+1m-2'], 'LWin': ['W+1m-2'], 'LWout': ['W+1m-2'],
-                      'SWin': ['W+1m-2'], 'SWout': ['W+1m-2'],
-                      'PPFD': ['umol+1m-2s-1'], 'PPFDr': ['umol+1m-2s-1'], 'P_rain' :['m'],
-                      'MWS': ['m+1m-1'], 'WD': ['degrees'], 'Ts': ['K'], 'SHF': ['W+1m-2'], 'SWC': ['m+3m-3']})
-        df = pd.concat([label_unit_row,df]).reset_index(drop=True)
-        return df
 
 
     @staticmethod
@@ -332,17 +297,22 @@ class Format:
         Returns:
             df (object): Processed Pandas DataFrame object
         """
-        #temp_cols = ['Ta', 'Tc', 'Ts'] # list of variables to convert units
-        df['cel_to_K'] = 273.15
-        df['Ta'] = df[['Ta', 'cel_to_K']].sum(axis=1) # sum will skip NaNs
-        df['Tc'] = df[['Tc', 'cel_to_K']].sum(axis=1)
-        df['Ts'] = df[['Ts', 'cel_to_K']].sum(axis=1)
-        df.drop('cel_to_K', axis=1, inplace=True)
+        temp_cols = [c for c in df.columns if df.iloc[0][c] in ['Deg C', 'degC', 'deg_C']] # get all temp variables : get all variables where the unit(2nd row) is 'Deg C' or 'degC'
+        df_temp = df[temp_cols]
+        df_temp = df_temp.iloc[1:, :]  # make sure not to reset index here as we need to insert unit row at index 0
+        df_temp = df_temp.apply(pd.to_numeric, errors='coerce') # convert string to numerical
+        df_temp += 273.15
+        df_temp.loc[0] = ['K'] * df_temp.shape[1] # add units as Kelvin as row index 0
+        df_temp = df_temp.sort_index()  # sorting by index
+        df_temp.round(3)
+        df.drop(temp_cols, axis=1, inplace=True)
+        df = df.join(df_temp) # join 2 df on index
+
         return df
 
 
     @staticmethod
-    def convert_numeric(df):
+    def replace_nonnumeric(df):
         """
         Method to convert all NaNs to -9999.0 inplace. Step 7 in guide.
         Args:
@@ -351,6 +321,20 @@ class Format:
             df (object): Processed Pandas DataFrame object
         """
         df.fillna(value=-9999.0, inplace=True)
+        return df
+
+
+    @staticmethod
+    def replace_units(df):
+        """
+            Replace met tower variable units to Eddypro label units
+            Args:
+                df (object): Pandas DataFrame object
+            Returns:
+                df (object): Processed Pandas DataFrame object
+        """
+        df.replace({'W/m^2': 'W+1m-2', '√Ç¬µmols/m√Ç¬≤/s': 'umol+1m-2s-1', 'Kelvin': 'K',
+                    'm/s': 'm+1s-1', 'Deg': 'degrees', 'vwc': 'm+3m-3'}, inplace=True)
         return df
 
 

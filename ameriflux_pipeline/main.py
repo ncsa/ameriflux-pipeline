@@ -25,6 +25,7 @@ def perform_data_processing(input_met_path, input_precip_path, missing_time_thre
 
     """
     df, file_meta = Preprocessor.data_preprocess(input_met_path, input_precip_path, missing_time_threshold)
+    ### TODO : check with Bethany - number of decimal places for numerical values
     return df, file_meta
 
 

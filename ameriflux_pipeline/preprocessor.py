@@ -148,7 +148,6 @@ class Preprocessor:
         """
         file_meta = file_df_meta.head(1)  # the first row contains meta data of file. Used to match the filename to soil key. returned with the processed df
         df_meta = file_df_meta.iloc[1:,:]  # second and third row contains meta data of met tower variables (column names and units)
-        ### TODO : Check if the indexing of df_meta is correct
         df_meta.columns = df_meta.iloc[0]
         df_meta.drop(df_meta.index[0], inplace=True)
         df_meta.reset_index(drop=True, inplace=True)  # reset index after dropping first row
@@ -170,7 +169,6 @@ class Preprocessor:
         df['Precipitation (mm)'] = df['Precipitation (in)'] * 25.4
         df.drop(['Station', 'Precipitation (in)'], axis=1, inplace=True) # drop unwanted columns
         # convert 5min samples to 30min samples by taking the sum
-        ### TODO : check with Bethany - what to do if there are missing timestamps
         df = df.set_index('Date & Time (CST)').resample("30T").sum()
         df.reset_index(inplace=True) # reset index
         df.rename(columns={'Date & Time (CST)': 'TIMESTAMP', 'Precipitation (mm)':'Precip_IWS'}, inplace=True) # rename columns
