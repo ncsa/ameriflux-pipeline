@@ -190,7 +190,7 @@ class Preprocessor:
         cols = df.columns.drop('TIMESTAMP')
         df[cols] = df[cols].apply(pd.to_numeric, errors='coerce') # coerce will replace all non-numeric values with NaN
         return df
-
+      
 
     @staticmethod
     def data_ok(value):
@@ -232,8 +232,10 @@ class Preprocessor:
         # add the newly created columns to new_variables
         new_variables.append('timestamp')
         new_variables.append('timestamp_sync')
+
         return df, new_variables
 
+     
 
     @staticmethod
     def get_timedelta(df, new_variables):
@@ -329,7 +331,6 @@ class Preprocessor:
 
         return df
 
-
     @staticmethod
     def soil_heat_flux_check(df):
         """Check if soil heat flux calculation is required
@@ -339,7 +340,6 @@ class Preprocessor:
 
             Args:
                 df (object): Pandas DataFrame object
-
             Returns:
                 bool : True or False
 
@@ -351,12 +351,16 @@ class Preprocessor:
         else:
             return False
 
-
     @staticmethod
     def soil_heat_flux_calculation(shf_mV, shf_cal):
         """Additional calculation for soil heat flux if needed. Step 5 in guide
             shf_Avg=[shf_mV]*[shf_cal]
 
+
+    @staticmethod
+    def soil_heat_flux_calculation(shf_mV, shf_cal):
+        """Additional calculation for soil heat flux if needed. Step 5 in guide
+            shf_Avg=[shf_mV]*[shf_cal]
             Args:
                 shf_mV (float): soil heat flux calculation variable
                 shf_cal (float): soil heat flux variable
@@ -366,7 +370,6 @@ class Preprocessor:
 
         """
         return shf_mV * shf_cal
-
 
     @staticmethod
     def es(T):
