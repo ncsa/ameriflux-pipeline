@@ -355,7 +355,7 @@ class Preprocessor:
     def soil_heat_flux_calculation(shf_mV, shf_cal):
         """Additional calculation for soil heat flux if needed. Step 5 in guide
             shf_Avg=[shf_mV]*[shf_cal]
-
+        """
 
     @staticmethod
     def soil_heat_flux_calculation(shf_mV, shf_cal):
