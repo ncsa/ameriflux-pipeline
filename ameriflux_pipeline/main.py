@@ -26,6 +26,9 @@ def perform_data_processing(input_met_path, input_precip_path, missing_time_thre
     """
     df, file_meta = Preprocessor.data_preprocess(input_met_path, input_precip_path, missing_time_threshold)
     ### TODO : check with Bethany - number of decimal places for numerical values
+    ### TODO : Check with Bethany - U_Avg and V_Avg fields have no units. Currently filled with -9999.0
+    ### TODO : Check with Bethany - should all values be converted to numerical? Currently all values are string in excel sheet.
+    ### TODO : Check with Bethany - variables like MoistureA_Avg in the output, coz not in the soil key.xlsx sheet.
     return df, file_meta
 
 
