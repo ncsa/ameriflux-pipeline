@@ -12,8 +12,7 @@ import utils.data_util as data_util
 from preprocessor import Preprocessor
 from format import Format
 
-
-def perform_data_processing(input_path, output_path, missing_time_threshold, meta_data_path):
+def perform_data_processing(input_met_path, input_precip_path, missing_time_threshold):
     """Create processed dataframe
 
         Args:
@@ -27,6 +26,9 @@ def perform_data_processing(input_path, output_path, missing_time_threshold, met
     """
     df, file_meta = Preprocessor.data_preprocess(input_met_path, input_precip_path, missing_time_threshold)
     ### TODO : check with Bethany - number of decimal places for numerical values
+    ### TODO : Check with Bethany - U_Avg and V_Avg fields have no units. Currently filled with -9999.0
+    ### TODO : Check with Bethany - should all values be converted to numerical? Currently all values are string in excel sheet.
+    ### TODO : Check with Bethany - variables like MoistureA_Avg in the output, coz not in the soil key.xlsx sheet.
     return df, file_meta
 
 
@@ -53,7 +55,6 @@ def main(*args):
     Args: None
 
     """
-
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--inputmet", action="store",
@@ -67,7 +68,6 @@ def main(*args):
     parser.add_argument("--output", action="store",
                         default=os.path.join(os.getcwd(), "tests", "data", "FLUXSB_EC_JanMar2021_output.csv"),
                         help="output data path")
-
     #parser.add_argument("--missingTime", action="store", default=96, help="Number of 30min timeslot threshold to ask for user confirmation")
 
     # parse arguments
@@ -79,9 +79,8 @@ def main(*args):
 
     # start preprocessing data
     df, file_meta = perform_data_processing(args.inputmet, args.inputprecip, missingTime)
-
     # write processed df to output path
-    data_util.write_dataframe_to_csv(df, args.output)
+    data_util.write_data(df, args.output)
 
     output_filename = os.path.basename(args.output)
     eddypro_output_filename = os.path.splitext(output_filename)[0] + '_eddypro.csv'
