@@ -24,6 +24,7 @@ def run_eddypro(eddypro_loc="", tmp_proj_file="", file_name="", project_title=""
 
     # save temporary project file
     save_string_list_to_file(tmp_proj_list, outfile)
+    print("temporary project file created")
 
     try:
         subprocess.run([eddypro_loc, outfile], shell=True)
@@ -31,7 +32,8 @@ def run_eddypro(eddypro_loc="", tmp_proj_file="", file_name="", project_title=""
         raise Exception("Running EddyPro failed.")
 
     # remove temporary project file
-
+    print("removed temporary project file")
+    os.remove(outfile)
 
 def create_tmp_proj_file(file_name, project_title,
                          project_id, file_prototype,
