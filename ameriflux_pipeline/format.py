@@ -170,6 +170,7 @@ class Format:
             df (object): Pandas DataFrame object
         """
         df['TIMESTAMP'] = df['TIMESTAMP'].map(lambda t: t.replace('/', '-'))
+        df['TIMESTAMP'][0] = 'yyyy-mm-dd HH:MM'
         return df
 
 
