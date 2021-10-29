@@ -11,15 +11,16 @@ import os
 def run_eddypro(eddypro_loc="", file_name="", project_title="", project_id="", file_prototype="",
                 proj_file="", dyn_metadata_file="", out_path="", data_path="", biom_file="", ex_file=""):
 
+    # create out temp project file
+    outfile = os.path.join(os.path.dirname(os.path.abspath(file_name)), "templates.eddypro")
+
     # manipulate project file from the template project file
     tmp_proj_list = create_tmp_proj_file(file_name=file_name, project_title=project_title,
                                          project_id=project_id, file_prototype=file_prototype,
                                          proj_file=proj_file, dyn_metadata_file=dyn_metadata_file,
                                          out_path=out_path, data_path=data_path,
-                                         biom_file=biom_file, ex_file=ex_file)
-
-    # create out temp project file
-    outfile = os.path.join(os.path.dirname(os.path.abspath(file_name)), "templates.eddypro")
+                                         biom_file=biom_file, ex_file=ex_file,
+                                         outfile=outfile)
 
     # save temporary project file
     save_string_list_to_file(tmp_proj_list, outfile)
@@ -38,9 +39,10 @@ def create_tmp_proj_file(file_name, project_title,
                          project_id, file_prototype,
                          proj_file, dyn_metadata_file,
                          out_path, data_path,
-                         biom_file, ex_file):
-    # read the template file
+                         biom_file, ex_file,
+                         outfile):
 
+    # read the template file
     temp_proj_file = open(file_name, mode='r', encoding='utf-8')
     lines = temp_proj_file.readlines()
     temp_proj_file.close()
@@ -54,7 +56,7 @@ def create_tmp_proj_file(file_name, project_title,
             # 'file_name'
             if words[0].lower() == 'file_name':
                 if len(words[1]) > 0 and len(file_name) > 0:
-                    line = 'file_name=' + file_name
+                    line = 'file_name=' + outfile
 
             # 'project_title'
             if words[0].lower() == 'project_title':
