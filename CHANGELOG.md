@@ -5,8 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.1.0] - unreleased
-
 ### Added
-- se/INCORE1-1273)
 - Data preprocessing completed for creation of master met data file as per guide.
 - Created config.ini to parse key value pairs
+- Documentation for automating meteorological data. [#8](https://github.com/ncsa/ameriflux-pipeline/issues/8)
+- PyTest for proprocessor. [#13](https://github.com/ncsa/ameriflux-pipeline/issues/13)
