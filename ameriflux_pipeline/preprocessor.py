@@ -7,8 +7,10 @@
 import pandas as pd
 import numpy as np
 from datetime import timedelta
+import os
 
 import warnings
+
 warnings.filterwarnings("ignore")
 
 
@@ -16,32 +18,42 @@ class Preprocessor:
 
     # main method which calls other functions
     @staticmethod
-    def data_preprocess(input_path, output_path, missing_time_threshold, meta_data_path):
-        """Cleans and process the dataframe as per the guide
-            Process dataframe inplace
-
+    def data_preprocess(input_met_path, input_precip_path, missing_time_threshold):
+        """Cleans and process the dataframe as per the guide. Process dataframe inplace
+            Returns processed df and file meta df which is used in format.py
             Args:
                 input_path (str): A file path for the input data.
-                output_path (str): A file path for the output data.
+                input_precip_path(str): A file path for the input precipitation data.
                 missing_time_threshold (int): Number of 30min timeslot threshold
 
             Returns:
-                obj: Pandas DataFrame object
+                df (obj): Pandas DataFrame object, processed df
+                file_meta (obj) : meta data of file
 
         """
-        # set new variables
-        new_variables = []
 
-        # read input data file
-        df = Preprocessor.read_data(input_path)
+        # read input meteorological data file
+        df, file_df_meta = Preprocessor.read_met_data(input_met_path)
         print("Data contains ", df.shape[0], "rows ", df.shape[1], "columns")
 
-        # read meta data file
-        df_meta = Preprocessor.read_meta_data_file(meta_data_path)
+        # get meta data
+        df_meta, file_meta = Preprocessor.get_meta_data(file_df_meta)
+        # Write meta data to another file
+        input_filename = os.path.basename(input_met_path)
+        meta_data_filename = os.path.splitext(input_filename)[0] + '_meta.csv'
+        meta_data_file = os.path.join(os.getcwd(), "tests", "data",
+                                      meta_data_filename)  # write first df_meta to this path
+        df_meta.to_csv(meta_data_file)
+
+        # read input precipitation data file
+        df_precip = Preprocessor.read_precip_data(input_precip_path)
+        ### TODO : what to be done if there are missing timestamps in df_precip? Check with Bethany
 
         # change column data types
         df = Preprocessor.change_datatype(df)
 
+        # set new variables
+        new_variables = []
         # sync time
         df, new_variables = Preprocessor.sync_time(df, new_variables)
 
@@ -64,7 +76,6 @@ class Preprocessor:
 
         # Step 6 in guide. Absolute humidity check
         df['Ah_fromRH'] = Preprocessor.AhFromRH(df['AirTC_Avg'], df['RH_Avg'])
-        # df['Ah_fromRH'] = df.apply(lambda x: Preprocessor.AhFromRH( df['AirTC_Avg'], df['RH_Avg'] ), axis=1 )
         # add Ah_fromRH column and unit to df_meta
         Ah_fromRH_unit = 'g/m^3'
         df_meta['Ah_fromRH'] = Ah_fromRH_unit
@@ -74,6 +85,11 @@ class Preprocessor:
 
         # delete newly created temp variables
         df = Preprocessor.delete_new_variables(df, new_variables)
+
+        # step 8 in guide - add precip data. join df and df_precip
+        df = pd.merge(df, df_precip, on='TIMESTAMP')
+        # add precipitation unit mm to df_meta
+        df_meta['Precip_IWS'] = 'mm'
 
         # step 7 in guide - calculation of shortwave radiation
         SW_unit = 'W/m^2'  # unit for shortwave radiation
@@ -90,62 +106,84 @@ class Preprocessor:
         else:
             print("Meta and data file columns not matching")
 
-        # TODO: add precipitation data from IWS. Pending as data not available.
-
-        # return processed df
-        return df
+        # return processed and merged df. should contain 81 columns
+        return df, file_meta
 
     @staticmethod
-    def read_data(data_path):
-        """Reads data and returns dataframe
-
+    def read_met_data(data_path):
+        """Reads data and returns dataframe containing the met data and another df containing meta data
             Args:
                 data_path(str): input data file path
-
             Returns:
-                obj: Pandas DataFrame object
-
+                df (obj): Pandas DataFrame object
+                file_df_meta (obj) : Pandas DataFrame object
         """
-        df = pd.read_csv(data_path)
+        df = pd.read_csv(data_path, header=None)  # read file without headers.
 
-        return df
+        # process df to get meta data
+        file_df_meta = df.head(
+            3)  # the first row contains the meta data of file. second and third row contains met variables and their units
+        file_df_meta.fillna('', inplace=True)  # fill NaNs with empty string for ease of replace
+        file_df_meta = file_df_meta.applymap(lambda x: x.replace('"', ''))  # strip off quotes from all values
+
+        # process df to get met data
+        df = df.iloc[1:, :]  # drop the first row in df as it is the file meta data
+        df.reset_index(drop=True, inplace=True)  # reset index after dropping rows
+        df = df.applymap(lambda x: x.replace('"', ''))
+        df.columns = df.iloc[0]  # set column names
+        df = df.iloc[3:, :]  # drop first and second row as it is the units and min and avg
+        df.reset_index(drop=True, inplace=True)  # reset index after dropping rows
+        return df, file_df_meta
 
     @staticmethod
-    def read_meta_data_file(meta_data_path):
-        """Method to read meta data csv file. Meta data file contains the column names and corresponding units. 2 rows.
-            Returns the df
-
+    def get_meta_data(file_df_meta):
+        """
+            Method to get file meta data and df meta data from meta data. Meta data from file contains the file meta data, column names and corresponding units in 3 rows
+            Returns the file meta data df and meteorological meta data.
             Args :
-                meta_data_path (str): meta data file path
+                file_df_meta (obj): pandas dataframe consisting of all meta data
 
             Returns :
                 obj : pandas dataframe object of the read meta data csv
 
         """
-        df_meta = pd.read_csv(meta_data_path)
-
-        return df_meta
+        file_meta = file_df_meta.head(
+            1)  # the first row contains meta data of file. Used to match the filename to soil key. returned with the processed df
+        df_meta = file_df_meta.iloc[1:,
+                  :]  # second and third row contains meta data of met tower variables (column names and units)
+        df_meta.columns = df_meta.iloc[0]
+        df_meta.drop(df_meta.index[0], inplace=True)
+        df_meta.reset_index(drop=True, inplace=True)  # reset index after dropping first row
+        return df_meta, file_meta
 
     @staticmethod
-    def write_data(df, output_data_path):
-        """Write the dataframe to csv file
-
+    def read_precip_data(data_path):
+        """Reads precipitation data from excel file and returns processed dataframe
             Args:
-                df (object): Pandas DataFrame object
-                output_data_path (str): File path to save output data
+                data_path(str): input data file path
 
             Returns:
-                None
-
+                obj: Pandas DataFrame object
         """
-        df.to_csv(output_data_path, index=False)
-
-        return
+        df = pd.read_excel(data_path)  # read excel file
+        # convert precipitation from in to mm
+        ### TODO : import cf_units and use to convert units. / udunits
+        df['Precipitation (mm)'] = df['Precipitation (in)'] * 25.4
+        df.drop(['Station', 'Precipitation (in)'], axis=1, inplace=True)  # drop unwanted columns
+        # convert 5min samples to 30min samples by taking the sum
+        df = df.set_index('Date & Time (CST)').resample("30T").sum()
+        df.reset_index(inplace=True)  # reset index
+        df.rename(columns={'Date & Time (CST)': 'TIMESTAMP', 'Precipitation (mm)': 'Precip_IWS'},
+                  inplace=True)  # rename columns
+        df['TIMESTAMP'] = df['TIMESTAMP'].dt.strftime(
+            '%Y-%m-%d %H:%M')  # convert datetime to string and change format to match that of met dataframe
+        df['TIMESTAMP'] = df['TIMESTAMP'].map(
+            lambda t: t.replace('-', '/'))  # replace / with - to match timestamp format of met data
+        return df
 
     @staticmethod
     def change_datatype(df):
         """Change datatypes of all columns, except TIMESTAMP to numeric
-
             Args:
                 df (object): Pandas DataFrame object
 
@@ -154,9 +192,7 @@ class Preprocessor:
 
         """
         cols = df.columns.drop('TIMESTAMP')
-        df[cols] = df[cols].apply(pd.to_numeric, errors='coerce')
-        print(df.info())
-
+        df[cols] = df[cols].apply(pd.to_numeric, errors='coerce')  # coerce will replace all non-numeric values with NaN
         return df
 
     @staticmethod
@@ -214,10 +250,8 @@ class Preprocessor:
 
         """
         df['timedelta'] = df['timestamp_sync'].diff().astype('timedelta64[m]')
-
         # add the new column to new_variables
         new_variables.append('timedelta')
-
         return df, new_variables
 
     @staticmethod
@@ -290,7 +324,7 @@ class Preprocessor:
 
         """
         # convert datetime to string, replace - with /
-        df['TIMESTAMP'] = df['timestamp_sync'].map(lambda t: t.strftime('%Y-%m-%d %H:%M'))\
+        df['TIMESTAMP'] = df['timestamp_sync'].map(lambda t: t.strftime('%Y-%m-%d %H:%M')) \
             .map(lambda t: t.replace('-', '/'))
 
         return df
@@ -304,7 +338,6 @@ class Preprocessor:
 
             Args:
                 df (object): Pandas DataFrame object
-
             Returns:
                 bool : True or False
 
@@ -320,7 +353,12 @@ class Preprocessor:
     def soil_heat_flux_calculation(shf_mV, shf_cal):
         """Additional calculation for soil heat flux if needed. Step 5 in guide
             shf_Avg=[shf_mV]*[shf_cal]
+        """
 
+    @staticmethod
+    def soil_heat_flux_calculation(shf_mV, shf_cal):
+        """Additional calculation for soil heat flux if needed. Step 5 in guide
+            shf_Avg=[shf_mV]*[shf_cal]
             Args:
                 shf_mV (float): soil heat flux calculation variable
                 shf_cal (float): soil heat flux variable
@@ -377,7 +415,6 @@ class Preprocessor:
         """
         df = df.replace('', 'NAN')  # replace empty cells with 'NAN'
         df = df.replace(np.nan, 'NAN', regex=True)  # replace NaN with 'NAN'
-
         return df
 
     @staticmethod
@@ -393,5 +430,4 @@ class Preprocessor:
 
         """
         df.drop(new_variables, axis=1, inplace=True)
-
         return df
