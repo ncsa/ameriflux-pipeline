@@ -9,7 +9,6 @@ import ameriflux_pipeline.runeddypro as runeddypro
 
 
 def test_run_eddypro():
-    tmp_proj_file = "/path/to/ameriflux-pipeline/ameriflux_pipeline/templates/EddyPro_Run_Template.eddypro"
     eddypro_loc = "/path/to/LI-COR//EddyPro-7.0.7/bin/eddypro_rp.exe"
     file_name = "/should/be/same/as/tmp/proj_file"
     project_title = "Project Title"
@@ -21,8 +20,7 @@ def test_run_eddypro():
     data_path = "/path/to/GHG_files"  #Raw_Jan-Mar_2021_GHG_Files
     biom_file="/path/to/biom_file"  #FLUXSB_EC_JanMar2021_output_eddypro.csv
     ex_file = "/path/to/ex_file"  #eddypro_Efarm_Sorghum_Reanalysis_2020_fluxnet_2021-10-26T101711_adv.csv
-
-    runeddypro.run_eddypro(eddypro_loc=eddypro_loc, tmp_proj_file=tmp_proj_file, file_name=file_name, project_id=project_id,
+    runeddypro.run_eddypro(eddypro_loc=eddypro_loc, file_name=file_name, project_id=project_id,
                            project_title=project_title, file_prototype=file_prototype, proj_file=proj_file,
                            dyn_metadata_file=dyn_metadata_file, out_path=out_path, data_path=data_path,
                            biom_file=biom_file, ex_file=ex_file)
