@@ -8,7 +8,7 @@ import os
 
 
 
-def run_eddypro(eddypro_loc="", tmp_proj_file="", file_name="", project_title="", project_id="", file_prototype="",
+def run_eddypro(eddypro_loc="", file_name="", project_title="", project_id="", file_prototype="",
                 proj_file="", dyn_metadata_file="", out_path="", data_path="", biom_file="", ex_file=""):
 
     # manipulate project file from the template project file
@@ -16,11 +16,10 @@ def run_eddypro(eddypro_loc="", tmp_proj_file="", file_name="", project_title=""
                                          project_id=project_id, file_prototype=file_prototype,
                                          proj_file=proj_file, dyn_metadata_file=dyn_metadata_file,
                                          out_path=out_path, data_path=data_path,
-                                         biom_file=biom_file, ex_file=ex_file,
-                                         tmp_proj_file=tmp_proj_file)
+                                         biom_file=biom_file, ex_file=ex_file)
 
     # create out temp project file
-    outfile = os.path.join(os.path.dirname(os.path.abspath(tmp_proj_file)), "templates.eddypro")
+    outfile = os.path.join(os.path.dirname(os.path.abspath(file_name)), "templates.eddypro")
 
     # save temporary project file
     save_string_list_to_file(tmp_proj_list, outfile)
@@ -39,11 +38,10 @@ def create_tmp_proj_file(file_name, project_title,
                          project_id, file_prototype,
                          proj_file, dyn_metadata_file,
                          out_path, data_path,
-                         biom_file, ex_file,
-                         tmp_proj_file):
+                         biom_file, ex_file):
     # read the template file
 
-    temp_proj_file = open(tmp_proj_file, mode='r', encoding='utf-8')
+    temp_proj_file = open(file_name, mode='r', encoding='utf-8')
     lines = temp_proj_file.readlines()
     temp_proj_file.close()
     out_proj_file_line_list = []
