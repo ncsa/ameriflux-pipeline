@@ -40,7 +40,8 @@ tests/data/
 cache_data/
 original/
 
-
+# EddyPro proj file
+*.eddypro
 
 # jupyter notebook checkpoints folder
 .ipynb_checkpoints
