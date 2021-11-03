@@ -5,12 +5,12 @@
 # and is available at https://www.mozilla.org/en-US/MPL/2.0/
 
 import os
-import configparser
+from config import Config as cfg
 import argparse
 import utils.data_util as data_util
 
 from preprocessor import Preprocessor
-from format import Format
+from format import eddyProFormat
 
 def perform_data_processing(input_met_path, input_precip_path, missing_time_threshold):
     """Create processed dataframe
@@ -26,9 +26,6 @@ def perform_data_processing(input_met_path, input_precip_path, missing_time_thre
     """
     df, file_meta = Preprocessor.data_preprocess(input_met_path, input_precip_path, missing_time_threshold)
     ### TODO : check with Bethany - number of decimal places for numerical values
-    ### TODO : Check with Bethany - U_Avg and V_Avg fields have no units. Currently filled with -9999.0
-    ### TODO : Check with Bethany - should all values be converted to numerical? Currently all values are string in excel sheet.
-    ### TODO : Check with Bethany - variables like MoistureA_Avg in the output, coz not in the soil key.xlsx sheet.
     return df, file_meta
 
 
@@ -45,7 +42,7 @@ def perform_data_formatting(input_data_path, input_soil_key, file_meta, output_p
         Returns:
             obj: Pandas DataFrame object.
     """
-    df = Format.data_formatting(input_data_path, input_soil_key, file_meta, output_path)
+    df = eddyProFormat.data_formatting(input_data_path, input_soil_key, file_meta, output_path)
     return df
 
 
@@ -55,6 +52,7 @@ def main(*args):
     Args: None
 
     """
+    ### TODO : create a dynamic method to pass input files, shouldn't depend on the relative file path
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--inputmet", action="store",
@@ -68,14 +66,11 @@ def main(*args):
     parser.add_argument("--output", action="store",
                         default=os.path.join(os.getcwd(), "tests", "data", "FLUXSB_EC_JanMar2021_output.csv"),
                         help="output data path")
-    #parser.add_argument("--missingTime", action="store", default=96, help="Number of 30min timeslot threshold to ask for user confirmation")
 
     # parse arguments
     args = parser.parse_args()
 
-    config = configparser.ConfigParser()
-    config.read('config.ini')
-    missingTime = int(config['MetDataPreprocessor']['missingTime'])
+    missingTime = int(cfg.missingTime)
 
     # start preprocessing data
     df, file_meta = perform_data_processing(args.inputmet, args.inputprecip, missingTime)
