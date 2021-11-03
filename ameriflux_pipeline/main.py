@@ -47,12 +47,12 @@ def perform_data_formatting(input_data_path, input_soil_key, file_meta, output_p
 
 
 def main(*args):
-    """Main function to run. Calls other functions
+    """
+    Main function to run. Calls other functions
 
     Args: None
 
     """
-
     ### TODO : create a dynamic method to pass input files, shouldn't depend on the relative file path
     parser = argparse.ArgumentParser()
 
@@ -72,7 +72,6 @@ def main(*args):
     args = parser.parse_args()
 
     missingTime = int(cfg.missingTime)
-
 
     # start preprocessing data
     df, file_meta = perform_data_processing(args.inputmet, args.inputprecip, missingTime)
