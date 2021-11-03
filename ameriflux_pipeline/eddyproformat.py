@@ -7,7 +7,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-class eddyProFormat:
+class EddyProFormat:
     '''
     Class to implement formatting meteorological data for EddyPro as per guide
     '''
@@ -33,15 +33,15 @@ class eddyProFormat:
         # extract site name from file meta data
         file_site_name = file_meta.iloc[0][5]
         # match file site name to site names in soil key file. this is used as lookup in soil key table
-        site_name = eddyProFormat.get_site_name(file_site_name)
+        site_name = EddyProFormat.get_site_name(file_site_name)
 
         # read soil key file
-        df_soil_key = eddyProFormat.read_soil_key(input_soil_key)
+        df_soil_key = EddyProFormat.read_soil_key(input_soil_key)
         # get the soil temp and moisture keys for the site
-        eddypro_soil_moisture_labels, eddypro_soil_temp_labels = eddyProFormat.get_soil_keys(df_soil_key, site_name)
+        eddypro_soil_moisture_labels, eddypro_soil_temp_labels = EddyProFormat.get_soil_keys(df_soil_key, site_name)
 
         # read data file to dataframe. step 1 of guide
-        df = eddyProFormat.read_rename(input_path, output_path)
+        df = EddyProFormat.read_rename(input_path, output_path)
 
         # all empty values are replaced by 'NAN' in preprocessor.replace_empty() function
         # replace 'NAN' with np.nan for ease of manipulation
@@ -49,18 +49,18 @@ class eddyProFormat:
         df.replace('NAN', np.nan, inplace=True)
 
         # step 3 of guide. change timestamp format
-        df = eddyProFormat.timestamp_format(df)  # / to -
+        df = EddyProFormat.timestamp_format(df)  # / to -
 
         # rename air temp column names
-        eddypro_air_temp_labels = eddyProFormat.air_temp_colnames(df)
+        eddypro_air_temp_labels = EddyProFormat.air_temp_colnames(df)
         # rename shf measurement
-        eddypro_shf_labels = eddyProFormat.shf_colnames(df)
+        eddypro_shf_labels = EddyProFormat.shf_colnames(df)
         # rename met variables to eddypro labels
         eddypro_col_labels = {'TIMESTAMP': 'TIMESTAMP', 'RH_Avg': 'RH', 'TargTempK_Avg': 'Tc', 'albedo_Avg': 'Rr',
                      'Rn_Avg': 'Rn', 'LWDnCo_Avg': 'LWin', 'LWUpCo_Avg': 'LWout', 'SWDn_Avg': 'SWin', 'SWUp_Avg': 'SWout',
                      'PARDown_Avg': 'PPFD', 'PARUp_Avg': 'PPFDr', 'Precip_IWS': 'P_rain', 'WindSpeed_Avg': 'MWS', 'WindDir_Avg': 'WD'}
         # merge all eddypro label dictionaries
-        eddypro_labels = eddyProFormat.merge_dicts(eddypro_col_labels, eddypro_air_temp_labels, eddypro_shf_labels,
+        eddypro_labels = EddyProFormat.merge_dicts(eddypro_col_labels, eddypro_air_temp_labels, eddypro_shf_labels,
                                      eddypro_soil_temp_labels, eddypro_soil_moisture_labels)
 
         df.rename(columns=eddypro_labels, inplace=True)
@@ -68,15 +68,15 @@ class eddyProFormat:
         # skip step 5 as it will be managed in pyfluxPro
 
         # step 6 in guide. convert temperature measurements from celsius to kelvin
-        df = eddyProFormat.convert_temp_unit(df)
+        df = EddyProFormat.convert_temp_unit(df)
 
         # step 7 in guide. Change all NaN or non-numeric values to -9999.0
-        df = eddyProFormat.replace_nonnumeric(df)
+        df = EddyProFormat.replace_nonnumeric(df)
         # get units for EddyPro labels
-        df = eddyProFormat.replace_units(df)
+        df = EddyProFormat.replace_units(df)
 
         # check if required columns from meteorological file are in df
-        eddyProFormat.check_req_columns(df)
+        EddyProFormat.check_req_columns(df)
 
         # return formatted df
         return df

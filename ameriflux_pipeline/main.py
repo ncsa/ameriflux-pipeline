@@ -10,7 +10,7 @@ import argparse
 import utils.data_util as data_util
 
 from preprocessor import Preprocessor
-from format import eddyProFormat
+from eddyproformat import EddyProFormat
 
 def perform_data_processing(input_met_path, input_precip_path, missing_time_threshold):
     """Create processed dataframe
@@ -42,7 +42,7 @@ def perform_data_formatting(input_data_path, input_soil_key, file_meta, output_p
         Returns:
             obj: Pandas DataFrame object.
     """
-    df = eddyProFormat.data_formatting(input_data_path, input_soil_key, file_meta, output_path)
+    df = EddyProFormat.data_formatting(input_data_path, input_soil_key, file_meta, output_path)
     return df
 
 

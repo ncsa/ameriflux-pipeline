@@ -24,7 +24,7 @@ class Preprocessor:
     def data_preprocess(input_met_path, input_precip_path, missing_time_threshold):
         """
         Cleans and process the dataframe as per the guide. Process dataframe inplace
-        Returns processed df and file meta df which is used in format.py
+        Returns processed df and file meta df which is used in eddyproformat.py
         Args:
             input_path (str): A file path for the input data.
             input_precip_path(str): A file path for the input precipitation data.
