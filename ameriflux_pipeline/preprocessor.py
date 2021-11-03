@@ -336,7 +336,7 @@ class Preprocessor:
             obj: Pandas DataFrame object
         """
         # convert datetime to string, replace - with /
-        df['TIMESTAMP'] = df['timestamp_sync'].map(lambda t: t.strftime('%Y-%m-%d %H:%M'))\
+        df['TIMESTAMP'] = df['timestamp_sync'].map(lambda t: t.strftime('%Y-%m-%d %H:%M')) \
             .map(lambda t: t.replace('-', '/'))
 
         return df

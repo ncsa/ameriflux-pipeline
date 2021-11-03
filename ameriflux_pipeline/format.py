@@ -3,6 +3,7 @@ import pandas as pd
 import shutil
 import re
 
+
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -33,6 +34,7 @@ class eddyProFormat:
         # extract site name from file meta data
         file_site_name = file_meta.iloc[0][5]
         # match file site name to site names in soil key file. this is used as lookup in soil key table
+
         site_name = eddyProFormat.get_site_name(file_site_name)
 
         # read soil key file
@@ -55,6 +57,7 @@ class eddyProFormat:
         eddypro_air_temp_labels = eddyProFormat.air_temp_colnames(df)
         # rename shf measurement
         eddypro_shf_labels = eddyProFormat.shf_colnames(df)
+
         # rename met variables to eddypro labels
         eddypro_col_labels = {'TIMESTAMP': 'TIMESTAMP', 'RH_Avg': 'RH', 'TargTempK_Avg': 'Tc', 'albedo_Avg': 'Rr',
                      'Rn_Avg': 'Rn', 'LWDnCo_Avg': 'LWin', 'LWUpCo_Avg': 'LWout', 'SWDn_Avg': 'SWin', 'SWUp_Avg': 'SWout',
@@ -321,5 +324,6 @@ class eddyProFormat:
         if not set(req_cols).issubset(set(df.columns)):
             print("{' and '.join(set(req_cols).difference(df.columns))} are not present")
         print( "All required columns are present in dataframe" )
+
 
 
