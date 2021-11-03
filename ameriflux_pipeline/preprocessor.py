@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 from datetime import timedelta
 import os
+import utils.data_util as data_util
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -42,16 +43,17 @@ class Preprocessor:
         df_meta, file_meta = Preprocessor.get_meta_data(file_df_meta)
         df_meta = Preprocessor.add_U_V_units(df_meta)
 
-        # Write meta data to another file
+        # Write file meta data to another file
         input_filename = os.path.basename(input_met_path)
-        meta_data_filename = os.path.splitext(input_filename)[0] + '_meta.csv'
-        meta_data_file = os.path.join(os.getcwd(), "tests", "data", meta_data_filename)  # write first df_meta to this path
-        df_meta.to_csv(meta_data_file)
+        file_meta_data_filename = os.path.splitext(input_filename)[0] + '_file_meta.csv'
+        file_meta_data_file = os.path.join(os.getcwd(), "tests", "data", file_meta_data_filename)  # write file_df_meta to this path
+        data_util.write_data(file_meta, file_meta_data_file)  # write meta data of file to file. One row.
+
 
         # read input precipitation data file
         df_precip = Preprocessor.read_precip_data(input_precip_path)
         ### TODO : create a method to check for missing timestamp and possible values in precip data.
-        ### Check with Bethany if possible valures for rain is 0-0.2mm. Check with Bethany what should be done if missing timestamps in precip data.
+        ### Possible values for rain is 0-0.2in. Check with Bethany what should be done if missing timestamps in precip data.
 
         # change column data types
         df = Preprocessor.change_datatype(df)
