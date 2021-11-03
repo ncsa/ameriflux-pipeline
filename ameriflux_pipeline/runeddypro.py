@@ -32,8 +32,8 @@ def run_eddypro(eddypro_loc="", file_name="", project_title="", project_id="", f
         raise Exception("Running EddyPro failed.")
 
     # remove temporary project file
-    print("removed temporary project file")
-    os.remove(outfile)
+    #print("removed temporary project file")
+    #os.remove(outfile)
 
 def create_tmp_proj_file(file_name, project_title,
                          project_id, file_prototype,
