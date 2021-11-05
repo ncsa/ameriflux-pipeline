@@ -59,8 +59,10 @@ def perform_pyfluxpro_processing(met_data, full_output):
         obj: Pandas DataFrame object.
     """
     df = PyFluxProFormat.data_formatting(full_output)
-    # met_data has data from row index 1. EddyPro full_output will be formatted to have data from row index 1 also.
-    # join met_data and full_output in excel sheet.
+    # met_data has data from row index 1. EddyPro full_output will be formatted to have data from row index 1 also. This is step 3a in guide.
+    # join met_data and full_output in excel sheet (manual step)
+
+    # return formatted full_output
     return df
 
 
@@ -121,6 +123,8 @@ def pyfluxpro_main(met_output_file, eddypro_full_output):
     Returns : None
     """
     df = perform_pyfluxpro_processing(met_output_file, eddypro_full_output)
+    # write formatted df to output path
+    #data_util.write_data(df, pyfluxpro_output_file)
 
 
 # Press the green button in the gutter to run the script.

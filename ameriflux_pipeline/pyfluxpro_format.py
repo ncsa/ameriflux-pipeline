@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -23,6 +24,22 @@ class PyFluxProFormat:
         # add columns and units to meta data if neccessary
         df, df_meta= PyFluxProFormat.add_timestamp(df, df_meta) # step 3b in guide
         df = PyFluxProFormat.concat_df(df, df_meta)
+        # convert -9999.0 to NAN. To make numerical conversions easier.
+        df.replace('-9999.0', np.nan, inplace=True)
+
+        # step 3c. Convert temp unit from K to C
+        df, df_meta = PyFluxProFormat.convert_temp_unit(df, df_meta)
+        # step 3d. Convert air pressure unit.
+        df, df_meta = PyFluxProFormat.convert_airpressure_unit(df, df_meta)
+        # step 3e is skipped with time-gap filling settings in eddypro
+        # Check if the first timestamp is 00:00 and last time stamp is 23:30 - depends on the output from eddypro
+        ### TODO : Check with Bethany, should the dates also start with yyyy-01-01, and end with yyyy-12-31, or is it just the time?
+
+
+        # convert NaNs back
+        df.replace(np.nan, 'NAN', inplace=True)
+        # return formatted df
+        return df
 
 
 
@@ -58,13 +75,51 @@ class PyFluxProFormat:
             df_meta (object): Processed Pandas DataFrame object
         """
         df['TIMESTAMP'] = df['date'] + ' ' + df['time']
-        df_meta['TIMESTAMP'] = 'yyyy/mm/dd HH:MM'
+        df_meta['TIMESTAMP'] = 'yyyy/mm/dd HH:MM' # add new variable and unit to meta df
         df['TIMESTAMP'] = df['TIMESTAMP'].map(lambda t: t.replace('-', '/'))
         # move TIMESTAMP column to first index
         cols = list(df.columns)
         cols.insert(1, cols.pop(cols.index('TIMESTAMP'))) # pop and insert TIMESTAMP at index 1
         df = df.loc[:, cols] # rearrange df
         df_meta = df_meta.loc[:, cols]
+        return df, df_meta
+
+
+    @staticmethod
+    def convert_temp_unit(df, df_meta):
+        """
+        Method to change temperature measurement unit from kelvin to Celsius. Step 3c in guide.
+
+        Args:
+            df (object): Pandas DataFrame object
+            df_meta (object): Pandas DataFrame object
+        Returns:
+            df (object): Processed Pandas DataFrame object
+            df_meta (object): Processed Pandas DataFrame object
+        """
+        df['sonic_temperature'] = df['sonic_temperature'].apply(pd.to_numeric, errors='coerce')  # convert string to numerical
+        df['sonic_temperature_C'] = df['sonic_temperature']-273.15 # convert to celsius
+        df['sonic_temperature_C'].round(3) # round to 3 decimal places
+        df_meta['sonic_temperature_C'] = '[C]' # add new variable and unit to meta df
+        return df, df_meta
+
+
+    @staticmethod
+    def convert_airpressure_unit(df, df_meta):
+        """
+        Method to change air pressure measurement unit from Pa to kPa. Step 3d in guide.
+
+        Args:
+            df (object): Pandas DataFrame object
+            df_meta (object): Pandas DataFrame object
+        Returns:
+            df (object): Processed Pandas DataFrame object
+            df_meta (object): Processed Pandas DataFrame object
+        """
+        df['air_pressure'] = df['air_pressure'].apply(pd.to_numeric, errors='coerce')  # convert string to numerical
+        df['air_pressure_kPa'] = df['air_pressure']/1000
+        df['air_pressure_kPa'].round(3)
+        df_meta['air_pressure_kPa'] = '[kPa]'
         return df, df_meta
 
 
