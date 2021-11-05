@@ -17,6 +17,7 @@ class EddyProFormat:
     def data_formatting(input_data_path, input_soil_key, file_meta, output_path):
         """
         Constructor for the class
+
         Args:
             input_data_path (str): A file path for the input data.
             input_soil_key (str): A file path for input soil key sheet
@@ -87,6 +88,7 @@ class EddyProFormat:
         """
         Match the file site name to site names in soil key data. From the input file site name, return the matching site name
         Site name is used as lookup in soil key table
+
         Args:
             file_site_name (str): file site name from file meta data, first row of input met file
         Returns:
@@ -108,6 +110,7 @@ class EddyProFormat:
     def get_soil_keys(df_soil_key, site_name):
         """
         Get soil keys for the specific site. Returns dictionary for soil moisture and soil temp variables
+
         Args:
             df_soil_key (obj): pandas dataframe having soil keys
             site_name (str): site name extracted from file meta data
@@ -140,6 +143,7 @@ class EddyProFormat:
     def read_rename(input_path, output_path):
         """
         Copy and rename input data file. Rename the file as output_path. Use this df for further processing. Return df
+
         Args:
             input_path (str): A file path for the input data.
             output_path (str): A file path for the output data.
@@ -169,6 +173,7 @@ class EddyProFormat:
     def timestamp_format(df):
         """
         Function to change TIMESTAMP format in df. Replace inplace / with -
+
         Args:
             df (object): Pandas DataFrame object
         Returns:
@@ -184,6 +189,7 @@ class EddyProFormat:
         """
         Function to rename air temperature measurements. Rename AirTC_Avg, RTD_C_Avg to Ta_1_1_1 and Ta_1_1_2, where Ta_1_1_1 must be present.
         RTD being more accurate measurement, rename RTD_C_Avg to Ta_1_1_1 for eddypro. If not present, rename AirTC_Avg
+
         Args:
             df (object): Pandas DataFrame object
         Returns:
@@ -202,6 +208,7 @@ class EddyProFormat:
     def shf_colnames(df):
         """
         Function to rename soil heat flux measurements. shf_Avg(1), shf_Avg(2) to be renamed as SHF_1_1_1 and SHF_2_1_1.
+
         Args:
             df (object): Pandas DataFrame object
         Returns:
@@ -222,6 +229,7 @@ class EddyProFormat:
         Function to merge all eddypro label dictionaries. Return the merged dict
         Given any number of dictionaries, shallow copy and merge into a new dict,
         precedence goes to key-value pairs in latter dictionaries.
+
         Args:
             dict_args (python args) : any number of dictionaries
         Returns:
@@ -239,6 +247,7 @@ class EddyProFormat:
         Not used currently
         Function to rename soil temp measurements.
         Either TC_10cm_Avg, TC1_10cm_Avg or TC2_10cm_Avg - use regex to match. If multiple fields present, choose the one with least missing values.
+
         Args:
             df (object): Pandas DataFrame object
         Returns:
@@ -262,6 +271,7 @@ class EddyProFormat:
     def convert_temp_unit(df):
         """
         Method to change temperature measurement unit from celsius to kelvin. Convert inplace
+
         Args:
             df (object): Pandas DataFrame object
         Returns:
@@ -285,6 +295,7 @@ class EddyProFormat:
     def replace_nonnumeric(df):
         """
         Method to convert all NaNs to -9999.0 inplace. Step 7 in guide.
+
         Args:
             df (object): Pandas DataFrame object
         Returns:
@@ -298,6 +309,7 @@ class EddyProFormat:
     def replace_units(df):
         """
         Replace met tower variable units to Eddypro label units
+
         Args:
             df (object): Pandas DataFrame object
         Returns:
@@ -312,6 +324,7 @@ class EddyProFormat:
     def check_req_columns(df):
         """
         Method to check if all required columns are in df. If required list of columns not present, throw a warning
+
         Args:
             df (object): Pandas DataFrame object
         Returns:
@@ -321,5 +334,3 @@ class EddyProFormat:
         if not set(req_cols).issubset(set(df.columns)):
             print("{' and '.join(set(req_cols).difference(df.columns))} are not present")
         print( "All required columns are present in dataframe" )
-
-

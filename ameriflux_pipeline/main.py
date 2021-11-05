@@ -13,7 +13,8 @@ from preprocessor import Preprocessor
 from eddyproformat import EddyProFormat
 
 def perform_data_processing(input_met_path, input_precip_path, missing_time_threshold):
-    """Create processed dataframe
+    """
+    Create processed dataframe
 
         Args:
             input_met_path (str): A file path for the input meteorological data.
@@ -50,7 +51,7 @@ def main(*args):
     """
     Main function to run. Calls other functions
 
-    Args: None
+        Args: None
 
     """
     ### TODO : create a dynamic method to pass input files, shouldn't depend on the relative file path
