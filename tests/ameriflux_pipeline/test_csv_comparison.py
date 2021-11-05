@@ -6,6 +6,7 @@
 
 import pandas as pd
 
+
 def compare_eddypro_outputs(file1, file2):
     df1 = pd.read_csv(file1)
     df2 = pd.read_csv(file2)
@@ -16,8 +17,11 @@ def compare_eddypro_outputs(file1, file2):
 
     print(df1.compare(df2))
 
+
 if __name__ == '__main__':
-    file1 = "C:\\Users\\ywkim\\Documents\\Ameriflux\\Data\\minu_test\\Test_output\\eddypro_Efarm_Sorghum_Reanalysis_2020_full_output_2021-10-26T101711_adv_processed.csv"
-    file2 = "C:\\Users\\ywkim\\Documents\\Ameriflux\\Data\\bethany_test\\EddyPro_ManualOutput_20201_Jan_Mar\\Jan\\eddypro_UIUC_Sorghum_2021_Jan_full_output_2021-04-14T114311_adv.csv"
+    file1 = "C:\\Users\\ywkim\\Documents\\Ameriflux\\Data\\minu_test\\Test_output\\" \
+            "eddypro_Efarm_Sorghum_Reanalysis_2020_full_output_2021-10-26T101711_adv_processed.csv"
+    file2 = "C:\\Users\\ywkim\\Documents\\Ameriflux\\Data\\bethany_test\\EddyPro_ManualOutput_20201_Jan_Mar\\Jan\\" \
+            "eddypro_UIUC_Sorghum_2021_Jan_full_output_2021-04-14T114311_adv.csv"
 
     compare_eddypro_outputs(file1, file2)
