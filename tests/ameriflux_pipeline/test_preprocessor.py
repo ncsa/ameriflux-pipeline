@@ -15,7 +15,7 @@ def test_preprocessor():
     output = "../data/output.csv"
     metadata = "../data/FLUXSB_EC.dat.meta.csv"
 
-    df = Preprocessor.data_preprocess(input, output, 96, metadata)
+    df = Preprocessor.data_preprocess(input, output, 96)
 
     assert 'Ah_fromRH' in df
 

@@ -2,29 +2,27 @@ import numpy as np
 import pandas as pd
 import shutil
 import re
-import utils.data_util as data_util
 
 import warnings
 warnings.filterwarnings("ignore")
 
 
-class Format:
+class EddyProFormat:
     '''
-    class to implement formatting meteorological data for eddypro as per guide
+    Class to implement formatting meteorological data for EddyPro as per guide
     '''
 
     # main method which calls other functions
     @staticmethod
     def data_formatting(input_data_path, input_soil_key, file_meta, output_path):
-        """Constructor for the class
-
-            Args:
-                input_data_path (str): A file path for the input data.
-                input_soil_key (str): A file path for input soil key sheet
-                file_meta (obj) : A pandas dataframe containing meta data about the input met data file
-                output_path (str): A file path for the output data.
-
-            Returns:
+        """
+        Constructor for the class
+        Args:
+            input_data_path (str): A file path for the input data.
+            input_soil_key (str): A file path for input soil key sheet
+            file_meta (obj) : A pandas dataframe containing meta data about the input met data file
+            output_path (str): A file path for the output data.
+        Returns:
             obj: Pandas DataFrame object.
         """
         input_path = input_data_path  # path of input data csv file
@@ -35,18 +33,15 @@ class Format:
         # extract site name from file meta data
         file_site_name = file_meta.iloc[0][5]
         # match file site name to site names in soil key file. this is used as lookup in soil key table
-        site_name = Format.get_site_name(file_site_name)
+        site_name = EddyProFormat.get_site_name(file_site_name)
 
         # read soil key file
-        df_soil_key = Format.read_soil_key(input_soil_key)
+        df_soil_key = EddyProFormat.read_soil_key(input_soil_key)
         # get the soil temp and moisture keys for the site
-        eddypro_soil_moisture_labels, eddypro_soil_temp_labels = Format.get_soil_keys(df_soil_key, site_name)
+        eddypro_soil_moisture_labels, eddypro_soil_temp_labels = EddyProFormat.get_soil_keys(df_soil_key, site_name)
 
         # read data file to dataframe. step 1 of guide
-        df = Format.read_rename(input_path, output_path)
-
-        # drop the first row having units. done to make df easier to manipulate. units will be added as the end.
-        #df = df.iloc[1:,:] # not currently used
+        df = EddyProFormat.read_rename(input_path, output_path)
 
         # all empty values are replaced by 'NAN' in preprocessor.replace_empty() function
         # replace 'NAN' with np.nan for ease of manipulation
@@ -54,18 +49,18 @@ class Format:
         df.replace('NAN', np.nan, inplace=True)
 
         # step 3 of guide. change timestamp format
-        df = Format.timestamp_format(df)  # / to -
+        df = EddyProFormat.timestamp_format(df)  # / to -
 
         # rename air temp column names
-        eddypro_air_temp_labels = Format.air_temp_colnames(df)
+        eddypro_air_temp_labels = EddyProFormat.air_temp_colnames(df)
         # rename shf measurement
-        eddypro_shf_labels = Format.shf_colnames(df)
+        eddypro_shf_labels = EddyProFormat.shf_colnames(df)
         # rename met variables to eddypro labels
         eddypro_col_labels = {'TIMESTAMP': 'TIMESTAMP', 'RH_Avg': 'RH', 'TargTempK_Avg': 'Tc', 'albedo_Avg': 'Rr',
                      'Rn_Avg': 'Rn', 'LWDnCo_Avg': 'LWin', 'LWUpCo_Avg': 'LWout', 'SWDn_Avg': 'SWin', 'SWUp_Avg': 'SWout',
                      'PARDown_Avg': 'PPFD', 'PARUp_Avg': 'PPFDr', 'Precip_IWS': 'P_rain', 'WindSpeed_Avg': 'MWS', 'WindDir_Avg': 'WD'}
         # merge all eddypro label dictionaries
-        eddypro_labels = Format.merge_dicts(eddypro_col_labels, eddypro_air_temp_labels, eddypro_shf_labels,
+        eddypro_labels = EddyProFormat.merge_dicts(eddypro_col_labels, eddypro_air_temp_labels, eddypro_shf_labels,
                                      eddypro_soil_temp_labels, eddypro_soil_moisture_labels)
 
         df.rename(columns=eddypro_labels, inplace=True)
@@ -73,19 +68,15 @@ class Format:
         # skip step 5 as it will be managed in pyfluxPro
 
         # step 6 in guide. convert temperature measurements from celsius to kelvin
-        df = Format.convert_temp_unit(df)
+        df = EddyProFormat.convert_temp_unit(df)
 
         # step 7 in guide. Change all NaN or non-numeric values to -9999.0
-        df = Format.replace_nonnumeric(df)
+        df = EddyProFormat.replace_nonnumeric(df)
         # get units for EddyPro labels
-        df = Format.replace_units(df)
+        df = EddyProFormat.replace_units(df)
 
-        # check if required columns are in df
-        ### TODO : Delete air pressure variables. Air pressure is from ghg file. create a function to check for required columns
-        ### TODO : create a function to throw a warning if WindSpeed and WindDir is present for 2021 timeframe
-        # req_cols = ['Ta', 'air_pressure', 'RH_Avg','SWin', 'LWin', 'PPFDr'] # list of required columns
-        #if not Format.check_columns(df, req_cols):
-            #print("ERROR in dataframe")
+        # check if required columns from meteorological file are in df
+        EddyProFormat.check_req_columns(df)
 
         # return formatted df
         return df
@@ -161,6 +152,20 @@ class Format:
 
 
     @staticmethod
+    def read_soil_key(input_soil_key):
+        """
+        Method to read soil key excel file. Soil key file contains the mapping for met variables and eddypro labels for soil temp and moisture
+        Returns the df
+        Args :
+            input_soil_key (str): soil key file path
+        Returns :
+            obj : pandas dataframe object of the soil keys
+        """
+        soil_key_df = pd.read_excel(input_soil_key)  # read excel file
+        return soil_key_df
+
+
+    @staticmethod
     def timestamp_format(df):
         """
         Function to change TIMESTAMP format in df. Replace inplace / with -
@@ -170,23 +175,8 @@ class Format:
             df (object): Pandas DataFrame object
         """
         df['TIMESTAMP'] = df['TIMESTAMP'].map(lambda t: t.replace('/', '-'))
-        # step 3 in guide. Change TS to yyyy-mm-dd HH:MM
-        df['TIMESTAMP'][0] = 'yyyy-mm-dd HH:MM'
+        df['TIMESTAMP'][0] = 'yyyy-mm-dd HH:MM'  # Change unit TS to yyyy-mm-dd HH:MM to match eddypro format
         return df
-
-
-    @staticmethod
-    def read_soil_key(input_soil_key):
-        """
-        Method to read soil key excel file. Soil key file contains the mapping for met variables and eddypro labels for soil temp and moisture
-        Returns the df
-            Args :
-                input_soil_key (str): soil key file path
-            Returns :
-                obj : pandas dataframe object of the soil keys
-        """
-        soil_key_df = pd.read_excel(input_soil_key)  # read excel file
-        return soil_key_df
 
 
     @staticmethod
@@ -269,28 +259,6 @@ class Format:
 
 
     @staticmethod
-    def required_columns(chosen_air_temp, chosen_shf, chosen_tc):
-        """
-        Not used currently
-        Create a dictionary of required columns with its EddyPro label. This dict is as per the guide and the met variables key.
-        Change this dict if variables need to be added / deleted.
-        Args:
-            chosen_air_temp (string) : air temp column name
-            chosen_shf (string) : soil heat flux column name
-            chosen_tc (string) : soil temp column name
-        Returns:
-            dict : a dict of required column names as key and eddypro labels as value
-        """
-        # 'WindSpeed_Avg':'MWS', 'WindDir_Avg':'WD' - needed for older than 2020.
-        # if yyyy==2000, do not use 'WindSpeed_Avg':'MWS', 'WindDir_Avg':'WD'
-        col_label = { 'TIMESTAMP':'TIMESTAMP', chosen_air_temp:'Ta', 'RH_Avg':'RH', 'TargTempK_Avg':'Tc', 'albedo_Avg':'Rr',
-                    'Rn_Avg':'Rn', 'LWDnCo_Avg':'LWin', 'LWUpCo_Avg':'LWout', 'SWDn_Avg':'SWin', 'SWUp_Avg':'SWout',
-                    'PARDown_Avg':'PPFD', 'PARUp_Avg':'PPFDr', 'Precip_IWS': 'P_rain', 'WindSpeed_Avg':'MWS', 'WindDir_Avg':'WD',
-                    chosen_tc:'Ts', chosen_shf:'SHF', 'Moisture0_Avg':'SWC'}
-        return col_label
-
-
-    @staticmethod
     def convert_temp_unit(df):
         """
         Method to change temperature measurement unit from celsius to kelvin. Convert inplace
@@ -329,11 +297,11 @@ class Format:
     @staticmethod
     def replace_units(df):
         """
-            Replace met tower variable units to Eddypro label units
-            Args:
-                df (object): Pandas DataFrame object
-            Returns:
-                df (object): Processed Pandas DataFrame object
+        Replace met tower variable units to Eddypro label units
+        Args:
+            df (object): Pandas DataFrame object
+        Returns:
+            df (object): Processed Pandas DataFrame object
         """
         df.replace({'W/m^2': 'W+1m-2', '√Ç¬µmols/m√Ç¬≤/s': 'umol+1m-2s-1', 'Kelvin': 'K',
                     'm/s': 'm+1s-1', 'Deg': 'degrees', 'vwc': 'm+3m-3'}, inplace=True)
@@ -341,20 +309,17 @@ class Format:
 
 
     @staticmethod
-    def check_columns(df, req_cols):
+    def check_req_columns(df):
         """
-        Method to check if all required columns are in df
+        Method to check if all required columns are in df. If required list of columns not present, throw a warning
         Args:
             df (object): Pandas DataFrame object
         Returns:
-            True / False (bool) : True if all required columns are present. False if not.
+            None
         """
+        req_cols = ['SWin', 'RH', 'LWin', 'PPFD']
         if not set(req_cols).issubset(set(df.columns)):
             print("{' and '.join(set(req_cols).difference(df.columns))} are not present")
-            return False
         print( "All required columns are present in dataframe" )
-        return True
-
-
 
 
