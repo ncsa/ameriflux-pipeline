@@ -4,8 +4,7 @@
 # terms of the Mozilla Public License v2.0 which accompanies this distribution,
 # and is available at https://www.mozilla.org/en-US/MPL/2.0/
 
-import os
-import ameriflux_pipeline.runeddypro as runeddypro
+from ameriflux_pipeline.runeddypro import RunEddypro
 
 
 def test_run_eddypro():
@@ -13,18 +12,18 @@ def test_run_eddypro():
     file_name = "/should/be/same/as/tmp/proj_file"
     project_title = "Project Title"
     project_id = "Project ID"
-    file_prototype = "file_prototype"  #yyyy-mm-ddTHHMM??_Sorghum-00137.ghg
-    proj_file = "/path/to/metadata"  #2021-01-01T000000_Sorghum-00137.metadata
-    dyn_metadata_file = "/path/to/dyn_metadata"  #Sorghum_2021_dynamic_metadata.csv
+    file_prototype = "file_prototype"  # yyyy-mm-ddTHHMM??_Sorghum-00137.ghg
+    proj_file = "/path/to/metadata"  # 2021-01-01T000000_Sorghum-00137.metadata
+    dyn_metadata_file = "/path/to/dyn_metadata"  # Sorghum_2021_dynamic_metadata.csv
     out_path = "/path/to/output"
-    data_path = "/path/to/GHG_files"  #Raw_Jan-Mar_2021_GHG_Files
-    biom_file="/path/to/biom_file"  #FLUXSB_EC_JanMar2021_output_eddypro.csv
-    ex_file = "/path/to/ex_file"  #eddypro_Efarm_Sorghum_Reanalysis_2020_fluxnet_2021-10-26T101711_adv.csv
-    runeddypro.run_eddypro(eddypro_loc=eddypro_loc, file_name=file_name, project_id=project_id,
+    data_path = "/path/to/GHG_files"  # Raw_Jan-Mar_2021_GHG_Files
+    biom_file = "/path/to/biom_file"  # FLUXSB_EC_JanMar2021_output_eddypro.csv
+    ex_file = "/path/to/ex_file"  # eddypro_Efarm_Sorghum_Reanalysis_2020_fluxnet_2021-10-26T101711_adv.csv
+    RunEddypro.run_eddypro(eddypro_loc=eddypro_loc, file_name=file_name, project_id=project_id,
                            project_title=project_title, file_prototype=file_prototype, proj_file=proj_file,
                            dyn_metadata_file=dyn_metadata_file, out_path=out_path, data_path=data_path,
                            biom_file=biom_file, ex_file=ex_file)
 
+
 if __name__ == '__main__':
     test_run_eddypro()
-
