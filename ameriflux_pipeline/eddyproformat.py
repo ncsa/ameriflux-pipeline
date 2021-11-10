@@ -202,6 +202,7 @@ class EddyProFormat:
     def shf_colnames(df):
         """
         Function to rename soil heat flux measurements. shf_Avg(1), shf_Avg(2) to be renamed as SHF_1_1_1 and SHF_2_1_1.
+        # Location qualifier :
         Args:
             df (object): Pandas DataFrame object
         Returns:

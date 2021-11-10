@@ -180,7 +180,7 @@ class Preprocessor:
     @staticmethod
     def read_precip_data(data_path):
         """
-        Reads precipitation data from excel file and returns processed dataframe
+        Reads precipitation data from excel file and returns processed dataframe. Converts units from inches to mm.
         Args:
             data_path(str): input data file path
         Returns:

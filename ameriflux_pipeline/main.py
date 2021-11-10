@@ -5,6 +5,7 @@
 # and is available at https://www.mozilla.org/en-US/MPL/2.0/
 
 import os
+import shutil
 from config import Config as cfg
 import argparse
 import utils.data_util as data_util
@@ -48,12 +49,11 @@ def perform_data_formatting(input_data_path, input_soil_key, file_meta, output_p
     return df
 
 
-def perform_pyfluxpro_processing(met_data, full_output):
+def perform_pyfluxpro_processing(full_output):
     """
     Create dataframe formatted for PyFluxPro
 
     Args:
-        met_data (str): A file path for the master met data created in Preprocessor.
         full_output (str): EddyPro full_output file path
     Returns:
         obj: Pandas DataFrame object.
@@ -82,7 +82,7 @@ def get_args():
                         help="input precipitation data path")
     parser.add_argument("--inputsoilkey", action="store",
                         default=os.path.join(os.getcwd(), "tests", "data", "Soils key.xlsx"))
-    parser.add_argument("--output", action="store",
+    parser.add_argument("--outputmet", action="store",
                         default=os.path.join(os.getcwd(), "tests", "data", "FLUXSB_EC_JanMar2021_output.csv"),
                         help="output data path")
 
@@ -91,7 +91,7 @@ def get_args():
     missingTime = int(cfg.missingTime)
     full_output = cfg.full_output
 
-    return args.inputmet, args.inputprecip, args.inputsoilkey, missingTime, args.output, full_output
+    return args.inputmet, args.inputprecip, args.inputsoilkey, missingTime, args.outputmet, full_output
 
 
 def eddypro_main(inputmet, inputprecip, inputsoilkey, missingTime, output):
@@ -115,16 +115,19 @@ def eddypro_main(inputmet, inputprecip, inputsoilkey, missingTime, output):
     data_util.write_data(df, eddypro_output_file)
 
 
-def pyfluxpro_main(met_output_file, eddypro_full_output):
+def pyfluxpro_main(eddypro_full_output, full_output_pyfluxpro, met_data_30_input, met_data_30_pyfluxpro):
     """
     Main function to run PlyFluxPro processing. Calls other functions
 
     Args: None
     Returns : None
     """
-    df = perform_pyfluxpro_processing(met_output_file, eddypro_full_output)
-    # write formatted df to output path
-    #data_util.write_data(df, pyfluxpro_output_file)
+    df = perform_pyfluxpro_processing(eddypro_full_output)
+    # write pyfluxpro formatted df to output path
+    data_util.write_data(df, full_output_pyfluxpro)
+    # copy and rename the met data file
+    shutil.copyfile(met_data_30_input, met_data_30_pyfluxpro)
+
 
 
 # Press the green button in the gutter to run the script.
@@ -132,4 +135,7 @@ if __name__ == '__main__':
     inputmet, inputprecip, inputsoilkey, missingTime, met_output_file, eddypro_full_output = get_args()
     eddypro_main(inputmet, inputprecip, inputsoilkey, missingTime, met_output_file)
     ### TODO : Run EddyPro headless here
-    pyfluxpro_main(met_output_file, eddypro_full_output)
+    full_output_pyfluxpro = cfg.full_output_pyfluxpro
+    met_data_30_pyfluxpro = cfg.met_data_30_pyfluxpro
+    pyfluxpro_main(eddypro_full_output, full_output_pyfluxpro, met_output_file, met_data_30_pyfluxpro)
+    # manual step of putting met_output_file in one sheet and eddypro_full_output
