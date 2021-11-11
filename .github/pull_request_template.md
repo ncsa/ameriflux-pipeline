@@ -39,7 +39,6 @@ _Please select all applicable options:_
 [comment]: # (If you're unsure about any of these, don't hesitate to ask. We're here to help!.)
 
 - [ ] I have updated the [CHANGELOG](../CHANGELOG.md).
-- [ ] I have read the [Contributor Guidelines](../CONTRIBUTING.md).
 - [ ] I have performed a self-review of my own code.
 - [ ] I have commented my code, particularly in hard-to-understand areas.
 - [ ] My change requires updating the documentation.
