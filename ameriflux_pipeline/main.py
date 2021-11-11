@@ -132,9 +132,11 @@ def pyfluxpro_main(eddypro_full_output, full_output_pyfluxpro, met_data_30_input
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     inputmet, inputprecip, inputsoilkey, missingTime, met_output_file, eddypro_full_output = get_args()
+    # run eddypro preprocessing and formatting
     eddypro_main(inputmet, inputprecip, inputsoilkey, missingTime, met_output_file)
     # TODO : Run EddyPro headless here
     full_output_pyfluxpro = cfg.full_output_pyfluxpro
     met_data_30_pyfluxpro = cfg.met_data_30_pyfluxpro
+    # run pyfluxpro formatting
     pyfluxpro_main(eddypro_full_output, full_output_pyfluxpro, met_output_file, met_data_30_pyfluxpro)
     # manual step of putting met_output_file in one sheet and eddypro_full_output
