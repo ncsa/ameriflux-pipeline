@@ -1,12 +1,10 @@
 ## Description
 _Please provide a summary of the pull request and the issue it fixes. Please add necessary details, context, dependencies, explanation of when review is needed (see next section), etc._
 
+**Fixes #(add issue number here and remove parentheses)**
 [comment]: # (If there is special inputs and outputs expected in the description describe type of input and outputs (csv/xlsx/text)
 [comment]: # (If there is special inputs required, what these inputs should be/include (met tower variables, key matching, etc)
 [comment]: # (If there is another software required to run, in addition to this code.)
-
-**Fixes #(add issue number here and remove parentheses)**
-
 [comment]: # (This project only accepts pull requests related to open issues.)
 [comment]: # (If suggesting a new feature or change, please discuss it in an issue first.)
 [comment]: # (If fixing a bug, there should be an issue describing it with steps to reproduce.)
