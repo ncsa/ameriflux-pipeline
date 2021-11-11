@@ -20,9 +20,9 @@ class PyFluxProFormat:
         Returns:
             obj: Pandas DataFrame object.
         """
-        df, df_meta = PyFluxProFormat.read_data(input_path) # reads file and returns data and meta data
+        df, df_meta = PyFluxProFormat.read_data(input_path)  # reads file and returns data and meta data
         # add columns and units to meta data if neccessary
-        df, df_meta= PyFluxProFormat.add_timestamp(df, df_meta) # step 3b in guide
+        df, df_meta = PyFluxProFormat.add_timestamp(df, df_meta)  # step 3b in guide
         # convert -9999.0 to NaN. To make numerical conversions easier.
         df.replace('-9999.0', np.nan, inplace=True)
 
@@ -31,13 +31,11 @@ class PyFluxProFormat:
         # step 3d. Convert air pressure unit.
         df, df_meta = PyFluxProFormat.convert_airpressure_unit(df, df_meta)
         # step 3e is skipped with time-gap filling settings in eddypro. so is step3.e.a
-        df = PyFluxProFormat.concat_df(df, df_meta) # concatenate df and df meta
+        df = PyFluxProFormat.concat_df(df, df_meta)  # concatenate df and df meta
         # convert NaNs back
         df.replace(np.nan, 'NAN', inplace=True)
         # return formatted df
         return df
-
-
 
     @staticmethod
     def read_data(path):
@@ -50,11 +48,10 @@ class PyFluxProFormat:
             df_meta (obj) : Pandas DataFrame object having the meta data
         """
         df = pd.read_csv(path, skiprows=1)  # skip the first row so as to skip file_info row
-        df_meta = df.head(1) # the first row has the meta data. Row index 0 has the units of all variables
+        df_meta = df.head(1)  # the first row has the meta data. Row index 0 has the units of all variables
         df = df.iloc[1:, :]  # drop the first row of units. Will be concatenated with df_meta later
         df.reset_index(drop=True, inplace=True)  # reset index after dropping rows
         return df, df_meta
-
 
     @staticmethod
     def add_timestamp(df, df_meta):
@@ -71,15 +68,14 @@ class PyFluxProFormat:
             df_meta (object): Processed Pandas DataFrame object
         """
         df['TIMESTAMP'] = df['date'] + ' ' + df['time']
-        df_meta['TIMESTAMP'] = 'yyyy/mm/dd HH:MM' # add new variable and unit to meta df
+        df_meta['TIMESTAMP'] = 'yyyy/mm/dd HH:MM'  # add new variable and unit to meta df
         df['TIMESTAMP'] = df['TIMESTAMP'].map(lambda t: t.replace('-', '/'))
         # move TIMESTAMP column to first index
         cols = list(df.columns)
-        cols.insert(1, cols.pop(cols.index('TIMESTAMP'))) # pop and insert TIMESTAMP at index 1
-        df = df.loc[:, cols] # rearrange df
+        cols.insert(1, cols.pop(cols.index('TIMESTAMP')))  # pop and insert TIMESTAMP at index 1
+        df = df.loc[:, cols]  # rearrange df
         df_meta = df_meta.loc[:, cols]
         return df, df_meta
-
 
     @staticmethod
     def convert_temp_unit(df, df_meta):
@@ -93,12 +89,12 @@ class PyFluxProFormat:
             df (object): Processed Pandas DataFrame object
             df_meta (object): Processed Pandas DataFrame object
         """
-        df['sonic_temperature'] = df['sonic_temperature'].apply(pd.to_numeric, errors='coerce')  # convert string to numerical
-        df['sonic_temperature_C'] = df['sonic_temperature']-273.15 # convert to celsius
-        df['sonic_temperature_C'].round(3) # round to 3 decimal places
-        df_meta['sonic_temperature_C'] = '[C]' # add new variable and unit to meta df
+        # convert string to numerical
+        df['sonic_temperature'] = df['sonic_temperature'].apply(pd.to_numeric, errors='coerce')
+        df['sonic_temperature_C'] = df['sonic_temperature']-273.15  # convert to celsius
+        df['sonic_temperature_C'].round(3)  # round to 3 decimal places
+        df_meta['sonic_temperature_C'] = '[C]'  # add new variable and unit to meta df
         return df, df_meta
-
 
     @staticmethod
     def convert_airpressure_unit(df, df_meta):
@@ -118,7 +114,6 @@ class PyFluxProFormat:
         df_meta['air_pressure_kPa'] = '[kPa]'
         return df, df_meta
 
-
     @staticmethod
     def concat_df(df, df_meta):
         """
@@ -131,4 +126,3 @@ class PyFluxProFormat:
         """
         df = pd.concat([df_meta, df], ignore_index=True)
         return df
-

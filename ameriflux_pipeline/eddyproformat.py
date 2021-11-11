@@ -26,8 +26,8 @@ class EddyProFormat:
             obj: Pandas DataFrame object.
         """
         input_path = input_data_path  # path of input data csv file
-        input_soil_key = input_soil_key # path for soil key
-        file_meta = file_meta # df containing meta data of file
+        input_soil_key = input_soil_key  # path for soil key
+        file_meta = file_meta  # df containing meta data of file
         output_path = output_path  # path to write the formatted meteorological data file
 
         # extract site name from file meta data
@@ -45,7 +45,7 @@ class EddyProFormat:
 
         # all empty values are replaced by 'NAN' in preprocessor.replace_empty() function
         # replace 'NAN' with np.nan for ease of manipulation
-        ### TODO : check if this conversion is needed. Currently it is used in fillna function
+        # TODO : check if this conversion is needed. Currently it is used in fillna function
         df.replace('NAN', np.nan, inplace=True)
 
         # step 3 of guide. change timestamp format
@@ -57,11 +57,12 @@ class EddyProFormat:
         eddypro_shf_labels = EddyProFormat.shf_colnames(df)
         # rename met variables to eddypro labels
         eddypro_col_labels = {'TIMESTAMP': 'TIMESTAMP', 'RH_Avg': 'RH', 'TargTempK_Avg': 'Tc', 'albedo_Avg': 'Rr',
-                     'Rn_Avg': 'Rn', 'LWDnCo_Avg': 'LWin', 'LWUpCo_Avg': 'LWout', 'SWDn_Avg': 'SWin', 'SWUp_Avg': 'SWout',
-                     'PARDown_Avg': 'PPFD', 'PARUp_Avg': 'PPFDr', 'Precip_IWS': 'P_rain', 'WindSpeed_Avg': 'MWS', 'WindDir_Avg': 'WD'}
+                              'Rn_Avg': 'Rn', 'LWDnCo_Avg': 'LWin', 'LWUpCo_Avg': 'LWout', 'SWDn_Avg': 'SWin',
+                              'SWUp_Avg': 'SWout', 'PARDown_Avg': 'PPFD', 'PARUp_Avg': 'PPFDr',
+                              'Precip_IWS': 'P_rain', 'WindSpeed_Avg': 'MWS', 'WindDir_Avg': 'WD'}
         # merge all eddypro label dictionaries
         eddypro_labels = EddyProFormat.merge_dicts(eddypro_col_labels, eddypro_air_temp_labels, eddypro_shf_labels,
-                                     eddypro_soil_temp_labels, eddypro_soil_moisture_labels)
+                                                   eddypro_soil_temp_labels, eddypro_soil_moisture_labels)
 
         df.rename(columns=eddypro_labels, inplace=True)
 
@@ -81,11 +82,11 @@ class EddyProFormat:
         # return formatted df
         return df
 
-
     @staticmethod
     def get_site_name(file_site_name):
         """
-        Match the file site name to site names in soil key data. From the input file site name, return the matching site name
+        Match the file site name to site names in soil key data.
+        From the input file site name, return the matching site name
         Site name is used as lookup in soil key table
         Args:
             file_site_name (str): file site name from file meta data, first row of input met file
@@ -103,7 +104,6 @@ class EddyProFormat:
         elif re.match('^CPU:Sorghum_*', file_site_name):
             return 'Sorghum'
 
-
     @staticmethod
     def get_soil_keys(df_soil_key, site_name):
         """
@@ -112,13 +112,15 @@ class EddyProFormat:
             df_soil_key (obj): pandas dataframe having soil keys
             site_name (str): site name extracted from file meta data
         Returns:
-            eddypro_soil_moisture_labels (dict): Dictionary giving soil moisture mapping from met tower variables to eddypro labels
-            eddypro_soil_temp_labels (dict): Dictionary giving soil temperature mapping from met tower variables to eddypro labels
+            eddypro_soil_moisture_labels(dict): Dictionary for soil moisture mapping from met variable to eddypro label
+            eddypro_soil_temp_labels(dict): Dictionary for soil temperature mapping from met variable to eddypro label
         """
-        site_soil_key = df_soil_key[df_soil_key['Site name'] == site_name]
-        # get soil temp and moisture
-        site_soil_moisture = site_soil_key[['Datalogger/met water variable name', 'EddyPro water variable name']]
-        site_soil_temp = site_soil_key[['Datalogger/met temperature variable name', 'EddyPro temperature variable name']]
+        site_soil_key = df_soil_key[df_soil_key['Site name'] == site_name]  # get all variables for the site
+        # get soil temp and moisture variables
+        site_soil_moisture = site_soil_key[['Datalogger/met water variable name',
+                                            'EddyPro water variable name']]
+        site_soil_temp = site_soil_key[['Datalogger/met temperature variable name',
+                                        'EddyPro temperature variable name']]
         col_rename = {'Datalogger/met water variable name': 'Met variable',
                       'Datalogger/met temperature variable name': 'Met variable',
                       'EddyPro water variable name': 'Eddypro label',
@@ -126,6 +128,7 @@ class EddyProFormat:
                       }
         site_soil_moisture.rename(columns=col_rename, inplace=True)
         site_soil_temp.rename(columns=col_rename, inplace=True)
+        # make these variable labels as dictionary
         eddypro_soil_moisture_labels = site_soil_moisture.set_index('Met variable').T.to_dict('list')
         eddypro_soil_temp_labels = site_soil_temp.set_index('Met variable').T.to_dict('list')
         # remove list from values
@@ -134,7 +137,6 @@ class EddyProFormat:
         for key, value in eddypro_soil_temp_labels.items():
             eddypro_soil_temp_labels[key] = ''.join(value)
         return eddypro_soil_moisture_labels, eddypro_soil_temp_labels
-
 
     @staticmethod
     def read_rename(input_path, output_path):
@@ -150,11 +152,11 @@ class EddyProFormat:
         df = pd.read_csv(output_path)
         return df
 
-
     @staticmethod
     def read_soil_key(input_soil_key):
         """
-        Method to read soil key excel file. Soil key file contains the mapping for met variables and eddypro labels for soil temp and moisture
+        Method to read soil key excel file.
+        Soil key file contains the mapping for met variables and eddypro labels for soil temp and moisture
         Returns the df
         Args :
             input_soil_key (str): soil key file path
@@ -163,7 +165,6 @@ class EddyProFormat:
         """
         soil_key_df = pd.read_excel(input_soil_key)  # read excel file
         return soil_key_df
-
 
     @staticmethod
     def timestamp_format(df):
@@ -178,25 +179,24 @@ class EddyProFormat:
         df['TIMESTAMP'][0] = 'yyyy-mm-dd HH:MM'  # Change unit TS to yyyy-mm-dd HH:MM to match eddypro format
         return df
 
-
     @staticmethod
     def air_temp_colnames(df):
         """
-        Function to rename air temperature measurements. Rename AirTC_Avg, RTD_C_Avg to Ta_1_1_1 and Ta_1_1_2, where Ta_1_1_1 must be present.
+        Function to rename air temperature measurements.
+        Rename AirTC_Avg, RTD_C_Avg to Ta_1_1_1 and Ta_1_1_2, where Ta_1_1_1 must be present.
         RTD being more accurate measurement, rename RTD_C_Avg to Ta_1_1_1 for eddypro. If not present, rename AirTC_Avg
         Args:
             df (object): Pandas DataFrame object
         Returns:
             dictionary: met column name and eddypro label mapping
         """
-        air_temp_cols = ['RTD_C_Avg', 'AirTC_Avg' ]
+        air_temp_cols = ['RTD_C_Avg', 'AirTC_Avg']
         if set(air_temp_cols).issubset(set(df.columns)):
-            return {'RTD_C_Avg':'Ta_1_1_1', 'AirTC_Avg':'Ta_1_1_2'}
+            return {'RTD_C_Avg': 'Ta_1_1_1', 'AirTC_Avg': 'Ta_1_1_2'}
         elif 'RTD_C_Avg' in df.columns:
-            return {'RTD_C_Avg':'Ta_1_1_1'}
+            return {'RTD_C_Avg': 'Ta_1_1_1'}
         else:
-            return {'AirTC_Avg':'Ta_1_1_1'}
-
+            return {'AirTC_Avg': 'Ta_1_1_1'}
 
     @staticmethod
     def shf_colnames(df):
@@ -216,7 +216,6 @@ class EddyProFormat:
         else:
             return {'shf_Avg(2)': 'SHF_2_1_1'}
 
-
     @staticmethod
     def merge_dicts(*dict_args):
         """
@@ -233,32 +232,6 @@ class EddyProFormat:
             result.update(dictionary)
         return result
 
-
-    @staticmethod
-    def soil_temp_colnames(df):
-        """
-        Not used currently
-        Function to rename soil temp measurements.
-        Either TC_10cm_Avg, TC1_10cm_Avg or TC2_10cm_Avg - use regex to match. If multiple fields present, choose the one with least missing values.
-        Args:
-            df (object): Pandas DataFrame object
-        Returns:
-            str: the chosen column name
-        """
-        column_string = ' '.join(df.columns)
-        pattern = 'TC\d*_10cm_Avg'
-        match = re.findall(pattern, column_string)
-        if len(match)==1:
-            return match[0]
-        else:
-            # multiple field names match. choose one with min NAN
-            col_numNAN={}
-            for col in match:
-                col_numNAN[col]=len(df[df[col]=='NAN'])
-            # return col name with minimum value
-            return min(col_numNAN, key=col_numNAN.get)
-
-
     @staticmethod
     def convert_temp_unit(df):
         """
@@ -268,19 +241,19 @@ class EddyProFormat:
         Returns:
             df (object): Processed Pandas DataFrame object
         """
-        temp_cols = [c for c in df.columns if df.iloc[0][c] in ['Deg C', 'degC', 'deg_C']] # get all temp variables : get all variables where the unit(2nd row) is 'Deg C' or 'degC'
+        # get all temp variables : get all variables where the unit(2nd row) is 'Deg C' or 'degC'
+        temp_cols = [c for c in df.columns if df.iloc[0][c] in ['Deg C', 'degC', 'deg_C']]
         df_temp = df[temp_cols]
         df_temp = df_temp.iloc[1:, :]  # make sure not to reset index here as we need to insert unit row at index 0
-        df_temp = df_temp.apply(pd.to_numeric, errors='coerce') # convert string to numerical
+        df_temp = df_temp.apply(pd.to_numeric, errors='coerce')  # convert string to numerical
         df_temp += 273.15
-        df_temp.loc[0] = ['K'] * df_temp.shape[1] # add units as Kelvin as row index 0
+        df_temp.loc[0] = ['K'] * df_temp.shape[1]  # add units as Kelvin as row index 0
         df_temp = df_temp.sort_index()  # sorting by index
         df_temp.round(3)
         df.drop(temp_cols, axis=1, inplace=True)
-        df = df.join(df_temp) # join 2 df on index
+        df = df.join(df_temp)  # join 2 df on index
 
         return df
-
 
     @staticmethod
     def replace_nonnumeric(df):
@@ -293,7 +266,6 @@ class EddyProFormat:
         """
         df.fillna(value=-9999.0, inplace=True)
         return df
-
 
     @staticmethod
     def replace_units(df):
@@ -308,7 +280,6 @@ class EddyProFormat:
                     'm/s': 'm+1s-1', 'Deg': 'degrees', 'vwc': 'm+3m-3'}, inplace=True)
         return df
 
-
     @staticmethod
     def check_req_columns(df):
         """
@@ -321,6 +292,4 @@ class EddyProFormat:
         req_cols = ['SWin', 'RH', 'LWin', 'PPFD']
         if not set(req_cols).issubset(set(df.columns)):
             print("{' and '.join(set(req_cols).difference(df.columns))} are not present")
-        print( "All required columns are present in dataframe" )
-
-
+        print("All required columns are present in dataframe")

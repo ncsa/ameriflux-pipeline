@@ -7,9 +7,9 @@ import subprocess
 import os
 
 
-
-def run_eddypro(eddypro_loc="", file_name="", project_title="", project_id="", file_prototype="",
-                proj_file="", dyn_metadata_file="", out_path="", data_path="", biom_file="", ex_file=""):
+def run_eddypro(eddypro_loc="", file_name="", project_title="",
+                project_id="", file_prototype="", proj_file="", dyn_metadata_file="",
+                out_path="", data_path="", biom_file="", ex_file=""):
 
     # create out temp project file
     outfile = os.path.join(os.path.dirname(os.path.abspath(file_name)), "templates.eddypro")
@@ -34,6 +34,7 @@ def run_eddypro(eddypro_loc="", file_name="", project_title="", project_id="", f
     # remove temporary project file
     print("removed temporary project file")
     os.remove(outfile)
+
 
 def create_tmp_proj_file(file_name, project_title,
                          project_id, file_prototype,
@@ -103,8 +104,6 @@ def create_tmp_proj_file(file_name, project_title,
                 if len(words[1]) > 0 and len(ex_file) > 0:
                     line = 'ex_file=' + ex_file
 
-
-
             out_proj_file_line_list.append(line.strip())
 
     except Exception:
@@ -121,6 +120,3 @@ def save_string_list_to_file(in_list, outfile):
         out_proj_file.close()
     except Exception:
         raise Exception("Failed to create temporary project file")
-
-
-

@@ -14,5 +14,3 @@ def write_data(df, output_data):
     """
     print("Write data to file ", output_data)
     df.to_csv(output_data, index=False)
-
-    return

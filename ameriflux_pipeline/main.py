@@ -15,7 +15,6 @@ from eddyproformat import EddyProFormat
 from pyfluxpro_format import PyFluxProFormat
 
 
-
 def perform_data_processing(input_met_path, input_precip_path, missing_time_threshold):
     """Create processed dataframe
 
@@ -28,7 +27,7 @@ def perform_data_processing(input_met_path, input_precip_path, missing_time_thre
 
     """
     df, file_meta = Preprocessor.data_preprocess(input_met_path, input_precip_path, missing_time_threshold)
-    ### TODO : check with Bethany - number of decimal places for numerical values
+    # TODO : check with Bethany - number of decimal places for numerical values
     return df, file_meta
 
 
@@ -59,7 +58,8 @@ def perform_pyfluxpro_processing(full_output):
         obj: Pandas DataFrame object.
     """
     df = PyFluxProFormat.data_formatting(full_output)
-    # met_data has data from row index 1. EddyPro full_output will be formatted to have data from row index 1 also. This is step 3a in guide.
+    # met_data has data from row index 1. EddyPro full_output will be formatted to have data from row index 1 also.
+    # This is step 3a in guide.
     # join met_data and full_output in excel sheet (manual step)
 
     # return formatted full_output
@@ -71,7 +71,7 @@ def get_args():
     Function to get all arguments needed to run main files
     Args: None
     """
-    ### TODO : create a dynamic method to pass input files, shouldn't depend on the relative file path
+    # TODO : create a dynamic method to pass input files, shouldn't depend on the relative file path
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--inputmet", action="store",
@@ -129,12 +129,11 @@ def pyfluxpro_main(eddypro_full_output, full_output_pyfluxpro, met_data_30_input
     shutil.copyfile(met_data_30_input, met_data_30_pyfluxpro)
 
 
-
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     inputmet, inputprecip, inputsoilkey, missingTime, met_output_file, eddypro_full_output = get_args()
     eddypro_main(inputmet, inputprecip, inputsoilkey, missingTime, met_output_file)
-    ### TODO : Run EddyPro headless here
+    # TODO : Run EddyPro headless here
     full_output_pyfluxpro = cfg.full_output_pyfluxpro
     met_data_30_pyfluxpro = cfg.met_data_30_pyfluxpro
     pyfluxpro_main(eddypro_full_output, full_output_pyfluxpro, met_output_file, met_data_30_pyfluxpro)
