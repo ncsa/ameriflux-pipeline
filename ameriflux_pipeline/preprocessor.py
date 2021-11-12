@@ -26,6 +26,7 @@ class Preprocessor:
         """
         Cleans and process the dataframe as per the guide. Process dataframe inplace
         Returns processed df and file meta df which is used in eddyproformat.py
+
         Args:
             input_path (str): A file path for the input data.
             input_precip_path(str): A file path for the input precipitation data.
@@ -119,6 +120,7 @@ class Preprocessor:
     def read_met_data(data_path):
         """
         Reads data and returns dataframe containing the met data and another df containing meta data
+
         Args:
             data_path(str): input data file path
         Returns:
@@ -148,6 +150,7 @@ class Preprocessor:
         Method to get file meta data and df meta data from meta data.
         Meta data from file contains the file meta data, column names and corresponding units in 3 rows
         Returns the file meta data df and meteorological meta data.
+
         Args :
             file_df_meta (obj): pandas dataframe consisting of all meta data
         Returns :
@@ -168,6 +171,7 @@ class Preprocessor:
     def add_U_V_units(df):
         """
         Add units for U_Avg and V_Avg measurements in df_meta
+
         Args:
             df (obj): Pandas DataFrame object
         Returns:
@@ -183,6 +187,7 @@ class Preprocessor:
     def read_precip_data(data_path):
         """
         Reads precipitation data from excel file and returns processed dataframe. Converts units from inches to mm.
+
         Args:
             data_path(str): input data file path
         Returns:
@@ -208,6 +213,7 @@ class Preprocessor:
     def change_datatype(df):
         """
         Change datatypes of all columns, except TIMESTAMP to numeric
+
         Args:
             df (object): Pandas DataFrame object
         Returns:
@@ -222,6 +228,7 @@ class Preprocessor:
         """
         Logical function to test if a variable is a number or not.
         Currently not used as data types are changed for all columns except TIMESTMAP
+
         Args:
             value: variable
         Returns:
@@ -237,6 +244,7 @@ class Preprocessor:
     def sync_time(df, new_variables):
         """
         Sync time by delaying by 30min
+
         Args:
             df (object): Input pandas DataFrame object
             new_variables (list): List of new variables
@@ -259,6 +267,7 @@ class Preprocessor:
     def get_timedelta(df, new_variables):
         """
         Method to calculate time difference between two rows. Calculate timedelta and create new column 'timedelta'
+
         Args:
             df (object): Input pandas DataFrame object
             new_variables (list): List of new variables
@@ -274,6 +283,7 @@ class Preprocessor:
     def insert_missing_timestamp(df, missing_timeslot_threshold):
         """
         Function to check and insert missing timestamps
+
         Args:
             df (object): Input pandas DataFrame object
             missing_timeslot_threshold (int): Value for missing timeslot threshold
@@ -330,6 +340,7 @@ class Preprocessor:
     def timestamp_format(df):
         """
         Function to convert datetime to string and correct timestamp format
+
         Args:
             df (object): Pandas DataFrame object
         Returns:
@@ -346,6 +357,7 @@ class Preprocessor:
         Check if soil heat flux calculation is required. Check if shf_Avg(1) and shf_Avg(2) exists.
         If yes, shf calculation is not required, return False
         If no, check if shg_mV_Avg exists. If yes, shf calculation is required, return True. Else return False
+
         Args:
             df (object): Pandas DataFrame object
         Returns:
@@ -363,6 +375,7 @@ class Preprocessor:
         """
         Additional calculation for soil heat flux if needed. Step 5 in guide
         shf_Avg=[shf_mV]*[shf_cal]
+
         Args:
             shf_mV (float): soil heat flux calculation variable
             shf_cal (float): soil heat flux variable
@@ -375,6 +388,7 @@ class Preprocessor:
     def es(T):
         """
         es calculation for absolute humidity
+
         Args:
             T (float): air temperature in celsius
         Returns:
@@ -387,6 +401,7 @@ class Preprocessor:
     def AhFromRH(T, RH):
         """
         Absolute humidity from relative humidity and temperature
+
         Args:
             T (float): Air temperature in celsius
             RH (float): Relative humidity in percentage
@@ -404,6 +419,7 @@ class Preprocessor:
     def replace_empty(df):
         """
         Function to replace empty and NaN cells
+
         Args:
             df (object): Pandas DataFrame object
         Returns :
@@ -417,6 +433,7 @@ class Preprocessor:
     def delete_new_variables(df, new_variables):
         """
         Method to delete newly created variables in df. Delete columns in place
+
         Args :
             df (object): Pandas DataFrame object
             new_variables (list): A list of newly created variables during the process

@@ -6,6 +6,7 @@
 
 def write_data(df, output_data):
     """Write the dataframe to csv file
+
         Args:
             df (object): Pandas DataFrame object
             output_data_path (str): File path to save output data

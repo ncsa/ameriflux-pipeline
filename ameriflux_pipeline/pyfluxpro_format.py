@@ -15,6 +15,7 @@ class PyFluxProFormat:
     def data_formatting(input_path):
         """
         Constructor for the class
+
         Args:
             input_path (str): A file path for the input data. This is the full output of EddyPro
         Returns:
@@ -41,6 +42,7 @@ class PyFluxProFormat:
     def read_data(path):
         """
         Reads data and returns dataframe containing the met data and another df containing meta data
+
         Args:
             path(str): input data file path
         Returns:
@@ -60,6 +62,7 @@ class PyFluxProFormat:
         Add date and time column. Replace inplace - with /.
         Add new column and unit to meta dataframe
         Move TIMESTAMP column to index 1
+
         Args:
             df (object): Pandas DataFrame object
             df_meta (object): Pandas DataFrame object
@@ -118,6 +121,7 @@ class PyFluxProFormat:
     def concat_df(df, df_meta):
         """
         Concatenates dataframes
+
         Args:
             df (obj): Pandas DataFrame object
             df_meta (obj) : Pandas DataFrame object having the meta data

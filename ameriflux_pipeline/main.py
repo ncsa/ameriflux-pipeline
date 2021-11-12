@@ -24,7 +24,6 @@ def perform_data_processing(input_met_path, input_precip_path, missing_time_thre
         missing_time_threshold (int): Number of 30min timeslot threshold
     Returns:
         obj: Pandas DataFrame object.
-
     """
     df, file_meta = Preprocessor.data_preprocess(input_met_path, input_precip_path, missing_time_threshold)
     # TODO : check with Bethany - number of decimal places for numerical values
@@ -40,7 +39,6 @@ def perform_data_formatting(input_data_path, input_soil_key, file_meta, output_p
         input_soil_key (str): A file path for input soil key sheet
         file_meta (obj) : A pandas dataframe containing meta data about the input met data file
         output_path (str): A file path for the output data.
-
     Returns:
         obj: Pandas DataFrame object.
     """
@@ -69,7 +67,9 @@ def perform_pyfluxpro_processing(full_output):
 def get_args():
     """
     Function to get all arguments needed to run main files
+
     Args: None
+    Returns : None
     """
     # TODO : create a dynamic method to pass input files, shouldn't depend on the relative file path
     parser = argparse.ArgumentParser()
@@ -88,13 +88,13 @@ def get_args():
 
     # parse arguments
     args = parser.parse_args()
-    missingTime = int(cfg.missingTime)
-    full_output = cfg.full_output
+    missing_time = int(cfg.MISSING_TIME)
+    full_output = cfg.FULL_OUTPUT
 
-    return args.inputmet, args.inputprecip, args.inputsoilkey, missingTime, args.outputmet, full_output
+    return args.inputmet, args.inputprecip, args.inputsoilkey, missing_time, args.outputmet, full_output
 
 
-def eddypro_main(inputmet, inputprecip, inputsoilkey, missingTime, output):
+def eddypro_main(inputmet, inputprecip, inputsoilkey, missing_time, output):
     """
     Main function to run EddyPro processing. Calls other functions
 
@@ -102,7 +102,7 @@ def eddypro_main(inputmet, inputprecip, inputsoilkey, missingTime, output):
     Returns : None
     """
     # start preprocessing data
-    df, file_meta = perform_data_processing(inputmet, inputprecip, missingTime)
+    df, file_meta = perform_data_processing(inputmet, inputprecip, missing_time)
     # write processed df to output path
     data_util.write_data(df, output)
 
@@ -131,12 +131,12 @@ def pyfluxpro_main(eddypro_full_output, full_output_pyfluxpro, met_data_30_input
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    inputmet, inputprecip, inputsoilkey, missingTime, met_output_file, eddypro_full_output = get_args()
+    inputmet, inputprecip, inputsoilkey, missing_time, met_output_file, eddypro_full_output = get_args()
     # run eddypro preprocessing and formatting
-    eddypro_main(inputmet, inputprecip, inputsoilkey, missingTime, met_output_file)
+    eddypro_main(inputmet, inputprecip, inputsoilkey, missing_time, met_output_file)
     # TODO : Run EddyPro headless here
-    full_output_pyfluxpro = cfg.full_output_pyfluxpro
-    met_data_30_pyfluxpro = cfg.met_data_30_pyfluxpro
+    full_output_pyfluxpro = cfg.FULL_OUTPUT_PYFLUXPRO
+    met_data_30_pyfluxpro = cfg.MET_DATA_30_PYFLUXPRO
     # run pyfluxpro formatting
     pyfluxpro_main(eddypro_full_output, full_output_pyfluxpro, met_output_file, met_data_30_pyfluxpro)
     # manual step of putting met_output_file in one sheet and eddypro_full_output

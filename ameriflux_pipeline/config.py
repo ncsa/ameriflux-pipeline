@@ -4,8 +4,8 @@ class Config:
     '''
     class to list all configuration settings required for preprocessing and formatting
     '''
-    missingTime = 96
-    full_output = 'eddypro_Sorghum_Jan1to7_2021_full_output_2021-11-03T083200_adv.csv'
+    MISSING_TIME = 96
+    FULL_OUTPUT = 'eddypro_Sorghum_Jan1to7_2021_full_output_2021-11-03T083200_adv.csv'
     # inputs sheets for pyfluxpro renamed as per guide (PyFluxPro : Creating the database, step 1)
-    full_output_pyfluxpro = 'full_output.csv'
-    met_data_30_pyfluxpro = 'Met_data_30.csv'
+    FULL_OUTPUT_PYFLUXPRO = 'full_output.csv'
+    MET_DATA_30_PYFLUXPRO = 'Met_data_30.csv'
