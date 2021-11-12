@@ -4,8 +4,7 @@
 # terms of the Mozilla Public License v2.0 which accompanies this distribution,
 # and is available at https://www.mozilla.org/en-US/MPL/2.0/
 
-import os
-import ameriflux_pipeline.runeddypro as runeddypro
+from ameriflux_pipeline.runeddypro import RunEddypro
 
 
 def test_run_eddypro():
