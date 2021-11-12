@@ -76,23 +76,30 @@ def get_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--inputmet", action="store",
-                        default=os.path.join(os.getcwd(), "tests", "data", "FLUXSB_EC_JanMar2021.csv"),
+                        default=os.path.join(os.getcwd(), "tests", "data",
+                                             "FLUXSB_EC_JanMar2021.csv"),
                         help="input met data path")
     parser.add_argument("--inputprecip", action="store",
-                        default=os.path.join(os.getcwd(), "tests", "data", "Precip_IWS_Jan-Feb_2021.xlsx"),
+                        default=os.path.join(os.getcwd(), "tests", "data",
+                                             "Precip_IWS_Jan-Feb_2021.xlsx"),
                         help="input precipitation data path")
     parser.add_argument("--inputsoilkey", action="store",
-                        default=os.path.join(os.getcwd(), "tests", "data", "Soils key.xlsx"))
+                        default=os.path.join(os.getcwd(), "tests", "data",
+                                             "Soils key.xlsx"))
     parser.add_argument("--outputmet", action="store",
-                        default=os.path.join(os.getcwd(), "tests", "data", "FLUXSB_EC_JanMar2021_output.csv"),
+                        default=os.path.join(os.getcwd(), "tests", "data",
+                                             "FLUXSB_EC_JanMar2021_output.csv"),
+                        help="output data path")
+    parser.add_argument("--fulloutput", action="store",
+                        default=os.path.join(os.getcwd(), "tests", "data",
+                                             "eddypro_Sorghum_Jan1to7_2021_full_output_2021-11-03T083200_adv.csv"),
                         help="output data path")
 
     # parse arguments
     args = parser.parse_args()
     missing_time = int(cfg.MISSING_TIME)
-    full_output = cfg.FULL_OUTPUT
 
-    return args.inputmet, args.inputprecip, args.inputsoilkey, missing_time, args.outputmet, full_output
+    return args.inputmet, args.inputprecip, args.inputsoilkey, missing_time, args.outputmet, args.fulloutput
 
 
 def eddypro_main(inputmet, inputprecip, inputsoilkey, missing_time, output):
