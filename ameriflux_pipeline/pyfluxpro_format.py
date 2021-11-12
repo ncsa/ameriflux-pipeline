@@ -41,7 +41,8 @@ class PyFluxProFormat:
     @staticmethod
     def read_data(path):
         """
-        Reads data and returns dataframe containing the met data and another df containing meta data
+        Reads data (This is the full output of EddyPro).
+        Returns dataframe containing the met data and another df containing meta data
 
         Args:
             path(str): input data file path
