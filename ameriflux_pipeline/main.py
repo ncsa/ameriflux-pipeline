@@ -16,7 +16,8 @@ from pyfluxpro_format import PyFluxProFormat
 
 
 def perform_data_processing(input_met_path, input_precip_path, missing_time_threshold):
-    """Create processed dataframe
+    """
+    Create processed dataframe
 
     Args:
         input_met_path (str): A file path for the input meteorological data.

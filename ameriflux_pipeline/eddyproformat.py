@@ -61,6 +61,7 @@ class EddyProFormat:
                               'Rn_Avg': 'Rn', 'LWDnCo_Avg': 'LWin', 'LWUpCo_Avg': 'LWout', 'SWDn_Avg': 'SWin',
                               'SWUp_Avg': 'SWout', 'PARDown_Avg': 'PPFD', 'PARUp_Avg': 'PPFDr',
                               'Precip_IWS': 'P_rain', 'WindSpeed_Avg': 'MWS', 'WindDir_Avg': 'WD'}
+
         # merge all eddypro label dictionaries
         eddypro_labels = EddyProFormat.merge_dicts(eddypro_col_labels, eddypro_air_temp_labels, eddypro_shf_labels,
                                                    eddypro_soil_temp_labels, eddypro_soil_moisture_labels)
