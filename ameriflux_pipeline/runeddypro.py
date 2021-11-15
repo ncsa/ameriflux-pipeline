@@ -5,6 +5,8 @@
 # and is available at https://www.mozilla.org/en-US/MPL/2.0/
 import subprocess
 import os
+import shutil
+import errno
 
 
 class RunEddypro():
@@ -13,13 +15,13 @@ class RunEddypro():
     """
 
     @staticmethod
-    def run_eddypro(eddypro_loc="", file_name="", project_title="", project_id="", file_prototype="",
+    def run_eddypro(eddypro_bin_loc="", file_name="", project_title="", project_id="", file_prototype="",
                     proj_file="", dyn_metadata_file="", out_path="", data_path="", biom_file=""):
         """
             Run EddyPro headless using the given parameters
 
             Args:
-                eddypro_loc (str): A file path for the eddypro rp application location
+                eddypro_bin_loc (str): A path for the eddypro bin directory location
                 file_name (str): A file path for eddypro project filename
                 project_title (str): A title for the project
                 project_id (str): An ID for the project
@@ -45,14 +47,34 @@ class RunEddypro():
         RunEddypro.save_string_list_to_file(tmp_proj_list, outfile)
         print("temporary project file created")
 
+        # copy eddypro bin folder content to working folder.
+        # This is to avoid possible unzip error of ghz file that eddypro_rp has
+        current_dir = os.getcwd()
+        bin_list = os.listdir(eddypro_bin_loc)
+
+        # copy eddypro bin files
+        for bin_file in bin_list:
+            src_file = os.path.join(eddypro_bin_loc, bin_file)
+            des_file = os.path.join(current_dir, bin_file)
+            try:
+                shutil.copyfile(src_file, des_file)
+            except Exception:
+                print(bin_file, "already exists in the working directory.")
+        print("copied temporary eddypro bin files")
+
         try:
-            subprocess.run([eddypro_loc, outfile], shell=True)
+            subprocess.run(["eddypro_rp", outfile], shell=True)
         except Exception:
             raise Exception("Running EddyPro failed.")
 
         # remove temporary project file
         print("removed temporary project file")
         os.remove(outfile)
+
+        # remove temporary bin file
+        for bin_file in bin_list:
+            os.remove(os.path.join(current_dir, bin_file))
+        print("removed temporary eddypro bin files")
 
     @staticmethod
     def create_tmp_proj_file(file_name, project_title,
