@@ -14,57 +14,6 @@ from preprocessor import Preprocessor
 from eddyproformat import EddyProFormat
 from pyfluxpro_format import PyFluxProFormat
 
-
-def perform_data_processing(input_met_path, input_precip_path, missing_time_threshold):
-    """
-    Create processed dataframe
-
-    Args:
-        input_met_path (str): A file path for the input meteorological data.
-        input_precip_path (str) : file path for input precipitation data
-        missing_time_threshold (int): Number of 30min timeslot threshold
-    Returns:
-        obj: Pandas DataFrame object.
-    """
-    df, file_meta = Preprocessor.data_preprocess(input_met_path, input_precip_path, missing_time_threshold)
-    # TODO : check with Bethany - number of decimal places for numerical values
-    return df, file_meta
-
-
-def perform_data_formatting(input_data_path, input_soil_key, file_meta, output_path):
-    """
-    Create dataframe formatted for EddyPro
-
-    Args:
-        input_data_path (str): A file path for the input met data.
-        input_soil_key (str): A file path for input soil key sheet
-        file_meta (obj) : A pandas dataframe containing meta data about the input met data file
-        output_path (str): A file path for the output data.
-    Returns:
-        obj: Pandas DataFrame object.
-    """
-    df = EddyProFormat.data_formatting(input_data_path, input_soil_key, file_meta, output_path)
-    return df
-
-
-def perform_pyfluxpro_processing(full_output):
-    """
-    Create dataframe formatted for PyFluxPro
-
-    Args:
-        full_output (str): EddyPro full_output file path
-    Returns:
-        obj: Pandas DataFrame object.
-    """
-    df = PyFluxProFormat.data_formatting(full_output)
-    # met_data has data from row index 1. EddyPro full_output will be formatted to have data from row index 1 also.
-    # This is step 3a in guide.
-    # join met_data and full_output in excel sheet (manual step)
-
-    # return formatted full_output
-    return df
-
-
 def get_args():
     """
     Function to get all arguments needed to run main files
@@ -102,15 +51,20 @@ def get_args():
     return args.inputmet, args.inputprecip, args.inputsoilkey, missing_time, args.outputmet, args.fulloutput
 
 
-def eddypro_main(inputmet, inputprecip, inputsoilkey, missing_time, output):
+def eddypro_main(input_met, input_precip, input_soilkey, missing_time, output):
     """
     Main function to run EddyPro processing. Calls other functions
 
-    Args: None
+    Args:
+        input_met (str): A file path for the input meteorological data. For EddyPro processing
+        input_precip (str) : file path for input precipitation data. For EddyPro processing
+        missing_time (int): Number of 30min timeslot threshold. For EddyPro processing
+        input_soilkey (str): A file path for input soil key sheet. For EddyPro formatting
     Returns : None
     """
     # start preprocessing data
-    df, file_meta = perform_data_processing(inputmet, inputprecip, missing_time)
+    df, file_meta = Preprocessor.data_preprocess(input_met, input_precip, missing_time)
+    # TODO : check with Bethany - number of decimal places for numerical values
     # write processed df to output path
     data_util.write_data(df, output)
 
@@ -118,7 +72,7 @@ def eddypro_main(inputmet, inputprecip, inputsoilkey, missing_time, output):
     eddypro_output_filename = os.path.splitext(output_filename)[0] + '_eddypro.csv'
     eddypro_output_file = os.path.join(os.getcwd(), "tests", "data", eddypro_output_filename)
     # start formatting data
-    df = perform_data_formatting(output, inputsoilkey, file_meta, eddypro_output_file)
+    df = EddyProFormat.data_formatting(output, input_soilkey, file_meta, eddypro_output_file)
     # write formatted df to output path
     data_util.write_data(df, eddypro_output_file)
 
@@ -127,10 +81,18 @@ def pyfluxpro_main(eddypro_full_output, full_output_pyfluxpro, met_data_30_input
     """
     Main function to run PlyFluxPro processing. Calls other functions
 
-    Args: None
+    Args:
+        eddypro_full_output (str): EddyPro full_output file path
+        full_output_pyfluxpro (str): Filename to write the full_output formatted for PyFluxPro
+        met_data_30_input (str): Input meteorological file path
+        met_data_30_pyfluxpro (str): Meteorological file used as input for PyFluxPro.
     Returns : None
     """
-    df = perform_pyfluxpro_processing(eddypro_full_output)
+    df = PyFluxProFormat.data_formatting(eddypro_full_output)
+    # met_data has data from row index 1. EddyPro full_output will be formatted to have data from row index 1 also.
+    # This is step 3a in guide.
+    # join met_data and full_output in excel sheet (manual step)
+
     # write pyfluxpro formatted df to output path
     data_util.write_data(df, full_output_pyfluxpro)
     # copy and rename the met data file
@@ -139,9 +101,9 @@ def pyfluxpro_main(eddypro_full_output, full_output_pyfluxpro, met_data_30_input
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    inputmet, inputprecip, inputsoilkey, missing_time, met_output_file, eddypro_full_output = get_args()
+    input_met, input_precip, input_soilkey, missing_time, met_output_file, eddypro_full_output = get_args()
     # run eddypro preprocessing and formatting
-    eddypro_main(inputmet, inputprecip, inputsoilkey, missing_time, met_output_file)
+    eddypro_main(input_met, input_precip, input_soilkey, missing_time, met_output_file)
     # TODO : Run EddyPro headless here
     full_output_pyfluxpro = cfg.FULL_OUTPUT_PYFLUXPRO
     met_data_30_pyfluxpro = cfg.MET_DATA_30_PYFLUXPRO
