@@ -24,31 +24,32 @@ def get_args():
     # TODO : create a dynamic method to pass input files, shouldn't depend on the relative file path
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--inputmet", action="store",
+    parser.add_argument("--inputMet", action="store",
                         default=os.path.join(os.getcwd(), "tests", "data",
                                              "FLUXSB_EC_JanMar2021.csv"),
                         help="input met data path")
-    parser.add_argument("--inputprecip", action="store",
+    parser.add_argument("--inputPrecip", action="store",
                         default=os.path.join(os.getcwd(), "tests", "data",
                                              "Precip_IWS_Jan-Feb_2021.xlsx"),
                         help="input precipitation data path")
-    parser.add_argument("--inputsoilkey", action="store",
+    parser.add_argument("--missingTime", action="store", default=96,
+                        help="Number of 30min missing timeslot threshold for user confirmation")
+    parser.add_argument("--inputSoilkey", action="store",
                         default=os.path.join(os.getcwd(), "tests", "data",
                                              "Soils key.xlsx"))
-    parser.add_argument("--outputmet", action="store",
+    parser.add_argument("--outputMet", action="store",
                         default=os.path.join(os.getcwd(), "tests", "data",
                                              "FLUXSB_EC_JanMar2021_output.csv"),
                         help="output data path")
-    parser.add_argument("--fulloutput", action="store",
+    parser.add_argument("--fullOutput", action="store",
                         default=os.path.join(os.getcwd(), "tests", "data",
                                              "eddypro_Sorghum_Jan1to7_2021_full_output_2021-11-03T083200_adv.csv"),
                         help="output data path")
 
     # parse arguments
     args = parser.parse_args()
-    missing_time = int(cfg.MISSING_TIME)
 
-    return args.inputmet, args.inputprecip, args.inputsoilkey, missing_time, args.outputmet, args.fulloutput
+    return args.inputMet, args.inputPrecip, args.missingTime, args.inputSoilkey, args.outputMet, args.fullOutput
 
 
 def eddypro_main(input_met, input_precip, input_soilkey, missing_time, output):
@@ -101,7 +102,7 @@ def pyfluxpro_main(eddypro_full_output, full_output_pyfluxpro, met_data_30_input
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    input_met, input_precip, input_soilkey, missing_time, met_output_file, eddypro_full_output = get_args()
+    input_met, input_precip, missing_time, input_soilkey, met_output_file, eddypro_full_output = get_args()
     # run eddypro preprocessing and formatting
     eddypro_main(input_met, input_precip, input_soilkey, missing_time, met_output_file)
     # TODO : Run EddyPro headless here
