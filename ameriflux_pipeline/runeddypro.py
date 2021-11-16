@@ -95,6 +95,7 @@ class RunEddypro():
                 out_path (str): A directory path for output data to be stored
                 data_path(str): A directory path for input data, such as ghg files
                 biom_file (str): A file path for master biomet data
+                outfile (str): A file path for output temporary eddypro project file
             Returns:
                 None
         """
@@ -162,6 +163,16 @@ class RunEddypro():
         return out_proj_file_line_list
 
     def save_string_list_to_file(in_list, outfile):
+        """
+            Save list with string to a file
+
+            Args:
+                in_list (list): List of the strings that are the eddypro project file elements
+                outfile (str): A file path of the output file
+
+            Returns:
+                None
+        """
         try:
             out_proj_file = open(outfile, "w")
             for line in in_list:
