@@ -8,7 +8,7 @@ from ameriflux_pipeline.runeddypro import RunEddypro
 
 
 def test_run_eddypro():
-    eddypro_loc = "/path/to/LI-COR//EddyPro-7.0.7/bin/eddypro_rp.exe"
+    eddypro_bin_loc = "/path/to/LI-COR//EddyPro-7.0.7/bin/"  # directory path to eddypro bin folder
     file_name = "/should/be/same/as/tmp/proj_file"
     project_title = "Project Title"
     project_id = "Project ID"
@@ -19,10 +19,11 @@ def test_run_eddypro():
     data_path = "/path/to/GHG_files"  # Raw_Jan-Mar_2021_GHG_Files
     biom_file = "/path/to/biom_file"  # FLUXSB_EC_JanMar2021_output_eddypro.csv
     ex_file = "/path/to/ex_file"  # eddypro_Efarm_Sorghum_Reanalysis_2020_fluxnet_2021-10-26T101711_adv.csv
-    RunEddypro.run_eddypro(eddypro_loc=eddypro_loc, file_name=file_name, project_id=project_id,
+
+    RunEddypro.run_eddypro(eddypro_bin_loc=eddypro_bin_loc, file_name=file_name, project_id=project_id,
                            project_title=project_title, file_prototype=file_prototype, proj_file=proj_file,
                            dyn_metadata_file=dyn_metadata_file, out_path=out_path, data_path=data_path,
-                           biom_file=biom_file, ex_file=ex_file)
+                           biom_file=biom_file)
 
 
 if __name__ == '__main__':
