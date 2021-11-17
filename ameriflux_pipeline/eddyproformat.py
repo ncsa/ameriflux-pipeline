@@ -59,8 +59,9 @@ class EddyProFormat:
         # rename met variables to eddypro labels
         eddypro_col_labels = {'TIMESTAMP': 'TIMESTAMP', 'RH_Avg': 'RH', 'TargTempK_Avg': 'Tc', 'albedo_Avg': 'Rr',
                               'Rn_Avg': 'Rn', 'LWDnCo_Avg': 'LWin', 'LWUpCo_Avg': 'LWout', 'SWDn_Avg': 'SWin',
-                              'SWUp_Avg': 'SWout', 'PARDown_Avg': 'PPFD', 'PARUp_Avg': 'PPFDr', 'Precip_IWS': 'P_rain',
-                              'WindSpeed_Avg': 'MWS', 'WindDir_Avg': 'WD'}
+                              'SWUp_Avg': 'SWout', 'PARDown_Avg': 'PPFD', 'PARUp_Avg': 'PPFDr',
+                              'Precip_IWS': 'P_rain', 'WindSpeed_Avg': 'MWS', 'WindDir_Avg': 'WD'}
+
         # merge all eddypro label dictionaries
         eddypro_labels = EddyProFormat.merge_dicts(eddypro_col_labels, eddypro_air_temp_labels, eddypro_shf_labels,
                                                    eddypro_soil_temp_labels, eddypro_soil_moisture_labels)
@@ -115,14 +116,13 @@ class EddyProFormat:
             df_soil_key (obj): pandas dataframe having soil keys
             site_name (str): site name extracted from file meta data
         Returns:
-            eddypro_soil_moisture_labels (dict): Dictionary giving soil moisture mapping
-            from met tower variables to eddypro labels
-            eddypro_soil_temp_labels (dict): Dictionary giving soil temperature mapping
-            from met tower variables to eddypro labels
+            eddypro_soil_moisture_labels(dict): Dictionary for soil moisture mapping from met variable to eddypro label
+            eddypro_soil_temp_labels(dict): Dictionary for soil temperature mapping from met variable to eddypro label
         """
-        site_soil_key = df_soil_key[df_soil_key['Site name'] == site_name]
-        # get soil temp and moisture
-        site_soil_moisture = site_soil_key[['Datalogger/met water variable name', 'EddyPro water variable name']]
+        site_soil_key = df_soil_key[df_soil_key['Site name'] == site_name]  # get all variables for the site
+        # get soil temp and moisture variables
+        site_soil_moisture = site_soil_key[['Datalogger/met water variable name',
+                                            'EddyPro water variable name']]
         site_soil_temp = site_soil_key[['Datalogger/met temperature variable name',
                                         'EddyPro temperature variable name']]
         col_rename = {'Datalogger/met water variable name': 'Met variable',
@@ -132,6 +132,7 @@ class EddyProFormat:
                       }
         site_soil_moisture.rename(columns=col_rename, inplace=True)
         site_soil_temp.rename(columns=col_rename, inplace=True)
+        # make these variable labels as dictionary
         eddypro_soil_moisture_labels = site_soil_moisture.set_index('Met variable').T.to_dict('list')
         eddypro_soil_temp_labels = site_soil_temp.set_index('Met variable').T.to_dict('list')
         # remove list from values
@@ -162,6 +163,7 @@ class EddyProFormat:
         Method to read soil key excel file.
         Soil key file contains the mapping for met variables and eddypro labels for soil temp and moisture
         Returns the df
+
         Args :
             input_soil_key (str): soil key file path
         Returns :
@@ -189,8 +191,7 @@ class EddyProFormat:
         """
         Function to rename air temperature measurements.
         Rename AirTC_Avg, RTD_C_Avg to Ta_1_1_1 and Ta_1_1_2, where Ta_1_1_1 must be present.
-        RTD being more accurate measurement, rename RTD_C_Avg to Ta_1_1_1 for eddypro.
-        If not present, rename AirTC_Avg
+        RTD being more accurate measurement, rename RTD_C_Avg to Ta_1_1_1 for eddypro. If not present, rename AirTC_Avg
 
         Args:
             df (object): Pandas DataFrame object
@@ -239,32 +240,6 @@ class EddyProFormat:
         for dictionary in dict_args:
             result.update(dictionary)
         return result
-
-    @staticmethod
-    def soil_temp_colnames(df):
-        """
-        Not used currently
-        Function to rename soil temp measurements.
-        Either TC_10cm_Avg, TC1_10cm_Avg or TC2_10cm_Avg - use regex to match.
-        If multiple fields present, choose the one with least missing values.
-
-        Args:
-            df (object): Pandas DataFrame object
-        Returns:
-            str: the chosen column name
-        """
-        column_string = ' '.join(df.columns)
-        pattern = 'TC\d*_10cm_Avg'
-        match = re.findall(pattern, column_string)
-        if len(match) == 1:
-            return match[0]
-        else:
-            # multiple field names match. choose one with min NAN
-            col_numNAN = {}
-            for col in match:
-                col_numNAN[col] = len(df[df[col] == 'NAN'])
-            # return col name with minimum value
-            return min(col_numNAN, key=col_numNAN.get)
 
     @staticmethod
     def convert_temp_unit(df):

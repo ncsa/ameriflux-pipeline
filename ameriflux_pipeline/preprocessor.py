@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 from datetime import timedelta
 import os
+import utils.data_util as data_util
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -43,18 +44,17 @@ class Preprocessor:
         df_meta, file_meta = Preprocessor.get_meta_data(file_df_meta)
         df_meta = Preprocessor.add_U_V_units(df_meta)
 
-        # Write meta data to another file
+        # Write file meta data to another file
         input_filename = os.path.basename(input_met_path)
-        meta_data_filename = os.path.splitext(input_filename)[0] + '_meta.csv'
-        # write first df_meta to this path
-        meta_data_file = os.path.join(os.getcwd(), "tests", "data", meta_data_filename)
-        df_meta.to_csv(meta_data_file)
+        file_meta_data_filename = os.path.splitext(input_filename)[0] + '_file_meta.csv'
+        # write file_df_meta to this path
+        file_meta_data_file = os.path.join(os.getcwd(), "tests", "data", file_meta_data_filename)
+        data_util.write_data(file_meta, file_meta_data_file)  # write meta data of file to file. One row.
 
         # read input precipitation data file
         df_precip = Preprocessor.read_precip_data(input_precip_path)
         # TODO : create a method to check for missing timestamp and possible values in precip data.
-        # Check with Bethany if possible valures for rain is 0-0.2mm.
-        # Check with Bethany what should be done if missing timestamps in precip data.
+        # Possible values for rain is 0-0.2in.
 
         # change column data types
         df = Preprocessor.change_datatype(df)
@@ -130,8 +130,8 @@ class Preprocessor:
         df = pd.read_csv(data_path, header=None)  # read file without headers.
 
         # process df to get meta data
-        # the first row contains the meta data of file. second and third row contains met variables and their units
         file_df_meta = df.head(3)
+        # the first row contains the meta data of file. second and third row contains met variables and their units
         file_df_meta.fillna('', inplace=True)  # fill NaNs with empty string for ease of replace
         file_df_meta = file_df_meta.applymap(lambda x: x.replace('"', ''))  # strip off quotes from all values
 
@@ -157,11 +157,11 @@ class Preprocessor:
             df_meta (obj) : meta data of met data. Consists of column names and units.
             file_meta (obj) : meta data of file. Consists of file name, field site, and crop.
         """
+        file_meta = file_df_meta.head(1)
         # the first row contains meta data of file. Used to match the filename to soil key.
         # returned with the processed df
-        file_meta = file_df_meta.head(1)
-        # second and third row contains meta data of met tower variables (column names and units)
         df_meta = file_df_meta.iloc[1:, :]
+        # second and third row contains meta data of met tower variables (column names and units)
         df_meta.columns = df_meta.iloc[0]
         df_meta.drop(df_meta.index[0], inplace=True)
         df_meta.reset_index(drop=True, inplace=True)  # reset index after dropping first row
@@ -186,7 +186,7 @@ class Preprocessor:
     @staticmethod
     def read_precip_data(data_path):
         """
-        Reads precipitation data from excel file and returns processed dataframe
+        Reads precipitation data from excel file and returns processed dataframe. Converts units from inches to mm.
 
         Args:
             data_path(str): input data file path
@@ -292,7 +292,7 @@ class Preprocessor:
         """
         # Check if number of missing timeslots are greater than a threshold.
         # If greater than threshold, ask for user confirmation and insert missing timestamps
-        # :return: string:'Y' / 'N' - denotes user confirmation to insert missing timestamps
+        # return: string:'Y' / 'N' - denotes user confirmation to insert missing timestamps
 
         # if all TimeDelta is not 30.0, the below returns non-zero value
         if df.loc[df['timedelta'] != 30.0].shape[0]:
@@ -349,7 +349,6 @@ class Preprocessor:
         # convert datetime to string, replace - with /
         df['TIMESTAMP'] = df['timestamp_sync'].map(lambda t: t.strftime('%Y-%m-%d %H:%M')) \
             .map(lambda t: t.replace('-', '/'))
-
         return df
 
     @staticmethod
@@ -396,7 +395,6 @@ class Preprocessor:
             float: calculated T
         """
         es = 0.6106 * (17.27 * T / (T + 237.3))
-
         return es
 
     @staticmethod
