@@ -307,7 +307,7 @@ class Preprocessor:
                 df2 = df[i:]  # slice the lower half of df
 
                 # insert rows between df1 and df2. number of rows given by timedelta/30
-                insert_num_rows = int(df['timedelta'].iloc[i]) // 30
+                insert_num_rows = (int(df['timedelta'].iloc[i]) // 30) - 1
                 # 48 slots in 24hrs(one day)
                 # ask for user confirmation if more than 96 timeslots (2 days) are missing
                 if insert_num_rows > missing_timeslot_threshold:
@@ -317,8 +317,8 @@ class Preprocessor:
 
                     if user_confirmation in ['Y', 'y', 'yes', 'Yes']:
                         # insert missing timestamps
-                        end_timestamp = df['timestamp_sync'].iloc[i]
-                        start_timestamp = end_timestamp - timedelta(minutes=30 * insert_num_rows)
+                        end_timestamp = df2['timestamp_sync'].iloc[0]  # get the first timestamp of the second slice df
+                        start_timestamp = df1['timestamp_sync'].iloc[-1]  # get the last timestamp of the first slice df
                         print("inserting ", insert_num_rows, "rows between ", start_timestamp, "and ", end_timestamp)
                         # create a series of 30min timestamps
                         timestamp_series = pd.date_range(start=start_timestamp, end=end_timestamp, freq='30T')
