@@ -320,13 +320,13 @@ class Preprocessor:
                         end_timestamp = df2['timestamp_sync'].iloc[0]  # get the first timestamp of the second slice df
                         start_timestamp = df1['timestamp_sync'].iloc[-1]  # get the last timestamp of the first slice df
                         print("inserting ", insert_num_rows, "rows between ", start_timestamp, "and ", end_timestamp)
-                        # create a series of 30min timestamps
+                        # create a series of 30min timestamps including start and end timestamps
                         timestamp_series = pd.date_range(start=start_timestamp, end=end_timestamp, freq='30T')
 
                         # create new dataframe with blank rows
                         new_df = pd.DataFrame(np.zeros([insert_num_rows, df1.shape[1]]) * np.nan, columns=df1.columns)
-                        # populate timestamp with created timeseries
-                        new_df.loc[:, 'timestamp_sync'] = pd.Series(timestamp_series)
+                        # populate timestamp with created timeseries. exclude the start and end timestamps
+                        new_df.loc[:, 'timestamp_sync'] = pd.Series(timestamp_series[1:-1])
                         # concat the 3 df
                         df = pd.concat([df1, new_df, df2], ignore_index=True)
 
