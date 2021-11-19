@@ -64,8 +64,10 @@ class Preprocessor:
         # sync time
         df, new_variables = Preprocessor.sync_time(df, new_variables)
 
-        # check for missing timestamps. create timedelta between 2 rows
-        df, new_variables = Preprocessor.get_timedelta(df, new_variables)
+        # check for missing timestamps. get timedelta between 2 rows and add as a new column
+        df['timedelta'] = Preprocessor.get_timedelta(df['timestamp_sync'])
+        # add the new column to new_variables
+        new_variables.append('timedelta')
 
         # create missing timestamps
         df, user_confirmation = Preprocessor.insert_missing_timestamp(df, missing_time_threshold)
@@ -186,7 +188,9 @@ class Preprocessor:
     @staticmethod
     def read_precip_data(data_path):
         """
-        Reads precipitation data from excel file and returns processed dataframe. Converts units from inches to mm.
+        Reads precipitation data from excel file and returns processed dataframe.
+        Precip data is read for every 5min and the values are in inches.
+        Converts precip unit from inches to mm.
 
         Args:
             data_path(str): input data file path
@@ -194,6 +198,8 @@ class Preprocessor:
             obj: Pandas DataFrame object
         """
         df = pd.read_excel(data_path)  # read excel file
+        # df.drop(['Station'], axis=1, inplace=True)  # drop unwanted columns
+        # df = precip_qaqc(df)  # perform qa qc checks for precip data
         # convert precipitation from in to mm
         # TODO : import cf_units and use to convert units. / udunits
         df['Precipitation (mm)'] = df['Precipitation (in)'] * 25.4
@@ -208,6 +214,21 @@ class Preprocessor:
         # replace / with - to match timestamp format of met data
         df['TIMESTAMP'] = df['TIMESTAMP'].map(lambda t: t.replace('-', '/'))
         return df
+
+    @staticmethod
+    def precip_qaqc(df):
+        """
+        Function to preform QA/QC check on precip data. Check if there are missing timestamps and if the precip value is between 0-0.2 in.
+        If there is a missing timestamp, insert 5min timestamps with NAN value.
+        If precip value is not within limits, replace the value with NAN.
+
+        Args:
+            df (obj): input precip dataframe
+        Returns:
+            obj (Pandas DataFrame object): processed and cleaned precip dataframe
+        """
+
+
 
     @staticmethod
     def change_datatype(df):
@@ -264,20 +285,17 @@ class Preprocessor:
         return df, new_variables
 
     @staticmethod
-    def get_timedelta(df, new_variables):
+    def get_timedelta(timeseries):
         """
-        Method to calculate time difference between two rows. Calculate timedelta and create new column 'timedelta'
+        Method to calculate time difference between two rows. Calculate timedelta from timeseries
 
         Args:
-            df (object): Input pandas DataFrame object
-            new_variables (list): List of new variables
+            timeseries (pd.Series): Input time series used to calculate timedelta
         Returns:
-            obj, list: Pandas DataFrame object and list of variables
+            timedelta (pd.Series): output
         """
-        df['timedelta'] = df['timestamp_sync'].diff().astype('timedelta64[m]')
-        # add the new column to new_variables
-        new_variables.append('timedelta')
-        return df, new_variables
+        timedelta = timeseries.diff().astype('timedelta64[m]')
+        return timedelta
 
     @staticmethod
     def insert_missing_timestamp(df, missing_timeslot_threshold):
