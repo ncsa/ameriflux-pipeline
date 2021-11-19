@@ -52,7 +52,7 @@ class Preprocessor:
         data_util.write_data(file_meta, file_meta_data_file)  # write meta data of file to file. One row.
 
         # read input precipitation data file
-        df_precip = Preprocessor.read_precip_data(input_precip_path)
+        df_precip = Preprocessor.read_precip_data(input_precip_path, missing_time_threshold)
         # TODO : create a method to check for missing timestamp and possible values in precip data.
         # Possible values for rain is 0-0.2in.
 
@@ -70,7 +70,7 @@ class Preprocessor:
         new_variables.append('timedelta')
 
         # create missing timestamps
-        df, user_confirmation = Preprocessor.insert_missing_timestamp(df, missing_time_threshold)
+        df, user_confirmation = Preprocessor.insert_missing_timestamp(df, 'timestamp_sync', 30.0, missing_time_threshold)
         if user_confirmation == 'N':
             # user confirmed not to insert missing timestamps. Return to main program
             return df
@@ -97,6 +97,7 @@ class Preprocessor:
 
         # step 8 in guide - add precip data. join df and df_precip
         df = pd.merge(df, df_precip, on='TIMESTAMP')
+        # TODO : ask Bethany about timeframes extra in one dataset, either met or precip.
         # add precipitation unit mm to df_meta
         df_meta['Precip_IWS'] = 'mm'
 
@@ -186,7 +187,7 @@ class Preprocessor:
         return df
 
     @staticmethod
-    def read_precip_data(data_path):
+    def read_precip_data(data_path, missing_time_threshold):
         """
         Reads precipitation data from excel file and returns processed dataframe.
         Precip data is read for every 5min and the values are in inches.
@@ -194,21 +195,26 @@ class Preprocessor:
 
         Args:
             data_path(str): input data file path
+            missing_timeslot_threshold (int): Value for missing timeslot threshold. used for insert_missing_time method
         Returns:
             obj: Pandas DataFrame object
         """
         df = pd.read_excel(data_path)  # read excel file
-        # df.drop(['Station'], axis=1, inplace=True)  # drop unwanted columns
-        # df = precip_qaqc(df)  # perform qa qc checks for precip data
+        df.drop(['Station'], axis=1, inplace=True)  # drop unwanted columns
+        # TODO: Ask Bethany - if missing time threshold for precip data is ok to be same as met data
+        df = Preprocessor.precip_qaqc(df, missing_time_threshold)  # perform qa qc checks for precip data
         # convert precipitation from in to mm
         # TODO : import cf_units and use to convert units. / udunits
         df['Precipitation (mm)'] = df['Precipitation (in)'] * 25.4
-        df.drop(['Station', 'Precipitation (in)'], axis=1, inplace=True)  # drop unwanted columns
+        df.drop(['Precipitation (in)'], axis=1, inplace=True)  # drop unwanted columns
         # convert 5min samples to 30min samples by taking the sum
-        df = df.set_index('Date & Time (CST)').resample("30T").sum()
-        df.reset_index(inplace=True)  # reset index
-        # rename columns
-        df.rename(columns={'Date & Time (CST)': 'TIMESTAMP', 'Precipitation (mm)': 'Precip_IWS'}, inplace=True)
+        df = df.set_index('Date & Time (CST)')
+        precip_series = pd.Series(df['Precipitation (mm)'], index=df.index)
+        # resampling to 30min timeslots. 00-30 is summed and stored in 00min. (beginning of timestamp)
+        # skipna False accounts for NaN in values. If NaN present, the 30min resample has value of NaN.
+        precip_30 = precip_series.resample('30min').agg(pd.Series.sum, skipna=False)
+        # rename columns and create a df from series
+        df = pd.DataFrame({'TIMESTAMP': precip_30.index, 'Precip_IWS': precip_30.values})
         # convert datetime to string and change format to match that of met dataframe
         df['TIMESTAMP'] = df['TIMESTAMP'].dt.strftime('%Y-%m-%d %H:%M')
         # replace / with - to match timestamp format of met data
@@ -216,7 +222,7 @@ class Preprocessor:
         return df
 
     @staticmethod
-    def precip_qaqc(df):
+    def precip_qaqc(df, missing_time_threshold):
         """
         Function to preform QA/QC check on precip data. Check if there are missing timestamps and if the precip value is between 0-0.2 in.
         If there is a missing timestamp, insert 5min timestamps with NAN value.
@@ -224,11 +230,24 @@ class Preprocessor:
 
         Args:
             df (obj): input precip dataframe
+            missing_timeslot_threshold (int): Value for missing timeslot threshold. used for insert_missing_time method
         Returns:
             obj (Pandas DataFrame object): processed and cleaned precip dataframe
         """
-
-
+        # check timestamps, if present for every 5 min
+        df['timedelta'] = Preprocessor.get_timedelta(df['Date & Time (CST)'])
+        df, user_confirmation = Preprocessor.insert_missing_timestamp(df, 'Date & Time (CST)', 5.0, missing_time_threshold)
+        # TODO: what to do if user confirmation is N
+        df.drop(['timedelta'], axis=1, inplace=True)
+        # check precip values in between 0 and 0.2 in
+        # get indexes where precip is greater than 0.2 or less than 0.
+        invalid_indexes = df.index[(df['Precipitation (in)'] > 0.2)].to_list()
+        invalid_indexes.extend(df.index[(df['Precipitation (in)'] < 0)].to_list())
+        # replace precip value with NaN at invalid indexes
+        for index in invalid_indexes:
+            df['Precipitation (in)'].iloc[index] = np.nan
+        # return cleaned df
+        return df
 
     @staticmethod
     def change_datatype(df):
@@ -292,18 +311,20 @@ class Preprocessor:
         Args:
             timeseries (pd.Series): Input time series used to calculate timedelta
         Returns:
-            timedelta (pd.Series): output
+            time_delta (pd.Series): output
         """
-        timedelta = timeseries.diff().astype('timedelta64[m]')
-        return timedelta
+        time_delta = timeseries.diff().astype('timedelta64[m]')
+        return time_delta
 
     @staticmethod
-    def insert_missing_timestamp(df, missing_timeslot_threshold):
+    def insert_missing_timestamp(df, time_col, time_interval, missing_timeslot_threshold):
         """
         Function to check and insert missing timestamps
 
         Args:
             df (object): Input pandas DataFrame object
+            time_col (str) : timestamp column name. Date & Time (CST) in case of precip and timestamp_sync in case of met data
+            time_interval (float): Expected time interval between two timestamps. 5.0 in case of precip and 30.0 in case of met data.
             missing_timeslot_threshold (int): Value for missing timeslot threshold
         Returns:
             obj, str: Pandas dataframe object and string for representing yes or no
@@ -312,10 +333,10 @@ class Preprocessor:
         # If greater than threshold, ask for user confirmation and insert missing timestamps
         # return: string:'Y' / 'N' - denotes user confirmation to insert missing timestamps
 
-        # if all TimeDelta is not 30.0, the below returns non-zero value
-        if df.loc[df['timedelta'] != 30.0].shape[0]:
+        # if all TimeDelta is not time_interval, the below returns non-zero value
+        if df.loc[df['timedelta'] != time_interval].shape[0]:
             # get the row indexes where TimeDelta!=30.0
-            row_indexes = list(df.loc[df['timedelta'] != 30.0].index)
+            row_indexes = list(df.loc[df['timedelta'] != time_interval].index)
 
             # iterate through missing rows, create new df with empty rows and correct timestamps,
             # concat new and old dataframes
@@ -324,8 +345,8 @@ class Preprocessor:
                 df1 = df[:i]  # slice the upper half of df
                 df2 = df[i:]  # slice the lower half of df
 
-                # insert rows between df1 and df2. number of rows given by timedelta/30
-                insert_num_rows = int(df['timedelta'].iloc[i]) // 30
+                # insert rows between df1 and df2. number of rows given by timedelta/timeinterval
+                insert_num_rows = int(df['timedelta'].iloc[i] // time_interval) - 1
                 # 48 slots in 24hrs(one day)
                 # ask for user confirmation if more than 96 timeslots (2 days) are missing
                 if insert_num_rows > missing_timeslot_threshold:
@@ -335,16 +356,22 @@ class Preprocessor:
 
                     if user_confirmation in ['Y', 'y', 'yes', 'Yes']:
                         # insert missing timestamps
-                        end_timestamp = df['timestamp_sync'].iloc[i]
-                        start_timestamp = end_timestamp - timedelta(minutes=30 * insert_num_rows)
+                        end_timestamp = df2[time_col].iloc[0]
+                        start_timestamp = df1[time_col].iloc[0]
                         print("inserting ", insert_num_rows, "rows between ", start_timestamp, "and ", end_timestamp)
-                        # create a series of 30min timestamps
-                        timestamp_series = pd.date_range(start=start_timestamp, end=end_timestamp, freq='30T')
+                        # create a series of time_interval timestamps
+                        if time_interval == 5.0:
+                            freq = '5T'
+                        elif time_interval == 30.0:
+                            freq = '30T'
+                        else:
+                            print(time_interval, "is invalid")
+                        timestamp_series = pd.date_range(start=start_timestamp, end=end_timestamp, freq=freq)
 
                         # create new dataframe with blank rows
                         new_df = pd.DataFrame(np.zeros([insert_num_rows, df1.shape[1]]) * np.nan, columns=df1.columns)
                         # populate timestamp with created timeseries
-                        new_df.loc[:, 'timestamp_sync'] = pd.Series(timestamp_series)
+                        new_df.loc[:, time_col] = pd.Series(timestamp_series)
                         # concat the 3 df
                         df = pd.concat([df1, new_df, df2], ignore_index=True)
 
