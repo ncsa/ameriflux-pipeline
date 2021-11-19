@@ -306,7 +306,8 @@ class Preprocessor:
     @staticmethod
     def get_timedelta(timeseries):
         """
-        Method to calculate time difference between two rows. Calculate timedelta from timeseries
+        Method to calculate time difference between two rows. Calculate timedelta from timeseries.
+        Used for met data and precip data
 
         Args:
             timeseries (pd.Series): Input time series used to calculate timedelta
@@ -319,7 +320,8 @@ class Preprocessor:
     @staticmethod
     def insert_missing_timestamp(df, time_col, time_interval, missing_timeslot_threshold):
         """
-        Function to check and insert missing timestamps
+        Function to check and insert missing timestamps.
+        Used for precip data and met data.
 
         Args:
             df (object): Input pandas DataFrame object
