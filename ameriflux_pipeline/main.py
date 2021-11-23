@@ -14,6 +14,7 @@ from eddyproformat import EddyProFormat
 from runeddypro import RunEddypro
 from pyfluxpro_format import PyFluxProFormat
 
+
 def eddypro_preprocessing():
     """
     Main function to run EddyPro processing. Calls other functions
@@ -44,6 +45,7 @@ def run_eddypro():
                            file_prototype=cfg.EDDYPRO_FILE_PROTOTYPE, proj_file=cfg.EDDYPRO_PROJ_FILE,
                            dyn_metadata_file=cfg.EDDYPRO_DYN_METADATA, out_path=cfg.EDDYPRO_OUTPUT_PATH,
                            data_path=cfg.EDDYPRO_INPUT_GHG_PATH, biom_file=cfg.EDDYPRO_BIOM_FILE)
+
 
 def pyfluxpro_main(eddypro_full_output, full_output_pyfluxpro, met_data_30_input, met_data_30_pyfluxpro):
     """
