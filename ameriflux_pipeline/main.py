@@ -61,6 +61,7 @@ def eddypro_main(input_met, input_precip, input_soilkey, missing_time, output):
         input_precip (str) : file path for input precipitation data. For EddyPro processing
         missing_time (int): Number of 30min timeslot threshold. For EddyPro processing
         input_soilkey (str): A file path for input soil key sheet. For EddyPro formatting
+        output (str) : A file path for preprocessed met data output and formatted met data output
     Returns : None
     """
     # start preprocessing data
