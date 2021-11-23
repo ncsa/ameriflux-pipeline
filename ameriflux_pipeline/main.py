@@ -14,6 +14,7 @@ from preprocessor import Preprocessor
 from eddyproformat import EddyProFormat
 from pyfluxpro_format import PyFluxProFormat
 
+
 def get_args():
     """
     Function to get all arguments needed to run main files
