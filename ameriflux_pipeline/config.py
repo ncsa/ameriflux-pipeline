@@ -14,8 +14,8 @@ class Config:
     INPUT_PRECIP = os.getenv('INPUT_PRECIP', 'tests/data/Precip_IWS_Jan-Feb_2021.xlsx')  # input precipitation data path
     MISSING_TIME = os.getenv('MISSING_TIME', 96)  # Number of 30min missing timeslot threshold for user confirmation
     INPUT_SOIL_KEY = os.getenv('INPUT_SOIL_KEY', 'test/data/Soils_key.xlsx')  # input soil key data path
-    OUTPUT_MET = os.getenv('OUTPUT_MET', 'test/data/met_output.csv')  # output data path
-    FULL_OUTPUT_MET = os.getenv('FULL_OUTPUT_MET', 'test/data/eddypro_full_output.csv')  # output data path
+    MASTER_MET = os.getenv('MASTER_MET', 'test/data/met_output.csv')  # output data path
+    EDDYPRO_FULL_OUTPUT = os.getenv('EDDYPRO_FULL_OUTPUT', 'test/data/eddypro_full_output.csv')  # output data path
 
     # eddypro related parameters
     EDDYPRO_BIN_LOC=os.getenv('EDDYPRO_BIN_LOC', 'C:/Program Files/LI-COR/EddyPro-7.0.7/bin')  # directory path to eddypro bin folder
@@ -31,7 +31,7 @@ class Config:
                                   'C:/Users/ywkim/Documents/Ameriflux/Data/minu_test/sample_test/test_output')
     EDDYPRO_INPUT_GHG_PATH=os.getenv('EDDYPRO_INPUT_GHG_PATH',
                                      'C:/Users/ywkim/Documents/Ameriflux/Data/minu_test/sample_test/sample_ghg_files')
-    EDDYPRO_BIOM_FILE=os.getenv('EDDYPRO_BIOM_FILE', FULL_OUTPUT_MET)
+    EDDYPRO_BIOM_FILE=os.getenv('EDDYPRO_BIOM_FILE', EDDYPRO_FULL_OUTPUT)
 
     # PyFluxPro related data
     FULL_OUTPUT_PYFLUXPRO=os.getenv('FULL_OUTPUT_PYFLUXPRO', 'tests/data/full_output.csv')

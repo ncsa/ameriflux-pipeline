@@ -27,15 +27,15 @@ def eddypro_preprocessing():
     df, file_meta = Preprocessor.data_preprocess(cfg.INPUT_MET, cfg.INPUT_PRECIP, int(cfg.MISSING_TIME))
     # TODO : check with Bethany - number of decimal places for numerical values
     # write processed df to output path
-    data_util.write_data(df, cfg.OUTPUT_MET)
+    data_util.write_data(df, cfg.MASTER_MET)
 
-    output_filename = os.path.basename(cfg.OUTPUT_MET)
+    output_filename = os.path.basename(cfg.MASTER_MET)
     # eddypro_output_filename = os.path.splitext(output_filename)[0] + '_eddypro.csv'
     # eddypro_output_file = os.path.join(os.getcwd(), "tests", "data", eddypro_output_filename)
     # start formatting data
-    df = EddyProFormat.data_formatting(cfg.OUTPUT_MET, cfg.INPUT_SOIL_KEY, file_meta, cfg.FULL_OUTPUT_MET)
+    df = EddyProFormat.data_formatting(cfg.MASTER_MET, cfg.INPUT_SOIL_KEY, file_meta, cfg.EDDYPRO_FULL_OUTPUT)
     # write formatted df to output path
-    data_util.write_data(df, cfg.FULL_OUTPUT_MET)
+    data_util.write_data(df, cfg.EDDYPRO_FULL_OUTPUT)
 
 
 def run_eddypro():
@@ -73,7 +73,7 @@ if __name__ == '__main__':
     eddypro_preprocessing()
 
     # run eddypro
-    # run_eddypro()
+    run_eddypro()
 
     # grab eddypro full output
     outfile_list = os.listdir(cfg.EDDYPRO_OUTPUT_PATH)
@@ -83,5 +83,5 @@ if __name__ == '__main__':
             eddypro_full_outfile = os.path.join(cfg.EDDYPRO_OUTPUT_PATH, outfile)
 
     # run pyfluxpro formatting
-    pyfluxpro_main(eddypro_full_outfile, cfg.FULL_OUTPUT_PYFLUXPRO, cfg.OUTPUT_MET, cfg.MET_DATA_30_PYFLUXPRO)
+    pyfluxpro_main(eddypro_full_outfile, cfg.FULL_OUTPUT_PYFLUXPRO, cfg.MASTER_MET, cfg.MET_DATA_30_PYFLUXPRO)
     # manual step of putting met_output_file in one sheet and eddypro_full_output
