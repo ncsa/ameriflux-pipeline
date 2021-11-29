@@ -40,6 +40,9 @@ tests/data/
 cache_data/
 original/
 
+# env file
+*.env
+
 # EddyPro proj file
 *.eddypro
 
