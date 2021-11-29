@@ -70,7 +70,8 @@ class Preprocessor:
         new_variables.append('timedelta')
 
         # create missing timestamps
-        df, user_confirmation = Preprocessor.insert_missing_timestamp(df, 'timestamp_sync', 30.0, missing_time_threshold)
+        df, user_confirmation = Preprocessor.insert_missing_timestamp(df, 'timestamp_sync',
+                                                                      30.0, missing_time_threshold)
         if user_confirmation == 'N':
             # user confirmed not to insert missing timestamps. Return to main program
             return df
@@ -224,7 +225,8 @@ class Preprocessor:
     @staticmethod
     def precip_qaqc(df, missing_time_threshold):
         """
-        Function to preform QA/QC check on precip data. Check if there are missing timestamps and if the precip value is between 0-0.2 in.
+        Function to preform QA/QC check on precip data.
+        Check if there are missing timestamps and if the precip value is between 0-0.2 in.
         If there is a missing timestamp, insert 5min timestamps with NAN value.
         If precip value is not within limits, replace the value with NAN.
 
@@ -236,7 +238,8 @@ class Preprocessor:
         """
         # check timestamps, if present for every 5 min
         df['timedelta'] = Preprocessor.get_timedelta(df['Date & Time (CST)'])
-        df, user_confirmation = Preprocessor.insert_missing_timestamp(df, 'Date & Time (CST)', 5.0, missing_time_threshold)
+        df, user_confirmation = Preprocessor.insert_missing_timestamp(df, 'Date & Time (CST)',
+                                                                      5.0, missing_time_threshold)
         # TODO: what to do if user confirmation is N
         df.drop(['timedelta'], axis=1, inplace=True)
         # check precip values in between 0 and 0.2 in
@@ -325,8 +328,8 @@ class Preprocessor:
 
         Args:
             df (object): Input pandas DataFrame object
-            time_col (str) : timestamp column name. Date & Time (CST) in case of precip and timestamp_sync in case of met data
-            time_interval (float): Expected time interval between two timestamps. 5.0 in case of precip and 30.0 in case of met data.
+            time_col (str) : timestamp column name. Date & Time (CST) for precip and timestamp_sync for met data
+            time_interval (float): Expected time interval between two timestamps. 5.0 for precip and 30.0 for met data
             missing_timeslot_threshold (int): Value for missing timeslot threshold
         Returns:
             obj, str: Pandas dataframe object and string for representing yes or no
