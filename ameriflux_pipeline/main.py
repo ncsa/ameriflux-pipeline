@@ -49,7 +49,7 @@ def run_eddypro(eddypro_formatted_met_file):
                            data_path=cfg.EDDYPRO_INPUT_GHG_PATH, biom_file=eddypro_formatted_met_file)
 
 
-def pyfluxpro_main(eddypro_full_output, full_output_pyfluxpro, met_data_30_input, met_data_30_pyfluxpro):
+def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30_input, met_data_30_pyfluxpro):
     """
     Main function to run PlyFluxPro processing. Calls other functions
 
@@ -87,5 +87,5 @@ if __name__ == '__main__':
             eddypro_full_outfile = os.path.join(cfg.EDDYPRO_OUTPUT_PATH, outfile)
 
     # run pyfluxpro formatting
-    pyfluxpro_main(eddypro_full_outfile, cfg.FULL_OUTPUT_PYFLUXPRO, cfg.MASTER_MET, cfg.MET_DATA_30_PYFLUXPRO)
+    pyfluxpro_processing(eddypro_full_outfile, cfg.FULL_OUTPUT_PYFLUXPRO, cfg.MASTER_MET, cfg.MET_DATA_30_PYFLUXPRO)
     # manual step of putting met_output_file in one sheet and eddypro_full_output
