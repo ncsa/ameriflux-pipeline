@@ -7,79 +7,49 @@
 import os
 import shutil
 from config import Config as cfg
-import argparse
 import utils.data_util as data_util
 
 from preprocessor import Preprocessor
 from eddyproformat import EddyProFormat
+from runeddypro import RunEddypro
 from pyfluxpro_format import PyFluxProFormat
 
 
-def get_args():
-    """
-    Function to get all arguments needed to run main files
-
-    Args: None
-    Returns : None
-    """
-    # TODO : create a dynamic method to pass input files, shouldn't depend on the relative file path
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument("--inputMet", action="store",
-                        default=os.path.join(os.getcwd(), "tests", "data",
-                                             "FLUXSB_EC_JanMar2021.csv"),
-                        help="input met data path")
-    parser.add_argument("--inputPrecip", action="store",
-                        default=os.path.join(os.getcwd(), "tests", "data",
-                                             "Precip_IWS_Jan-Feb_2021.xlsx"),
-                        help="input precipitation data path")
-    parser.add_argument("--missingTime", action="store", default=96,
-                        help="Number of 30min missing timeslot threshold for user confirmation")
-    parser.add_argument("--inputSoilkey", action="store",
-                        default=os.path.join(os.getcwd(), "tests", "data",
-                                             "Soils key.xlsx"))
-    parser.add_argument("--outputMet", action="store",
-                        default=os.path.join(os.getcwd(), "tests", "data",
-                                             "FLUXSB_EC_JanMar2021_output.csv"),
-                        help="output data path")
-    parser.add_argument("--fullOutput", action="store",
-                        default=os.path.join(os.getcwd(), "tests", "data",
-                                             "eddypro_Sorghum_Jan1to7_2021_full_output_2021-11-03T083200_adv.csv"),
-                        help="output data path")
-
-    # parse arguments
-    args = parser.parse_args()
-
-    return args.inputMet, args.inputPrecip, args.missingTime, args.inputSoilkey, args.outputMet, args.fullOutput
-
-
-def eddypro_main(input_met, input_precip, input_soilkey, missing_time, output):
+def eddypro_preprocessing():
     """
     Main function to run EddyPro processing. Calls other functions
 
     Args:
-        input_met (str): A file path for the input meteorological data. For EddyPro processing
-        input_precip (str) : file path for input precipitation data. For EddyPro processing
-        missing_time (int): Number of 30min timeslot threshold. For EddyPro processing
-        input_soilkey (str): A file path for input soil key sheet. For EddyPro formatting
-    Returns : None
+        None
+    Returns :
+        None
     """
     # start preprocessing data
-    df, file_meta = Preprocessor.data_preprocess(input_met, input_precip, missing_time)
+    df, file_meta = Preprocessor.data_preprocess(cfg.INPUT_MET, cfg.INPUT_PRECIP, int(cfg.MISSING_TIME))
     # TODO : check with Bethany - number of decimal places for numerical values
     # write processed df to output path
-    data_util.write_data(df, output)
+    data_util.write_data(df, cfg.MASTER_MET)
 
-    output_filename = os.path.basename(output)
-    eddypro_output_filename = os.path.splitext(output_filename)[0] + '_eddypro.csv'
-    eddypro_output_file = os.path.join(os.getcwd(), "tests", "data", eddypro_output_filename)
+    output_filename = os.path.basename(cfg.MASTER_MET)
+    eddypro_formatted_met_name = os.path.splitext(output_filename)[0] + '_eddypro.csv'
+    eddypro_formatted_met_file = os.path.join(os.getcwd(), "tests", "data", eddypro_formatted_met_name)
     # start formatting data
-    df = EddyProFormat.data_formatting(output, input_soilkey, file_meta, eddypro_output_file)
+    df = EddyProFormat.data_formatting(cfg.MASTER_MET, cfg.INPUT_SOIL_KEY, file_meta, eddypro_formatted_met_file)
     # write formatted df to output path
-    data_util.write_data(df, eddypro_output_file)
+    data_util.write_data(df, eddypro_formatted_met_file)
+
+    return eddypro_formatted_met_file
 
 
-def pyfluxpro_main(eddypro_full_output, full_output_pyfluxpro, met_data_30_input, met_data_30_pyfluxpro):
+def run_eddypro(eddypro_formatted_met_file):
+    RunEddypro.run_eddypro(eddypro_bin_loc=cfg.EDDYPRO_BIN_LOC, file_name=cfg.EDDYPRO_PROJ_FILE_NAME,
+                           project_id=cfg.EDDYPRO_PROJ_ID, project_title=cfg.EDDYPRO_PROJ_TITLE,
+                           file_prototype=cfg.EDDYPRO_FILE_PROTOTYPE, proj_file=cfg.EDDYPRO_PROJ_FILE,
+                           dyn_metadata_file=cfg.EDDYPRO_DYN_METADATA, out_path=cfg.EDDYPRO_OUTPUT_PATH,
+                           data_path=cfg.EDDYPRO_INPUT_GHG_PATH, biom_file=eddypro_formatted_met_file)
+
+
+def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30_input, met_data_30_pyfluxpro):
     """
     Main function to run PlyFluxPro processing. Calls other functions
 
@@ -103,12 +73,20 @@ def pyfluxpro_main(eddypro_full_output, full_output_pyfluxpro, met_data_30_input
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    input_met, input_precip, missing_time, input_soilkey, met_output_file, eddypro_full_output = get_args()
     # run eddypro preprocessing and formatting
-    eddypro_main(input_met, input_precip, input_soilkey, missing_time, met_output_file)
-    # TODO : Run EddyPro headless here
-    full_output_pyfluxpro = cfg.FULL_OUTPUT_PYFLUXPRO
-    met_data_30_pyfluxpro = cfg.MET_DATA_30_PYFLUXPRO
+    eddypro_formatted_met_file = eddypro_preprocessing()
+
+    # run eddypro
+    run_eddypro(eddypro_formatted_met_file)
+
+    # grab eddypro full output
+    outfile_list = os.listdir(cfg.EDDYPRO_OUTPUT_PATH)
+    eddypro_full_outfile = None
+    for outfile in outfile_list:
+        if 'full_output' in outfile:
+            eddypro_full_outfile = os.path.join(cfg.EDDYPRO_OUTPUT_PATH, outfile)
+
     # run pyfluxpro formatting
-    pyfluxpro_main(eddypro_full_output, full_output_pyfluxpro, met_output_file, met_data_30_pyfluxpro)
+    pyfluxpro_processing(eddypro_full_outfile, cfg.FULL_OUTPUT_PYFLUXPRO, cfg.MASTER_MET, cfg.MET_DATA_30_PYFLUXPRO)
+
     # manual step of putting met_output_file in one sheet and eddypro_full_output

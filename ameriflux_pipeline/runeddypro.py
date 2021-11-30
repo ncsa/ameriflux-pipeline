@@ -42,6 +42,18 @@ class RunEddypro():
             proj_file=proj_file, dyn_metadata_file=dyn_metadata_file, out_path=out_path, data_path=data_path,
             biom_file=biom_file, outfile=outfile)
 
+        # clean up the eddypro output folder
+        print("All the contents in the", out_path, "will be removed.")
+        for filename in os.listdir(out_path):
+            file_path = os.path.join(out_path, filename)
+            try:
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.unlink(file_path)
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+            except Exception as e:
+                print('Failed to delete %s. Reason: %s' % (file_path, e))
+
         # save temporary project file
         RunEddypro.save_string_list_to_file(tmp_proj_list, outfile)
         print("temporary project file created")
