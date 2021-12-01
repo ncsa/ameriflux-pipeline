@@ -66,34 +66,26 @@ class RunEddypro():
         # copy eddypro bin files
         for bin_file in bin_list:
             src_file = os.path.join(eddypro_bin_loc, bin_file)
-            # copy only files, not directories
-            if os.path.isfile(src_file):
-                des_file = os.path.join(current_dir, bin_file)
-                try:
-                    shutil.copyfile(src_file, des_file)  # does not copy empty directories
-                except Exception:
-                    print(bin_file, "already exists in the working directory.")
+            des_file = os.path.join(current_dir, bin_file)
+            try:
+                shutil.copyfile(src_file, des_file)
+            except Exception:
+                print(bin_file, "already exists in the working directory.")
         print("copied temporary eddypro bin files")
 
         try:
-            subprocess.run(["./eddypro_rp -s mac -e", os.path.dirname(os.path.abspath(file_name)), outfile], shell=True)
-            # code that runs eddypro is below
-            # ./eddypro_rp -s mac -e
-            # /Users/minum/Documents/NCSA/AmeriFlux/Ameriflux_Github/ameriflux-pipeline/ameriflux_pipeline/templates
-            # /Users/minum/Documents/NCSA/AmeriFlux/Ameriflux_Github/ameriflux-pipeline/ameriflux_pipeline/templates/templates.eddypro
+            subprocess.run(["eddypro_rp", outfile], shell=True)
         except Exception:
             raise Exception("Running EddyPro failed.")
 
         # remove temporary project file
-        #print("removed temporary project file")
-        #os.remove(outfile)
+        print("removed temporary project file")
+        os.remove(outfile)
 
         # remove temporary bin file
-        """
         for bin_file in bin_list:
             os.remove(os.path.join(current_dir, bin_file))
         print("removed temporary eddypro bin files")
-        """
 
     @staticmethod
     def create_tmp_proj_file(file_name, project_title,
