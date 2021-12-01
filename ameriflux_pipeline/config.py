@@ -20,7 +20,7 @@ class Config:
 
     # eddypro related parameters
     # folder location of eddypro_rp exec file
-    EDDYPRO_BIN_LOC = os.getenv('EDDYPRO_BIN_LOC', '/Applications/eddypro.app/Contents/MacOS/bin')
+    EDDYPRO_BIN_LOC = os.getenv('EDDYPRO_BIN_LOC', '')
     EDDYPRO_PROJ_FILE_NAME = os.getenv('EDDYPRO_PROJ_FILE_NAME', 'templates/EddyPro_Run_Template.eddypro')
     EDDYPRO_PROJ_TITLE = os.getenv('EDDYPRO_PROJ_TITLE', 'AmeriFlux_Pipeline')
     EDDYPRO_PROJ_ID = os.getenv('EDDYPRO_PROJ_ID', 'ameriflux_pipeline')
@@ -33,3 +33,4 @@ class Config:
     # PyFluxPro related data
     FULL_OUTPUT_PYFLUXPRO = os.getenv('FULL_OUTPUT_PYFLUXPRO', 'tests/data/full_output.csv')
     MET_DATA_30_PYFLUXPRO = os.getenv('MET_DATA_30_PYFLUXPRO', 'tests/data/Met_data_30.csv')
+    PYFLUXPRO_INPUT_SHEET = os.getenv('PYFLUXPRO_INPUT_SHEET', 'tests/data/pyfluxpro_input.xlsx')
