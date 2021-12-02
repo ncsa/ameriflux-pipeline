@@ -228,7 +228,7 @@ class Preprocessor:
         return df
 
     @staticmethod
-    def precip_qaqc(df, precip_lower, precip_upper,missing_time_threshold):
+    def precip_qaqc(df, precip_lower, precip_upper, missing_time_threshold):
         """
         Function to preform QA/QC check on precip data.
         Check if there are missing timestamps and if the precip value is between precip_lower and precip_upper
