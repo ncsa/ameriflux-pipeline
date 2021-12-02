@@ -71,12 +71,10 @@ class RunEddypro():
                 shutil.copyfile(src_file, des_file)  # does not copy empty directories
             except Exception:
                 print(bin_file, "already exists in the working directory.")
-
         print("copied temporary eddypro bin files")
 
         try:
             subprocess.run(["eddypro_rp", outfile], shell=True)
-
         except Exception:
             raise Exception("Running EddyPro failed.")
 
@@ -85,7 +83,6 @@ class RunEddypro():
         os.remove(outfile)
 
         # remove temporary bin file
-
         for bin_file in bin_list:
             os.remove(os.path.join(current_dir, bin_file))
         print("removed temporary eddypro bin files")
