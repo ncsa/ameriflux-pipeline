@@ -37,14 +37,19 @@ class Preprocessor:
         """
 
         # read input meteorological data file
+        # Note 1.1
         df, file_df_meta = Preprocessor.read_met_data(input_met_path)
         print("Data contains ", df.shape[0], "rows ", df.shape[1], "columns")
 
         # get meta data
+        # Note 1.2
         df_meta, file_meta = Preprocessor.get_meta_data(file_df_meta)
+        # Note 1.4
         df_meta = Preprocessor.add_U_V_units(df_meta)
 
         # Write file meta data to another file
+        # TODO : this can be ommitted.
+        # The file meta data is passed as a df (file_meta) to eddyproformat. No need for writing to file.
         input_filename = os.path.basename(input_met_path)
         file_meta_data_filename = os.path.splitext(input_filename)[0] + '_file_meta.csv'
         # write file_df_meta to this path
@@ -53,8 +58,6 @@ class Preprocessor:
 
         # read input precipitation data file
         df_precip = Preprocessor.read_precip_data(input_precip_path, missing_time_threshold)
-        # TODO : create a method to check for missing timestamp and possible values in precip data.
-        # Possible values for rain is 0-0.2in.
 
         # change column data types
         df = Preprocessor.change_datatype(df)
@@ -203,6 +206,7 @@ class Preprocessor:
         df = pd.read_excel(data_path)  # read excel file
         df.drop(['Station'], axis=1, inplace=True)  # drop unwanted columns
         # TODO: Ask Bethany - if missing time threshold for precip data is ok to be same as met data
+        # Note 1.5
         df = Preprocessor.precip_qaqc(df, missing_time_threshold)  # perform qa qc checks for precip data
         # convert precipitation from in to mm
         # TODO : import cf_units and use to convert units. / udunits

@@ -32,6 +32,7 @@ class EddyProFormat:
         output_path = output_path  # path to write the formatted meteorological data file
 
         # extract site name from file meta data
+        # Note 1.3
         file_site_name = file_meta.iloc[0][5]
         # match file site name to site names in soil key file. this is used as lookup in soil key table
         site_name = EddyProFormat.get_site_name(file_site_name)
