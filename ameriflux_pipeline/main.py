@@ -81,7 +81,7 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
     met_data_df = pd.read_csv(met_data_30_input)
     met_data_df.to_excel(writer, sheet_name=met_data_sheet_name)
     writer.save()
-    print("Master met and full output sheets saved in ", cfg.PYFLUXPRO_INPUT_SHEET )
+    print("Master met and full output sheets saved in ", cfg.PYFLUXPRO_INPUT_SHEET)
 
 
 # Press the green button in the gutter to run the script.

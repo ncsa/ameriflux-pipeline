@@ -87,7 +87,6 @@ class RunEddypro():
             os.remove(os.path.join(current_dir, bin_file))
         print("removed temporary eddypro bin files")
 
-
     @staticmethod
     def create_tmp_proj_file(file_name, project_title,
                              project_id, file_prototype,
