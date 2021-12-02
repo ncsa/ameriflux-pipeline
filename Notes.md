@@ -20,3 +20,13 @@
 ### 1.5
 - Raw precip data is to be present for every 5 min and the valid range is between 0-0.2 inches. If a timestamp is missing, insert the timestamp with a fill value of NAN. If the precip data is not within the valid range limit, replace the value with NAN.
 - When aggregating the 5min data to 30min, if there is an NAN in any of the 5min timestamps, put the aggregated value of the 30min timestamp to be NAN as well. 
+### 1.6
+- Some new variables are required for processing and formatting of met data. These are kept track in a new_variable list and deleted at the end.
+- This will ensure only met tower variables are pushed to EddyPro.
+### 1.7
+- EddyPro does not handle missing timestamps. If there are missing timestamps in the met data, insert missing timestamps with fill value.
+- If there is a large gap in the timestamps in met data, user can choose whether or not to insert missing timestamps.
+### 1.8
+- The met data and precip data are merged on the timestamp column. 
+- If there are extra timestamps in met data, keep them in the final dataframe while filling the precip data as NANs.
+- If there are extra timestamps in precip data, ignore that.
