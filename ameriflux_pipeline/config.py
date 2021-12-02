@@ -14,8 +14,6 @@ class Config:
     INPUT_MET = os.getenv('INPUT_MET', 'tests/data/FLUXSB_EC_JanMar2021.csv')  # input met data path
     INPUT_PRECIP = os.getenv('INPUT_PRECIP', 'tests/data/Precip_IWS_Jan-Feb_2021.xlsx')  # input precipitation data path
     MISSING_TIME = os.getenv('MISSING_TIME', 96)  # Number of missing timeslot threshold for user confirmation to insert
-    PRECIP_LOWER = 0.0  # precipitation lower threshold value (inches)
-    PRECIP_UPPER = 0.2  # precipitation upper threshold value (inches)
     MASTER_MET = os.getenv('MASTER_MET', 'tests/data/met_output.csv')  # output data path
 
     # input data for formatting Eddypro master meteorology data
@@ -36,3 +34,8 @@ class Config:
     # PyFluxPro related data
     FULL_OUTPUT_PYFLUXPRO = os.getenv('FULL_OUTPUT_PYFLUXPRO', 'tests/data/full_output.csv')
     MET_DATA_30_PYFLUXPRO = os.getenv('MET_DATA_30_PYFLUXPRO', 'tests/data/Met_data_30.csv')
+
+    # QA/QC values
+    # precipitation threshold values used in creating Eddypro master meteorology data
+    QC_PRECIP_LOWER = 0.0  # precipitation lower threshold value (inches)
+    QC_PRECIP_UPPER = 0.2  # precipitation upper threshold value (inches)

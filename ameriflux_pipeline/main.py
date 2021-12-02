@@ -26,7 +26,7 @@ def eddypro_preprocessing():
     """
     # start preprocessing data
     df, file_meta = Preprocessor.data_preprocess(cfg.INPUT_MET, cfg.INPUT_PRECIP,
-                                                 int(cfg.PRECIP_LOWER), int(cfg.PRECIP_UPPER), int(cfg.MISSING_TIME))
+                                                 int(cfg.QC_PRECIP_LOWER), int(cfg.QC_PRECIP_UPPER), int(cfg.MISSING_TIME))
     # TODO : check with Bethany - number of decimal places for numerical values
     # write processed df to output path
     data_util.write_data(df, cfg.MASTER_MET)
