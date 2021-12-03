@@ -83,7 +83,7 @@ class RunEddypro():
                 subprocess.run(["eddypro_rp.exe", "-e", out_path, outfile], shell=True,
                                     cwd=eddypro_bin_loc)
             elif os_platform.lower() == "os x":
-                subprocess.run(["./eddypro_rp", "-e", out_path, outfile], shell=True,
+                subprocess.run(["./eddypro_rp", "-s", "mac", "-e", out_path, outfile], shell=True,
                                cwd=eddypro_bin_loc)
             else:
                 raise Exception("The current platform is currently not being supported.")
