@@ -275,7 +275,6 @@ class Preprocessor:
         df[cols] = df[cols].apply(pd.to_numeric, errors='coerce')  # coerce will replace all non-numeric values with NaN
         return df
 
-
     @staticmethod
     def sync_time(df, new_variables):
         """
