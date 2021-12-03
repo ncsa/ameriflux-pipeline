@@ -22,7 +22,7 @@ class Preprocessor:
 
     # main method which calls other functions
     @staticmethod
-    def data_preprocess(input_met_path, input_precip_path, missing_time_threshold):
+    def data_preprocess(input_met_path, input_precip_path, precip_lower, precip_upper, missing_time_threshold):
         """
         Cleans and process the dataframe as per the guide. Process dataframe inplace
         Returns processed df and file meta df which is used in eddyproformat.py
@@ -30,7 +30,9 @@ class Preprocessor:
         Args:
             input_path (str): A file path for the input data.
             input_precip_path(str): A file path for the input precipitation data.
-            missing_time_threshold (int): Number of missing 30min timeslot threshold
+            precip_lower (int) : Lower threshold value for precipitation in inches
+            precip_upper (int) : Upper threshold value for precipitation in inches
+            missing_time_threshold (int): Number of missing timeslot threshold. Used for both met data and precip data
         Returns:
             df (obj): Pandas DataFrame object, processed df
             file_meta (obj) : Pandas DataFrame object, meta data of file
@@ -52,7 +54,7 @@ class Preprocessor:
         data_util.write_data(file_meta, file_meta_data_file)  # write meta data of file to file. One row.
 
         # read input precipitation data file
-        df_precip = Preprocessor.read_precip_data(input_precip_path, missing_time_threshold)
+        df_precip = Preprocessor.read_precip_data(input_precip_path, precip_lower, precip_upper, missing_time_threshold)
         # TODO : create a method to check for missing timestamp and possible values in precip data.
         # Possible values for rain is 0-0.2in.
 
@@ -188,14 +190,16 @@ class Preprocessor:
         return df
 
     @staticmethod
-    def read_precip_data(data_path, missing_time_threshold):
+    def read_precip_data(data_path, precip_lower, precip_upper, missing_time_threshold):
         """
         Reads precipitation data from excel file and returns processed dataframe.
         Precip data is read for every 5min and the values are in inches.
         Converts precip unit from inches to mm.
 
         Args:
-            data_path(str): input data file path
+            data_path (str): input data file path
+            precip_lower (int) : Lower threshold value for precipitation in inches
+            precip_upper (int) : Upper threshold value for precipitation in inches
             missing_timeslot_threshold (int): Value for missing timeslot threshold. used for insert_missing_time method
         Returns:
             obj: Pandas DataFrame object
@@ -203,10 +207,11 @@ class Preprocessor:
         df = pd.read_excel(data_path)  # read excel file
         df.drop(['Station'], axis=1, inplace=True)  # drop unwanted columns
         # TODO: Ask Bethany - if missing time threshold for precip data is ok to be same as met data
-        df = Preprocessor.precip_qaqc(df, missing_time_threshold)  # perform qa qc checks for precip data
+        # perform qa qc checks for precip data
+        df = Preprocessor.precip_qaqc(df, precip_lower, precip_upper, missing_time_threshold)
         # convert precipitation from in to mm
         # TODO : import cf_units and use to convert units. / udunits
-        df['Precipitation (mm)'] = df['Precipitation (in)'] * 25.4
+        df['Precipitation (mm)'] = df['Precipitation (in)'] * 25.4  # convert inches to millimeter
         df.drop(['Precipitation (in)'], axis=1, inplace=True)  # drop unwanted columns
         # convert 5min samples to 30min samples by taking the sum
         df = df.set_index('Date & Time (CST)')
@@ -223,15 +228,17 @@ class Preprocessor:
         return df
 
     @staticmethod
-    def precip_qaqc(df, missing_time_threshold):
+    def precip_qaqc(df, precip_lower, precip_upper, missing_time_threshold):
         """
         Function to preform QA/QC check on precip data.
-        Check if there are missing timestamps and if the precip value is between 0-0.2 in.
+        Check if there are missing timestamps and if the precip value is between precip_lower and precip_upper
         If there is a missing timestamp, insert 5min timestamps with NAN value.
         If precip value is not within limits, replace the value with NAN.
 
         Args:
             df (obj): input precip dataframe
+            precip_lower (int) : Lower threshold value for precipitation in inches
+            precip_upper (int) : Upper threshold value for precipitation in inches
             missing_timeslot_threshold (int): Value for missing timeslot threshold. used for insert_missing_time method
         Returns:
             obj (Pandas DataFrame object): processed and cleaned precip dataframe
@@ -244,8 +251,8 @@ class Preprocessor:
         df.drop(['timedelta'], axis=1, inplace=True)
         # check precip values in between 0 and 0.2 in
         # get indexes where precip is greater than 0.2 or less than 0.
-        invalid_indexes = df.index[(df['Precipitation (in)'] > 0.2)].to_list()
-        invalid_indexes.extend(df.index[(df['Precipitation (in)'] < 0)].to_list())
+        invalid_indexes = df.index[(df['Precipitation (in)'] > precip_upper)].to_list()
+        invalid_indexes.extend(df.index[(df['Precipitation (in)'] < precip_lower)].to_list())
         # replace precip value with NaN at invalid indexes
         for index in invalid_indexes:
             df['Precipitation (in)'].iloc[index] = np.nan
