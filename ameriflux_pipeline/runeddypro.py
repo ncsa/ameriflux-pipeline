@@ -6,6 +6,7 @@
 import subprocess
 import os
 import shutil
+import sys
 
 
 class RunEddypro():
@@ -58,23 +59,34 @@ class RunEddypro():
         RunEddypro.save_string_list_to_file(tmp_proj_list, outfile)
         print("temporary project file created")
 
-        # copy eddypro bin folder content to working folder.
-        # This is to avoid possible unzip error of ghz file that eddypro_rp has
-        current_dir = os.getcwd()
-        bin_list = os.listdir(eddypro_bin_loc)
+        # # copy eddypro bin folder content to working folder.
+        # # This is to avoid possible unzip error of ghz file that eddypro_rp has
+        # current_dir = os.getcwd()
+        # bin_list = os.listdir(eddypro_bin_loc)
+        #
+        # # copy eddypro bin files
+        # for bin_file in bin_list:
+        #     src_file = os.path.join(eddypro_bin_loc, bin_file)
+        #     des_file = os.path.join(current_dir, bin_file)
+        #     try:
+        #         shutil.copyfile(src_file, des_file)
+        #     except Exception:
+        #         print(bin_file, "already exists in the working directory.")
+        # print("copied temporary eddypro bin files")
 
-        # copy eddypro bin files
-        for bin_file in bin_list:
-            src_file = os.path.join(eddypro_bin_loc, bin_file)
-            des_file = os.path.join(current_dir, bin_file)
-            try:
-                shutil.copyfile(src_file, des_file)
-            except Exception:
-                print(bin_file, "already exists in the working directory.")
-        print("copied temporary eddypro bin files")
+        os_platform = RunEddypro.get_platform()
 
         try:
-            subprocess.run(["eddypro_rp", outfile], shell=True)
+            # if you don't want to print out eddypro process,
+            # use subprocess.check_output
+            if os_platform.lower() == "windows":
+                subprocess.run(["eddypro_rp.exe", "-e", out_path, outfile], shell=True,
+                                    cwd=eddypro_bin_loc)
+            elif os_platform.lower() == "os x":
+                subprocess.run(["./eddypro_rp", "-e", out_path, outfile], shell=True,
+                               cwd=eddypro_bin_loc)
+            else:
+                raise Exception("The current platform is currently not being supported.")
         except Exception:
             raise Exception("Running EddyPro failed.")
 
@@ -82,10 +94,10 @@ class RunEddypro():
         print("removed temporary project file")
         os.remove(outfile)
 
-        # remove temporary bin file
-        for bin_file in bin_list:
-            os.remove(os.path.join(current_dir, bin_file))
-        print("removed temporary eddypro bin files")
+        # # remove temporary bin file
+        # for bin_file in bin_list:
+        #     os.remove(os.path.join(current_dir, bin_file))
+        # print("removed temporary eddypro bin files")
 
     @staticmethod
     def create_tmp_proj_file(file_name, project_title,
@@ -173,6 +185,19 @@ class RunEddypro():
             raise Exception("Manipulating template project file failed.")
 
         return out_proj_file_line_list
+
+    @staticmethod
+    def get_platform():
+        platforms = {
+            'linux1' : 'Linux',
+            'linux2' : 'Linux',
+            'darwin' : 'OS X',
+            'win32' : 'Windows'
+        }
+        if sys.platform not in platforms:
+            return sys.platform
+
+        return platforms[sys.platform]
 
     def save_string_list_to_file(in_list, outfile):
         """
