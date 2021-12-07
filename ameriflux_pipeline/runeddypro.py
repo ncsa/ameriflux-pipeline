@@ -66,6 +66,7 @@ class RunEddypro():
         # copy eddypro bin files
         for bin_file in bin_list:
             src_file = os.path.join(eddypro_bin_loc, bin_file)
+            des_file = os.path.join(current_dir, bin_file)
             try:
                 shutil.copyfile(src_file, des_file)  # does not copy empty directories
             except Exception:
