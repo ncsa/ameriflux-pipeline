@@ -35,10 +35,16 @@ pyincore_data.egg-info
 # incore pw file
 tests/.incorepw
 
-# incore download data or test data
+# download data or test data
 tests/data/
 cache_data/
 original/
+
+# env file
+*.env
+
+# EddyPro proj file
+*.eddypro
 
 # jupyter notebook checkpoints folder
 .ipynb_checkpoints
