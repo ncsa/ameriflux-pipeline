@@ -6,6 +6,9 @@
 
 import os
 import shutil
+
+import pandas as pd
+
 from config import Config as cfg
 import utils.data_util as data_util
 
@@ -25,11 +28,14 @@ def eddypro_preprocessing():
         None
     """
     # start preprocessing data
-    df, file_meta = Preprocessor.data_preprocess(cfg.INPUT_MET, cfg.INPUT_PRECIP, int(cfg.MISSING_TIME))
+    df, file_meta = Preprocessor.data_preprocess(cfg.INPUT_MET, cfg.INPUT_PRECIP, int(cfg.QC_PRECIP_LOWER),
+                                                 int(cfg.QC_PRECIP_UPPER), int(cfg.MISSING_TIME))
     # TODO : check with Bethany - number of decimal places for numerical values
     # write processed df to output path
     data_util.write_data(df, cfg.MASTER_MET)
 
+    # create file for master met formatted for eddypro
+    # filename is selected to be master_met_eddypro
     output_filename = os.path.basename(cfg.MASTER_MET)
     eddypro_formatted_met_name = os.path.splitext(output_filename)[0] + '_eddypro.csv'
     eddypro_formatted_met_file = os.path.join(os.getcwd(), "tests", "data", eddypro_formatted_met_name)
@@ -70,6 +76,16 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
     # copy and rename the met data file
     shutil.copyfile(met_data_30_input, met_data_30_pyfluxpro)
 
+    # write df and met_data df to an excel spreadsheet in two separate tabs
+    full_output_sheet_name = os.path.splitext(os.path.basename(full_output_pyfluxpro))[0]
+    met_data_sheet_name = os.path.splitext(os.path.basename(met_data_30_pyfluxpro))[0]
+    writer = pd.ExcelWriter(cfg.PYFLUXPRO_INPUT_SHEET)
+    df.to_excel(writer, sheet_name=full_output_sheet_name)
+    met_data_df = pd.read_csv(met_data_30_input)
+    met_data_df.to_excel(writer, sheet_name=met_data_sheet_name)
+    writer.save()
+    print("Master met and full output sheets saved in ", cfg.PYFLUXPRO_INPUT_SHEET)
+
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
@@ -88,5 +104,3 @@ if __name__ == '__main__':
 
     # run pyfluxpro formatting
     pyfluxpro_processing(eddypro_full_outfile, cfg.FULL_OUTPUT_PYFLUXPRO, cfg.MASTER_MET, cfg.MET_DATA_30_PYFLUXPRO)
-
-    # manual step of putting met_output_file in one sheet and eddypro_full_output
