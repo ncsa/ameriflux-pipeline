@@ -22,7 +22,7 @@ class Preprocessor:
 
     # main method which calls other functions
     @staticmethod
-    def data_preprocess(input_met_path, input_precip_path, precip_lower, precip_upper, missing_time_threshold):
+    def data_preprocess(input_met_path, input_precip_path, precip_lower, precip_upper, missing_time_threshold, user_confirmation):
         """
         Cleans and process the dataframe as per the guide. Process dataframe inplace
         Returns processed df and file meta df which is used in eddyproformat.py
@@ -33,6 +33,8 @@ class Preprocessor:
             precip_lower (int) : Lower threshold value for precipitation in inches
             precip_upper (int) : Upper threshold value for precipitation in inches
             missing_time_threshold (int): Number of missing timeslot threshold. Used for both met data and precip data
+            user_confirmation (str) : User decision on whether to insert, ignore or ask during runtime
+                                        in case of large number of missing timestamps
         Returns:
             df (obj): Pandas DataFrame object, processed df
             file_meta (obj) : Pandas DataFrame object, meta data of file
@@ -54,7 +56,8 @@ class Preprocessor:
         data_util.write_data(file_meta, file_meta_data_file)  # write meta data of file to file. One row.
 
         # read input precipitation data file
-        df_precip = Preprocessor.read_precip_data(input_precip_path, precip_lower, precip_upper, missing_time_threshold)
+        df_precip = Preprocessor.read_precip_data(input_precip_path, precip_lower, precip_upper,
+                                                  missing_time_threshold, user_confirmation)
         # TODO : create a method to check for missing timestamp and possible values in precip data.
         # Possible values for rain is 0-0.2in.
 
@@ -72,8 +75,8 @@ class Preprocessor:
         new_variables.append('timedelta')
 
         # create missing timestamps
-        df, user_confirmation = Preprocessor.insert_missing_timestamp(df, 'timestamp_sync',
-                                                                      30.0, missing_time_threshold)
+        df, user_confirmation = Preprocessor.insert_missing_timestamp(df, 'timestamp_sync', 30.0,
+                                                                      missing_time_threshold, user_confirmation)
         if user_confirmation == 'N':
             # user confirmed not to insert missing timestamps. Return to main program
             return df
