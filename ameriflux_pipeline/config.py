@@ -34,6 +34,7 @@ class Config:
     # PyFluxPro related data
     FULL_OUTPUT_PYFLUXPRO = os.getenv('FULL_OUTPUT_PYFLUXPRO', 'tests/data/full_output.csv')
     MET_DATA_30_PYFLUXPRO = os.getenv('MET_DATA_30_PYFLUXPRO', 'tests/data/Met_data_30.csv')
+    PYFLUXPRO_INPUT_SHEET = os.getenv('PYFLUXPRO_INPUT_SHEET', 'tests/data/pyfluxpro_input.xlsx')
 
     # QA/QC values
     # precipitation threshold values used in creating Eddypro master meteorology data

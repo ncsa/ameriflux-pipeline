@@ -68,7 +68,7 @@ class RunEddypro():
             src_file = os.path.join(eddypro_bin_loc, bin_file)
             des_file = os.path.join(current_dir, bin_file)
             try:
-                shutil.copyfile(src_file, des_file)
+                shutil.copyfile(src_file, des_file)  # does not copy empty directories
             except Exception:
                 print(bin_file, "already exists in the working directory.")
         print("copied temporary eddypro bin files")
