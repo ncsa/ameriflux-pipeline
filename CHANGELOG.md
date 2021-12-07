@@ -13,3 +13,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Automation for running EddyPro. [#21](https://github.com/ncsa/ameriflux-pipeline/issues/21)
 - CSV comparison script. [#27](https://github.com/ncsa/ameriflux-pipeline/issues/27)
 - Automation chain for running eddypro. [#50](https://github.com/ncsa/ameriflux-pipeline/issues/50)
+- Created NOTES.md to document code structure and decisions made. [#47](https://github.com/ncsa/ameriflux-pipeline/issues/47)
