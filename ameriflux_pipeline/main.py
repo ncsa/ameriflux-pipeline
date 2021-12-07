@@ -28,11 +28,14 @@ def eddypro_preprocessing():
         None
     """
     # start preprocessing data
-    df, file_meta = Preprocessor.data_preprocess(cfg.INPUT_MET, cfg.INPUT_PRECIP, int(cfg.MISSING_TIME))
+    df, file_meta = Preprocessor.data_preprocess(cfg.INPUT_MET, cfg.INPUT_PRECIP, int(cfg.QC_PRECIP_LOWER),
+                                                 int(cfg.QC_PRECIP_UPPER), int(cfg.MISSING_TIME))
     # TODO : check with Bethany - number of decimal places for numerical values
     # write processed df to output path
     data_util.write_data(df, cfg.MASTER_MET)
 
+    # create file for master met formatted for eddypro
+    # filename is selected to be master_met_eddypro
     output_filename = os.path.basename(cfg.MASTER_MET)
     eddypro_formatted_met_name = os.path.splitext(output_filename)[0] + '_eddypro.csv'
     eddypro_formatted_met_file = os.path.join(os.getcwd(), "tests", "data", eddypro_formatted_met_name)
