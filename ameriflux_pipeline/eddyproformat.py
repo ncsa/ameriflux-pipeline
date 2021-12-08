@@ -16,10 +16,10 @@ class EddyProFormat:
     @staticmethod
     def data_formatting(input_data_path, input_soil_key, file_meta, output_path):
         """
-        Constructor for the class
+        Formats the master met data for EddyPRo run.
 
         Args:
-            input_data_path (str): A file path for the input data.
+            input_data_path (str): A file path for the input met data.
             input_soil_key (str): A file path for input soil key sheet
             file_meta (obj) : A pandas dataframe containing meta data about the input met data file
             output_path (str): A file path for the output data.
@@ -32,6 +32,7 @@ class EddyProFormat:
         output_path = output_path  # path to write the formatted meteorological data file
 
         # extract site name from file meta data
+        # NOTE 3
         file_site_name = file_meta.iloc[0][5]
         # match file site name to site names in soil key file. this is used as lookup in soil key table
         site_name = EddyProFormat.get_site_name(file_site_name)

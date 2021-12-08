@@ -41,14 +41,19 @@ class Preprocessor:
         """
 
         # read input meteorological data file
+        # NOTE 1
         df, file_df_meta = Preprocessor.read_met_data(input_met_path)
         print("Data contains ", df.shape[0], "rows ", df.shape[1], "columns")
 
         # get meta data
+        # NOTE 2
         df_meta, file_meta = Preprocessor.get_meta_data(file_df_meta)
+        # NOTE 4
         df_meta = Preprocessor.add_U_V_units(df_meta)
 
         # Write file meta data to another file
+        # TODO : this can be omitted.
+        # The file meta data is passed as a df (file_meta) to eddyproformat. No need for writing to file.
         input_filename = os.path.basename(input_met_path)
         file_meta_data_filename = os.path.splitext(input_filename)[0] + '_file_meta.csv'
         # write file_df_meta to this path
@@ -64,6 +69,7 @@ class Preprocessor:
         # change column data types
         df = Preprocessor.change_datatype(df)
 
+        # NOTE 6
         # set new variables
         new_variables = []
         # sync time
@@ -75,8 +81,9 @@ class Preprocessor:
         new_variables.append('timedelta')
 
         # create missing timestamps
-        df, user_confirmation = Preprocessor.insert_missing_timestamp(df, 'timestamp_sync', 30.0,
-                                                                      missing_time_threshold, user_confirmation)
+        # NOTE 7
+        df, user_confirmation = Preprocessor.insert_missing_timestamp(df, 'timestamp_sync',
+                                                                      30.0, missing_time_threshold)
         if user_confirmation == 'N':
             # user confirmed not to insert missing timestamps. Return to main program
             return df
@@ -98,10 +105,12 @@ class Preprocessor:
         # Step 4 in guide
         df = Preprocessor.replace_empty(df)
 
+        # NOTE 6
         # delete newly created temp variables
         df = Preprocessor.delete_new_variables(df, new_variables)
 
         # step 8 in guide - add precip data. join df and df_precip
+        # NOTE 8
         df = pd.merge(df, df_precip, on='TIMESTAMP')
         # TODO : ask Bethany about timeframes extra in one dataset, either met or precip.
         # add precipitation unit mm to df_meta
@@ -116,6 +125,7 @@ class Preprocessor:
             df['Albedo_Avg'] = df['SWUp_Avg'] / df['SWDn_Avg']
             df_meta['Albedo_Avg'] = SW_unit  # add shortwave radiation units
 
+        # NOTE 2
         # concat the meta df and df if number of columns is the same
         if df_meta.shape[1] == df.shape[1]:
             df = pd.concat([df_meta, df], ignore_index=True)
@@ -210,6 +220,7 @@ class Preprocessor:
         df = pd.read_excel(data_path)  # read excel file
         df.drop(['Station'], axis=1, inplace=True)  # drop unwanted columns
         # TODO: Ask Bethany - if missing time threshold for precip data is ok to be same as met data
+        # NOTE 5
         # perform qa qc checks for precip data
         df = Preprocessor.precip_qaqc(df, precip_lower, precip_upper, missing_time_threshold)
         # convert precipitation from in to mm
@@ -265,7 +276,7 @@ class Preprocessor:
     @staticmethod
     def change_datatype(df):
         """
-        Change datatypes of all columns, except TIMESTAMP to numeric
+        Change data types of all columns, except TIMESTAMP to numeric
 
         Args:
             df (object): Pandas DataFrame object
@@ -275,23 +286,6 @@ class Preprocessor:
         cols = df.columns.drop('TIMESTAMP')
         df[cols] = df[cols].apply(pd.to_numeric, errors='coerce')  # coerce will replace all non-numeric values with NaN
         return df
-
-    @staticmethod
-    def data_ok(value):
-        """
-        Logical function to test if a variable is a number or not.
-        Currently not used as data types are changed for all columns except TIMESTMAP
-
-        Args:
-            value: variable
-        Returns:
-            bool : true or false
-        """
-        if (isinstance(value, int) or isinstance(value, float)) and value != -9999:
-            return True
-        else:
-            print(value, "data not a number")
-            return False
 
     @staticmethod
     def sync_time(df, new_variables):
@@ -472,7 +466,6 @@ class Preprocessor:
         vp = RH * VPsat / 100
         Rv = 461.5  # constant : gas constant for water vapour, J/kg/K
         AhFromRH = 1000000 * vp / ((T + 273.15) * Rv)
-
         return AhFromRH
 
     @staticmethod
