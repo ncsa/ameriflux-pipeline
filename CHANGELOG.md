@@ -18,3 +18,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Created NOTES.md to document code structure and decisions made. [#47](https://github.com/ncsa/ameriflux-pipeline/issues/47)
 - Added QA/QC check for precipitation data. [#39](https://github.com/ncsa/ameriflux-pipeline/issues/39)
 - Automated creation of pyfluxpro input excel spreadsheet [#55](https://github.com/ncsa/ameriflux-pipeline/issues/55)
+- Added env variable for automating user confirmation to insert large number of missing timestamps. [#52](https://github.com/ncsa/ameriflux-pipeline/issues/52)
