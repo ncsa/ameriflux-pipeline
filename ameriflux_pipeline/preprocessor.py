@@ -366,15 +366,15 @@ class Preprocessor:
                 # ask for user confirmation if more than 96 timeslots (2 days) are missing
                 if insert_num_rows > missing_timeslot_threshold:
                     print(insert_num_rows, "missing timeslots found")
-                    if user_confirmation in ['A', 'a', 'ASK', 'ask', 'Ask']:
+                    if user_confirmation in ['a', 'ask']:
                         print("Enter Y to insert", insert_num_rows, "rows. Else enter N")
                         insert_flag = input("Enter Y/N : ")
-                    elif user_confirmation in ['Y', 'y', 'yes', 'YES', 'Yes']:
+                    elif user_confirmation in ['y', 'yes']:
                         insert_flag = 'Y'
-                    elif user_confirmation in ['N', 'n', 'no', 'NO', 'No']:
+                    elif user_confirmation in ['n', 'no']:
                         insert_flag = 'N'
 
-                    if insert_flag in ['Y', 'y', 'yes', 'YES', 'Yes']:
+                    if insert_flag.lower() in ['y', 'yes']:
                         # insert missing timestamps
                         end_timestamp = df2[time_col].iloc[0]
                         start_timestamp = df1[time_col].iloc[0]
