@@ -74,7 +74,7 @@ class RunEddypro():
         print("copied temporary eddypro bin files")
 
         try:
-            subprocess.run(["./eddypro_rp", outfile], shell=True)
+            subprocess.run(["eddypro_rp", outfile], shell=True)
         except Exception:
             raise Exception("Running EddyPro failed.")
 
