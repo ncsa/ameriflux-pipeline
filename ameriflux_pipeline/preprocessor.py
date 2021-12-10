@@ -34,8 +34,8 @@ class Preprocessor:
             precip_lower (int) : Lower threshold value for precipitation in inches
             precip_upper (int) : Upper threshold value for precipitation in inches
             missing_time_threshold (int): Number of missing timeslot threshold. Used for both met data and precip data
-            user_confirmation (str) : User decision on whether to insert, ignore or ask during runtime
-                                        in case of large number of missing timestamps
+            user_confirmation (str) : User decision on whether to insert,
+                                        ignore or ask during runtime in case of large number of missing timestamps
         Returns:
             df (obj): Pandas DataFrame object, processed df
             file_meta (obj) : Pandas DataFrame object, meta data of file
