@@ -14,6 +14,10 @@ class Config:
     INPUT_MET = os.getenv('INPUT_MET', 'tests/data/FLUXSB_EC_JanMar2021.csv')  # input met data path
     INPUT_PRECIP = os.getenv('INPUT_PRECIP', 'tests/data/Precip_IWS_Jan-Feb_2021.xlsx')  # input precipitation data path
     MISSING_TIME = os.getenv('MISSING_TIME', 96)  # Number of missing timeslot threshold for user confirmation to insert
+    # NOTE 9
+    # User confirmation to insert large number of missing timestamps
+    # Enter 'Y' to insert, 'N' to ignore and 'ASK' to await user input during runtime.
+    USER_CONFIRMATION = os.getenv('USER_CONFIRMATION', 'Y')
     MASTER_MET = os.getenv('MASTER_MET', 'tests/data/met_output.csv')  # output data path
 
     # input data for formatting Eddypro master meteorology data
