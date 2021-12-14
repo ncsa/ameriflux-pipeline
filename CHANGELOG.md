@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Automation for running EddyPro. [#21](https://github.com/ncsa/ameriflux-pipeline/issues/21)
 - CSV comparison script. [#27](https://github.com/ncsa/ameriflux-pipeline/issues/27)
 - Automation chain for running eddypro. [#50](https://github.com/ncsa/ameriflux-pipeline/issues/50)
+- Merging of met data and precip data with different timestamps. [#54](https://github.com/ncsa/ameriflux-pipeline/issues/54)
 - Created NOTES.md to document code structure and decisions made. [#47](https://github.com/ncsa/ameriflux-pipeline/issues/47)
 - Added QA/QC check for precipitation data. [#39](https://github.com/ncsa/ameriflux-pipeline/issues/39)
 - Automated creation of pyfluxpro input excel spreadsheet [#55](https://github.com/ncsa/ameriflux-pipeline/issues/55)
