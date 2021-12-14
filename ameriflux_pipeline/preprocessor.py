@@ -111,9 +111,14 @@ class Preprocessor:
         df = Preprocessor.delete_new_variables(df, new_variables)
 
         # step 8 in guide - add precip data. join df and df_precip
+        # keep all met data and have NaN for precip values that are missing - left join with met data
+        # throw a warning if there are extra timestamps in met data
+        if (pd.to_datetime(df['TIMESTAMP'].iloc[-1]) > pd.to_datetime(df_precip['TIMESTAMP'].iloc[-1])) \
+                or (pd.to_datetime(df['TIMESTAMP'].iloc[-1]) < pd.to_datetime(df_precip['TIMESTAMP'].iloc[-1])):
+            print("Extra timestamps in met data. Joining precip with NaN value in extra timestamps")
         # NOTE 8
-        df = pd.merge(df, df_precip, on='TIMESTAMP')
-        # TODO : ask Bethany about timeframes extra in one dataset, either met or precip.
+        df = pd.merge(df, df_precip, on='TIMESTAMP', how='left')
+
         # add precipitation unit mm to df_meta
         df_meta['Precip_IWS'] = 'mm'
 
