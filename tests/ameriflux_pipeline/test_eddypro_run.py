@@ -28,4 +28,3 @@ def test_run_eddypro():
 
 if __name__ == '__main__':
     test_run_eddypro()
-    
