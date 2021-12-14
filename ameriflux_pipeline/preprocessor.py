@@ -62,6 +62,7 @@ class Preprocessor:
         data_util.write_data(file_meta, file_meta_data_file)  # write meta data of file to file. One row.
 
         # read input precipitation data file
+        user_confirmation = user_confirmation.lower()
         df_precip = Preprocessor.read_precip_data(input_precip_path, precip_lower, precip_upper,
                                                   missing_time_threshold, user_confirmation)
 
