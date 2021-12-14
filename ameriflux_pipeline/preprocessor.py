@@ -49,15 +49,6 @@ class Preprocessor:
         # NOTE 4
         df_meta = Preprocessor.add_U_V_units(df_meta)
 
-        # Write file meta data to another file
-        # TODO : this can be omitted.
-        # The file meta data is passed as a df (file_meta) to eddyproformat. No need for writing to file.
-        input_filename = os.path.basename(input_met_path)
-        file_meta_data_filename = os.path.splitext(input_filename)[0] + '_file_meta.csv'
-        # write file_df_meta to this path
-        file_meta_data_file = os.path.join(os.getcwd(), "tests", "data", file_meta_data_filename)
-        data_util.write_data(file_meta, file_meta_data_file)  # write meta data of file to file. One row.
-
         # read input precipitation data file
         df_precip = Preprocessor.read_precip_data(input_precip_path, precip_lower, precip_upper, missing_time_threshold)
         # TODO : create a method to check for missing timestamp and possible values in precip data.
