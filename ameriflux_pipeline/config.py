@@ -16,7 +16,7 @@ class Config:
     MISSING_TIME = os.getenv('MISSING_TIME', 96)  # Number of missing timeslot threshold for user confirmation to insert
     # NOTE 9
     # User confirmation to insert large number of missing timestamps
-    # Enter 'Y' to insert, 'N' to ignore and 'ASK' to await user input during runtime.
+    # Enter 'Y'/'YES' to insert, 'N'/'NO' to ignore and 'A'/'ASK' to await user input during runtime.
     USER_CONFIRMATION = os.getenv('USER_CONFIRMATION', 'Y')
     MASTER_MET = os.getenv('MASTER_MET', 'tests/data/met_output.csv')  # output data path
 
