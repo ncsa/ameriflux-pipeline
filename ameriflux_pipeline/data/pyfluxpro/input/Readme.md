@@ -1,0 +1,2 @@
+- Location of all pyfluxpro input files
+- Eg : full_output.csv, Met_data_30.csv, pyfluxpro_input.xlsx
