@@ -1,5 +1,5 @@
 import os
-from ameriflux_pipeline.pyfluxpro_format import PyFluxProFormat
+from ameriflux_pipeline.pyfluxproformat import PyFluxProFormat
 
 
 def test_pyfluxpro_format():
@@ -12,3 +12,4 @@ def test_pyfluxpro_format():
 
 if __name__ == "__main__":
     test_pyfluxpro_format()
+
