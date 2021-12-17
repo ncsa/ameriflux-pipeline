@@ -1,0 +1,2 @@
+- Location for output from EddyPro. All outputs (including full_output) from eddypro headless is written here
+- Eg : eddypro_Sorghum_Jan1to7_2021_full_output_2021-11-03T083200_adv.csv
