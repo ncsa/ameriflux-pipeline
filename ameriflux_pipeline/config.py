@@ -35,7 +35,6 @@ class Config:
     EDDYPRO_INPUT_GHG_PATH = os.getenv('EDDYPRO_INPUT_GHG_PATH', 'data/eddypro/input/Raw Jan-Mar 2021 GHG Files')
     EDDYPRO_OUTPUT_PATH = os.getenv('EDDYPRO_OUTPUT_PATH', 'data/eddypro/output/')
 
-
     # PyFluxPro related data
     FULL_OUTPUT_PYFLUXPRO = os.getenv('FULL_OUTPUT_PYFLUXPRO', 'data/pyfluxpro/input/full_output.csv')
     MET_DATA_30_PYFLUXPRO = os.getenv('MET_DATA_30_PYFLUXPRO', 'data/pyfluxpro/input/Met_data_30.csv')
