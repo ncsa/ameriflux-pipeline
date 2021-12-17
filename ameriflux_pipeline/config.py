@@ -14,14 +14,19 @@ class Config:
     INPUT_MET = os.getenv('INPUT_MET', 'data/master_met/input/FLUXSB_EC_JanMar2021.csv')  # input met data path
     INPUT_PRECIP = os.getenv('INPUT_PRECIP', 'data/master_met/input/Precip_IWS_Jan-Feb_2021.xlsx')  # input precipitation data path
     MISSING_TIME = os.getenv('MISSING_TIME', 96)  # Number of missing timeslot threshold for user confirmation to insert
-    MASTER_MET = os.getenv('MASTER_MET', 'data/master_met/output/met_output.csv')  # output master met data path
+    # NOTE 9
+    # User confirmation to insert large number of missing timestamps
+    # Enter 'Y' to insert, 'N' to ignore and 'ASK' to await user input during runtime.
+    USER_CONFIRMATION = os.getenv('USER_CONFIRMATION', 'Y')
+    MASTER_MET = os.getenv('MASTER_MET', 'tests/data/met_output.csv')  # output data path
 
     # input data for formatting Eddypro master meteorology data
     INPUT_SOIL_KEY = os.getenv('INPUT_SOIL_KEY', 'data/eddypro/input/Soils_key.xlsx')  # input soil key data path
 
     # eddypro related parameters
-    EDDYPRO_BIN_LOC = os.getenv('EDDYPRO_BIN_LOC', '')  # bin folder location of eddypro_rp exec file
-    EDDYPRO_PROJ_FILE_NAME = os.getenv('EDDYPRO_PROJ_FILE_NAME', 'data/eddypro/input/EddyPro_Run_Template.eddypro')
+    # bin folder location of eddypro_rp exec file
+    EDDYPRO_BIN_LOC = os.getenv('EDDYPRO_BIN_LOC', '')  # '/Applications/eddypro.app/Contents/MacOS/bin'
+    EDDYPRO_PROJ_FILE_NAME = os.getenv('EDDYPRO_PROJ_FILE_NAME', 'templates/EddyPro_Run_Template.eddypro')
     EDDYPRO_PROJ_TITLE = os.getenv('EDDYPRO_PROJ_TITLE', 'AmeriFlux_Pipeline')
     EDDYPRO_PROJ_ID = os.getenv('EDDYPRO_PROJ_ID', 'ameriflux_pipeline')
     EDDYPRO_FILE_PROTOTYPE = os.getenv('EDDYPRO_FILE_PROTOTYPE', 'yyyy-mm-ddTHHMM??_Sorghum-00137.ghg')

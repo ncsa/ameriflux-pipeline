@@ -30,3 +30,6 @@
 - The met data and precip data are merged on the timestamp column. 
 - If there are extra timestamps in met data, keep them in the final dataframe while filling the precip data as NANs.
 - If there are extra timestamps in precip data, ignore that.
+### 9
+- If there is a large gap in timestamps in either met data or precip data, ask for user confirmation to insert the missing timestamps or ignore.
+

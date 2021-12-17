@@ -22,7 +22,8 @@ class Preprocessor:
 
     # main method which calls other functions
     @staticmethod
-    def data_preprocess(input_met_path, input_precip_path, precip_lower, precip_upper, missing_time_threshold):
+    def data_preprocess(input_met_path, input_precip_path, precip_lower, precip_upper,
+                        missing_time_threshold, user_confirmation):
         """
         Cleans and process the dataframe as per the guide. Process dataframe inplace
         Returns processed df and file meta df which is used in eddyproformat.py
@@ -33,6 +34,8 @@ class Preprocessor:
             precip_lower (int) : Lower threshold value for precipitation in inches
             precip_upper (int) : Upper threshold value for precipitation in inches
             missing_time_threshold (int): Number of missing timeslot threshold. Used for both met data and precip data
+            user_confirmation (str) : User decision on whether to insert,
+                                        ignore or ask during runtime in case of large number of missing timestamps
         Returns:
             df (obj): Pandas DataFrame object, processed df
             file_meta (obj) : Pandas DataFrame object, meta data of file
@@ -50,9 +53,9 @@ class Preprocessor:
         df_meta = Preprocessor.add_U_V_units(df_meta)
 
         # read input precipitation data file
-        df_precip = Preprocessor.read_precip_data(input_precip_path, precip_lower, precip_upper, missing_time_threshold)
-        # TODO : create a method to check for missing timestamp and possible values in precip data.
-        # Possible values for rain is 0-0.2in.
+        user_confirmation = user_confirmation.lower()
+        df_precip = Preprocessor.read_precip_data(input_precip_path, precip_lower, precip_upper,
+                                                  missing_time_threshold, user_confirmation)
 
         # change column data types
         df = Preprocessor.change_datatype(df)
@@ -70,10 +73,11 @@ class Preprocessor:
 
         # create missing timestamps
         # NOTE 7
-        df, user_confirmation = Preprocessor.insert_missing_timestamp(df, 'timestamp_sync',
-                                                                      30.0, missing_time_threshold)
-        if user_confirmation == 'N':
+        df, insert_flag = Preprocessor.insert_missing_timestamp(df, 'timestamp_sync', 30.0,
+                                                                missing_time_threshold, user_confirmation)
+        if insert_flag == 'N':
             # user confirmed not to insert missing timestamps. Return to main program
+            print("Ignoring missing timestamps in met data. Return to main")
             return df
 
         # correct timestamp string format - step 1 in guide
@@ -98,9 +102,14 @@ class Preprocessor:
         df = Preprocessor.delete_new_variables(df, new_variables)
 
         # step 8 in guide - add precip data. join df and df_precip
+        # keep all met data and have NaN for precip values that are missing - left join with met data
+        # throw a warning if there are extra timestamps in met data
+        if (pd.to_datetime(df['TIMESTAMP'].iloc[-1]) > pd.to_datetime(df_precip['TIMESTAMP'].iloc[-1])) \
+                or (pd.to_datetime(df['TIMESTAMP'].iloc[-1]) < pd.to_datetime(df_precip['TIMESTAMP'].iloc[-1])):
+            print("Extra timestamps in met data. Joining precip with NaN value in extra timestamps")
         # NOTE 8
-        df = pd.merge(df, df_precip, on='TIMESTAMP')
-        # TODO : ask Bethany about timeframes extra in one dataset, either met or precip.
+        df = pd.merge(df, df_precip, on='TIMESTAMP', how='left')
+
         # add precipitation unit mm to df_meta
         df_meta['Precip_IWS'] = 'mm'
 
@@ -191,7 +200,7 @@ class Preprocessor:
         return df
 
     @staticmethod
-    def read_precip_data(data_path, precip_lower, precip_upper, missing_time_threshold):
+    def read_precip_data(data_path, precip_lower, precip_upper, missing_time_threshold, user_confirmation):
         """
         Reads precipitation data from excel file and returns processed dataframe.
         Precip data is read for every 5min and the values are in inches.
@@ -202,6 +211,7 @@ class Preprocessor:
             precip_lower (int) : Lower threshold value for precipitation in inches
             precip_upper (int) : Upper threshold value for precipitation in inches
             missing_timeslot_threshold (int): Value for missing timeslot threshold. used for insert_missing_time method
+            user_confirmation (str) : Option to either insert or ignore missing timestamps
         Returns:
             obj: Pandas DataFrame object
         """
@@ -210,7 +220,7 @@ class Preprocessor:
         # TODO: Ask Bethany - if missing time threshold for precip data is ok to be same as met data
         # NOTE 5
         # perform qa qc checks for precip data
-        df = Preprocessor.precip_qaqc(df, precip_lower, precip_upper, missing_time_threshold)
+        df = Preprocessor.precip_qaqc(df, precip_lower, precip_upper, missing_time_threshold, user_confirmation)
         # convert precipitation from in to mm
         # TODO : import cf_units and use to convert units. / udunits
         df['Precipitation (mm)'] = df['Precipitation (in)'] * 25.4  # convert inches to millimeter
@@ -230,7 +240,7 @@ class Preprocessor:
         return df
 
     @staticmethod
-    def precip_qaqc(df, precip_lower, precip_upper, missing_time_threshold):
+    def precip_qaqc(df, precip_lower, precip_upper, missing_time_threshold, user_confirmation):
         """
         Function to preform QA/QC check on precip data.
         Check if there are missing timestamps and if the precip value is between precip_lower and precip_upper
@@ -242,14 +252,18 @@ class Preprocessor:
             precip_lower (int) : Lower threshold value for precipitation in inches
             precip_upper (int) : Upper threshold value for precipitation in inches
             missing_timeslot_threshold (int): Value for missing timeslot threshold. used for insert_missing_time method
+            user_confirmation (str) : Option to either insert or ignore missing timestamps
         Returns:
             obj (Pandas DataFrame object): processed and cleaned precip dataframe
         """
         # check timestamps, if present for every 5 min
         df['timedelta'] = Preprocessor.get_timedelta(df['Date & Time (CST)'])
-        df, user_confirmation = Preprocessor.insert_missing_timestamp(df, 'Date & Time (CST)',
-                                                                      5.0, missing_time_threshold)
-        # TODO: what to do if user confirmation is N
+        df, insert_flag = Preprocessor.insert_missing_timestamp(df, 'Date & Time (CST)', 5.0,
+                                                                missing_time_threshold, user_confirmation)
+        if insert_flag == 'N':
+            # user confirmed not to insert missing timestamps.
+            print("Ignoring missing timestamps in precip data")
+
         df.drop(['timedelta'], axis=1, inplace=True)
         # check precip values in between 0 and 0.2 in
         # get indexes where precip is greater than 0.2 or less than 0.
@@ -313,7 +327,7 @@ class Preprocessor:
         return time_delta
 
     @staticmethod
-    def insert_missing_timestamp(df, time_col, time_interval, missing_timeslot_threshold):
+    def insert_missing_timestamp(df, time_col, time_interval, missing_timeslot_threshold, user_confirmation):
         """
         Function to check and insert missing timestamps.
         Used for precip data and met data.
@@ -323,12 +337,13 @@ class Preprocessor:
             time_col (str) : timestamp column name. Date & Time (CST) for precip and timestamp_sync for met data
             time_interval (float): Expected time interval between two timestamps. 5.0 for precip and 30.0 for met data
             missing_timeslot_threshold (int): Value for missing timeslot threshold
+            user_confirmation (str) : Option to either insert or ignore missing timestamps
         Returns:
             obj, str: Pandas dataframe object and string for representing yes or no
         """
         # Check if number of missing timeslots are greater than a threshold.
-        # If greater than threshold, ask for user confirmation and insert missing timestamps
-        # return: string:'Y' / 'N' - denotes user confirmation to insert missing timestamps
+        # If greater than threshold, insert or ignore according to user confirmation
+        # return: string:'Y' / 'N' - denotes insert_flag to insert missing timestamps
 
         # if all TimeDelta is not time_interval, the below returns non-zero value
         if df.loc[df['timedelta'] != time_interval].shape[0]:
@@ -348,10 +363,15 @@ class Preprocessor:
                 # ask for user confirmation if more than 96 timeslots (2 days) are missing
                 if insert_num_rows > missing_timeslot_threshold:
                     print(insert_num_rows, "missing timeslots found")
-                    print("Enter Y to insert", insert_num_rows, "rows. Else enter N")
-                    user_confirmation = input("Enter Y/N : ")
+                    if user_confirmation in ['a', 'ask']:
+                        print("Enter Y to insert", insert_num_rows, "rows. Else enter N")
+                        insert_flag = input("Enter Y/N : ")
+                    elif user_confirmation in ['y', 'yes']:
+                        insert_flag = 'Y'
+                    elif user_confirmation in ['n', 'no']:
+                        insert_flag = 'N'
 
-                    if user_confirmation in ['Y', 'y', 'yes', 'Yes']:
+                    if insert_flag.lower() in ['y', 'yes']:
                         # insert missing timestamps
                         end_timestamp = df2[time_col].iloc[0]
                         start_timestamp = df1[time_col].iloc[0]
@@ -373,7 +393,7 @@ class Preprocessor:
                         df = pd.concat([df1, new_df, df2], ignore_index=True)
 
                     else:
-                        # user input is No.
+                        # insert flag is No.
                         return df, 'N'
 
         return df, 'Y'
