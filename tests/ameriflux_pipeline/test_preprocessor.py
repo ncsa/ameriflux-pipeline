@@ -6,7 +6,7 @@
 
 import os
 
-from ameriflux_pipeline.preprocessor import Preprocessor
+from ameriflux_pipeline.master_met.preprocessor import Preprocessor
 
 
 def test_preprocessor():
