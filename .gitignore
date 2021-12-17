@@ -65,6 +65,7 @@ original/
 *.shp
 *.shx
 *.html
+*.xlsx
 
 # related to test file
 *test.py
