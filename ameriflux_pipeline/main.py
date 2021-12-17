@@ -15,7 +15,7 @@ import utils.data_util as data_util
 from preprocessor import Preprocessor
 from eddyproformat import EddyProFormat
 from runeddypro import RunEddypro
-from pyfluxpro_format import PyFluxProFormat
+from pyfluxproformat import PyFluxProFormat
 
 
 def eddypro_preprocessing():
