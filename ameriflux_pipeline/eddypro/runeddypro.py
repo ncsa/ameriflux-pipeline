@@ -14,14 +14,14 @@ class RunEddypro():
     """
 
     @staticmethod
-    def run_eddypro(eddypro_bin_loc="", file_name="", project_title="", project_id="", file_prototype="",
+    def run_eddypro(eddypro_bin_loc="", proj_file_name="", project_title="", project_id="", file_prototype="",
                     proj_file="", dyn_metadata_file="", out_path="", data_path="", biom_file=""):
         """
             Run EddyPro headless using the given parameters
 
             Args:
                 eddypro_bin_loc (str): A path for the eddypro bin directory location
-                file_name (str): A file path for eddypro project filename
+                proj_file_name (str): A file path for eddypro project filename
                 project_title (str): A title for the project
                 project_id (str): An ID for the project
                 file_prototype (str): A file format, such as yyyy-mm-ddTHHMM??_Sorghum-00137.ghg
@@ -34,13 +34,13 @@ class RunEddypro():
                 None
         """
         # create out temp project file
-        outfile = os.path.join(os.path.dirname(os.path.abspath(file_name)), "templates.eddypro")
+        proj_template = os.path.join(os.path.dirname(os.path.abspath(proj_file_name)), "templates.eddypro")
 
         # manipulate project file from the template project file
         tmp_proj_list = RunEddypro.create_tmp_proj_file(
-            file_name=file_name, project_title=project_title, project_id=project_id, file_prototype=file_prototype,
+            file_name=proj_template, project_title=project_title, project_id=project_id, file_prototype=file_prototype,
             proj_file=proj_file, dyn_metadata_file=dyn_metadata_file, out_path=out_path, data_path=data_path,
-            biom_file=biom_file, outfile=outfile)
+            biom_file=biom_file, outfile=proj_file_name)
 
         # clean up the eddypro output folder
         print("All the contents in the", out_path, "will be removed.")
@@ -55,7 +55,7 @@ class RunEddypro():
                 print('Failed to delete %s. Reason: %s' % (file_path, e))
 
         # save temporary project file
-        RunEddypro.save_string_list_to_file(tmp_proj_list, outfile)
+        RunEddypro.save_string_list_to_file(tmp_proj_list, proj_file_name)
         print("temporary project file created")
 
         # copy eddypro bin folder content to working folder.
@@ -74,13 +74,13 @@ class RunEddypro():
         print("copied temporary eddypro bin files")
 
         try:
-            subprocess.run(["eddypro_rp", outfile], shell=True)
+            subprocess.run(["eddypro_rp", proj_file_name], shell=True)
         except Exception:
             raise Exception("Running EddyPro failed.")
 
         # remove temporary project file
         print("removed temporary project file")
-        os.remove(outfile)
+        os.remove(proj_file_name)
 
         # remove temporary bin file
         for bin_file in bin_list:

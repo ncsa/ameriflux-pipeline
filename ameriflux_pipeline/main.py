@@ -60,7 +60,7 @@ def eddypro_preprocessing():
 
 
 def run_eddypro(eddypro_formatted_met_file):
-    RunEddypro.run_eddypro(eddypro_bin_loc=cfg.EDDYPRO_BIN_LOC, file_name=cfg.EDDYPRO_PROJ_FILE_NAME,
+    RunEddypro.run_eddypro(eddypro_bin_loc=cfg.EDDYPRO_BIN_LOC, proj_file_name=cfg.EDDYPRO_PROJ_FILE_NAME,
                            project_id=cfg.EDDYPRO_PROJ_ID, project_title=cfg.EDDYPRO_PROJ_TITLE,
                            file_prototype=cfg.EDDYPRO_FILE_PROTOTYPE, proj_file=cfg.EDDYPRO_PROJ_FILE,
                            dyn_metadata_file=cfg.EDDYPRO_DYN_METADATA, out_path=cfg.EDDYPRO_OUTPUT_PATH,
@@ -105,7 +105,7 @@ if __name__ == '__main__':
     eddypro_formatted_met_file = eddypro_preprocessing()
 
     # run eddypro
-    #run_eddypro(eddypro_formatted_met_file)
+    run_eddypro(eddypro_formatted_met_file)
 
     # grab eddypro full output
     outfile_list = os.listdir(cfg.EDDYPRO_OUTPUT_PATH)
