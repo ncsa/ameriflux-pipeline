@@ -33,20 +33,10 @@ git clone https://github.com/ncsa/ameriflux-pipeline.git
 ```
 cd ameriflux-pipeline
 ```
-3. Install dependencies: The model is tested on Python 3.8, with dependencies listed in requirements.txt. To install these Python dependencies, please run
-```
-pip install -r requirements.txt
-```
-Or if you prefer to use conda,
-```
-conda install --file requirements.txt
-```
+3. Set necessary parameters
+- This can be done by creating .env file under ameriflux_pipeline directory, or directly change the values in config.py
 
-## Usage :
-1. Set necessary parameters.
-   This can be done by creating .env file under ameriflux_pipeline directory, or directly change the values in config.py
-
-example .env file
+- Example .env file
 ```
 DATA_ROOT=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/
 INPUT_MET=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/master_met/input/FLUXSB_EC_JanMar2021.csv
@@ -73,7 +63,24 @@ MET_DATA_30_PYFLUXPRO=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/pyfl
 QC_PRECIP_LOWER=0.0
 QC_PRECIP_UPPER=0.2
 ```
-2. To run python module with default parameters, please run:
+4. Setup virtual environment :
+```
+python3 -m venv venv
+source venv/bin/activate
+```
+
+5. Install dependencies: 
+- The model is tested on Python 3.8, with dependencies listed in requirements.txt. 
+- To install these Python dependencies, please run
+```
+pip install -r requirements.txt
+```
+Or if you prefer to use conda,
+```
+conda install --file requirements.txt
+```
+
+6. To run python module with default parameters, please run:
 ```
 python main.py
 ```
