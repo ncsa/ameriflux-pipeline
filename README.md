@@ -7,12 +7,14 @@ This automated code creates master met data, runs EddyPro automatically and crea
 
 ###Requirements
 - Python 3.8+
-- Anaconda or Miniconda
 - EddyPro 7 (https://www.licor.com/env/support/EddyPro/software.html) exec files
 
 ## Files :
 - data/
-  - input and output files are located here
+  - This is the DATA_ROOT folder. Input and output data files are located here
+  - The user also has the option to provide full data path to all input and output files in config or .env files
+  - The DATA_ROOT folder can be changed by changing the config or .env file.
+  - All input and output files has path relative to this DATA_ROOT folder.
   - eddypro/input contains the input files for running eddypro
   - eddypro/output contains the output files from eddypro headless run
   - master_met/input contains the input files for creating master met data
