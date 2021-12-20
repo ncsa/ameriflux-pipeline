@@ -39,9 +39,10 @@ def eddypro_preprocessing():
     # TODO : this can be omitted.
     # The file meta data is passed as a df (file_meta) to eddyproformat. No need for writing to file.
     input_filename = os.path.basename(cfg.INPUT_MET)
+    input_directory_name = os.path.dirname(cfg.INPUT_MET)
     file_meta_data_filename = os.path.splitext(input_filename)[0] + '_file_meta.csv'
     # write file_df_meta to this path
-    file_meta_data_file = os.path.join(os.getcwd(), "data", "eddypro", "input", file_meta_data_filename)
+    file_meta_data_file = os.path.join(input_directory_name, file_meta_data_filename)
     data_util.write_data(file_meta, file_meta_data_file)  # write meta data of file to file. One row.
 
     # create file for master met formatted for eddypro
@@ -103,7 +104,7 @@ if __name__ == '__main__':
     eddypro_formatted_met_file = eddypro_preprocessing()
 
     # run eddypro
-    run_eddypro(eddypro_formatted_met_file)
+    #run_eddypro(eddypro_formatted_met_file)
 
     # grab eddypro full output
     outfile_list = os.listdir(cfg.EDDYPRO_OUTPUT_PATH)
