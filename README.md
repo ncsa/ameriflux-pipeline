@@ -21,7 +21,9 @@
 - eddypro/eddyproformat.py creates master met data formatted for eddypro headless run
 - eddypro/runeddypro.py is responsible for the eddypro headless run
 - pyfluxpro/pyfluxproformat.py creates the input excel sheet for pyfluxpro
+- utils/data_util.py performs data write operations
 - main.py is the main file to run.
+- config.py lists all configurations
 - requirements.txt lists the required packages
 ## Installation
 
