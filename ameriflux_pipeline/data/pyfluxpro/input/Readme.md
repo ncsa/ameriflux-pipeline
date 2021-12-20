@@ -1,3 +1,5 @@
 - Location of all pyfluxpro input files
 - Eg : full_output.csv, Met_data_30.csv, pyfluxpro_input.xlsx
-- User can either put the data files in this directory or change the config file to reflect the full path of the data
+- Users can choose one of the below options 
+  - put the data files in this directory
+  - change the .env file to reflect the full path of the data in accordance with config file
