@@ -34,8 +34,10 @@ class Config:
     EDDYPRO_PROJ_TITLE = os.getenv('EDDYPRO_PROJ_TITLE', 'AmeriFlux_Pipeline')
     EDDYPRO_PROJ_ID = os.getenv('EDDYPRO_PROJ_ID', 'ameriflux_pipeline')
     EDDYPRO_FILE_PROTOTYPE = os.getenv('EDDYPRO_FILE_PROTOTYPE', 'yyyy-mm-ddTHHMM??_Sorghum-00137.ghg')
-    EDDYPRO_PROJ_FILE = os.getenv('EDDYPRO_PROJ_FILE', DATA_ROOT+'eddypro/input/2021-01-01T000000_Sorghum-00137.metadata')
-    EDDYPRO_DYN_METADATA = os.getenv('EDDYPRO_DYN_METADATA', DATA_ROOT+'eddypro/input/Sorghum_2021_dynamic_metadata.csv')
+    EDDYPRO_PROJ_FILE = os.getenv('EDDYPRO_PROJ_FILE',
+                                  DATA_ROOT+'eddypro/input/2021-01-01T000000_Sorghum-00137.metadata')
+    EDDYPRO_DYN_METADATA = os.getenv('EDDYPRO_DYN_METADATA',
+                                     DATA_ROOT+'eddypro/input/Sorghum_2021_dynamic_metadata.csv')
     EDDYPRO_INPUT_GHG_PATH = os.getenv('EDDYPRO_INPUT_GHG_PATH', DATA_ROOT+'eddypro/input/Raw Jan-Mar 2021 GHG Files')
     EDDYPRO_OUTPUT_PATH = os.getenv('EDDYPRO_OUTPUT_PATH', DATA_ROOT+'eddypro/output/')
 
