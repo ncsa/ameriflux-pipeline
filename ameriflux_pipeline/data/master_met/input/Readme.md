@@ -1,2 +1,3 @@
 - Location for data inputs to create master met data.
 - Eg : FLUXSB_EC_JanMar2021.csv, Precip_IWS_Jan-Feb_2021.xlsx
+- User can either put the data files in this directory or change the config file to reflect the full path of the data
