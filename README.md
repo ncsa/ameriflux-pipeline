@@ -9,7 +9,7 @@
 - Anaconda or Miniconda
 
 ## Files :
-- data
+- data/
   - input and output files are located here
   - eddypro/input contains the input files for running eddypro
   - eddypro/output contains the output files from eddypro headless run
