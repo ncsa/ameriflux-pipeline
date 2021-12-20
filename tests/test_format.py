@@ -21,3 +21,4 @@ def test_conformance(paths=paths):
     assert result.total_errors == 0
 
 test_conformance()
+

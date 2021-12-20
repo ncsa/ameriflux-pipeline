@@ -12,10 +12,10 @@ import pandas as pd
 from config import Config as cfg
 import utils.data_util as data_util
 
-from preprocessor import Preprocessor
-from eddyproformat import EddyProFormat
-from runeddypro import RunEddypro
-from pyfluxpro_format import PyFluxProFormat
+from ameriflux_pipeline.master_met.preprocessor import Preprocessor
+from ameriflux_pipeline.eddypro.eddyproformat import EddyProFormat
+from ameriflux_pipeline.eddypro.runeddypro import RunEddypro
+from ameriflux_pipeline.pyfluxpro.pyfluxproformat import PyFluxProFormat
 
 
 def eddypro_preprocessing():
@@ -35,11 +35,22 @@ def eddypro_preprocessing():
     # write processed df to output path
     data_util.write_data(df, cfg.MASTER_MET)
 
+    # Write file meta data to another file
+    # TODO : this can be omitted.
+    # The file meta data is passed as a df (file_meta) to eddyproformat. No need for writing to file.
+    input_filename = os.path.basename(cfg.INPUT_MET)
+    input_directory_name = os.path.dirname(cfg.INPUT_MET)
+    file_meta_data_filename = os.path.splitext(input_filename)[0] + '_file_meta.csv'
+    # write file_df_meta to this path
+    file_meta_data_file = os.path.join(input_directory_name, file_meta_data_filename)
+    data_util.write_data(file_meta, file_meta_data_file)  # write meta data of file to file. One row.
+
     # create file for master met formatted for eddypro
     # filename is selected to be master_met_eddypro
     output_filename = os.path.basename(cfg.MASTER_MET)
+    output_directory_name = os.path.dirname(cfg.MASTER_MET)
     eddypro_formatted_met_name = os.path.splitext(output_filename)[0] + '_eddypro.csv'
-    eddypro_formatted_met_file = os.path.join(os.getcwd(), "tests", "data", eddypro_formatted_met_name)
+    eddypro_formatted_met_file = os.path.join(output_directory_name, eddypro_formatted_met_name)
     # start formatting data
     df = EddyProFormat.data_formatting(cfg.MASTER_MET, cfg.INPUT_SOIL_KEY, file_meta, eddypro_formatted_met_file)
     # write formatted df to output path
@@ -49,7 +60,7 @@ def eddypro_preprocessing():
 
 
 def run_eddypro(eddypro_formatted_met_file):
-    RunEddypro.run_eddypro(eddypro_bin_loc=cfg.EDDYPRO_BIN_LOC, file_name=cfg.EDDYPRO_PROJ_FILE_NAME,
+    RunEddypro.run_eddypro(eddypro_bin_loc=cfg.EDDYPRO_BIN_LOC, proj_file_name=cfg.EDDYPRO_PROJ_FILE_NAME,
                            project_id=cfg.EDDYPRO_PROJ_ID, project_title=cfg.EDDYPRO_PROJ_TITLE,
                            file_prototype=cfg.EDDYPRO_FILE_PROTOTYPE, proj_file=cfg.EDDYPRO_PROJ_FILE,
                            dyn_metadata_file=cfg.EDDYPRO_DYN_METADATA, out_path=cfg.EDDYPRO_OUTPUT_PATH,
