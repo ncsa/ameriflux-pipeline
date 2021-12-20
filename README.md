@@ -1,12 +1,14 @@
 # AmeriFlux-pipeline
 
-**AmeriFlux-pipeline** is an automated process of handling flux data
+**AmeriFlux-pipeline** is an automated process of handling flux data for AmeriFlux submission.
+This automated code creates master met data, runs EddyPro automatically and creates input sheet for PyfluxPro input.
 
 ## Prerequisites
 
 ###Requirements
 - Python 3.8+
 - Anaconda or Miniconda
+- EddyPro 7 (https://www.licor.com/env/support/EddyPro/software.html) exec files
 
 ## Files :
 - data/
@@ -25,6 +27,7 @@
 - main.py is the main file to run.
 - config.py lists all configurations
 - requirements.txt lists the required packages
+
 ## Installation
 
 1. Clone the GitHub repository
