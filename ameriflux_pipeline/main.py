@@ -48,8 +48,9 @@ def eddypro_preprocessing():
     # create file for master met formatted for eddypro
     # filename is selected to be master_met_eddypro
     output_filename = os.path.basename(cfg.MASTER_MET)
+    output_directory_name = os.path.dirname(cfg.MASTER_MET)
     eddypro_formatted_met_name = os.path.splitext(output_filename)[0] + '_eddypro.csv'
-    eddypro_formatted_met_file = os.path.join(os.getcwd(), "data", "eddypro", "input", eddypro_formatted_met_name)
+    eddypro_formatted_met_file = os.path.join(output_directory_name, eddypro_formatted_met_name)
     # start formatting data
     df = EddyProFormat.data_formatting(cfg.MASTER_MET, cfg.INPUT_SOIL_KEY, file_meta, eddypro_formatted_met_file)
     # write formatted df to output path
