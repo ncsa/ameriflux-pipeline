@@ -11,10 +11,8 @@ This automated code creates master met data, runs EddyPro automatically and crea
 
 ## Files :
 - data/
-  - This is the DATA_ROOT folder. Input and output data files are located here
-  - The user also has the option to provide full data path to all input and output files in config or .env files
-  - The DATA_ROOT folder can be changed by changing the config or .env file.
-  - All input and output files has path relative to this DATA_ROOT folder.
+  - Input and output data files are located here by default.
+  - The user also has the option to provide full data path to all input and output files in config or .env file
   - eddypro/input contains the input files for running eddypro
   - eddypro/output contains the output files from eddypro headless run
   - master_met/input contains the input files for creating master met data
@@ -42,10 +40,9 @@ cd ameriflux-pipeline
 ```
 3. Set necessary parameters
 - This can be done by creating .env file under ameriflux_pipeline directory, or directly change the values in config.py
-
+- Please give the full path to all input and output file location.
 - Example .env file
 ```
-DATA_ROOT=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/
 INPUT_MET=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/master_met/input/FLUXSB_EC_JanMar2021.csv
 INPUT_PRECIP=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/master_met/input/Precip_IWS_Jan-Feb_2021.xlsx
 MISSING_TIME=96
