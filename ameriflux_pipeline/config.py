@@ -13,10 +13,12 @@ class Config:
     # input data for creating master meteorology data
     # input met data path
     INPUT_MET = os.getenv('INPUT_MET',
-                          '/Users/ameriflux-pipeline/ameriflux_pipeline/data/master_met/input/FLUXSB_EC_JanMar2021.csv')
+                          '/Users/ameriflux-pipeline/ameriflux_pipeline/data/'
+                          'master_met/input/FLUXSB_EC_JanMar2021.csv')
     # input precipitation data
     INPUT_PRECIP = os.getenv('INPUT_PRECIP',
-                             '/Users/ameriflux-pipeline/ameriflux_pipeline/data/master_met/input/Precip_IWS_Jan-Feb_2021.xlsx')
+                             '/Users/ameriflux-pipeline/ameriflux_pipeline/data/'
+                             'master_met/input/Precip_IWS_Jan-Feb_2021.xlsx')
     # Number of missing timeslot threshold for user confirmation to insert
     MISSING_TIME = os.getenv('MISSING_TIME', 96)
     # NOTE 9
@@ -25,42 +27,51 @@ class Config:
     USER_CONFIRMATION = os.getenv('USER_CONFIRMATION', 'Y')
     # master met output data path
     MASTER_MET = os.getenv('MASTER_MET',
-                           '/Users/ameriflux-pipeline/ameriflux_pipeline/data/master_met/output/met_output.csv')
+                           '/Users/ameriflux-pipeline/ameriflux_pipeline/data/'
+                           'master_met/output/met_output.csv')
 
     # input data for formatting Eddypro master meteorology data.
     # input soil key data path
     INPUT_SOIL_KEY = os.getenv('INPUT_SOIL_KEY',
-                               '/Users/ameriflux-pipeline/ameriflux_pipeline/data/eddypro/input/Soils_key.xlsx')
+                               '/Users/ameriflux-pipeline/ameriflux_pipeline/data/'
+                               'eddypro/input/Soils_key.xlsx')
 
     # eddypro related parameters
     # bin folder location of eddypro_rp exec file
     EDDYPRO_BIN_LOC = os.getenv('EDDYPRO_BIN_LOC', '')  # '/Applications/eddypro.app/Contents/MacOS/bin'
     # EddyPro run template
     EDDYPRO_PROJ_FILE_NAME = os.getenv('EDDYPRO_PROJ_FILE_NAME',
-                                       '/Users/ameriflux-pipeline/ameriflux_pipeline/data/eddypro/input/EddyPro_Run_Template.eddypro')
+                                       '/Users/ameriflux-pipeline/ameriflux_pipeline/data/'
+                                       'eddypro/input/EddyPro_Run_Template.eddypro')
     EDDYPRO_PROJ_TITLE = os.getenv('EDDYPRO_PROJ_TITLE', 'AmeriFlux_Pipeline')
     EDDYPRO_PROJ_ID = os.getenv('EDDYPRO_PROJ_ID', 'ameriflux_pipeline')
     EDDYPRO_FILE_PROTOTYPE = os.getenv('EDDYPRO_FILE_PROTOTYPE', 'yyyy-mm-ddTHHMM??_Sorghum-00137.ghg')
     # EddyPro input metadata file from GHG
     EDDYPRO_PROJ_FILE = os.getenv('EDDYPRO_PROJ_FILE',
-                                  '/Users/ameriflux-pipeline/ameriflux_pipeline/data/eddypro/input/2021-01-01T000000_Sorghum-00137.metadata')
+                                  '/Users/ameriflux-pipeline/ameriflux_pipeline/data/'
+                                  'eddypro/input/2021-01-01T000000_Sorghum-00137.metadata')
     # EddyPro input dynamic metadata file
     EDDYPRO_DYN_METADATA = os.getenv('EDDYPRO_DYN_METADATA',
-                                     '/Users/ameriflux-pipeline/ameriflux_pipeline/data/eddypro/input/Sorghum_2021_dynamic_metadata.csv')
+                                     '/Users/ameriflux-pipeline/ameriflux_pipeline/data/'
+                                     'eddypro/input/Sorghum_2021_dynamic_metadata.csv')
     # EddyPro input GHG files folder
     EDDYPRO_INPUT_GHG_PATH = os.getenv('EDDYPRO_INPUT_GHG_PATH',
-                                       '/Users/ameriflux-pipeline/ameriflux_pipeline/data/eddypro/input/Raw Jan-Mar 2021 GHG Files')
+                                       '/Users/ameriflux-pipeline/ameriflux_pipeline/data/'
+                                       'eddypro/input/Raw Jan-Mar 2021 GHG Files')
     # EddyPro output folder
     EDDYPRO_OUTPUT_PATH = os.getenv('EDDYPRO_OUTPUT_PATH',
                                     '/Users/ameriflux-pipeline/ameriflux_pipeline/data/eddypro/output/')
 
     # PyFluxPro related data
     FULL_OUTPUT_PYFLUXPRO = os.getenv('FULL_OUTPUT_PYFLUXPRO',
-                                      '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/input/full_output.csv')
+                                      '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/'
+                                      'input/full_output.csv')
     MET_DATA_30_PYFLUXPRO = os.getenv('MET_DATA_30_PYFLUXPRO',
-                                      '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/input/Met_data_30.csv')
+                                      '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/'
+                                      'input/Met_data_30.csv')
     PYFLUXPRO_INPUT_SHEET = os.getenv('PYFLUXPRO_INPUT_SHEET',
-                                      '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/input/pyfluxpro_input.xlsx')
+                                      '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/'
+                                      'input/pyfluxpro_input.xlsx')
 
     # QA/QC values
     # precipitation threshold values used in creating Eddypro master meteorology data
