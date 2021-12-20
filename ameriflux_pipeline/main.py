@@ -105,7 +105,7 @@ if __name__ == '__main__':
     eddypro_formatted_met_file = eddypro_preprocessing()
 
     # run eddypro
-    #run_eddypro(eddypro_formatted_met_file)
+    run_eddypro(eddypro_formatted_met_file)
 
     # grab eddypro full output
     outfile_list = os.listdir(cfg.EDDYPRO_OUTPUT_PATH)
