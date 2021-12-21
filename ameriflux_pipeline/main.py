@@ -12,10 +12,10 @@ import pandas as pd
 from config import Config as cfg
 import utils.data_util as data_util
 
-from ameriflux_pipeline.master_met.preprocessor import Preprocessor
-from ameriflux_pipeline.eddypro.eddyproformat import EddyProFormat
-from ameriflux_pipeline.eddypro.runeddypro import RunEddypro
-from ameriflux_pipeline.pyfluxpro.pyfluxproformat import PyFluxProFormat
+from master_met.preprocessor import Preprocessor
+from eddypro.eddyproformat import EddyProFormat
+from eddypro.runeddypro import RunEddypro
+from pyfluxpro.pyfluxproformat import PyFluxProFormat
 
 
 def eddypro_preprocessing():

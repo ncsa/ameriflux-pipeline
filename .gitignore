@@ -67,6 +67,7 @@ original/
 *.html
 *.xlsx
 *.metadata
+*.zip
 
 # related to test file
 *test.py
