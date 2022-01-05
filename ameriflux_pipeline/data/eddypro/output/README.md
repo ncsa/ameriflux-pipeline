@@ -1,0 +1,2 @@
+- Location for all outputs from EddyPro headless run
+- EddyPro full_output is written here
