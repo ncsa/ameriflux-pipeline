@@ -12,6 +12,7 @@ from tkinter import tix as tix
 from tkinter import filedialog, messagebox
 from dotenv import load_dotenv
 
+
 class EnvEditor():
     def __init__(self):
         # text variables
@@ -39,9 +40,9 @@ class EnvEditor():
 
         # PyFluxPro related data
         self.PYFLUXPROPRO_RUNNING_VARIABLE = "Variables for PyFluxPro running"
-        self.BROWSE_FULL_OUTPUT_PYFLUXPRO="PyFluxPro Full Output (select folder)"
-        self.BROWSE_MET_DATA_30_PYFLUXPRO="PyFluxPro Met Data 30 Output (select folder)"
-        self.BROWSE_PYFLUXPRO_INPUT_SHEET="PyFluxPro Input Sheet Path (select folder)"
+        self.BROWSE_FULL_OUTPUT_PYFLUXPRO = "PyFluxPro Full Output (select folder)"
+        self.BROWSE_MET_DATA_30_PYFLUXPRO = "PyFluxPro Met Data 30 Output (select folder)"
+        self.BROWSE_PYFLUXPRO_INPUT_SHEET = "PyFluxPro Input Sheet Path (select folder)"
 
         self.SAVE_LABEL = "Save .env file"
         self.SAVE_ENV_FILE = "Save"
@@ -105,7 +106,8 @@ class EnvEditor():
         # configure the canvas
         self.main_canvas.configure(xscrollcommand=x_scrollbar.set)
         self.main_canvas.configure(yscrollcommand=y_scrollbar.set)
-        self.main_canvas.bind('<Configure>', lambda e: self.main_canvas.configure(scrollregion=self.main_canvas.bbox("all")))
+        self.main_canvas.bind('<Configure>',
+                              lambda e: self.main_canvas.configure(scrollregion=self.main_canvas.bbox("all")))
         self.main_canvas.bind_all("<MouseWheel>", self._on_mousewheel)
 
         # create another frame inside the canvas
@@ -214,7 +216,7 @@ class EnvEditor():
 
         # create eddypro project file
         label_eddypro_proj_file_name = tk.Label(master=second_frame, text=self.BROWSE_EDDYPRO_PROJ_FILE_NAME,
-                     font=self.BOLD_FONT).grid(sticky="w", row=28, column=0)
+                                                font=self.BOLD_FONT).grid(sticky="w", row=28, column=0)
         button_browse_eddypro_proj_file_name = \
             tk.Button(master=second_frame, width=10, text="Browse", font=self.MAIN_FONT,
                       command=self.browse_eddypro_proj_file_name).grid(sticky="w", row=28, column=1)
@@ -226,14 +228,14 @@ class EnvEditor():
 
         # create eddypro project title
         eddypro_proj_title_label = tk.Label(master=second_frame, text="EddyPro Project Title",
-                     font=self.BOLD_FONT).grid(sticky="w", row=31, column=0, columnspan=2)
+                                            font=self.BOLD_FONT).grid(sticky="w", row=31, column=0, columnspan=2)
         self.eddypro_proj_title = tk.Entry(master=second_frame, width=50, font=self.MAIN_FONT)
         if self.EDDYPRO_PROJ_TITLE is not None:
             self.eddypro_proj_title.insert(0, self.EDDYPRO_PROJ_TITLE)
         self.eddypro_proj_title.grid(sticky="w", row=32, column=0, columnspan=2)
         label_separation = \
-            tk.Label(master=second_frame, text=self.SEPARATION_LABEL_SUB).\
-                grid(sticky="w", row=33, column=0, columnspan=2)
+            tk.Label(master=second_frame,
+                     text=self.SEPARATION_LABEL_SUB).grid(sticky="w", row=33, column=0, columnspan=2)
 
         # create eddypro project id
         eddypro_proj_id_label = tk.Label(master=second_frame, text="EddyPro Project ID", font=self.BOLD_FONT). \
@@ -247,8 +249,8 @@ class EnvEditor():
 
         # create eddypro file prototype
         eddypro_file_prototype_label = \
-            tk.Label(master=second_frame, text="EddyPro File Prototype", font=self.BOLD_FONT).\
-                grid(sticky="w", row=37, column=0, columnspan=2)
+            tk.Label(master=second_frame, text="EddyPro File Prototype",
+                     font=self.BOLD_FONT).grid(sticky="w", row=37, column=0, columnspan=2)
         self.eddypro_file_prototype = tk.Entry(master=second_frame, width=50, font=self.MAIN_FONT)
         if self.EDDYPRO_FILE_PROTOTYPE is not None:
             self.eddypro_file_prototype.insert(0, self.EDDYPRO_FILE_PROTOTYPE)
@@ -330,7 +332,8 @@ class EnvEditor():
         button_browse_pyfluxpro_met_data = \
             tk.Button(master=second_frame, width=10, text="Browse", font=self.MAIN_FONT,
                       command=self.browse_pyfluxpro_met_data).grid(sticky="w", row=59, column=1)
-        self.path_pyfluxpro_met_data = tk.Label(master=second_frame, text=self.MET_DATA_30_PYFLUXPRO, font=self.MAIN_FONT)
+        self.path_pyfluxpro_met_data = tk.Label(master=second_frame, text=self.MET_DATA_30_PYFLUXPRO,
+                                                font=self.MAIN_FONT)
         self.path_pyfluxpro_met_data.grid(sticky="w", row=60, column=0, columnspan=2)
         label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL_SUB). \
             grid(sticky="w", row=61, column=0, columnspan=2)
@@ -342,7 +345,7 @@ class EnvEditor():
             tk.Button(master=second_frame, width=10, text="Browse", font=self.MAIN_FONT,
                       command=self.browse_pyfluxpro_input_sheet).grid(sticky="w", row=62, column=1)
         self.path_pyfluxpro_input_sheet = tk.Label(master=second_frame, text=self.PYFLUXPRO_INPUT_SHEET,
-                                              font=self.MAIN_FONT)
+                                                   font=self.MAIN_FONT)
         self.path_pyfluxpro_input_sheet.grid(sticky="w", row=63, column=0, columnspan=2)
         label_separation = tk.Label(master=second_frame,
                                     text=self.SEPARATION_LABEL_SUB).grid(sticky="w", row=64, column=0, columnspan=2)
@@ -516,19 +519,18 @@ class EnvEditor():
         pyfluxpro_met_data_line = "MET_DATA_30_PYFLUXPRO=" + self.MET_DATA_30_PYFLUXPRO
         pyfluxpro_input_sheet_line = "PYFLUXPRO_INPUT_SHEET=" + self.PYFLUXPRO_INPUT_SHEET
 
-        lines = [user_conform_line,
-                 "",
-                 eddypro_input_title_line, eddypro_input_met_line, eddypro_input_precip_line,
-                 eddypro_missing_time_line, eddypro_master_met_line, eddypro_input_soil_key_line,
-                 "",
-                 eddypro_run_title_line, eddypro_bin_loc_line, eddypro_proj_file_name_line,
-                 eddypro_proj_title_line, eddypro_proj_id_line, eddypro_file_prototype_line,
-                 eddypro_proj_file_line, eddypro_dyn_metadata_line, eddypro_output_path_line,
-                 eddypro_input_ghg_path_line,
-                 "",
-                 pyfluxpro_title_line, pyfluxpro_full_output_line, pyfluxpro_met_data_line,
-                 pyfluxpro_input_sheet_line
-                ]
+        lines = [
+            user_conform_line,
+            "",
+            eddypro_input_title_line, eddypro_input_met_line, eddypro_input_precip_line,
+            eddypro_missing_time_line, eddypro_master_met_line, eddypro_input_soil_key_line,
+            "",
+            eddypro_run_title_line, eddypro_bin_loc_line, eddypro_proj_file_name_line, eddypro_proj_title_line,
+            eddypro_proj_id_line, eddypro_file_prototype_line, eddypro_proj_file_line, eddypro_dyn_metadata_line,
+            eddypro_output_path_line, eddypro_input_ghg_path_line,
+            "",
+            pyfluxpro_title_line, pyfluxpro_full_output_line, pyfluxpro_met_data_line, pyfluxpro_input_sheet_line
+        ]
 
         outfile = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env')
 
