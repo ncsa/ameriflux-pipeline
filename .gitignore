@@ -68,6 +68,7 @@ original/
 *.xlsx
 *.metadata
 *.zip
+*.old
 
 # related to test file
 *test.py

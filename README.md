@@ -41,6 +41,7 @@ cd ameriflux-pipeline
 3. Set necessary parameters
 - This can be done by creating .env file under ameriflux_pipeline directory, or directly change the values in config.py
 - Please give the full path to all input and output file location.
+- There is a GUI application for this. Run enveditor.py by typing `python enveditor.py` in command prompt.
 - Example .env file
 ```
 INPUT_MET=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/master_met/input/FLUXSB_EC_JanMar2021.csv
@@ -48,7 +49,6 @@ INPUT_PRECIP=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/master_met/in
 MISSING_TIME=96
 USER_CONFIRMATION='Y'
 MASTER_MET=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/master_met/output/met_output.csv
-
 INPUT_SOIL_KEY=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/eddypro/input/Soils_key.xlsx
 
 EDDYPRO_BIN_LOC=/Applications/eddypro.app/Contents/MacOS/bin
@@ -63,6 +63,7 @@ EDDYPRO_INPUT_GHG_PATH=/Users/xxx/Raw_Jan-Mar_2021_GHG_Files/
 
 FULL_OUTPUT_PYFLUXPRO=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/input/full_output.csv
 MET_DATA_30_PYFLUXPRO=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/input/Met_data_30.csv
+PYFLUXPRO_INPUT_SHEET=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/input/pyfluxpro_input.xlsx
 
 QC_PRECIP_LOWER=0.0
 QC_PRECIP_UPPER=0.2
