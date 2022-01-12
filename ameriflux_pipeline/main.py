@@ -6,8 +6,8 @@
 
 import os
 import shutil
-
 import pandas as pd
+import xlsxwriter
 
 from config import Config as cfg
 import utils.data_util as data_util
@@ -91,7 +91,7 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
     # write df and met_data df to an excel spreadsheet in two separate tabs
     full_output_sheet_name = os.path.splitext(os.path.basename(full_output_pyfluxpro))[0]
     met_data_sheet_name = os.path.splitext(os.path.basename(met_data_30_pyfluxpro))[0]
-    writer = pd.ExcelWriter(cfg.PYFLUXPRO_INPUT_SHEET)
+    writer = pd.ExcelWriter(cfg.PYFLUXPRO_INPUT_SHEET, engine='xlsxwriter')
     df.to_excel(writer, sheet_name=full_output_sheet_name)
     met_data_df = pd.read_csv(met_data_30_input)
     met_data_df.to_excel(writer, sheet_name=met_data_sheet_name)
