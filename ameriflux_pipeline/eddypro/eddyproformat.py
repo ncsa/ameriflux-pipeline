@@ -305,5 +305,8 @@ class EddyProFormat:
         """
         req_cols = ['SWin', 'RH', 'LWin', 'PPFD']
         if not set(req_cols).issubset(set(df.columns)):
-            print("{' and '.join(set(req_cols).difference(df.columns))} are not present")
-        print("All required columns are present in dataframe")
+            print("WARNING")
+            print(' and '.join(set(req_cols).difference(df.columns)), end='')
+            print(" are not present")
+        else:
+            print("All required columns are present in dataframe")
