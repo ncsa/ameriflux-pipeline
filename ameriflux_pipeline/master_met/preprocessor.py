@@ -261,8 +261,8 @@ class Preprocessor:
 
         Args:
             df (obj): input precip dataframe
-            precip_lower (int) : Lower threshold value for precipitation in inches
-            precip_upper (int) : Upper threshold value for precipitation in inches
+            precip_lower (float) : Lower threshold value for precipitation in inches
+            precip_upper (float) : Upper threshold value for precipitation in inches
             missing_timeslot_threshold (int): Value for missing timeslot threshold. used for insert_missing_time method
             user_confirmation (str) : Option to either insert or ignore missing timestamps
         Returns:
@@ -373,6 +373,7 @@ class Preprocessor:
                 insert_num_rows = int(df['timedelta'].iloc[i] // time_interval) - 1
                 # 48 slots in 24hrs(one day)
                 # ask for user confirmation if more than 96 timeslots (2 days) are missing
+                insert_flag = 'y'
                 if insert_num_rows > missing_timeslot_threshold:
                     print(insert_num_rows, "missing timeslots found")
                     if user_confirmation in ['a', 'ask']:
