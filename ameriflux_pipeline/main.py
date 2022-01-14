@@ -105,7 +105,7 @@ if __name__ == '__main__':
     eddypro_formatted_met_file = eddypro_preprocessing()
 
     # run eddypro
-    run_eddypro(eddypro_formatted_met_file)
+    #run_eddypro(eddypro_formatted_met_file)
 
     # grab eddypro full output
     outfile_list = os.listdir(cfg.EDDYPRO_OUTPUT_PATH)
@@ -113,6 +113,12 @@ if __name__ == '__main__':
     for outfile in outfile_list:
         if 'full_output' in outfile:
             eddypro_full_outfile = os.path.join(cfg.EDDYPRO_OUTPUT_PATH, outfile)
+            # run pyfluxpro formatting
+            pyfluxpro_processing(eddypro_full_outfile, cfg.FULL_OUTPUT_PYFLUXPRO, cfg.MASTER_MET,
+                                 cfg.MET_DATA_30_PYFLUXPRO)
+            break
+    # if eddypro full output file not present
+    if not eddypro_full_outfile:
+        print("EddyPro full output not present")
 
-    # run pyfluxpro formatting
-    pyfluxpro_processing(eddypro_full_outfile, cfg.FULL_OUTPUT_PYFLUXPRO, cfg.MASTER_MET, cfg.MET_DATA_30_PYFLUXPRO)
+
