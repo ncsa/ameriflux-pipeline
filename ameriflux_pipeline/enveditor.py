@@ -20,29 +20,108 @@ class EnvEditor():
         self.SEPARATION_LABEL_SUB = "------------------"
 
         self.USER_CONFIRMATION_LABEL = "User confirmation"
+        self.DESC_USER_CONFIRMATION = "user decision on whether to insert, ignore or ask during runtime in case of " \
+                                      "large number of missing timestamps"
+        self.INFO_USER_CONFIRMATION = "When the pipeline encounters a data gap, would you like it to (1) insert empty " \
+                                      "time periods, (2)ignore the gap and return only time periods for which there is " \
+                                      "data, or (3) stop running and ask you? For (3), you can set the threshold for " \
+                                      "notification in \"Missing Time\"."
 
         self.EDDYPRO_FORMAT_VARIABLE = "Variables for EddyPro formatting"
         self.BROWSE_INPUT_MET = "Input Meteorology Data"
+        self.DESC_INPUT_MET = "input meteorology data [DATA FILE]"
+        self.INFO_INPUT_MET = "Raw meteorological data from the met tower datalogger. This will usually have a " \
+                              ".dat extension. Make sure the file you choose covers the time period you are " \
+                              "interested in!"
         self.BROWSE_INPUT_PRECIP = "Input Precipitation Data"
-        self.BROWSE_MASTER_MET = "Master Meteorology Data (select folder)"
+        self.DESC_INPUT_PRECIP = "input precipitation data [DATA FILE]"
+        self.INFO_INPUT_PRECIP = "Unformatted precipitation data from IWS in its native 5min resolution. " \
+                               "Will have column headers \"Date & Time (CST), Station, Precipitation (in.)\""
+        self.BROWSE_MISSING_TIME = "Missing Time"
+        self.DESC_MISSING_TIME = "number of missing 30 min periods allowed before user confirmation is required " \
+                                 "to continue. [NUMBER]"
+        self.INFO_MISSING_TIME = "How many missing time periods are you willing to tolerate before processing " \
+                                 "stops to check in with you? This option exists to catch large gaps caused " \
+                                 "by problems like missing files, allowing you to correct the problem before " \
+                                 "restarting processing. Some options: 48 (1 day), 336 (1 week), 672 (2 weeks), " \
+                                 "1440 (1 month)."
+        self.BROWSE_MASTER_MET = "Master Meteorology Data"
+        self.DESC_MASTER_MET = "output directory for formatted ‘master’ meteorology data (file will be " \
+                               "auto-generated, only select the directory)[DIRECTORY]"
+        self.INFO_MASTER_MET = "The directory where you want the automatically formatted \'master\' " \
+                               "meteorological data to go"
         self.BROWSE_INPUT_SOIL_KEY = "Input Soil Key"
+        self.DESC_INPUT_SOIL_KEY = "input soil key file [ANCILLARY FILE]"
+        self.INFO_INPUT_SOIL_KEY = "This is an excel or sheets document with column names referencing site, " \
+                                   "instrument, and “Datalogger”, “EddyPro” and “PyFluxPro” variable names. " \
+                                   "It can be found at [bernacchi lab server address] or [sheets document URL]. " \
+                                   "If soil sensors have changed recently, ensure that the key is accurate before " \
+                                   "proceeding. "
 
         self.EDDYPRO_RUNNING_VARIABLE = "Variables for EddyPro running"
-        self.BROWSE_EDDYPRO_BIN = "EddyPro Bin Folder (select folder)"
-        self.BROWSE_EDDYPRO_PROJ_FILE_NAME = "EddyPro Project File Path (select template folder in the project)"
+        self.BROWSE_EDDYPRO_BIN = "EddyPro Bin Folder"
+        self.DESC_EDDYPRO_BIN = "location of eddypro bin directory [DIRECTORY]"
+        self.INFOR_EDDYPRO_BIN = "Location of the code that comes with (and runs) eddypro. Look for an actual " \
+                                 "directory named “bin”. This will usually be somewhere like " \
+                                 "C:\Program Files\LI-COR\EddyPro-7.0.6\bin"
+        self.BROWSE_EDDYPRO_PROJ_FILE_NAME = "EddyPro Project File Path"
+        self.DESC_EDDYPRO_PROJ_FILE_NAME = "output directory for the eddypro project file (file will be " \
+                                           "auto-generated select ameriflux_pipeline/templates directory) [DIRECTORY]"
+        self.INFO_EDDYPRO_PROJ_FILE_NAME = "The EddyPro project file saves the settings of an eddypro run. These are " \
+                                           "useful if you ever want to go back and see what you did, " \
+                                           "or share your processing specifications with someone else. " \
+                                           "Choose where to save that here. "
         self.BROWSE_EDDYPRO_PROJ_TITLE = "EddyPro Project Title"
+        self.DESC_EDDYPRO_PROJ_TITLE = "name of your eddypro project file [NAME]"
+        self.INFO_EDDYRPO_PROJ_TITLE = "This will be the name of the eddypro project file (described in " \
+                                       "\"EddyPro Project File Path\"). Choose something descriptive! This is NOT " \
+                                       "the name that will be associated with the eddypro-processed output data " \
+                                       "files; you will choose that in \"EddyPro Project ID\"."
         self.BROWSE_EDDYPRO_PROJ_ID = "EddyPro Project ID"
-        self.BROWSE_EDDYPRO_FILE_PROTOTYPE = "EddyPro File Prototype (e.g. yyyy-mm-ddTHHMM??_Sorghum-00137.ghg)"
+        self.DESC_EDDYPRO_PROJ_ID = "name of your eddypro project output[NAME]"
+        self.INFO_EDDYPRO_PROJ_ID = "This will be the name tied to the output data files of your eddypro run. " \
+                                    "Choose something descriptive!"
+        self.BROWSE_EDDYPRO_FILE_PROTOTYPE = "EddyPro File Prototype"
+        self.DESC_EDDYPRO_FILE_PROTOTYPE = "the form of the ghg file e.g, yyyy-mm-ddTHHMM??_Sorghum-00137.ghg"
+        self.INFO_EDDYPRO_FILE_PROTOTYPE = "Eddypro can generate this automatically"
         self.BROWSE_EDDYPRO_PROJ_FILE = "EddyPro Metadata File from GHG File"
+        self.DESC_EDDYPRO_PROJ_FILE = "IRGA (‘alternate’) metadata file [ANCILLARY FILE]"
+        self.INFO_EDDYPRO_PROJ_FILE = "This is a file with extension .metadata, extracted from a ghg file. To get " \
+                                      "this, unzip any ghg file included in this run. The result will be two files, " \
+                                      "one of which has a .metadata extension. Delete the other unzipped file " \
+                                      "(with extension ‘.data’) and move the .metadata file somewhere away from the " \
+                                      "ghg files. Select it here. "
         self.BROWSE_EDDYPRO_DYN_METADATA = "EddyPro Dynamic Metadata"
+        self.DESC_EDDYPRO_DYN_METADATA = "dynamic metadata file[ANCILLARY FILE]"
+        self.INFO_EDDYPRO_DYN_METADATA = "This is a .csv containing instrument and canopy height changes. If you " \
+                                         "don’t already have one for the time period included in this run, consult " \
+                                         "the guide [guide location] for instructions to make one."
         self.BROWSE_EDDYPRO_OUTPUT_PATH = "EddyPro Output Path"
+        self.DESC_EDDYPRO_OUTPUT_PATH = "output directory for eddypro data output [DIRECTPRY]"
+        self.INFO_EDDYPRO_OUTPUT_PATH = "The directory where you want your eddypro data output to go."
         self.BROWSE_EDDYPRO_INPUT_GHG_PATH = "EddyPro Input GHG Path"
+        self.DESC_EDDYPRO_INPUT_GHG_PATH = "directory for input ghg data [DIRECTORY]"
+        self.INFO_EDDYPRO_INPUT_GHG_PATH = "A directory with (usually many) .ghg files. You may have to unzip up " \
+                                           "to twice to get to files with the .ghg extension. All the .ghg files " \
+                                           "should be in one big pile, without dividing folders. Consult the guide " \
+                                           "or flux project manager if you need server access or other help. "
 
         # PyFluxPro related data
         self.PYFLUXPROPRO_RUNNING_VARIABLE = "Variables for PyFluxPro running"
         self.BROWSE_FULL_OUTPUT_PYFLUXPRO = "PyFluxPro Full Output (select folder)"
+        self.DESC_FULL_OUTPUT_PYFLUXPRO = "output directory for eddypro \'full_output\' data file (file will " \
+                                          "be auto-generated, only select the directory) [DIRECTORY]"
+        self.INFO_FULL_OUTPUT_PYFLUXPRO = "The directory where you want eddypro’s full_output file " \
+                                          "(used in PyFluxPro)to go. "
         self.BROWSE_MET_DATA_30_PYFLUXPRO = "PyFluxPro Met Data 30 Output (select folder)"
+        self.DESC_MET_DATA_30_PYFLUXPRO = "output directory for processed \'Met_data_30\' data file (file will be " \
+                                          "auto-generated, only select the directory)[DIRECTORY]"
+        self.INFO_MET_DATA_30_PYFLUXPRO = "The directory where you want formatted met data (used in PyFluxPro) to go."
         self.BROWSE_PYFLUXPRO_INPUT_SHEET = "PyFluxPro Input Sheet Path (select folder)"
+        self.DESC_PYFLUXPRO_INPUT_SHEET = "output directory for pyfluxpro input sheet combining full output and " \
+                                          "met data 30 (file will be auto-generated, only select the directory) " \
+                                          "[DIRECTORY]"
+        self.INFO_PYFLUXPRO_INPUT_SHEET = "The directory where you want the fully-processed PyFluxPro input file to go."
 
         self.SAVE_LABEL = "Save .env file"
         self.SAVE_ENV_FILE = "Save"

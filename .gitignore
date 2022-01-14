@@ -76,3 +76,7 @@ original/
 
 # examples
 *examples
+
+# pyfluxpro files
+*L1*.txt
+*L2*.txt
