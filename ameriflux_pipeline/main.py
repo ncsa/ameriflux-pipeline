@@ -99,12 +99,15 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
     met_data_sheet_name = os.path.splitext(os.path.basename(met_data_30_pyfluxpro))[0]
 
     writer = pd.ExcelWriter(cfg.PYFLUXPRO_INPUT_SHEET, engine='xlsxwriter')
-    full_output_df.to_excel(writer, sheet_name=full_output_sheet_name, index=False)
-    met_data_df.to_excel(writer, sheet_name=met_data_sheet_name, index=False)
+    full_output_df.to_excel(writer, sheet_name=full_output_sheet_name, index=False, header=False, startrow=1)
+    met_data_df.to_excel(writer, sheet_name=met_data_sheet_name, index=False, header=False, startrow=1)
 
-    workbook = writer.book
     full_output_worksheet = writer.sheets[full_output_sheet_name]
     met_data_worksheet = writer.sheets[met_data_sheet_name]
+    for idx, val in enumerate(full_output_col_list):
+        full_output_worksheet.write(0, idx, val)
+    for idx, val in enumerate(met_data_col_list):
+        met_data_worksheet.write(0, idx, val)
 
     writer.save()
     writer.close()
@@ -117,7 +120,7 @@ if __name__ == '__main__':
     eddypro_formatted_met_file = eddypro_preprocessing()
 
     # run eddypro
-    #run_eddypro(eddypro_formatted_met_file)
+    run_eddypro(eddypro_formatted_met_file)
 
     # grab eddypro full output
     outfile_list = os.listdir(cfg.EDDYPRO_OUTPUT_PATH)
