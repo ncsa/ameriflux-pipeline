@@ -17,6 +17,8 @@ from eddypro.eddyproformat import EddyProFormat
 from eddypro.runeddypro import RunEddypro
 from pyfluxpro.pyfluxproformat import PyFluxProFormat
 
+import pandas.io.formats.excel
+pandas.io.formats.excel.header_style = None
 
 def eddypro_preprocessing():
     """
@@ -78,24 +80,34 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
         met_data_30_pyfluxpro (str): Meteorological file used as input for PyFluxPro.
     Returns : None
     """
-    df = PyFluxProFormat.data_formatting(eddypro_full_output)
+    full_output_df = PyFluxProFormat.data_formatting(eddypro_full_output)
     # met_data has data from row index 1. EddyPro full_output will be formatted to have data from row index 1 also.
     # This is step 3a in guide.
     # join met_data and full_output in excel sheet (manual step)
 
     # write pyfluxpro formatted df to output path
-    data_util.write_data(df, full_output_pyfluxpro)
+    data_util.write_data(full_output_df, full_output_pyfluxpro)
     # copy and rename the met data file
     shutil.copyfile(met_data_30_input, met_data_30_pyfluxpro)
+
+    met_data_df = pd.read_csv(met_data_30_input)
+    full_output_col_list = full_output_df.columns
+    met_data_col_list = met_data_df.columns
 
     # write df and met_data df to an excel spreadsheet in two separate tabs
     full_output_sheet_name = os.path.splitext(os.path.basename(full_output_pyfluxpro))[0]
     met_data_sheet_name = os.path.splitext(os.path.basename(met_data_30_pyfluxpro))[0]
+
     writer = pd.ExcelWriter(cfg.PYFLUXPRO_INPUT_SHEET, engine='xlsxwriter')
-    df.to_excel(writer, sheet_name=full_output_sheet_name)
-    met_data_df = pd.read_csv(met_data_30_input)
-    met_data_df.to_excel(writer, sheet_name=met_data_sheet_name)
+    full_output_df.to_excel(writer, sheet_name=full_output_sheet_name, index=False)
+    met_data_df.to_excel(writer, sheet_name=met_data_sheet_name, index=False)
+
+    workbook = writer.book
+    full_output_worksheet = writer.sheets[full_output_sheet_name]
+    met_data_worksheet = writer.sheets[met_data_sheet_name]
+
     writer.save()
+    writer.close()
     print("Master met and full output sheets saved in ", cfg.PYFLUXPRO_INPUT_SHEET)
 
 
@@ -105,7 +117,7 @@ if __name__ == '__main__':
     eddypro_formatted_met_file = eddypro_preprocessing()
 
     # run eddypro
-    run_eddypro(eddypro_formatted_met_file)
+    #run_eddypro(eddypro_formatted_met_file)
 
     # grab eddypro full output
     outfile_list = os.listdir(cfg.EDDYPRO_OUTPUT_PATH)
