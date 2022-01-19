@@ -5,9 +5,9 @@ This automated code creates master met data, runs EddyPro automatically and crea
 
 ## Prerequisites
 
-###Requirements
+### Requirements
 - Python 3.8+
-- EddyPro 7 (https://www.licor.com/env/support/EddyPro/software.html) exec files
+- EddyPro 7.0.6 (https://www.licor.com/env/support/EddyPro/software.html) exec files
 
 ## Files :
 - data/
