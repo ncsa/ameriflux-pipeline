@@ -120,5 +120,3 @@ if __name__ == '__main__':
     # if eddypro full output file not present
     if not eddypro_full_outfile:
         print("EddyPro full output not present")
-
-
