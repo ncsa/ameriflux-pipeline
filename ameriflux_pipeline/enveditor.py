@@ -164,7 +164,7 @@ class EnvEditor():
     def run(self):
         # create main gui window
         root = tk.Tk()
-        root.title("AmefiFlux Pipeline Environment Setter")
+        root.title("AmeriFlux Pipeline Environment Setter")
         root.geometry("800x400")
 
         # create a main frame
