@@ -20,6 +20,12 @@ class EnvEditor():
         self.SEPARATION_LABEL_SUB = "------------------"
         self.INFO_TITLE = "info"
 
+        self.LINE_USER_CONFIRMATION = 0
+        self.LINE_EDDYPRO_FORMAT = 5
+        self.LINE_EDDYPRO_RUN = 29
+        self.LINE_PYFLUX_PRO = 70
+        self.LINE_SAVE_ENV = 86
+
         self.USER_CONFIRMATION_LABEL = " User confirmation"
         self.BROWSE_USER_CONFIRAMTION = " Missing Timestamp Confirmation"
         self.DESC_USER_CONFIRMATION = " user decision on whether to insert, ignore or ask during runtime in case of " \
@@ -201,16 +207,17 @@ class EnvEditor():
         ########################################################
         ########################################################
         ########################################################
+        i = self.LINE_USER_CONFIRMATION
         # create user confirmation
         label_user_confirm = tk.Label(second_frame, text=self.USER_CONFIRMATION_LABEL, font=self.MAIN_BOLD_FONT). \
-            grid(sticky="w", row=0, columnspan=3)
-        label_separation = tk.Label(second_frame, text=self.SEPARATION_LABEL).grid(sticky="w", row=1, columnspan=3)
+            grid(sticky="w", row=i, columnspan=3)
+        label_separation = tk.Label(second_frame, text=self.SEPARATION_LABEL).grid(sticky="w", row=i+1, columnspan=3)
         browse_user_confirm = tk.Label(second_frame, text=self.BROWSE_USER_CONFIRAMTION, font=self.BOLD_FONT). \
-            grid(sticky="w", row=2, column=0)
+            grid(sticky="w", row=i+2, column=0)
         button_uesr_confirm = tk.Button(second_frame, text = self.INFO_TITLE, command = self.on_click_user_confirm).\
-            grid(sticky="w", row=2, column=1)
+            grid(sticky="w", row=i+2, column=1)
         desc_user_confirm = tk.Label(second_frame, text=self.DESC_USER_CONFIRMATION, font=self.DESC_FONT). \
-            grid(sticky="w", row=3, columnspan=3)
+            grid(sticky="w", row=i+3, columnspan=3)
         confirm_list = ("Y", "N", "A")
         confirm_list_index = 0
         for index, value in enumerate(confirm_list):
@@ -220,313 +227,317 @@ class EnvEditor():
         self.combo_confirm = ttk.Combobox(second_frame)
         self.combo_confirm['values'] = confirm_list
         self.combo_confirm.current(confirm_list_index)
-        self.combo_confirm.grid(sticky="w", row=4, columnspan=3)
+        self.combo_confirm.grid(sticky="w", row=i+4, columnspan=3)
 
         #############################################################
+        i = self.LINE_EDDYPRO_FORMAT
         # create eddypro format main label
-        label_separation = tk.Label(master=second_frame, text="").grid(sticky="w", row=5, columnspan=3)
-        label_separation = tk.Label(master=second_frame, text="").grid(sticky="w", row=6, columnspan=3)
+        label_separation = tk.Label(master=second_frame, text="").grid(sticky="w", row=i, columnspan=3)
+        label_separation = tk.Label(master=second_frame, text="").grid(sticky="w", row=i+1, columnspan=3)
         label_eddypro_format = tk.Label(master=second_frame, text=self.EDDYPRO_FORMAT_VARIABLE,
-                                        font=self.MAIN_BOLD_FONT).grid(sticky="w", row=8, column=0, columnspan=3)
+                                        font=self.MAIN_BOLD_FONT).grid(sticky="w", row=i+2, column=0, columnspan=3)
         label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL).\
-            grid(sticky="w", row=9, columnspan=3)
+            grid(sticky="w", row=i+3, columnspan=3)
 
         # create eddypro format input meteorology data
         label_input_met = tk.Label(master=second_frame, text=self.BROWSE_INPUT_MET, font=self.BOLD_FONT). \
-            grid(sticky="w", row=10, column=0)
+            grid(sticky="w", row=i+4, column=0)
         button_info_input_met = tk.Button(second_frame, text = self.INFO_TITLE, command = self.on_click_input_met). \
-            grid(sticky="w", row=10, column=1)
+            grid(sticky="w", row=i+4, column=1)
         button_browse_input_met = tk.Button(master=second_frame, text="Browse", font=self.MAIN_FONT,
                                             command=self.browse_input_met). \
-            grid(sticky="w", row=10, column=2)
+            grid(sticky="w", row=i+4, column=2)
         desc_input_met = tk.Label(second_frame, text=self.DESC_INPUT_MET, font=self.DESC_FONT).\
-            grid(sticky="w", row=11, column=0, columnspan=3)
+            grid(sticky="w", row=i+5, column=0, columnspan=3)
         self.path_input_met = tk.Label(master=second_frame, text=self.INPUT_MET, font=self.MAIN_FONT)
-        self.path_input_met.grid(sticky="w", row=12, column=0, columnspan=3)
+        self.path_input_met.grid(sticky="w", row=i+6, column=0, columnspan=3)
         label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL_SUB). \
-            grid(sticky="w", row=13, column=0, columnspan=3)
+            grid(sticky="w", row=i+7, column=0, columnspan=3)
 
         # create eddypro format input precipitation data
         label_input_precip = tk.Label(master=second_frame, text=self.BROWSE_INPUT_PRECIP, font=self.BOLD_FONT). \
-            grid(sticky="w", row=14, column=0)
+            grid(sticky="w", row=i+8, column=0)
         button_info_input_precip = tk.Button(second_frame, text=self.INFO_TITLE, command=self.on_click_input_precip). \
-            grid(sticky="w", row=14, column=1)
+            grid(sticky="w", row=i+8, column=1)
         button_browse_input_precip = tk.Button(master=second_frame, text="Browse", font=self.MAIN_FONT,
                                                command=self.browse_input_precip). \
-            grid(sticky="w", row=14, column=2)
+            grid(sticky="w", row=i+8, column=2)
         desc_input_precip = tk.Label(second_frame, text=self.DESC_INPUT_PRECIP, font=self.DESC_FONT).\
-            grid(sticky="w", row=15, column=0, columnspan=3)
+            grid(sticky="w", row=i+9, column=0, columnspan=3)
         self.path_input_precip = tk.Label(master=second_frame, text=self.INPUT_PRECIP, font=self.MAIN_FONT)
-        self.path_input_precip.grid(sticky="w", row=16, column=0, columnspan=3)
+        self.path_input_precip.grid(sticky="w", row=i+10, column=0, columnspan=3)
         label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL_SUB). \
-            grid(sticky="w", row=17, column=0, columnspan=3)
+            grid(sticky="w", row=i+11, column=0, columnspan=3)
 
         # create eddypro format missing time
         missing_time_label = tk.Label(master=second_frame, text="Missing Time", font=self.BOLD_FONT). \
-            grid(sticky="w", row=18, column=0)
+            grid(sticky="w", row=i+12, column=0)
         button_info_missing_time = tk.Button(second_frame, text=self.INFO_TITLE, command=self.on_click_missing_time).\
-            grid(sticky="w", row=18, column=1, columnspan=2)
+            grid(sticky="w", row=i+12, column=1, columnspan=2)
         desc_missing_time = tk.Label(second_frame, text=self.DESC_MISSING_TIME, font=self.DESC_FONT).\
-            grid(sticky="w", row=19, column=0, columnspan=3)
+            grid(sticky="w", row=i+13, column=0, columnspan=3)
         self.missing_time = tk.Entry(master=second_frame, width=10, font=self.MAIN_FONT)
         if self.MISSING_TIME is not None:
             self.missing_time.insert(0, self.MISSING_TIME)
-        self.missing_time.grid(sticky="w", row=20, column=0, columnspan=3)
+        self.missing_time.grid(sticky="w", row=i+14, column=0, columnspan=3)
         label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL_SUB). \
-            grid(sticky="w", row=21, column=0, columnspan=3)
+            grid(sticky="w", row=i+15, column=0, columnspan=3)
 
         # create eddypro format master met
         label_master_met = tk.Label(master=second_frame, text=self.BROWSE_MASTER_MET, font=self.BOLD_FONT). \
-            grid(sticky="w", row=22, column=0)
+            grid(sticky="w", row=i+16, column=0)
         button_info_master_met = tk.Button(second_frame, text=self.INFO_TITLE, command=self.on_click_master_met).\
-            grid(sticky="w", row=22, column=1)
+            grid(sticky="w", row=i+16, column=1)
         button_browse_input_master_met = tk.Button(master=second_frame, text="Browse",
                                                    font=self.MAIN_FONT, command=self.browse_master_met). \
-            grid(sticky="w", row=22, column=2)
+            grid(sticky="w", row=i+16, column=2)
         desc_master_met = tk.Label(second_frame, text=self.DESC_MASTER_MET, font=self.DESC_FONT).\
-            grid(sticky="w", row=23, column=0, columnspan=2)
+            grid(sticky="w", row=i+17, column=0, columnspan=2)
         self.path_master_met = tk.Label(master=second_frame, text=self.MASTER_MET, font=self.MAIN_FONT)
-        self.path_master_met.grid(sticky="w", row=24, column=0, columnspan=3)
+        self.path_master_met.grid(sticky="w", row=i+18, column=0, columnspan=3)
         label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL_SUB). \
-            grid(sticky="w", row=25, column=0, columnspan=3)
+            grid(sticky="w", row=i+19, column=0, columnspan=3)
 
         # create eddypro format input soil key
         label_soil_key = tk.Label(master=second_frame, text=self.BROWSE_INPUT_SOIL_KEY, font=self.BOLD_FONT). \
-            grid(sticky="w", row=26, column=0)
+            grid(sticky="w", row=i+20, column=0)
         button_info_soil_key = tk.Button(second_frame, text=self.INFO_TITLE, command=self.on_click_soil_key).\
-            grid(sticky="w", row=26, column=1)
+            grid(sticky="w", row=i+20, column=1)
         button_browse_input_soil_key = tk.Button(master=second_frame, text="Browse",
                                                  font=self.MAIN_FONT, command=self.browse_input_soil_key). \
-            grid(sticky="w", row=26, column=2)
+            grid(sticky="w", row=i+20, column=2)
         desc_input_soil_key = tk.Label(second_frame, text=self.DESC_INPUT_SOIL_KEY, font=self.DESC_FONT).\
-            grid(sticky="w", row=27, column=0, columnspan=2)
+            grid(sticky="w", row=i+21, column=0, columnspan=2)
         self.path_input_soil_key = tk.Label(master=second_frame, text=self.INPUT_SOIL_KEY, font=self.MAIN_FONT)
-        self.path_input_soil_key.grid(sticky="w", row=28, column=0, columnspan=3)
+        self.path_input_soil_key.grid(sticky="w", row=i+22, column=0, columnspan=3)
 
         #############################################################
         # create eddypro run main title
+        i = self.LINE_EDDYPRO_RUN
         label_separation = tk.Label(master=second_frame, text=""). \
-            grid(sticky="w", row=29, column=0, columnspan=3)
+            grid(sticky="w", row=i, column=0, columnspan=3)
         label_separation = tk.Label(master=second_frame, text=""). \
-            grid(sticky="w", row=30, column=0, columnspan=3)
+            grid(sticky="w", row=i+1, column=0, columnspan=3)
         label_eddypro_run = tk.Label(master=second_frame, text=self.EDDYPRO_RUNNING_VARIABLE, font=self.MAIN_BOLD_FONT). \
-            grid(sticky="w", row=31, column=0, columnspan=3)
+            grid(sticky="w", row=i+2, column=0, columnspan=3)
         label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL). \
-            grid(sticky="w", row=32, column=0, columnspan=3)
+            grid(sticky="w", row=i+3, column=0, columnspan=3)
 
         # create eddypro bin location
         label_eddypro_bin = tk.Label(master=second_frame, text=self.BROWSE_EDDYPRO_BIN, font=self.BOLD_FONT). \
-            grid(sticky="w", row=33, column=0)
+            grid(sticky="w", row=i+4, column=0)
         info_eddypro_bin = tk.Button(second_frame, text=self.INFO_TITLE, font=self.MAIN_FONT,
-                                     command = self.on_click_eddypro_bin).grid(sticky="w", row=33, column=1)
+                                     command = self.on_click_eddypro_bin).grid(sticky="w", row=i+4, column=1)
         button_browse_eddypro_bin = tk.Button(master=second_frame, text="Browse", font=self.MAIN_FONT,
                                               command=self.browse_eddypro_bin). \
-            grid(sticky="w", row=33, column=2)
+            grid(sticky="w", row=i+4, column=2)
         desc_eddypro_bin = tk.Label(second_frame, text=self.DESC_EDDYPRO_BIN, font=self.DESC_FONT).\
-            grid(sticky="w", row=34, column=0, columnspan=2)
+            grid(sticky="w", row=i+5, column=0, columnspan=2)
         self.path_eddypro_bin = tk.Label(master=second_frame, text=self.EDDYPRO_BIN_LOC, font=self.MAIN_FONT)
-        self.path_eddypro_bin.grid(sticky="w", row=35, column=0, columnspan=3)
+        self.path_eddypro_bin.grid(sticky="w", row=i+6, column=0, columnspan=3)
         label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL_SUB). \
-            grid(sticky="w", row=36, column=0, columnspan=3)
+            grid(sticky="w", row=i+7, column=0, columnspan=3)
 
         # create eddypro project file
         label_eddypro_proj_file_name = tk.Label(master=second_frame, text=self.BROWSE_EDDYPRO_PROJ_FILE_NAME,
-                                                font=self.BOLD_FONT).grid(sticky="w", row=37, column=0)
+                                                font=self.BOLD_FONT).grid(sticky="w", row=i+8, column=0)
         info_eddypro_proj_file_name = tk.Button(second_frame, text=self.INFO_TITLE, font=self.MAIN_FONT,
-                                                command=self.on_click_eddypro_proj_file_name).grid(sticky="w", row=37, column=1)
+                                                command=self.on_click_eddypro_proj_file_name).grid(sticky="w", row=i+8, column=1)
         button_browse_eddypro_proj_file_name = \
             tk.Button(master=second_frame, text="Browse", font=self.MAIN_FONT,
-                      command=self.browse_eddypro_proj_file_name).grid(sticky="w", row=37, column=2)
+                      command=self.browse_eddypro_proj_file_name).grid(sticky="w", row=i+8, column=2)
         desc_eddypro_proj_file_name = tk.Label(second_frame, text=self.DESC_EDDYPRO_PROJ_FILE_NAME,
-                                               font=self.DESC_FONT).grid(sticky="w", row=38, column=0, columnspan=3)
+                                               font=self.DESC_FONT).grid(sticky="w", row=i+9, column=0, columnspan=3)
         self.path_eddypro_proj_file_name = \
             tk.Label(master=second_frame, text=self.EDDYPRO_PROJ_FILE_NAME, font=self.MAIN_FONT)
-        self.path_eddypro_proj_file_name.grid(sticky="w", row=39, column=0, columnspan=3)
+        self.path_eddypro_proj_file_name.grid(sticky="w", row=i+10, column=0, columnspan=3)
         label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL_SUB). \
-            grid(sticky="w", row=40, column=0, columnspan=3)
+            grid(sticky="w", row=i+11, column=0, columnspan=3)
 
         # create eddypro project title
         eddypro_proj_title_label = tk.Label(master=second_frame, text=self.BROWSE_EDDYPRO_PROJ_TITLE,
-                                            font=self.BOLD_FONT).grid(sticky="w", row=41, column=0)
+                                            font=self.BOLD_FONT).grid(sticky="w", row=i+12, column=0)
         info_eddypro_proj_title = tk.Button(second_frame, text=self.INFO_TITLE, font=self.MAIN_FONT,
                                             command=self.on_click_eddypro_proj_title).\
-            grid(sticky="w", row=41, column=1, columnspan=2)
+            grid(sticky="w", row=i+12, column=1, columnspan=2)
         desc_eddypro_proj_title = tk.Label(second_frame, text=self.DESC_EDDYPRO_PROJ_TITLE, font=self.DESC_FONT).\
-            grid(sticky="w", row=42, column=0, columnspan=3)
+            grid(sticky="w", row=i+13, column=0, columnspan=3)
         self.eddypro_proj_title = tk.Entry(master=second_frame, width=50, font=self.MAIN_FONT)
         if self.EDDYPRO_PROJ_TITLE is not None:
             self.eddypro_proj_title.insert(0, self.EDDYPRO_PROJ_TITLE)
-        self.eddypro_proj_title.grid(sticky="w", row=43, column=0, columnspan=3)
+        self.eddypro_proj_title.grid(sticky="w", row=i+14, column=0, columnspan=3)
         label_separation = \
             tk.Label(master=second_frame,
-                     text=self.SEPARATION_LABEL_SUB).grid(sticky="w", row=44, column=0, columnspan=3)
+                     text=self.SEPARATION_LABEL_SUB).grid(sticky="w", row=i+15, column=0, columnspan=3)
 
         # create eddypro project id
         eddypro_proj_id_label = tk.Label(master=second_frame, text=self.BROWSE_EDDYPRO_PROJ_ID, font=self.BOLD_FONT). \
-            grid(sticky="w", row=45, column=0, columnspan=3)
+            grid(sticky="w", row=i+16, column=0, columnspan=3)
         info_eddypro_proj_id = tk.Button(second_frame, text=self.INFO_TITLE, font=self.MAIN_FONT,
                                          command=self.on_click_eddypro_proj_id).\
-            grid(sticky="w", row=45, column=1, columnspan=2)
+            grid(sticky="w", row=i+16, column=1, columnspan=2)
         desc_eddypro_proj_id = tk.Label(second_frame, text=self.DESC_EDDYPRO_PROJ_ID, font=self.DESC_FONT).\
-            grid(sticky="w", row=46, column=0, columnspan=3)
+            grid(sticky="w", row=i+17, column=0, columnspan=3)
         self.eddypro_proj_id = tk.Entry(master=second_frame, width=50, font=self.MAIN_FONT)
         if self.EDDYPRO_PROJ_ID is not None:
             self.eddypro_proj_id.insert(0, self.EDDYPRO_PROJ_ID)
-        self.eddypro_proj_id.grid(sticky="w", row=47, column=0, columnspan=3)
+        self.eddypro_proj_id.grid(sticky="w", row=i+18, column=0, columnspan=3)
         label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL_SUB). \
-            grid(sticky="w", row=48, column=0, columnspan=3)
+            grid(sticky="w", row=i+19, column=0, columnspan=3)
 
         # create eddypro file prototype
         eddypro_file_prototype_label = \
             tk.Label(master=second_frame, text=self.BROWSE_EDDYPRO_FILE_PROTOTYPE,
-                     font=self.BOLD_FONT).grid(sticky="w", row=49, column=0)
+                     font=self.BOLD_FONT).grid(sticky="w", row=i+20, column=0)
         info_eddypro_file_prototype = tk.Button(second_frame, text=self.INFO_TITLE, font=self.MAIN_FONT,
                                                 command=self.on_click_eddypro_file_prototype).\
-            grid(sticky="w", row=49, column=1, columnspan=2)
+            grid(sticky="w", row=i+20, column=1, columnspan=2)
         desc_eddypro_file_prototype = tk.Label(second_frame, text=self.DESC_EDDYPRO_FILE_PROTOTYPE,
-                                               font=self.DESC_FONT).grid(sticky="w", row=50, column=0, columnspan=3)
-        self.eddypro_file_prototype = tk.Entry(master=second_frame, width=50, font=self.MAIN_FONT)
+                                               font=self.DESC_FONT).grid(sticky="w", row=i+21, column=0, columnspan=3)
+        self.eddypro_file_prototype = tk.Entry(master=second_frame, width=i+22, font=self.MAIN_FONT)
         if self.EDDYPRO_FILE_PROTOTYPE is not None:
             self.eddypro_file_prototype.insert(0, self.EDDYPRO_FILE_PROTOTYPE)
-        self.eddypro_file_prototype.grid(sticky="w", row=51, column=0, columnspan=3)
+        self.eddypro_file_prototype.grid(sticky="w", row=i+23, column=0, columnspan=3)
         label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL_SUB). \
-            grid(sticky="w", row=52, column=0, columnspan=3)
+            grid(sticky="w", row=i+24, column=0, columnspan=3)
 
         # create eddypro proj file that is metadata
         label_eddypro_proj_file = tk.Label(master=second_frame, text=self.BROWSE_EDDYPRO_PROJ_FILE,
-                                           font=self.BOLD_FONT).grid(sticky="w", row=53, column=0)
+                                           font=self.BOLD_FONT).grid(sticky="w", row=i+25, column=0)
         info_eddypro_proj_file = tk.Button(second_frame, text=self.INFO_TITLE, font=self.MAIN_FONT,
                                            command=self.on_click_eddypro_proj_file).\
-            grid(sticky="w", row=53, column=1)
+            grid(sticky="w", row=i+25, column=1)
         button_browse_eddypro_proj_file = tk.Button(master=second_frame, text="Browse", font=self.MAIN_FONT,
                                                     command=self.browse_eddypro_proj_file).\
-            grid(sticky="w", row=53, column=2)
-        desc_eddypro_proj_file = tk.Label(second_frame, text=self.DESC_EDDYPRO_PROJ_FILE, font=self.MAIN_FONT).\
-            grid()
+            grid(sticky="w", row=i+25, column=2, columnspan=2)
+        desc_eddypro_proj_file = tk.Label(second_frame, text=self.DESC_EDDYPRO_PROJ_FILE, font=self.DESC_FONT).\
+            grid(sticky="w", row=i+26, column=0, columnspan=3)
         self.path_eddypro_proj_file = tk.Label(master=second_frame, text=self.EDDYPRO_PROJ_FILE, font=self.MAIN_FONT)
-        self.path_eddypro_proj_file.grid(sticky="w", row=54, column=0, columnspan=3)
+        self.path_eddypro_proj_file.grid(sticky="w", row=i+27, column=0, columnspan=3)
         label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL_SUB). \
-            grid(sticky="w", row=55, column=0, columnspan=3)
+            grid(sticky="w", row=i+28, column=0, columnspan=3)
 
         # create eddypro dynamic metedata
         label_eddypro_dyn_metadata = tk.Label(master=second_frame, text=self.BROWSE_EDDYPRO_DYN_METADATA,
-                                              font=self.BOLD_FONT).grid(sticky="w", row=56, column=0)
+                                              font=self.BOLD_FONT).grid(sticky="w", row=i+29, column=0)
         info_eddypro_dyn_metadata = tk.Button(second_frame, text=self.INFO_TITLE, font=self.MAIN_FONT,
                                               command=self.on_click_eddypro_dyn_metadata).\
-            grid(sticky="w", row=56, column=1)
+            grid(sticky="w", row=i+29, column=1)
         button_browse_eddypro_dyn_metadata = \
             tk.Button(master=second_frame, text="Browse", font=self.MAIN_FONT,
-                      command=self.browse_eddypro_dyn_metadata).grid(sticky="w", row=56, column=2)
+                      command=self.browse_eddypro_dyn_metadata).grid(sticky="w", row=i+29, column=2)
         desc_eddypro_dyn_matadata = tk.Label(second_frame, text=self.DESC_EDDYPRO_DYN_METADATA, font=self.DESC_FONT).\
-            grid(sticky="w", row=57, column=0, columnspan=3)
+            grid(sticky="w", row=i+30, column=0, columnspan=3)
         self.path_eddypro_dyn_metadata = tk.Label(master=second_frame, text=self.EDDYPRO_DYN_METADATA,
                                                   font=self.MAIN_FONT)
-        self.path_eddypro_dyn_metadata.grid(sticky="w", row=58, column=0, columnspan=3)
+        self.path_eddypro_dyn_metadata.grid(sticky="w", row=i+31, column=0, columnspan=3)
         label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL_SUB). \
-            grid(sticky="w", row=59, column=0, columnspan=3)
+            grid(sticky="w", row=i+32, column=0, columnspan=3)
 
         # create eddypro output path
         label_eddypro_output_path = tk.Label(master=second_frame, text=self.BROWSE_EDDYPRO_OUTPUT_PATH,
-                                             font=self.BOLD_FONT).grid(sticky="w", row=60, column=0)
+                                             font=self.BOLD_FONT).grid(sticky="w", row=i+33, column=0)
         info_eddypro_output_path = tk.Button(second_frame, text=self.INFO_TITLE, font=self.MAIN_FONT,
                                              command=self.on_click_eddypro_output_path).\
-            grid(sticky="w", row=60, column=1)
+            grid(sticky="w", row=i+33, column=1)
         button_browse_eddypro_output_path = tk.Button(master=second_frame, text="Browse",
                                                       font=self.MAIN_FONT, command=self.browse_eddypro_output_path). \
-            grid(sticky="w", row=60, column=2)
+            grid(sticky="w", row=i+33, column=2)
         desc_eddypro_output_path = tk.Label(second_frame, text=self.DESC_EDDYPRO_OUTPUT_PATH, font=self.DESC_FONT).\
-            grid(sticky="w", row=61, column=0, columnspan=3)
+            grid(sticky="w", row=i+34, column=0, columnspan=3)
         self.path_eddypro_output_path = tk.Label(master=second_frame, text=self.EDDYPRO_OUTPUT_PATH,
                                                  font=self.MAIN_FONT)
-        self.path_eddypro_output_path.grid(sticky="w", row=62, column=0, columnspan=3)
+        self.path_eddypro_output_path.grid(sticky="w", row=i+35, column=0, columnspan=3)
         label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL_SUB). \
-            grid(sticky="w", row=63, column=0, columnspan=3)
+            grid(sticky="w", row=i+36, column=0, columnspan=3)
 
         # create eddypro input ghg path
         label_eddypro_input_ghg_path = tk.Label(master=second_frame, text=self.BROWSE_EDDYPRO_INPUT_GHG_PATH,
-                                                font=self.BOLD_FONT).grid(sticky="w", row=64, column=0)
+                                                font=self.BOLD_FONT).grid(sticky="w", row=i+37, column=0)
         info_eddypro_input_ghg_path = tk.Button(second_frame, text=self.INFO_TITLE, font=self.MAIN_FONT,
                                                 command=self.on_click_eddypro_input_ghg_path).\
-            grid(sticky="w", row=64, column=1)
+            grid(sticky="w", row=i+37, column=1)
         button_browse_eddypro_input_ghg_path = \
             tk.Button(master=second_frame, text="Browse", font=self.MAIN_FONT,
-                      command=self.browse_eddypro_input_ghg_path).grid(sticky="w", row=64, column=2)
+                      command=self.browse_eddypro_input_ghg_path).grid(sticky="w", row=i+37, column=2)
         desc_eddypro_input_ghg_path = tk.Label(second_frame, text=self.DESC_EDDYPRO_INPUT_GHG_PATH,
-                                               font=self.DESC_FONT).grid(sticky="w", row=65, column=0, columnspan=3)
+                                               font=self.DESC_FONT).grid(sticky="w", row=i+38, column=0, columnspan=3)
         self.path_eddypro_input_ghg_path = tk.Label(master=second_frame, text=self.EDDYPRO_INPUT_GHG_PATH,
                                                     font=self.MAIN_FONT)
-        self.path_eddypro_input_ghg_path.grid(sticky="w", row=66, column=0, columnspan=3)
+        self.path_eddypro_input_ghg_path.grid(sticky="w", row=i+39, column=0, columnspan=3)
         label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL_SUB). \
-            grid(sticky="w", row=67, column=0, columnspan=3)
+            grid(sticky="w", row=i+40, column=0, columnspan=3)
 
         #############################################################
         # create pyflux pro main title
-        label_separation = tk.Label(master=second_frame, text="").grid(sticky="w", row=68, column=0, columnspan=3)
-        label_separation = tk.Label(master=second_frame, text="").grid(sticky="w", row=69, column=0, columnspan=3)
+        i = self.LINE_PYFLUX_PRO
+        label_separation = tk.Label(master=second_frame, text="").grid(sticky="w", row=i, column=0, columnspan=3)
+        label_separation = tk.Label(master=second_frame, text="").grid(sticky="w", row=i+1, column=0, columnspan=3)
         label_pyfluxpro = tk.Label(master=second_frame, text=self.PYFLUXPROPRO_RUNNING_VARIABLE,
-                                   font=self.MAIN_BOLD_FONT).grid(sticky="w", row=70, column=0, columnspan=3)
+                                   font=self.MAIN_BOLD_FONT).grid(sticky="w", row=i+2, column=0, columnspan=3)
         label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL). \
-            grid(sticky="w", row=71, column=0, columnspan=3)
+            grid(sticky="w", row=i+3, column=0, columnspan=3)
 
         # create pyfluxpro full output
         label_pyfluxpro_full_output = tk.Label(master=second_frame, text=self.BROWSE_FULL_OUTPUT_PYFLUXPRO,
-                                               font=self.BOLD_FONT).grid(sticky="w", row=72, column=0)
+                                               font=self.BOLD_FONT).grid(sticky="w", row=i+4, column=0)
         info_pyfluxpro_full_output = tk.Button(second_frame, text=self.INFO_TITLE, font=self.MAIN_FONT,
                                                command=self.on_click_pyfluxpro_full_output).\
-            grid(sticky="w", row=72, column=1)
+            grid(sticky="w", row=i+4, column=1)
         button_browse_pyfluxpro_full_output = \
             tk.Button(master=second_frame, text="Browse", font=self.MAIN_FONT,
-                      command=self.browse_pyfluxpro_full_output).grid(sticky="w", row=72, column=2)
+                      command=self.browse_pyfluxpro_full_output).grid(sticky="w", row=i+4, column=2)
         desc_pyflux_pro_full_output = tk.Label(second_frame, text=self.DESC_FULL_OUTPUT_PYFLUXPRO, font=self.DESC_FONT)\
-            .grid(sticky="w", row=73, column=0, columnspan=3)
+            .grid(sticky="w", row=i+5, column=0, columnspan=3)
         self.path_pyfluxpro_full_output = tk.Label(master=second_frame, text=self.FULL_OUTPUT_PYFLUXPRO,
                                                    font=self.MAIN_FONT)
-        self.path_pyfluxpro_full_output.grid(sticky="w", row=74, column=0, columnspan=3)
+        self.path_pyfluxpro_full_output.grid(sticky="w", row=i+6, column=0, columnspan=3)
         label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL_SUB). \
-            grid(sticky="w", row=75, column=0, columnspan=3)
+            grid(sticky="w", row=i+7, column=0, columnspan=3)
 
         # create pyfluxpro met data 30
         label_pyfluxpro_met_data = tk.Label(master=second_frame, text=self.BROWSE_MET_DATA_30_PYFLUXPRO,
-                                            font=self.BOLD_FONT).grid(sticky="w", row=76, column=0)
+                                            font=self.BOLD_FONT).grid(sticky="w", row=i+8, column=0)
         info_pyfluxpro_met_data = tk.Button(second_frame, text=self.INFO_TITLE, font=self.MAIN_FONT,
                                             command=self.on_click_pyfluxpro_met_data).\
-            grid(sticky="w", row=76, column=1)
+            grid(sticky="w", row=i+8, column=1)
         button_browse_pyfluxpro_met_data = \
             tk.Button(master=second_frame, width=10, text="Browse", font=self.MAIN_FONT,
-                      command=self.browse_pyfluxpro_met_data).grid(sticky="w", row=76, column=2)
+                      command=self.browse_pyfluxpro_met_data).grid(sticky="w", row=i+8, column=2)
         desc_pyfluxpro_met_data = tk.Label(second_frame, text=self.DESC_MET_DATA_30_PYFLUXPRO, font=self.DESC_FONT).\
-            grid(sticky="w", row=77, column=0, columnspan=3)
+            grid(sticky="w", row=i+9, column=0, columnspan=3)
         self.path_pyfluxpro_met_data = tk.Label(master=second_frame, text=self.MET_DATA_30_PYFLUXPRO,
                                                 font=self.MAIN_FONT)
-        self.path_pyfluxpro_met_data.grid(sticky="w", row=78, column=0, columnspan=3)
+        self.path_pyfluxpro_met_data.grid(sticky="w", row=i+10, column=0, columnspan=3)
         label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL_SUB). \
-            grid(sticky="w", row=79, column=0, columnspan=3)
+            grid(sticky="w", row=i+11, column=0, columnspan=3)
 
         # create pyfluxpro input sheet"
         label_pyfluxpro_input_sheet = tk.Label(master=second_frame, text=self.BROWSE_PYFLUXPRO_INPUT_SHEET,
-                                               font=self.BOLD_FONT).grid(sticky="w", row=80, column=0)
+                                               font=self.BOLD_FONT).grid(sticky="w", row=i+12, column=0)
         info_pyfluxpro_input_sheet = tk.Button(second_frame, text=self.INFO_TITLE, font=self.MAIN_FONT,
                                                command=self.on_click_pyfluxpro_input_sheet).\
-            grid(sticky="w", row=80, column=1)
+            grid(sticky="w", row=i+12, column=1)
         button_browse_pyfluxpro_input_sheet = \
             tk.Button(master=second_frame, text="Browse", font=self.MAIN_FONT,
-                      command=self.browse_pyfluxpro_input_sheet).grid(sticky="w", row=80, column=2)
+                      command=self.browse_pyfluxpro_input_sheet).grid(sticky="w", row=i+12, column=2)
         desc_pyfluxpro_input_sheet = tk.Label(second_frame, text=self.DESC_PYFLUXPRO_INPUT_SHEET, font=self.DESC_FONT).\
-            grid(sticky="w", row=81, column=0, columnspan=3)
+            grid(sticky="w", row=i+13, column=0, columnspan=3)
         self.path_pyfluxpro_input_sheet = tk.Label(master=second_frame, text=self.PYFLUXPRO_INPUT_SHEET,
                                                    font=self.MAIN_FONT)
-        self.path_pyfluxpro_input_sheet.grid(sticky="w", row=81, column=0, columnspan=3)
+        self.path_pyfluxpro_input_sheet.grid(sticky="w", row=i+13, column=0, columnspan=3)
         label_separation = tk.Label(master=second_frame,
-                                    text=self.SEPARATION_LABEL_SUB).grid(sticky="w", row=82, column=0, columnspan=3)
+                                    text=self.SEPARATION_LABEL_SUB).grid(sticky="w", row=i+14, column=0, columnspan=3)
 
         #############################################################
         # create save frame
-        label_separation = tk.Label(master=second_frame, text="").grid(sticky="w", row=83, column=0, columnspan=3)
-        label_separation = tk.Label(master=second_frame, text="").grid(sticky="w", row=84, column=0, columnspan=3)
+        i = self.LINE_SAVE_ENV
+        label_separation = tk.Label(master=second_frame, text="").grid(sticky="w", row=i, column=0, columnspan=3)
+        label_separation = tk.Label(master=second_frame, text="").grid(sticky="w", row=i+1, column=0, columnspan=3)
         label_eddypro_save = tk.Label(master=second_frame, text=self.SAVE_LABEL, font=self.MAIN_BOLD_FONT). \
-            grid(sticky="w", row=85, column=0, columnspan=3)
+            grid(sticky="w", row=i+2, column=0, columnspan=3)
         button_save_env = tk.Button(master=second_frame, width=25, text=self.SAVE_ENV_FILE, font=self.MAIN_FONT,
-                                    command=self.save_env).grid(sticky="w", row=86, column=0, columnspan=3)
+                                    command=self.save_env).grid(sticky="w", row=i+3, column=0, columnspan=3)
 
         root.mainloop()
 
