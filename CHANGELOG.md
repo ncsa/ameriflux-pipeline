@@ -25,3 +25,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
 - Precipitation threshold values read as floating numbers. [#75](https://github.com/ncsa/ameriflux-pipeline/issues/75)
+- Replacing fill values correctly with NaNs. [#83](https://github.com/ncsa/ameriflux-pipeline/issues/83)
