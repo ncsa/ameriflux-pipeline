@@ -349,52 +349,56 @@ class Preprocessor:
         if df.loc[df['timedelta'] != time_interval].shape[0]:
             # get the row indexes where TimeDelta!=30.0
             row_indexes = list(df.loc[df['timedelta'] != time_interval].index)
-
+            # ignore the first row index as it is always 0 (timedelta = NaN)
+            row_indexes = row_indexes[1:]
             # iterate through missing rows, create new df with empty rows and correct timestamps,
             # concat new and old dataframes
-            for i in row_indexes[1:]:
-                # ignore the first row index as it is always 0 (timedelta = NaN)
+            # iterate in reverse so that indexes do not change
+            for i in row_indexes[::-1]:
                 df1 = df[:i]  # slice the upper half of df
                 df2 = df[i:]  # slice the lower half of df
 
                 # insert rows between df1 and df2. number of rows given by timedelta/timeinterval
-                insert_num_rows = int(df['timedelta'].iloc[i] // time_interval) - 1
+                missing_num_rows = int(df2['timedelta'].iloc[0] // time_interval) - 1
+                end_timestamp = df2[time_col].iloc[0]
+                start_timestamp = df1[time_col].iloc[-1]
+                print(missing_num_rows, "missing timeslot(s) found between", start_timestamp, "and", end_timestamp)
+                insert_flag = 'y'  # insert timestamps by default. This is changed by user_confirmation
                 # 48 slots in 24hrs(one day)
                 # ask for user confirmation if more than 96 timeslots (2 days) are missing
-                if insert_num_rows > missing_timeslot_threshold:
-                    print(insert_num_rows, "missing timeslots found")
+                if missing_num_rows > missing_timeslot_threshold:
                     if user_confirmation in ['a', 'ask']:
-                        print("Enter Y to insert", insert_num_rows, "rows. Else enter N")
+                        print("Enter Y to insert", missing_num_rows, "rows. Else enter N")
                         insert_flag = input("Enter Y/N : ")
                     elif user_confirmation in ['y', 'yes']:
                         insert_flag = 'Y'
                     elif user_confirmation in ['n', 'no']:
                         insert_flag = 'N'
 
-                    if insert_flag.lower() in ['y', 'yes']:
-                        # insert missing timestamps
-                        end_timestamp = df2[time_col].iloc[0]
-                        start_timestamp = df1[time_col].iloc[0]
-                        print("inserting ", insert_num_rows, "rows between ", start_timestamp, "and ", end_timestamp)
-                        # create a series of time_interval timestamps
-                        if time_interval == 5.0:
-                            freq = '5T'
-                        elif time_interval == 30.0:
-                            freq = '30T'
-                        else:
-                            print(time_interval, "is invalid")
-                        timestamp_series = pd.date_range(start=start_timestamp, end=end_timestamp, freq=freq)
-
-                        # create new dataframe with blank rows
-                        new_df = pd.DataFrame(np.zeros([insert_num_rows, df1.shape[1]]) * np.nan, columns=df1.columns)
-                        # populate timestamp with created timeseries
-                        new_df.loc[:, time_col] = pd.Series(timestamp_series)
-                        # concat the 3 df
-                        df = pd.concat([df1, new_df, df2], ignore_index=True)
-
+                if insert_flag.lower() in ['y', 'yes']:
+                    # insert missing timestamps
+                    print("inserting", missing_num_rows, "row(s) between", start_timestamp, "and", end_timestamp)
+                    # create a series of time_interval timestamps
+                    if time_interval == 5.0:
+                        freq = '5T'
+                    elif time_interval == 30.0:
+                        freq = '30T'
                     else:
-                        # insert flag is No.
+                        print(time_interval, "is invalid")
                         return df, 'N'
+
+                    timestamp_series = pd.date_range(start=start_timestamp, end=end_timestamp, freq=freq)
+
+                    # create new dataframe with blank rows
+                    new_df = pd.DataFrame(np.zeros([missing_num_rows, df1.shape[1]]) * np.nan, columns=df1.columns)
+                    # populate timestamp with created timeseries
+                    new_df.loc[:, time_col] = pd.Series(timestamp_series)
+                    # concat the 3 df
+                    df = pd.concat([df1, new_df, df2], ignore_index=True)
+
+                else:
+                    # insert flag is No.
+                    return df, 'N'
 
         return df, 'Y'
 
