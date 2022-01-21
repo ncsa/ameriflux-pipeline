@@ -65,10 +65,14 @@ class RunEddypro():
             # if you don't want to print out eddypro process,
             # use subprocess.check_output
             if os_platform.lower() == "windows":
-                subprocess.run(["eddypro_rp.exe", "-e", out_path, proj_file_name], shell=True,
+                subprocess.run(["eddypro_rp.exe", "-s", "win", "-e", out_path, proj_file_name], shell=True,
                                cwd=eddypro_bin_loc)
             elif os_platform.lower() == "os x":
-                subprocess.run(["./eddypro_rp", "-s", "mac", "-e", out_path, proj_file_name], shell=True,
+                if out_path.endswith(os.path.sep):
+                    work_dir = os.path.dirname(os.path.dirname(out_path))
+                else:
+                    work_dir = os.path.dirname(out_path)
+                subprocess.run(["./eddypro_rp", "-s", "mac", "-e", work_dir, proj_file_name], shell=False,
                                cwd=eddypro_bin_loc)
             else:
                 raise Exception("The current platform is currently not being supported.")
@@ -191,9 +195,7 @@ class RunEddypro():
                 None
         """
         try:
-            out_proj_file = open(outfile, "w")
-            for line in in_list:
-                out_proj_file.write(line + "\n")
-            out_proj_file.close()
+            with open(outfile, 'w') as f:
+                f.write('\n'.join(in_list))
         except Exception:
             raise Exception("Failed to create temporary project file")
