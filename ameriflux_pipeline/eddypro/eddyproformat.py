@@ -277,6 +277,7 @@ class EddyProFormat:
             df (object): Processed Pandas DataFrame object
         """
         df.fillna(value=-9999.0, inplace=True)
+        df.fillna(value=-9999, inplace=True)
         return df
 
     @staticmethod
