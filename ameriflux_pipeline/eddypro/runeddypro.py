@@ -15,13 +15,14 @@ class RunEddypro():
     """
 
     @staticmethod
-    def run_eddypro(eddypro_bin_loc="", proj_file_name="", project_title="", project_id="", file_prototype="",
-                    proj_file="", dyn_metadata_file="", out_path="", data_path="", biom_file=""):
+    def run_eddypro(eddypro_bin_loc="", proj_file_template="", proj_file_name="", project_title="", project_id="",
+                    file_prototype="", proj_file="", dyn_metadata_file="", out_path="", data_path="", biom_file=""):
         """
             Run EddyPro headless using the given parameters
 
             Args:
                 eddypro_bin_loc (str): A path for the eddypro bin directory location
+                proj_file_template (str): A file path for eddypro project template file
                 proj_file_name (str): A file path for eddypro project filename
                 project_title (str): A title for the project
                 project_id (str): An ID for the project
@@ -34,14 +35,12 @@ class RunEddypro():
             Returns:
                 None
         """
-        # create out temp project file
-        proj_template = os.path.join(os.path.dirname(os.path.abspath(proj_file_name)), "templates.eddypro")
 
         # manipulate project file from the template project file
         tmp_proj_list = RunEddypro.create_tmp_proj_file(
-            file_name=proj_template, project_title=project_title, project_id=project_id, file_prototype=file_prototype,
-            proj_file=proj_file, dyn_metadata_file=dyn_metadata_file, out_path=out_path, data_path=data_path,
-            biom_file=biom_file, outfile=proj_file_name)
+            file_name=proj_file_template, project_title=project_title, project_id=project_id,
+            file_prototype=file_prototype, proj_file=proj_file, dyn_metadata_file=dyn_metadata_file,
+            out_path=out_path, data_path=data_path, biom_file=biom_file, outfile=proj_file_name)
 
         # clean up the eddypro output folder
         print("All the contents in the", out_path, "will be removed.")
@@ -169,10 +168,10 @@ class RunEddypro():
     @staticmethod
     def get_platform():
         platforms = {
-            'linux1' : 'Linux',
-            'linux2' : 'Linux',
-            'darwin' : 'OS X',
-            'win32' : 'Windows'
+            'linux1': 'Linux',
+            'linux2': 'Linux',
+            'darwin': 'OS X',
+            'win32': 'Windows'
         }
         if sys.platform not in platforms:
             return sys.platform
