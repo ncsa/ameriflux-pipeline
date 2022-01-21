@@ -26,6 +26,7 @@ class PyFluxProFormat:
         df, df_meta = PyFluxProFormat.add_timestamp(df, df_meta)  # step 3b in guide
         # convert -9999.0 to NaN. To make numerical conversions easier.
         df.replace('-9999.0', np.nan, inplace=True)
+        df.replace('-9999', np.nan, inplace=True)
 
         # step 3c. Convert temp unit from K to C
         df, df_meta = PyFluxProFormat.convert_temp_unit(df, df_meta)
