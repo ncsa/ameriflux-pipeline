@@ -30,17 +30,19 @@ class EnvEditor():
         self.BROWSE_USER_CONFIRAMTION = " Missing Timestamp Confirmation"
         self.DESC_USER_CONFIRMATION = " user decision on whether to insert, ignore or ask during runtime in case of " \
                                       "large number of missing timestamps"
-        self.INFO_USER_CONFIRMATION = "When the pipeline encounters a data gap, would you like it to (1) insert empty " \
-                                      "time periods, (2)ignore the gap and return only time periods for which there is " \
-                                      "data, or (3) stop running and ask you? For (3), you can set the threshold for " \
-                                      "notification in \"Missing Time\"."
+        self.INFO_USER_CONFIRMATION = "When the pipeline encounters a data gap, would you like it to (1) Y - insert " \
+                                      "empty time periods, (2) N - ignore the gap and return only time periods for " \
+                                      "which there is data, or (3) A - stop running and ask you? For (3), you can " \
+                                      "set the threshold for notification in \"Missing Time\". The choices will be " \
+                                      "asked only if the number of missing timestamps are bigger than missing " \
+                                      "timestamps thresholds"
 
         self.EDDYPRO_FORMAT_VARIABLE = " Variables for EddyPro formatting"
         self.BROWSE_INPUT_MET = " Input Meteorology Data"
         self.DESC_INPUT_MET = " input meteorology data [DATA FILE]"
         self.INFO_INPUT_MET = "Raw meteorological data from the met tower datalogger. This will usually have a " \
-                              ".dat extension. Make sure the file you choose covers the time period you are " \
-                              "interested in!"
+                              ".dat extension originally but need to be converted to csv for the pipeline. Make sure " \
+                              "the file you choose covers the time period you are interested in!"
         self.BROWSE_INPUT_PRECIP = " Input Precipitation Data"
         self.DESC_INPUT_PRECIP = " input precipitation data [DATA FILE]"
         self.INFO_INPUT_PRECIP = "Unformatted precipitation data from IWS in its native 5min resolution. " \
@@ -105,7 +107,7 @@ class EnvEditor():
                                          "don’t already have one for the time period included in this run, consult " \
                                          "the guide [guide location] for instructions to make one."
         self.BROWSE_EDDYPRO_OUTPUT_PATH = " EddyPro Output Path"
-        self.DESC_EDDYPRO_OUTPUT_PATH = " output directory for eddypro data output [DIRECTPRY]"
+        self.DESC_EDDYPRO_OUTPUT_PATH = " output directory for eddypro data output [DIRECTORY]"
         self.INFO_EDDYPRO_OUTPUT_PATH = "The directory where you want your eddypro data output to go."
         self.BROWSE_EDDYPRO_INPUT_GHG_PATH = " EddyPro Input GHG Path"
         self.DESC_EDDYPRO_INPUT_GHG_PATH = " directory for input ghg data [DIRECTORY]"
