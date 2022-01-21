@@ -99,6 +99,8 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
     met_data_sheet_name = os.path.splitext(os.path.basename(met_data_30_pyfluxpro))[0]
 
     writer = pd.ExcelWriter(cfg.PYFLUXPRO_INPUT_SHEET, engine='xlsxwriter')
+
+    # remove header so as to remove built-in formatting of xlsxwriter
     full_output_df.to_excel(writer, sheet_name=full_output_sheet_name, index=False, header=False, startrow=1)
     met_data_df.to_excel(writer, sheet_name=met_data_sheet_name, index=False, header=False, startrow=1)
 
