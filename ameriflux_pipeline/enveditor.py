@@ -127,11 +127,10 @@ class EnvEditor():
         self.DESC_MET_DATA_30_PYFLUXPRO = " output directory for processed \'Met_data_30\' data file (file will be " \
                                           "auto-generated, only select the directory)[DIRECTORY]"
         self.INFO_MET_DATA_30_PYFLUXPRO = "The directory where you want formatted met data (used in PyFluxPro) to go."
-        self.BROWSE_PYFLUXPRO_INPUT_SHEET = " PyFluxPro Input Sheet Path (select folder)"
-        self.DESC_PYFLUXPRO_INPUT_SHEET = " output directory for pyfluxpro input sheet combining full output and " \
-                                          "met data 30 (file will be auto-generated, only select the directory) " \
-                                          "[DIRECTORY]"
-        self.INFO_PYFLUXPRO_INPUT_SHEET = "The directory where you want the fully-processed PyFluxPro input file to go."
+        self.BROWSE_PYFLUXPRO_INPUT_SHEET = " PyFluxPro Input Sheet File"
+        self.DESC_PYFLUXPRO_INPUT_SHEET = " file for pyfluxpro input sheet combining full output and met data 30"
+        self.INFO_PYFLUXPRO_INPUT_SHEET = "The excel file where you want the fully-processed PyFluxPro input file " \
+                                          "to go."
 
         self.SAVE_LABEL = "Save .env file"
         self.SAVE_ENV_FILE = "Save"
@@ -668,10 +667,11 @@ class EnvEditor():
     def browse_pyfluxpro_input_sheet(self):
         filepath = tk.StringVar()
         if filepath == "":
-            filepath = filedialog.askdirectory(initialdir=os.getcwd())
+            filepath = filedialog.asksaveasfilename(initialdir=os.getcwd(),
+                                                  title="select a file", filetypes=[("xlsx files", "*.xlsx")])
         else:
-            filepath = filedialog.askdirectory(initialdir=filepath)
-        filepath = os.path.join(filepath, "pyfluxpro_input")
+            filepath = filedialog.asksaveasfilename(initialdir=filepath,
+                                                  title="select a file", filetypes=[("xlsx files", "*.xlsx")])
         self.path_pyfluxpro_input_sheet.config(text=filepath)
         self.PYFLUXPRO_INPUT_SHEET = filepath
 
