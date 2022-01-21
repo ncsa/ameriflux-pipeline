@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Added QA/QC check for precipitation data. [#39](https://github.com/ncsa/ameriflux-pipeline/issues/39)
 - Automated creation of pyfluxpro input excel spreadsheet [#55](https://github.com/ncsa/ameriflux-pipeline/issues/55)
 - Restructured code to have data directory and separate directories for master met, eddypro and pyfluxpro. [#68](https://github.com/ncsa/ameriflux-pipeline/issues/68)
+- Reconstructed code to handle Maize site data (ZMB) [#78](https://github.com/ncsa/ameriflux-pipeline/issues/78)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
