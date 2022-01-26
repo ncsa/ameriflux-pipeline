@@ -6,6 +6,7 @@
 
 import os
 import shutil
+
 import pandas as pd
 import xlsxwriter
 
@@ -110,7 +111,7 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
         full_output_worksheet.write(0, idx, val)
     for idx, val in enumerate(met_data_col_list):
         met_data_worksheet.write(0, idx, val)
-
+        
     writer.save()
     writer.close()
     print("Master met and full output sheets saved in ", cfg.PYFLUXPRO_INPUT_SHEET)
@@ -130,6 +131,10 @@ if __name__ == '__main__':
     for outfile in outfile_list:
         if 'full_output' in outfile:
             eddypro_full_outfile = os.path.join(cfg.EDDYPRO_OUTPUT_PATH, outfile)
-
-    # run pyfluxpro formatting
-    pyfluxpro_processing(eddypro_full_outfile, cfg.FULL_OUTPUT_PYFLUXPRO, cfg.MASTER_MET, cfg.MET_DATA_30_PYFLUXPRO)
+            # run pyfluxpro formatting
+            pyfluxpro_processing(eddypro_full_outfile, cfg.FULL_OUTPUT_PYFLUXPRO, cfg.MASTER_MET,
+                                 cfg.MET_DATA_30_PYFLUXPRO)
+            break
+    # if eddypro full output file not present
+    if not eddypro_full_outfile:
+        print("EddyPro full output not present")
