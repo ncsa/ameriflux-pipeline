@@ -42,19 +42,6 @@ class RunEddypro():
             file_prototype=file_prototype, proj_file=proj_file, dyn_metadata_file=dyn_metadata_file,
             out_path=out_path, data_path=data_path, biom_file=biom_file, outfile=proj_file_name)
 
-        # clean up the eddypro output folder
-        print("All the contents in the", out_path, "will be removed.")
-        for filename in os.listdir(out_path):
-            if filename.lower() != "readme.md":
-                file_path = os.path.join(out_path, filename)
-                try:
-                    if os.path.isfile(file_path) or os.path.islink(file_path):
-                        os.unlink(file_path)
-                    elif os.path.isdir(file_path):
-                        shutil.rmtree(file_path)
-                except Exception as e:
-                    print('Failed to delete %s. Reason: %s' % (file_path, e))
-
         # save temporary project file
         RunEddypro.save_string_list_to_file(tmp_proj_list, proj_file_name)
         print("temporary project file created")
@@ -68,25 +55,17 @@ class RunEddypro():
                 subprocess.run(["eddypro_rp.exe", "-s", "win", "-e", out_path, proj_file_name], shell=True,
                                cwd=eddypro_bin_loc)
             elif os_platform.lower() == "os x":
-                if out_path.endswith(os.path.sep):
-                    work_dir = os.path.dirname(os.path.dirname(out_path))
-                else:
-                    work_dir = os.path.dirname(out_path)
                 # when it is Mac OS, it must have tmp folder under output directory
-                tmp_dir = os.path.join(work_dir, "tmp")
+                tmp_dir = os.path.join(out_path, "tmp")
                 if not os.path.exists(tmp_dir):
                     os.makedirs(tmp_dir)
 
-                subprocess.run(["./eddypro_rp", "-s", "mac", "-e", work_dir, proj_file_name], shell=False,
+                subprocess.run(["./eddypro_rp", "-s", "mac", "-e", out_path, proj_file_name], shell=False,
                                cwd=eddypro_bin_loc)
             else:
                 raise Exception("The current platform is currently not being supported.")
         except Exception:
             raise Exception("Running EddyPro failed.")
-
-        # remove temporary project file
-        print("removed temporary project file")
-        os.remove(proj_file_name)
 
     @staticmethod
     def create_tmp_proj_file(file_name, project_title,
