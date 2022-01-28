@@ -20,9 +20,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Created NOTES.md to document code structure and decisions made. [#47](https://github.com/ncsa/ameriflux-pipeline/issues/47)
 - QA/QC check for precipitation data. [#39](https://github.com/ncsa/ameriflux-pipeline/issues/39)
 - Automated creation of pyfluxpro input excel spreadsheet [#55](https://github.com/ncsa/ameriflux-pipeline/issues/55)
+- EddyPro automation separation for Mac and Windos. [#56](https://github.com/ncsa/ameriflux-pipeline/issues/56)
 - Restructured code to have data directory and separate directories for master met, eddypro and pyfluxpro. [#68](https://github.com/ncsa/ameriflux-pipeline/issues/68)
 - GUI application for editing and creating .env file [#77](https://github.com/ncsa/ameriflux-pipeline/issues/77)
+- Reconstructed code to handle Maize site data (ZMB) [#78](https://github.com/ncsa/ameriflux-pipeline/issues/78)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
 - Precipitation threshold values read as floating numbers. [#75](https://github.com/ncsa/ameriflux-pipeline/issues/75)
+- Replacing fill values correctly with NaNs. [#83](https://github.com/ncsa/ameriflux-pipeline/issues/83)
+- Auto-insertion of timestamps if number of missing timestamps is less than threshold. [#81](https://github.com/ncsa/ameriflux-pipeline/issues/81)
+

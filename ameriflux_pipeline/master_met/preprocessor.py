@@ -115,11 +115,23 @@ class Preprocessor:
 
         # step 7 in guide - calculation of shortwave radiation
         SW_unit = 'W/m^2'  # unit for shortwave radiation
-        df['SW_out_Avg'] = df['SWUp_Avg']
+        # NOTE 10
+        if 'SWUp_Avg' in df.columns:
+            shortwave_out = 'SWUp_Avg'
+        elif 'CM3Dn_Avg' in df.columns:
+            shortwave_out = 'CM3Dn_Avg'
+        df['SW_out_Avg'] = df[shortwave_out]
         df_meta['SW_out_Avg'] = SW_unit  # add shortwave radiation units
         if 'albedo_Avg' not in df.columns:
             # calculate albedo_avg from shortwave out and shortwave in
-            df['Albedo_Avg'] = df['SWUp_Avg'] / df['SWDn_Avg']
+            if 'SWDn_Avg' in df.columns:
+                shortwave_in = 'SWDn_Avg'
+            elif 'CM3Up_Avg' in df.columns:
+                shortwave_in = 'CM3Up_Avg'
+            # avoid zero division error
+            df['Albedo_Avg'] = df.apply(lambda x: float(x[shortwave_out]) / float(x[shortwave_in]) \
+                                        if float(x[shortwave_in]) != 0 else np.nan, axis=1)
+            df['Albedo_Avg'] = df['Albedo_Avg'].replace(np.nan, 0.0)
             df_meta['Albedo_Avg'] = SW_unit  # add shortwave radiation units
 
         # NOTE 2
@@ -149,12 +161,12 @@ class Preprocessor:
         file_df_meta = df.head(3)
         # the first row contains the meta data of file. second and third row contains met variables and their units
         file_df_meta.fillna('', inplace=True)  # fill NaNs with empty string for ease of replace
-        file_df_meta = file_df_meta.applymap(lambda x: x.replace('"', ''))  # strip off quotes from all values
+        file_df_meta = file_df_meta.applymap(lambda x: str(x).replace('"', ''))  # strip off quotes from all values
 
         # process df to get met data
         df = df.iloc[1:, :]  # drop the first row in df as it is the file meta data
         df.reset_index(drop=True, inplace=True)  # reset index after dropping rows
-        df = df.applymap(lambda x: x.replace('"', ''))
+        df = df.applymap(lambda x: str(x).replace('"', ''))
         df.columns = df.iloc[0]  # set column names
         df = df.iloc[3:, :]  # drop first and second row as it is the units and min and avg
         df.reset_index(drop=True, inplace=True)  # reset index after dropping rows
@@ -249,8 +261,8 @@ class Preprocessor:
 
         Args:
             df (obj): input precip dataframe
-            precip_lower (int) : Lower threshold value for precipitation in inches
-            precip_upper (int) : Upper threshold value for precipitation in inches
+            precip_lower (float) : Lower threshold value for precipitation in inches
+            precip_upper (float) : Upper threshold value for precipitation in inches
             missing_timeslot_threshold (int): Value for missing timeslot threshold. used for insert_missing_time method
             user_confirmation (str) : Option to either insert or ignore missing timestamps
         Returns:
@@ -349,52 +361,56 @@ class Preprocessor:
         if df.loc[df['timedelta'] != time_interval].shape[0]:
             # get the row indexes where TimeDelta!=30.0
             row_indexes = list(df.loc[df['timedelta'] != time_interval].index)
-
+            # ignore the first row index as it is always 0 (timedelta = NaN)
+            row_indexes = row_indexes[1:]
             # iterate through missing rows, create new df with empty rows and correct timestamps,
             # concat new and old dataframes
-            for i in row_indexes[1:]:
-                # ignore the first row index as it is always 0 (timedelta = NaN)
+            # iterate in reverse so that indexes do not change
+            for i in row_indexes[::-1]:
                 df1 = df[:i]  # slice the upper half of df
                 df2 = df[i:]  # slice the lower half of df
 
                 # insert rows between df1 and df2. number of rows given by timedelta/timeinterval
-                insert_num_rows = int(df['timedelta'].iloc[i] // time_interval) - 1
+                missing_num_rows = int(df2['timedelta'].iloc[0] // time_interval) - 1
+                end_timestamp = df2[time_col].iloc[0]
+                start_timestamp = df1[time_col].iloc[-1]
+                print(missing_num_rows, "missing timeslot(s) found between", start_timestamp, "and", end_timestamp)
+                insert_flag = 'y'  # insert timestamps by default. This is changed by user_confirmation
                 # 48 slots in 24hrs(one day)
                 # ask for user confirmation if more than 96 timeslots (2 days) are missing
-                if insert_num_rows > missing_timeslot_threshold:
-                    print(insert_num_rows, "missing timeslots found")
+                if missing_num_rows > missing_timeslot_threshold:
                     if user_confirmation in ['a', 'ask']:
-                        print("Enter Y to insert", insert_num_rows, "rows. Else enter N")
+                        print("Enter Y to insert", missing_num_rows, "rows. Else enter N")
                         insert_flag = input("Enter Y/N : ")
                     elif user_confirmation in ['y', 'yes']:
                         insert_flag = 'Y'
                     elif user_confirmation in ['n', 'no']:
                         insert_flag = 'N'
 
-                    if insert_flag.lower() in ['y', 'yes']:
-                        # insert missing timestamps
-                        end_timestamp = df2[time_col].iloc[0]
-                        start_timestamp = df1[time_col].iloc[0]
-                        print("inserting ", insert_num_rows, "rows between ", start_timestamp, "and ", end_timestamp)
-                        # create a series of time_interval timestamps
-                        if time_interval == 5.0:
-                            freq = '5T'
-                        elif time_interval == 30.0:
-                            freq = '30T'
-                        else:
-                            print(time_interval, "is invalid")
-                        timestamp_series = pd.date_range(start=start_timestamp, end=end_timestamp, freq=freq)
-
-                        # create new dataframe with blank rows
-                        new_df = pd.DataFrame(np.zeros([insert_num_rows, df1.shape[1]]) * np.nan, columns=df1.columns)
-                        # populate timestamp with created timeseries
-                        new_df.loc[:, time_col] = pd.Series(timestamp_series)
-                        # concat the 3 df
-                        df = pd.concat([df1, new_df, df2], ignore_index=True)
-
+                if insert_flag.lower() in ['y', 'yes']:
+                    # insert missing timestamps
+                    print("inserting", missing_num_rows, "row(s) between", start_timestamp, "and", end_timestamp)
+                    # create a series of time_interval timestamps
+                    if time_interval == 5.0:
+                        freq = '5T'
+                    elif time_interval == 30.0:
+                        freq = '30T'
                     else:
-                        # insert flag is No.
+                        print(time_interval, "is invalid")
                         return df, 'N'
+
+                    timestamp_series = pd.date_range(start=start_timestamp, end=end_timestamp, freq=freq)
+
+                    # create new dataframe with blank rows
+                    new_df = pd.DataFrame(np.zeros([missing_num_rows, df1.shape[1]]) * np.nan, columns=df1.columns)
+                    # populate timestamp with created timeseries
+                    new_df.loc[:, time_col] = pd.Series(timestamp_series)
+                    # concat the 3 df
+                    df = pd.concat([df1, new_df, df2], ignore_index=True)
+
+                else:
+                    # insert flag is No.
+                    return df, 'N'
 
         return df, 'Y'
 
