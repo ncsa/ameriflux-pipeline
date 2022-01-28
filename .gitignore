@@ -71,6 +71,7 @@ original/
 *.xlsx
 *.metadata
 *.zip
+*.old
 
 # related to test file
 *test.py
@@ -79,6 +80,6 @@ original/
 # examples
 *examples
 
-# plFluxPro
+# pyfluxpro
 *L1.txt
 *L2.txt
