@@ -115,11 +115,23 @@ class Preprocessor:
 
         # step 7 in guide - calculation of shortwave radiation
         SW_unit = 'W/m^2'  # unit for shortwave radiation
-        df['SW_out_Avg'] = df['SWUp_Avg']
+        # NOTE 10
+        if 'SWUp_Avg' in df.columns:
+            shortwave_out = 'SWUp_Avg'
+        elif 'CM3Dn_Avg' in df.columns:
+            shortwave_out = 'CM3Dn_Avg'
+        df['SW_out_Avg'] = df[shortwave_out]
         df_meta['SW_out_Avg'] = SW_unit  # add shortwave radiation units
         if 'albedo_Avg' not in df.columns:
             # calculate albedo_avg from shortwave out and shortwave in
-            df['Albedo_Avg'] = df['SWUp_Avg'] / df['SWDn_Avg']
+            if 'SWDn_Avg' in df.columns:
+                shortwave_in = 'SWDn_Avg'
+            elif 'CM3Up_Avg' in df.columns:
+                shortwave_in = 'CM3Up_Avg'
+            # avoid zero division error
+            df['Albedo_Avg'] = df.apply(lambda x: float(x[shortwave_out]) / float(x[shortwave_in]) \
+                                        if float(x[shortwave_in]) != 0 else np.nan, axis=1)
+            df['Albedo_Avg'] = df['Albedo_Avg'].replace(np.nan, 0.0)
             df_meta['Albedo_Avg'] = SW_unit  # add shortwave radiation units
 
         # NOTE 2
@@ -149,12 +161,12 @@ class Preprocessor:
         file_df_meta = df.head(3)
         # the first row contains the meta data of file. second and third row contains met variables and their units
         file_df_meta.fillna('', inplace=True)  # fill NaNs with empty string for ease of replace
-        file_df_meta = file_df_meta.applymap(lambda x: x.replace('"', ''))  # strip off quotes from all values
+        file_df_meta = file_df_meta.applymap(lambda x: str(x).replace('"', ''))  # strip off quotes from all values
 
         # process df to get met data
         df = df.iloc[1:, :]  # drop the first row in df as it is the file meta data
         df.reset_index(drop=True, inplace=True)  # reset index after dropping rows
-        df = df.applymap(lambda x: x.replace('"', ''))
+        df = df.applymap(lambda x: str(x).replace('"', ''))
         df.columns = df.iloc[0]  # set column names
         df = df.iloc[3:, :]  # drop first and second row as it is the units and min and avg
         df.reset_index(drop=True, inplace=True)  # reset index after dropping rows
@@ -249,8 +261,8 @@ class Preprocessor:
 
         Args:
             df (obj): input precip dataframe
-            precip_lower (int) : Lower threshold value for precipitation in inches
-            precip_upper (int) : Upper threshold value for precipitation in inches
+            precip_lower (float) : Lower threshold value for precipitation in inches
+            precip_upper (float) : Upper threshold value for precipitation in inches
             missing_timeslot_threshold (int): Value for missing timeslot threshold. used for insert_missing_time method
             user_confirmation (str) : Option to either insert or ignore missing timestamps
         Returns:

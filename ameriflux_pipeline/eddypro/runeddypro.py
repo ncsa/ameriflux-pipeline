@@ -92,6 +92,7 @@ class RunEddypro():
                 None
         """
         # read the template file
+        print("to open ",file_name)
         temp_proj_file = open(file_name, mode='r', encoding='utf-8')
         lines = temp_proj_file.readlines()
         temp_proj_file.close()
@@ -178,6 +179,7 @@ class RunEddypro():
             Returns:
                 None
         """
+        print(outfile)
         try:
             with open(outfile, 'w') as f:
                 f.write('\n'.join(in_list))

@@ -32,4 +32,8 @@
 - If there are extra timestamps in precip data, ignore that.
 ### 9
 - If there is a large gap in timestamps in either met data or precip data, ask for user confirmation to insert the missing timestamps or ignore.
+### 10
+- Calculation of shortwave out and albedo is as follows :
+- SW_out_Avg = Shortwave In - Net Shortwave = CM3Dn_Avg = SWUp_Avg
+- Albedo_Avg = Shortwave Out / Shortwave In = CM3Dn_Avg / CM3Up_Avg = SWUp_Avg / SWDn_Avg = albedo_avg (already in dataset)
 
