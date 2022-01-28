@@ -64,7 +64,7 @@ class RunEddypro():
                 if not os.path.exists(tmp_dir):
                     os.makedirs(tmp_dir)
 
-                subprocess.run(["./eddypro_rp", "-s", "mac", "-e", out_path, proj_file_name], shell=False,
+                subprocess.run(["./eddypro_rp", "-s", "mac", "-e", work_dir, proj_file_name], shell=False,
                                cwd=eddypro_bin_loc)
             else:
                 raise Exception("The current platform is currently not being supported.")
