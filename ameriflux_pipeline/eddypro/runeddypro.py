@@ -55,8 +55,12 @@ class RunEddypro():
                 subprocess.run(["eddypro_rp.exe", "-s", "win", "-e", out_path, proj_file_name], shell=True,
                                cwd=eddypro_bin_loc)
             elif os_platform.lower() == "os x":
+                if out_path.endswith(os.path.sep):
+                    work_dir = os.path.dirname(os.path.dirname(out_path))
+                else:
+                    work_dir = os.path.dirname(out_path)
                 # when it is Mac OS, it must have tmp folder under output directory
-                tmp_dir = os.path.join(out_path, "tmp")
+                tmp_dir = os.path.join(work_dir, "tmp")
                 if not os.path.exists(tmp_dir):
                     os.makedirs(tmp_dir)
 
