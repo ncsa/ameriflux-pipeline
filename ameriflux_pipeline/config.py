@@ -39,9 +39,9 @@ class Config:
     # eddypro related parameters
     # bin folder location of eddypro_rp exec file
     EDDYPRO_BIN_LOC = os.getenv('EDDYPRO_BIN_LOC', '')  # '/Applications/eddypro.app/Contents/MacOS/bin'
+    # EDDYPRO_PROJ_FILE_TEMPLATE
     EDDYPRO_PROJ_FILE_TEMPLATE = os.getenv('EDDYPRO_PROJ_FILE_TEMPLATE',
-                                       '/Users/ameriflux-pipeline/ameriflux_pipeline/data/'
-                                       'eddypro/input/EddyPro_Run_SB_ForNCSA.eddypro')
+                                           '/Users/ameriflux-pipeline/ameriflux_pipeline/templates/template.eddypro')
     # EddyPro run template
     EDDYPRO_PROJ_FILE_NAME = os.getenv('EDDYPRO_PROJ_FILE_NAME',
                                        '/Users/ameriflux-pipeline/ameriflux_pipeline/data/'
