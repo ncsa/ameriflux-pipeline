@@ -63,11 +63,12 @@ def eddypro_preprocessing():
 
 
 def run_eddypro(eddypro_formatted_met_file):
-    RunEddypro.run_eddypro(eddypro_bin_loc=cfg.EDDYPRO_BIN_LOC, proj_file_name=cfg.EDDYPRO_PROJ_FILE_NAME,
-                           project_id=cfg.EDDYPRO_PROJ_ID, project_title=cfg.EDDYPRO_PROJ_TITLE,
-                           file_prototype=cfg.EDDYPRO_FILE_PROTOTYPE, proj_file=cfg.EDDYPRO_PROJ_FILE,
-                           dyn_metadata_file=cfg.EDDYPRO_DYN_METADATA, out_path=cfg.EDDYPRO_OUTPUT_PATH,
-                           data_path=cfg.EDDYPRO_INPUT_GHG_PATH, biom_file=eddypro_formatted_met_file)
+    RunEddypro.run_eddypro(eddypro_bin_loc=cfg.EDDYPRO_BIN_LOC, proj_file_template=cfg.EDDYPRO_PROJ_FILE_TEMPLATE,
+                           proj_file_name=cfg.EDDYPRO_PROJ_FILE_NAME, project_id=cfg.EDDYPRO_PROJ_ID,
+                           project_title=cfg.EDDYPRO_PROJ_TITLE, file_prototype=cfg.EDDYPRO_FILE_PROTOTYPE,
+                           proj_file=cfg.EDDYPRO_PROJ_FILE, dyn_metadata_file=cfg.EDDYPRO_DYN_METADATA,
+                           out_path=cfg.EDDYPRO_OUTPUT_PATH, data_path=cfg.EDDYPRO_INPUT_GHG_PATH,
+                           biom_file=eddypro_formatted_met_file)
 
 
 def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30_input, met_data_30_pyfluxpro):

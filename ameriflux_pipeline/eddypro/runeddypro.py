@@ -5,6 +5,7 @@
 # and is available at https://www.mozilla.org/en-US/MPL/2.0/
 import subprocess
 import os
+import sys
 import shutil
 
 
@@ -14,13 +15,14 @@ class RunEddypro():
     """
 
     @staticmethod
-    def run_eddypro(eddypro_bin_loc="", proj_file_name="", project_title="", project_id="", file_prototype="",
-                    proj_file="", dyn_metadata_file="", out_path="", data_path="", biom_file=""):
+    def run_eddypro(eddypro_bin_loc="", proj_file_template="", proj_file_name="", project_title="", project_id="",
+                    file_prototype="", proj_file="", dyn_metadata_file="", out_path="", data_path="", biom_file=""):
         """
             Run EddyPro headless using the given parameters
 
             Args:
                 eddypro_bin_loc (str): A path for the eddypro bin directory location
+                proj_file_template (str): A file path for eddypro project template file
                 proj_file_name (str): A file path for eddypro project filename
                 project_title (str): A title for the project
                 project_id (str): An ID for the project
@@ -33,59 +35,58 @@ class RunEddypro():
             Returns:
                 None
         """
-        # create out temp project file
-        proj_template = os.path.join(os.path.dirname(os.path.abspath(proj_file_name)), "templates.eddypro")
 
         # manipulate project file from the template project file
         tmp_proj_list = RunEddypro.create_tmp_proj_file(
-            file_name=proj_template, project_title=project_title, project_id=project_id, file_prototype=file_prototype,
-            proj_file=proj_file, dyn_metadata_file=dyn_metadata_file, out_path=out_path, data_path=data_path,
-            biom_file=biom_file, outfile=proj_file_name)
+            file_name=proj_file_template, project_title=project_title, project_id=project_id,
+            file_prototype=file_prototype, proj_file=proj_file, dyn_metadata_file=dyn_metadata_file,
+            out_path=out_path, data_path=data_path, biom_file=biom_file, outfile=proj_file_name)
 
         # clean up the eddypro output folder
         print("All the contents in the", out_path, "will be removed.")
         for filename in os.listdir(out_path):
-            file_path = os.path.join(out_path, filename)
-            try:
-                if os.path.isfile(file_path) or os.path.islink(file_path):
-                    os.unlink(file_path)
-                elif os.path.isdir(file_path):
-                    shutil.rmtree(file_path)
-            except Exception as e:
-                print('Failed to delete %s. Reason: %s' % (file_path, e))
+            if filename.lower() != "readme.md":
+                file_path = os.path.join(out_path, filename)
+                try:
+                    if os.path.isfile(file_path) or os.path.islink(file_path):
+                        os.unlink(file_path)
+                    elif os.path.isdir(file_path):
+                        shutil.rmtree(file_path)
+                except Exception as e:
+                    print('Failed to delete %s. Reason: %s' % (file_path, e))
 
         # save temporary project file
         RunEddypro.save_string_list_to_file(tmp_proj_list, proj_file_name)
         print("temporary project file created")
 
-        # copy eddypro bin folder content to working folder.
-        # This is to avoid possible unzip error of ghz file that eddypro_rp has
-        current_dir = os.getcwd()
-        bin_list = os.listdir(eddypro_bin_loc)
-
-        # copy eddypro bin files
-        for bin_file in bin_list:
-            src_file = os.path.join(eddypro_bin_loc, bin_file)
-            des_file = os.path.join(current_dir, bin_file)
-            try:
-                shutil.copyfile(src_file, des_file)  # does not copy empty directories
-            except Exception:
-                print(bin_file, "already exists in the working directory.")
-        print("copied temporary eddypro bin files")
+        os_platform = RunEddypro.get_platform()
 
         try:
-            subprocess.run(["eddypro_rp", proj_file_name], shell=True)
+            # if you don't want to print out eddypro process,
+            # use subprocess.check_output
+            if os_platform.lower() == "windows":
+                subprocess.run(["eddypro_rp.exe", "-s", "win", "-e", out_path, proj_file_name], shell=True,
+                               cwd=eddypro_bin_loc)
+            elif os_platform.lower() == "os x":
+                if out_path.endswith(os.path.sep):
+                    work_dir = os.path.dirname(os.path.dirname(out_path))
+                else:
+                    work_dir = os.path.dirname(out_path)
+                # when it is Mac OS, it must have tmp folder under output directory
+                tmp_dir = os.path.join(work_dir, "tmp")
+                if not os.path.exists(tmp_dir):
+                    os.makedirs(tmp_dir)
+
+                subprocess.run(["./eddypro_rp", "-s", "mac", "-e", work_dir, proj_file_name], shell=False,
+                               cwd=eddypro_bin_loc)
+            else:
+                raise Exception("The current platform is currently not being supported.")
         except Exception:
             raise Exception("Running EddyPro failed.")
 
         # remove temporary project file
-        print("removed temporary project file")
-        os.remove(proj_file_name)
-
-        # remove temporary bin file
-        for bin_file in bin_list:
-            os.remove(os.path.join(current_dir, bin_file))
-        print("removed temporary eddypro bin files")
+        #print("removed temporary project file")
+        #os.remove(proj_file_name)
 
     @staticmethod
     def create_tmp_proj_file(file_name, project_title,
@@ -112,6 +113,7 @@ class RunEddypro():
                 None
         """
         # read the template file
+        print("to open ",file_name)
         temp_proj_file = open(file_name, mode='r', encoding='utf-8')
         lines = temp_proj_file.readlines()
         temp_proj_file.close()
@@ -174,6 +176,19 @@ class RunEddypro():
 
         return out_proj_file_line_list
 
+    @staticmethod
+    def get_platform():
+        platforms = {
+            'linux1': 'Linux',
+            'linux2': 'Linux',
+            'darwin': 'OS X',
+            'win32': 'Windows'
+        }
+        if sys.platform not in platforms:
+            return sys.platform
+
+        return platforms[sys.platform]
+
     def save_string_list_to_file(in_list, outfile):
         """
             Save list with string to a file
@@ -185,10 +200,9 @@ class RunEddypro():
             Returns:
                 None
         """
+        print(outfile)
         try:
-            out_proj_file = open(outfile, "w")
-            for line in in_list:
-                out_proj_file.write(line + "\n")
-            out_proj_file.close()
+            with open(outfile, 'w') as f:
+                f.write('\n'.join(in_list))
         except Exception:
             raise Exception("Failed to create temporary project file")
