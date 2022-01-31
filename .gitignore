@@ -7,6 +7,9 @@ bin/
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
+# virtual environment
+venv
+
 # vim swap files
 *.swp
 
@@ -68,6 +71,7 @@ original/
 *.xlsx
 *.metadata
 *.zip
+*.old
 
 # related to test file
 *test.py
@@ -75,3 +79,7 @@ original/
 
 # examples
 *examples
+
+# pyfluxpro
+*L1.txt
+*L2.txt
