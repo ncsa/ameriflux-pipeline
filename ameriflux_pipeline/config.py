@@ -75,6 +75,9 @@ class Config:
     PYFLUXPRO_INPUT_SHEET = os.getenv('PYFLUXPRO_INPUT_SHEET',
                                       '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/'
                                       'input/pyfluxpro_input.xlsx')
+    PYFLUXPRO_INPUT_AMERIFLUX = os.getenv('PYFLUXPRO_INPUT_AMERIFLUX',
+                                      '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/'
+                                      'generated/pyfluxpro_input_ameriflux.xlsx')
 
     # QA/QC values
     # precipitation threshold values used in creating Eddypro master meteorology data

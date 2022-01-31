@@ -17,6 +17,7 @@ from master_met.preprocessor import Preprocessor
 from eddypro.eddyproformat import EddyProFormat
 from eddypro.runeddypro import RunEddypro
 from pyfluxpro.pyfluxproformat import PyFluxProFormat
+from pyfluxpro.pyfluxproformat import AmeriFluxFormat
 
 import pandas.io.formats.excel
 pandas.io.formats.excel.header_style = None
@@ -59,7 +60,7 @@ def eddypro_preprocessing():
     # write formatted df to output path
     data_util.write_data(df, eddypro_formatted_met_file)
 
-    return eddypro_formatted_met_file
+    return eddypro_formatted_met_file, file_meta_data_file
 
 
 def run_eddypro(eddypro_formatted_met_file):
@@ -118,11 +119,24 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
     writer.close()
     print("Master met and full output sheets saved in ", cfg.PYFLUXPRO_INPUT_SHEET)
 
+def pyfluxpro_ameriflux_processing(input_file, output_file):
+    """
+    Main function to run PlyFluxPro formatting for AmeriFlux. Calls other functions
+    Args:
+        input_file (str): PyFluxPro input excel sheet file path
+        output_file (str): Filename to write the PyFluxPro formatted for AmeriFlux
+    Returns : None
+    """
+    ameriflux_df = AmeriFluxFormat.data_formatting(input_file)
+    return ameriflux_df
+
+
+
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     # run eddypro preprocessing and formatting
-    eddypro_formatted_met_file = eddypro_preprocessing()
+    eddypro_formatted_met_file, file_meta_data_file = eddypro_preprocessing()
 
     # run eddypro
     run_eddypro(eddypro_formatted_met_file)
@@ -140,3 +154,10 @@ if __name__ == '__main__':
     # if eddypro full output file not present
     if not eddypro_full_outfile:
         print("EddyPro full output not present")
+
+    # run ameriflux formatting of pyfluxpro input
+    if os.path.exists(cfg.PYFLUXPRO_INPUT_SHEET):
+        pyfluxpro_input_ameriflux = pyfluxpro_ameriflux_processing(cfg.PYFLUXPRO_INPUT_SHEET ,
+                                                                  cfg.PYFLUXPRO_INPUT_AMERIFLUX)
+
+
