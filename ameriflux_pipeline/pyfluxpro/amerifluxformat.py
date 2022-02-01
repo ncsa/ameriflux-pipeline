@@ -104,7 +104,6 @@ class AmeriFluxFormat:
         if 'Tau' in full_output_df:
             full_output_df['Tau'] = full_output_df['Tau'].abs()
             full_output_df_meta['Tau'].iloc[0] = 'kg/m/s^2'
-            ### TODO : Question to Bethany -- kg+1m-1s-2 format?? m+1s-1 ??
         elif 'co2_sd' in full_output_df:
             full_output_df['CO2_SIGMA'] = math.sqrt(full_output_df['co2_sd'])
             full_output_df_meta['CO2_SIGMA'].iloc[0] = 'umol/mol'

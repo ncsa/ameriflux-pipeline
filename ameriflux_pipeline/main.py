@@ -17,7 +17,7 @@ from master_met.preprocessor import Preprocessor
 from eddypro.eddyproformat import EddyProFormat
 from eddypro.runeddypro import RunEddypro
 from pyfluxpro.pyfluxproformat import PyFluxProFormat
-from pyfluxpro.pyfluxproformat import AmeriFluxFormat
+#from pyfluxpro.pyfluxproformat import AmeriFluxFormat
 
 import pandas.io.formats.excel
 pandas.io.formats.excel.header_style = None
@@ -43,18 +43,18 @@ def eddypro_preprocessing():
     # TODO : this can be omitted.
     # The file meta data is passed as a df (file_meta) to eddyproformat. No need for writing to file.
     input_filename = os.path.basename(cfg.INPUT_MET)
-    input_directory_name = os.path.dirname(cfg.INPUT_MET)
+    directory_name = os.path.dirname(os.path.dirname(cfg.INPUT_MET))
     file_meta_data_filename = os.path.splitext(input_filename)[0] + '_file_meta.csv'
     # write file_df_meta to this path
-    file_meta_data_file = os.path.join(input_directory_name, file_meta_data_filename)
+    file_meta_data_file = os.path.join(directory_name, 'generated', file_meta_data_filename)
     data_util.write_data(file_meta, file_meta_data_file)  # write meta data of file to file. One row.
 
     # create file for master met formatted for eddypro
     # filename is selected to be master_met_eddypro
     output_filename = os.path.basename(cfg.MASTER_MET)
-    output_directory_name = os.path.dirname(cfg.MASTER_MET)
+    directory_name = os.path.dirname(os.path.dirname(cfg.MASTER_MET))
     eddypro_formatted_met_name = os.path.splitext(output_filename)[0] + '_eddypro.csv'
-    eddypro_formatted_met_file = os.path.join(output_directory_name, eddypro_formatted_met_name)
+    eddypro_formatted_met_file = os.path.join(directory_name, 'generated', eddypro_formatted_met_name)
     # start formatting data
     df = EddyProFormat.data_formatting(cfg.MASTER_MET, cfg.INPUT_SOIL_KEY, file_meta, eddypro_formatted_met_file)
     # write formatted df to output path
@@ -119,6 +119,7 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
     writer.close()
     print("Master met and full output sheets saved in ", cfg.PYFLUXPRO_INPUT_SHEET)
 
+'''
 def pyfluxpro_ameriflux_processing(input_file, output_file):
     """
     Main function to run PlyFluxPro formatting for AmeriFlux. Calls other functions
@@ -129,7 +130,7 @@ def pyfluxpro_ameriflux_processing(input_file, output_file):
     """
     ameriflux_df = AmeriFluxFormat.data_formatting(input_file)
     return ameriflux_df
-
+'''
 
 
 
@@ -154,10 +155,12 @@ if __name__ == '__main__':
     # if eddypro full output file not present
     if not eddypro_full_outfile:
         print("EddyPro full output not present")
-
+    ''''
     # run ameriflux formatting of pyfluxpro input
     if os.path.exists(cfg.PYFLUXPRO_INPUT_SHEET):
         pyfluxpro_input_ameriflux = pyfluxpro_ameriflux_processing(cfg.PYFLUXPRO_INPUT_SHEET ,
                                                                   cfg.PYFLUXPRO_INPUT_AMERIFLUX)
+    '''
+
 
 
