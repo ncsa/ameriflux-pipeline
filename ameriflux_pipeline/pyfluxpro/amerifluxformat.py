@@ -1,7 +1,10 @@
 import pandas as pd
 import numpy as np
+import os
 import math
 from datetime import timedelta
+
+from config import Config as cfg
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -23,20 +26,39 @@ class AmeriFluxFormat:
         Returns:
             obj: Pandas DataFrame object.
         """
-        full_output_df = pd.read_excel(input_file, sheet_name='full_output')
-        met_df = pd.read_excel(input_file, sheet_name='Met_data_30')
+        full_output_sheet_name = os.path.splitext(os.path.basename(cfg.FULL_OUTPUT_PYFLUXPRO))[0]
+        met_data_sheet_name = os.path.splitext(os.path.basename(cfg.MET_DATA_30_PYFLUXPRO))[0]
+        full_output_df = pd.read_excel(input_file, sheet_name=full_output_sheet_name)
+        met_df = pd.read_excel(input_file, sheet_name=met_data_sheet_name)
+
+        # get column names and its units
         full_output_df_meta = AmeriFluxFormat.get_meta_data(full_output_df)
         met_df_meta = AmeriFluxFormat.get_meta_data(met_df)
 
         # remove meta data from dataframe
         full_output_df = full_output_df.iloc[1:, :]
         met_df = met_df.iloc[1:, :]
+
         # Step 1 of guide
         full_output_df = AmeriFluxFormat.replace_empty(full_output_df)
         met_df = AmeriFluxFormat.replace_empty(met_df)
         # step 2 in guide
-        met_df = AmeriFluxFormat.timestamp_met_df(met_df)
+        met_df, met_df_meta = AmeriFluxFormat.timestamp_met_df(met_df, met_df_meta)
 
+        # step 3,4,5,6,7 in guide
+        full_output_df, full_output_df_meta, met_df, met_df_meta = AmeriFluxFormat.\
+            var_unit_changes(full_output_df, full_output_df_meta, met_df, met_df_meta)
+        # concat the meta df and df if number of columns is the same
+        if full_output_df_meta.shape[1] == full_output_df.shape[1]:
+            full_output_df = pd.concat([full_output_df_meta, full_output_df], ignore_index=True)
+        else:
+            print("Full_output meta and data file columns not matching")
+        if met_df_meta.shape[1] == met_df.shape[1]:
+            met_df = pd.concat([met_df_meta, met_df], ignore_index=True)
+        else:
+            print("Met_data_30 meta and data file columns not matching")
+        print(full_output_df.head())
+        print(met_df.head())
         return full_output_df, met_df
 
     @staticmethod
@@ -60,21 +82,42 @@ class AmeriFluxFormat:
         return df
 
     @staticmethod
-    def timestamp_met_df(df):
+    def timestamp_met_df(df, df_meta):
         """
         Function to format timestamp in met_data_30
 
         Args:
             df (object): Pandas DataFrame object
         Returns :
-            obj: Pandas DataFrame object
+            obj: Formatted Pandas DataFrame object
         """
         df['TIMESTAMP'] = pd.to_datetime(df['TIMESTAMP'])
         # shift each timestamp 30min behind and store in another column
-        # df['TIMESTAMP_START'] = df['TIMESTAMP']
-        # df['TIMESTAMP_END'] = df['TIMESTAMP'] + timedelta(minutes=30)
         df.insert(0, 'TIMESTAMP_START', df['TIMESTAMP'])
         df.insert(1, 'TIMESTAMP_END', df['TIMESTAMP'] + timedelta(minutes=30))
+        # convert to correct format. Not used currently
+        # df = AmeriFluxFormat.timestamp_format(df, ['TIMESTAMP', 'TIMESTAMP_START', 'TIMESTAMP_END'])
+        # add columns in meta data
+        df_meta.insert(0, 'TIMESTAMP_START', 'TS')
+        df_meta.insert(1, 'TIMESTAMP_END', 'TS')
+        return df, df_meta
+
+    # currently not used
+    @staticmethod
+    def timestamp_format(df, timestamp_cols):
+        """
+        Function to convert datetime to string and correct timestamp format
+
+        Args:
+            df (object): Pandas DataFrame object
+            timstamp_cols : List of timestamp column names to be formatted
+        Returns:
+            obj: Pandas DataFrame object
+        """
+        # convert datetime to string, replace - with /
+        for col in timestamp_cols:
+            df[col] = df[col].map(lambda t: t.strftime('%Y-%m-%d %H:%M')) \
+                                .map(lambda t: t.replace('-', '/'))
         return df
 
     @staticmethod
@@ -104,21 +147,6 @@ class AmeriFluxFormat:
         if 'Tau' in full_output_df:
             full_output_df['Tau'] = full_output_df['Tau'].abs()
             full_output_df_meta['Tau'].iloc[0] = 'kg/m/s^2'
-        elif 'co2_sd' in full_output_df:
-            full_output_df['CO2_SIGMA'] = math.sqrt(full_output_df['co2_sd'])
-            full_output_df_meta['CO2_SIGMA'].iloc[0] = 'umol/mol'
-        elif 'h2o_sd' in full_output_df:
-            full_output_df['H2O_SIGMA'] = math.sqrt(full_output_df['h2o_sd'])
-            full_output_df_meta['H2O_SIGMA'].iloc[0] = 'umol/mol'
-        elif 'u_sd' in full_output_df:
-            full_output_df['U_SIGMA'] = math.sqrt(full_output_df['u_sd'])
-            full_output_df_meta['U_SIGMA'].iloc[0] = 'm/s'
-        elif 'v_sd' in full_output_df:
-            full_output_df['V_SIGMA'] = math.sqrt(full_output_df['v_sd'])
-            full_output_df_meta['V_SIGMA'].iloc[0] = 'm/s'
-        elif 'w_sd' in full_output_df:
-            full_output_df['W_SIGMA'] = math.sqrt(full_output_df['w_sd'])
-            full_output_df_meta['W_SIGMA'].iloc[0] = 'm/s'
 
         # convert soil moisture variables into percentage values
         soil_moisture_col = [col for col in met_df if col.startswith('Moisture')]
@@ -127,6 +155,16 @@ class AmeriFluxFormat:
             met_df[col] = met_df[col] * 100
             met_df_meta[col].iloc[0] = '[%]'
 
+        # convert variances to std deviations in full_output
+        variance_vars = [col for col in full_output_df if col.endswith('_var')]
+        for col in variance_vars:
+            col_sd = col.split('_')[0] + '_sd'
+            full_output_df[col_sd] = np.sqrt(full_output_df[col].astype(float))
+            if full_output_df_meta[col].iloc[0] == '[m+2s-2]':
+                full_output_df_meta[col_sd] = '[m+1s-1]'
+            elif full_output_df_meta[col].iloc[0] == '[K+2]':
+                full_output_df_meta[col_sd] = '[K]'
+            else:
+                full_output_df_meta[col_sd] = ''
+
         return full_output_df, full_output_df_meta, met_df, met_df_meta
-
-

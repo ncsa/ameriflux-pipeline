@@ -17,10 +17,11 @@ from master_met.preprocessor import Preprocessor
 from eddypro.eddyproformat import EddyProFormat
 from eddypro.runeddypro import RunEddypro
 from pyfluxpro.pyfluxproformat import PyFluxProFormat
-#from pyfluxpro.pyfluxproformat import AmeriFluxFormat
+from pyfluxpro.amerifluxformat import AmeriFluxFormat
 
 import pandas.io.formats.excel
 pandas.io.formats.excel.header_style = None
+
 
 def eddypro_preprocessing():
     """
@@ -40,7 +41,7 @@ def eddypro_preprocessing():
     data_util.write_data(df, cfg.MASTER_MET)
 
     # Write file meta data to another file
-    # TODO : this can be omitted.
+    # this can be omitted.
     # The file meta data is passed as a df (file_meta) to eddyproformat. No need for writing to file.
     input_filename = os.path.basename(cfg.INPUT_MET)
     directory_name = os.path.dirname(os.path.dirname(cfg.INPUT_MET))
@@ -114,12 +115,11 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
         full_output_worksheet.write(0, idx, val)
     for idx, val in enumerate(met_data_col_list):
         met_data_worksheet.write(0, idx, val)
-        
     writer.save()
     writer.close()
     print("Master met and full output sheets saved in ", cfg.PYFLUXPRO_INPUT_SHEET)
 
-'''
+
 def pyfluxpro_ameriflux_processing(input_file, output_file):
     """
     Main function to run PlyFluxPro formatting for AmeriFlux. Calls other functions
@@ -128,10 +128,31 @@ def pyfluxpro_ameriflux_processing(input_file, output_file):
         output_file (str): Filename to write the PyFluxPro formatted for AmeriFlux
     Returns : None
     """
-    ameriflux_df = AmeriFluxFormat.data_formatting(input_file)
-    return ameriflux_df
-'''
+    ameriflux_full_output_df, ameriflux_met_df = AmeriFluxFormat.data_formatting(input_file)
+    ameriflux_full_output_df_col_list = ameriflux_full_output_df.columns
+    ameriflux_met_df_col_list = ameriflux_met_df.columns
 
+    # write df and met_data df to an excel spreadsheet in two separate tabs
+    full_output_sheet_name = os.path.splitext(os.path.basename(cfg.FULL_OUTPUT_PYFLUXPRO))[0]
+    met_data_sheet_name = os.path.splitext(os.path.basename(cfg.MET_DATA_30_PYFLUXPRO))[0]
+
+    writer = pd.ExcelWriter(output_file, engine='xlsxwriter',
+                            engine_kwargs={'options': {'strings_to_numbers': True}})
+
+    # remove header so as to remove built-in formatting of xlsxwriter
+    ameriflux_full_output_df.to_excel(writer, sheet_name=full_output_sheet_name, index=False, header=False, startrow=1)
+    ameriflux_met_df.to_excel(writer, sheet_name=met_data_sheet_name, index=False, header=False, startrow=1)
+
+    full_output_worksheet = writer.sheets[full_output_sheet_name]
+    met_data_worksheet = writer.sheets[met_data_sheet_name]
+    for idx, val in enumerate(ameriflux_full_output_df_col_list):
+        full_output_worksheet.write(0, idx, val)
+    for idx, val in enumerate(ameriflux_met_df_col_list):
+        met_data_worksheet.write(0, idx, val)
+
+    writer.save()
+    writer.close()
+    print("AmeriFlux PyFluxPro excel sheet saved in ", output_file)
 
 
 # Press the green button in the gutter to run the script.
@@ -155,12 +176,8 @@ if __name__ == '__main__':
     # if eddypro full output file not present
     if not eddypro_full_outfile:
         print("EddyPro full output not present")
-    ''''
+
     # run ameriflux formatting of pyfluxpro input
     if os.path.exists(cfg.PYFLUXPRO_INPUT_SHEET):
-        pyfluxpro_input_ameriflux = pyfluxpro_ameriflux_processing(cfg.PYFLUXPRO_INPUT_SHEET ,
-                                                                  cfg.PYFLUXPRO_INPUT_AMERIFLUX)
-    '''
-
-
-
+        pyfluxpro_input_ameriflux = pyfluxpro_ameriflux_processing(cfg.PYFLUXPRO_INPUT_SHEET,
+                                                                   cfg.PYFLUXPRO_INPUT_AMERIFLUX)
