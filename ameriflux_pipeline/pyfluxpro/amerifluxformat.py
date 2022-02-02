@@ -88,8 +88,10 @@ class AmeriFluxFormat:
 
         Args:
             df (object): Pandas DataFrame object
+            df_meta (object) : dataframe containng meta data info about df. Pandas DataFrame object
         Returns :
-            obj: Formatted Pandas DataFrame object
+            df (obj): Formatted Pandas DataFrame object
+            df_meta (obj): Formatted Pandas DataFrame object
         """
         df['TIMESTAMP'] = pd.to_datetime(df['TIMESTAMP'])
         # shift each timestamp 30min behind and store in another column
