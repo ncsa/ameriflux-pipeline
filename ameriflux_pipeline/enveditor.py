@@ -632,10 +632,10 @@ class EnvEditor():
         filepath = tk.StringVar()
         if filepath == "":
             filepath = filedialog.asksaveasfilename(initialdir=os.getcwd(),
-                                                  title="select a file", filetypes=[("eddypro files", "*.eddypro")])
+                                                    title="select a file", filetypes=[("eddypro files", "*.eddypro")])
         else:
             filepath = filedialog.asksaveasfilename(initialdir=filepath,
-                                                  title="select a file", filetypes=[("eddypro files", "*.eddypro")])
+                                                    title="select a file", filetypes=[("eddypro files", "*.eddypro")])
         self.path_eddypro_proj_file_name.config(text=filepath)
         self.EDDYPRO_PROJ_FILE_NAME = filepath
 

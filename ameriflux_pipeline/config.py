@@ -45,7 +45,7 @@ class Config:
     # EddyPro run template
     EDDYPRO_PROJ_FILE_NAME = os.getenv('EDDYPRO_PROJ_FILE_NAME',
                                        '/Users/ameriflux-pipeline/ameriflux_pipeline/data/'
-                                       'eddypro/templates/template.eddypro')
+                                       'eddypro/templates/ameriflux.eddypro')
     EDDYPRO_PROJ_TITLE = os.getenv('EDDYPRO_PROJ_TITLE', 'AmeriFlux_Pipeline')
     EDDYPRO_PROJ_ID = os.getenv('EDDYPRO_PROJ_ID', 'ameriflux_pipeline')
     EDDYPRO_FILE_PROTOTYPE = os.getenv('EDDYPRO_FILE_PROTOTYPE', 'yyyy-mm-ddTHHMM??_Sorghum-00137.ghg')
@@ -76,8 +76,8 @@ class Config:
                                       '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/'
                                       'generated/pyfluxpro_input.xlsx')
     PYFLUXPRO_INPUT_AMERIFLUX = os.getenv('PYFLUXPRO_INPUT_AMERIFLUX',
-                                      '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/'
-                                      'generated/pyfluxpro_input_ameriflux.xlsx')
+                                          '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/'
+                                          'generated/pyfluxpro_input_ameriflux.xlsx')
 
     # QA/QC values
     # precipitation threshold values used in creating Eddypro master meteorology data
