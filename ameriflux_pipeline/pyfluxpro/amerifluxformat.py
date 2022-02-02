@@ -110,7 +110,7 @@ class AmeriFluxFormat:
 
         Args:
             df (object): Pandas DataFrame object
-            timstamp_cols : List of timestamp column names to be formatted
+            timestamp_cols : List of timestamp column names to be formatted
         Returns:
             obj: Pandas DataFrame object
         """
