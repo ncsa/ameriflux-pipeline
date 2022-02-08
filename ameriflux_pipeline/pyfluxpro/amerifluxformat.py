@@ -1,10 +1,6 @@
 import pandas as pd
 import numpy as np
-import os
-import math
 from datetime import timedelta
-
-from config import Config as cfg
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -17,17 +13,18 @@ class AmeriFluxFormat:
 
     # main method which calls other functions
     @staticmethod
-    def data_formatting(input_file):
+    def data_formatting(input_file, full_output_sheet_name, met_data_sheet_name):
         """
         Constructor for the class
 
         Args:
             input_file (str): A file path for the input data. This is the PyFluxPro input excel sheet
+            full_output_sheet_name (str): full_output sheet name
+            met_data_sheet_name (str): Met_data_30 sheet name
         Returns:
             obj: Pandas DataFrame object.
         """
-        full_output_sheet_name = os.path.splitext(os.path.basename(cfg.FULL_OUTPUT_PYFLUXPRO))[0]
-        met_data_sheet_name = os.path.splitext(os.path.basename(cfg.MET_DATA_30_PYFLUXPRO))[0]
+
         full_output_df = pd.read_excel(input_file, sheet_name=full_output_sheet_name)
         met_df = pd.read_excel(input_file, sheet_name=met_data_sheet_name)
 
@@ -57,8 +54,7 @@ class AmeriFluxFormat:
             met_df = pd.concat([met_df_meta, met_df], ignore_index=True)
         else:
             print("Met_data_30 meta and data file columns not matching")
-        print(full_output_df.head())
-        print(met_df.head())
+
         return full_output_df, met_df
 
     @staticmethod

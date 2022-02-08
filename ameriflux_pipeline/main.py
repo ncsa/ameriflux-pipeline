@@ -128,14 +128,15 @@ def pyfluxpro_ameriflux_processing(input_file, output_file):
         output_file (str): Filename to write the PyFluxPro formatted for AmeriFlux
     Returns : None
     """
-    ameriflux_full_output_df, ameriflux_met_df = AmeriFluxFormat.data_formatting(input_file)
+    full_output_sheet_name = os.path.splitext(os.path.basename(cfg.FULL_OUTPUT_PYFLUXPRO))[0]
+    met_data_sheet_name = os.path.splitext(os.path.basename(cfg.MET_DATA_30_PYFLUXPRO))[0]
+
+    ameriflux_full_output_df, ameriflux_met_df = AmeriFluxFormat.data_formatting(input_file, full_output_sheet_name,
+                                                                                 met_data_sheet_name)
     ameriflux_full_output_df_col_list = ameriflux_full_output_df.columns
     ameriflux_met_df_col_list = ameriflux_met_df.columns
 
     # write df and met_data df to an excel spreadsheet in two separate tabs
-    full_output_sheet_name = os.path.splitext(os.path.basename(cfg.FULL_OUTPUT_PYFLUXPRO))[0]
-    met_data_sheet_name = os.path.splitext(os.path.basename(cfg.MET_DATA_30_PYFLUXPRO))[0]
-
     writer = pd.ExcelWriter(output_file, engine='xlsxwriter',
                             engine_kwargs={'options': {'strings_to_numbers': True}})
 
