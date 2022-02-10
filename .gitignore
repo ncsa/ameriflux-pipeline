@@ -72,6 +72,8 @@ original/
 *.metadata
 *.zip
 *.old
+*.nc
+*.env*
 
 # related to test file
 *test.py

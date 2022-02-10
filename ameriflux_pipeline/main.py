@@ -8,7 +8,6 @@ import os
 import shutil
 
 import pandas as pd
-import xlsxwriter
 
 from config import Config as cfg
 import utils.data_util as data_util
@@ -20,6 +19,7 @@ from pyfluxpro.pyfluxproformat import PyFluxProFormat
 
 import pandas.io.formats.excel
 pandas.io.formats.excel.header_style = None
+
 
 def eddypro_preprocessing():
     """
@@ -87,12 +87,20 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
     # This is step 3a in guide.
     # join met_data and full_output in excel sheet (manual step)
 
+    # need to do this step to make pyfluxpro can read the output without error
+    for n in range(1, full_output_df.shape[0]):
+        full_output_df['TIMESTAMP'][n] = pd.to_datetime(full_output_df['TIMESTAMP'][n])
+
     # write pyfluxpro formatted df to output path
     data_util.write_data(full_output_df, full_output_pyfluxpro)
     # copy and rename the met data file
     shutil.copyfile(met_data_30_input, met_data_30_pyfluxpro)
 
     met_data_df = pd.read_csv(met_data_30_input)
+    # need to do this step to make pyfluxpro can read the output without error
+    for n in range(1, met_data_df.shape[0]):
+        met_data_df['TIMESTAMP'][n] = pd.to_datetime(met_data_df['TIMESTAMP'][n])
+
     full_output_col_list = full_output_df.columns
     met_data_col_list = met_data_df.columns
 
@@ -101,6 +109,8 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
     met_data_sheet_name = os.path.splitext(os.path.basename(met_data_30_pyfluxpro))[0]
 
     writer = pd.ExcelWriter(cfg.PYFLUXPRO_INPUT_SHEET, engine='xlsxwriter',
+                            datetime_format='yyyy/mm/dd HH:MM',
+                            date_format='yyyy/mm/dd',
                             engine_kwargs={'options': {'strings_to_numbers': True}})
 
     # remove header so as to remove built-in formatting of xlsxwriter
@@ -109,11 +119,12 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
 
     full_output_worksheet = writer.sheets[full_output_sheet_name]
     met_data_worksheet = writer.sheets[met_data_sheet_name]
+
     for idx, val in enumerate(full_output_col_list):
         full_output_worksheet.write(0, idx, val)
     for idx, val in enumerate(met_data_col_list):
         met_data_worksheet.write(0, idx, val)
-        
+
     writer.save()
     writer.close()
     print("Master met and full output sheets saved in ", cfg.PYFLUXPRO_INPUT_SHEET)
@@ -121,11 +132,11 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    # run eddypro preprocessing and formatting
-    eddypro_formatted_met_file = eddypro_preprocessing()
-
-    # run eddypro
-    run_eddypro(eddypro_formatted_met_file)
+    # # run eddypro preprocessing and formatting
+    # eddypro_formatted_met_file = eddypro_preprocessing()
+    #
+    # # run eddypro
+    # run_eddypro(eddypro_formatted_met_file)
 
     # grab eddypro full output
     outfile_list = os.listdir(cfg.EDDYPRO_OUTPUT_PATH)
