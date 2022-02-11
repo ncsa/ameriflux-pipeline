@@ -87,22 +87,28 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
     full_output_df = PyFluxProFormat.data_formatting(eddypro_full_output)
     # met_data has data from row index 1. EddyPro full_output will be formatted to have data from row index 1 also.
     # This is step 3a in guide.
-    # join met_data and full_output in excel sheet (manual step)
 
+    # convert timestamp to datetime format so that pyfluxpro can read without error
+    full_output_df['TIMESTAMP'][1:] = pd.to_datetime(full_output_df['TIMESTAMP'][1:])
     # write pyfluxpro formatted df to output path
     data_util.write_data(full_output_df, full_output_pyfluxpro)
     # copy and rename the met data file
     shutil.copyfile(met_data_30_input, met_data_30_pyfluxpro)
 
-    met_data_df = pd.read_csv(met_data_30_input)
+    met_data_df = pd.read_csv(met_data_30_pyfluxpro)
+    # convert timestamp to datetime format so that pyfluxpro can read without error
+    met_data_df['TIMESTAMP'][1:] = pd.to_datetime(met_data_df['TIMESTAMP'][1:])
+
     full_output_col_list = full_output_df.columns
     met_data_col_list = met_data_df.columns
-
+    # join met_data and full_output in excel sheet
     # write df and met_data df to an excel spreadsheet in two separate tabs
     full_output_sheet_name = os.path.splitext(os.path.basename(full_output_pyfluxpro))[0]
     met_data_sheet_name = os.path.splitext(os.path.basename(met_data_30_pyfluxpro))[0]
 
     writer = pd.ExcelWriter(cfg.PYFLUXPRO_INPUT_SHEET, engine='xlsxwriter',
+                            datetime_format='yyyy/mm/dd HH:MM',
+                            date_format='yyyy/mm/dd',
                             engine_kwargs={'options': {'strings_to_numbers': True}})
 
     # remove header so as to remove built-in formatting of xlsxwriter
@@ -117,7 +123,7 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
         met_data_worksheet.write(0, idx, val)
     writer.save()
     writer.close()
-    print("Master met and full output sheets saved in ", cfg.PYFLUXPRO_INPUT_SHEET)
+    print("PyFluxPro input excel sheet saved in ", cfg.PYFLUXPRO_INPUT_SHEET)
 
 
 def pyfluxpro_ameriflux_processing(input_file, output_file):
@@ -137,8 +143,8 @@ def pyfluxpro_ameriflux_processing(input_file, output_file):
     ameriflux_met_df_col_list = ameriflux_met_df.columns
 
     # write df and met_data df to an excel spreadsheet in two separate tabs
-    writer = pd.ExcelWriter(output_file, engine='xlsxwriter',
-                            engine_kwargs={'options': {'strings_to_numbers': True}})
+    writer = pd.ExcelWriter(output_file, engine='xlsxwriter', datetime_format='yyyy/mm/dd HH:MM',
+                            date_format='yyyy/mm/dd', engine_kwargs={'options': {'strings_to_numbers': True}})
 
     # remove header so as to remove built-in formatting of xlsxwriter
     ameriflux_full_output_df.to_excel(writer, sheet_name=full_output_sheet_name, index=False, header=False, startrow=1)
@@ -180,5 +186,4 @@ if __name__ == '__main__':
 
     # run ameriflux formatting of pyfluxpro input
     if os.path.exists(cfg.PYFLUXPRO_INPUT_SHEET):
-        pyfluxpro_input_ameriflux = pyfluxpro_ameriflux_processing(cfg.PYFLUXPRO_INPUT_SHEET,
-                                                                   cfg.PYFLUXPRO_INPUT_AMERIFLUX)
+        pyfluxpro_ameriflux_processing(cfg.PYFLUXPRO_INPUT_SHEET, cfg.PYFLUXPRO_INPUT_AMERIFLUX)
