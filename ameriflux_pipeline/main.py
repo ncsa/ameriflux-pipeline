@@ -22,6 +22,7 @@ from pyfluxpro.amerifluxformat import AmeriFluxFormat
 import pandas.io.formats.excel
 pandas.io.formats.excel.header_style = None
 
+generated_dir = 'generated'
 
 def eddypro_preprocessing():
     """
@@ -47,7 +48,7 @@ def eddypro_preprocessing():
     directory_name = os.path.dirname(os.path.dirname(cfg.INPUT_MET))
     file_meta_data_filename = os.path.splitext(input_filename)[0] + '_file_meta.csv'
     # write file_df_meta to this path
-    file_meta_data_file = os.path.join(directory_name, 'generated', file_meta_data_filename)
+    file_meta_data_file = os.path.join(directory_name, generated_dir, file_meta_data_filename)
     data_util.write_data(file_meta, file_meta_data_file)  # write meta data of file to file. One row.
 
     # create file for master met formatted for eddypro
@@ -55,7 +56,7 @@ def eddypro_preprocessing():
     output_filename = os.path.basename(cfg.MASTER_MET)
     directory_name = os.path.dirname(os.path.dirname(cfg.MASTER_MET))
     eddypro_formatted_met_name = os.path.splitext(output_filename)[0] + '_eddypro.csv'
-    eddypro_formatted_met_file = os.path.join(directory_name, 'generated', eddypro_formatted_met_name)
+    eddypro_formatted_met_file = os.path.join(directory_name, generated_dir, eddypro_formatted_met_name)
     # start formatting data
     df = EddyProFormat.data_formatting(cfg.MASTER_MET, cfg.INPUT_SOIL_KEY, file_meta, eddypro_formatted_met_file)
     # write formatted df to output path
