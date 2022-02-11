@@ -24,7 +24,7 @@ class EnvEditor():
         self.LINE_EDDYPRO_FORMAT = 5
         self.LINE_EDDYPRO_RUN = 29
         self.LINE_PYFLUX_PRO = 74
-        self.LINE_SAVE_ENV = 90
+        self.LINE_SAVE_ENV = 93
 
         self.USER_CONFIRMATION_LABEL = " User confirmation"
         self.BROWSE_USER_CONFIRAMTION = " Missing Timestamp Confirmation"
@@ -135,6 +135,10 @@ class EnvEditor():
         self.DESC_PYFLUXPRO_INPUT_SHEET = " file for pyfluxpro input sheet combining full output and met data 30"
         self.INFO_PYFLUXPRO_INPUT_SHEET = "The excel file where you want the fully-processed PyFluxPro input file " \
                                           "to go."
+        self.BROWSE_PYFLUXPRO_INPUT_AMERIFLUX = " PyFluxPro Full Output with AmeriFluxFormating"
+        self.DESC_PYFLUXPRO_INPUT_AMERIFLUX = " output file for pyflux pro input excel file with AmerifFlux formatting"
+        self.INFO_PYFLUXPRO_INPUT_AMERIFLUX = "The excel file that has the identical content as PyFluxPro input " \
+                                              "excel file with different formtting for AmeriFlux site specific."
 
         self.SAVE_LABEL = "Save .env file"
         self.SAVE_ENV_FILE = "Save"
@@ -170,6 +174,7 @@ class EnvEditor():
         self.FULL_OUTPUT_PYFLUXPRO = os.getenv('FULL_OUTPUT_PYFLUXPRO')
         self.MET_DATA_30_PYFLUXPRO = os.getenv('MET_DATA_30_PYFLUXPRO')
         self.PYFLUXPRO_INPUT_SHEET = os.getenv('PYFLUXPRO_INPUT_SHEET')
+        self.PYFLUXPRO_INPUT_AMERIFLUX = os.getenv('PYFLUXPRO_INPUT_AMERIFLUX')
 
         self.run()
 
@@ -549,9 +554,27 @@ class EnvEditor():
             grid(sticky="w", row=i+13, column=0, columnspan=3)
         self.path_pyfluxpro_input_sheet = tk.Label(master=second_frame, text=self.PYFLUXPRO_INPUT_SHEET,
                                                    font=self.MAIN_FONT)
-        self.path_pyfluxpro_input_sheet.grid(sticky="w", row=i+13, column=0, columnspan=3)
+        self.path_pyfluxpro_input_sheet.grid(sticky="w", row=i+14, column=0, columnspan=3)
         label_separation = tk.Label(master=second_frame,
-                                    text=self.SEPARATION_LABEL_SUB).grid(sticky="w", row=i+14, column=0, columnspan=3)
+                                    text=self.SEPARATION_LABEL_SUB).grid(sticky="w", row=i+15, column=0, columnspan=3)
+
+        # create pyfluxpro input ameriflux"
+        label_pyfluxpro_input_ameriflux = tk.Label(master=second_frame, text=self.BROWSE_PYFLUXPRO_INPUT_AMERIFLUX,
+                                                   font=self.BOLD_FONT).grid(sticky="w", row=i+16, column=0)
+        info_pyfluxpro_input_ameriflux = tk.Button(second_frame, text=self.INFO_TITLE, font=self.MAIN_FONT,
+                                                   command=self.on_click_pyfluxpro_input_ameriflux). \
+            grid(sticky="w", row=i+16, column=1)
+        button_browse_pyfluxpro_input_ameriflux = \
+            tk.Button(master=second_frame, text="Browse", font=self.MAIN_FONT,
+                      command=self.browse_pyfluxpro_input_ameriflux).grid(sticky="w", row=i+16, column=2)
+        desc_pyfluxpro_input_ameriflux = tk.Label(second_frame, text=self.DESC_PYFLUXPRO_INPUT_AMERIFLUX,
+                                                  font=self.DESC_FONT).\
+            grid(sticky="w", row=i+17, column=0, columnspan=3)
+        self.path_pyfluxpro_input_ameriflux = tk.Label(master=second_frame, text=self.PYFLUXPRO_INPUT_AMERIFLUX,
+                                                       font=self.MAIN_FONT)
+        self.path_pyfluxpro_input_ameriflux.grid(sticky="w", row=i+18, column=0, columnspan=3)
+        label_separation = tk.Label(master=second_frame,
+                                    text=self.SEPARATION_LABEL_SUB).grid(sticky="w", row=i+19, column=0, columnspan=3)
 
         #############################################################
         # create save frame
@@ -710,6 +733,17 @@ class EnvEditor():
         self.path_pyfluxpro_input_sheet.config(text=filepath)
         self.PYFLUXPRO_INPUT_SHEET = filepath
 
+    def browse_pyfluxpro_input_ameriflux(self):
+        filepath = tk.StringVar()
+        if filepath == "":
+            filepath = filedialog.asksaveasfilename(
+                initialdir=os.getcwd(), title="select a file", filetypes=[("xlsx files", "*.xlsx")])
+        else:
+            filepath = filedialog.asksaveasfilename(
+                initialdir=filepath, title="select a file", filetypes=[("xlsx files", "*.xlsx")])
+        self.path_pyfluxpro_input_ameriflux.config(text=filepath)
+        self.PYFLUXPRO_INPUT_AMERIFLUX = filepath
+
     def save_env(self):
         user_conform_line = "USER_CONFIRMATION=" + self.combo_confirm.get()
 
@@ -736,6 +770,7 @@ class EnvEditor():
         pyfluxpro_full_output_line = "FULL_OUTPUT_PYFLUXPRO=" + self.FULL_OUTPUT_PYFLUXPRO
         pyfluxpro_met_data_line = "MET_DATA_30_PYFLUXPRO=" + self.MET_DATA_30_PYFLUXPRO
         pyfluxpro_input_sheet_line = "PYFLUXPRO_INPUT_SHEET=" + self.PYFLUXPRO_INPUT_SHEET
+        pyfluxpro_input_ameriflux_line = "PYFLUXPRO_INPUT_AMERIFLUX=" + self.PYFLUXPRO_INPUT_AMERIFLUX
 
         lines = [
             user_conform_line,
@@ -747,7 +782,8 @@ class EnvEditor():
             eddypro_proj_title_line, eddypro_proj_id_line, eddypro_file_prototype_line, eddypro_proj_file_line,
             eddypro_dyn_metadata_line, eddypro_output_path_line, eddypro_input_ghg_path_line,
             "",
-            pyfluxpro_title_line, pyfluxpro_full_output_line, pyfluxpro_met_data_line, pyfluxpro_input_sheet_line
+            pyfluxpro_title_line, pyfluxpro_full_output_line, pyfluxpro_met_data_line, pyfluxpro_input_sheet_line,
+            pyfluxpro_input_ameriflux_line
         ]
 
         outfile = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env')
@@ -821,6 +857,9 @@ class EnvEditor():
 
     def on_click_pyfluxpro_input_sheet(self):
         tk.messagebox.showinfo("Info", self.INFO_PYFLUXPRO_INPUT_SHEET)
+
+    def on_click_pyfluxpro_input_ameriflux(self):
+        tk.messagebox.showinfo("Info", self.INFO_PYFLUXPRO_INPUT_AMERIFLUX)
 
 
 if __name__ == '__main__':
