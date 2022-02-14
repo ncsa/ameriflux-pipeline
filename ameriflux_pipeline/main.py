@@ -8,7 +8,6 @@ import os
 import shutil
 
 import pandas as pd
-import xlsxwriter
 
 from config import Config as cfg
 import utils.data_util as data_util
@@ -92,6 +91,7 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
 
     # convert timestamp to datetime format so that pyfluxpro can read without error
     full_output_df['TIMESTAMP'][1:] = pd.to_datetime(full_output_df['TIMESTAMP'][1:])
+
     # write pyfluxpro formatted df to output path
     data_util.write_data(full_output_df, full_output_pyfluxpro)
     # copy and rename the met data file
@@ -119,10 +119,12 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
 
     full_output_worksheet = writer.sheets[full_output_sheet_name]
     met_data_worksheet = writer.sheets[met_data_sheet_name]
+
     for idx, val in enumerate(full_output_col_list):
         full_output_worksheet.write(0, idx, val)
     for idx, val in enumerate(met_data_col_list):
         met_data_worksheet.write(0, idx, val)
+
     writer.save()
     writer.close()
     print("PyFluxPro input excel sheet saved in ", cfg.PYFLUXPRO_INPUT_SHEET)
