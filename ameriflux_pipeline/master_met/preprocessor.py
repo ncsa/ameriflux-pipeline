@@ -131,6 +131,7 @@ class Preprocessor:
             # avoid zero division error
             df['Albedo_Avg'] = df.apply(lambda x: float(x[shortwave_out]) / float(x[shortwave_in])
                                         if float(x[shortwave_in]) != 0 else np.nan, axis=1)
+
             df['Albedo_Avg'] = df['Albedo_Avg'].replace(np.nan, 0.0)
             df_meta['Albedo_Avg'] = SW_unit  # add shortwave radiation units
 
