@@ -132,7 +132,7 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
 
 def pyfluxpro_ameriflux_processing(input_file, output_file):
     """
-    Main function to run PlyFluxPro formatting for AmeriFlux. Calls other functions
+    Main function to run PyFluxPro formatting for AmeriFlux. Calls other functions
     Args:
         input_file (str): PyFluxPro input excel sheet file path
         output_file (str): Filename to write the PyFluxPro formatted for AmeriFlux
