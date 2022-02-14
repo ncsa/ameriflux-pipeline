@@ -1,0 +1,2 @@
+- Location for EddyPro Project templates to perform EddyPro headless run
+- .eddypro files go here

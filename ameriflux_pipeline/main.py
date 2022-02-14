@@ -16,9 +16,12 @@ from master_met.preprocessor import Preprocessor
 from eddypro.eddyproformat import EddyProFormat
 from eddypro.runeddypro import RunEddypro
 from pyfluxpro.pyfluxproformat import PyFluxProFormat
+from pyfluxpro.amerifluxformat import AmeriFluxFormat
 
 import pandas.io.formats.excel
 pandas.io.formats.excel.header_style = None
+
+GENERATED_DIR = 'generated'
 
 
 def eddypro_preprocessing():
@@ -39,27 +42,27 @@ def eddypro_preprocessing():
     data_util.write_data(df, cfg.MASTER_MET)
 
     # Write file meta data to another file
-    # TODO : this can be omitted.
+    # this can be omitted.
     # The file meta data is passed as a df (file_meta) to eddyproformat. No need for writing to file.
     input_filename = os.path.basename(cfg.INPUT_MET)
-    input_directory_name = os.path.dirname(cfg.INPUT_MET)
+    directory_name = os.path.dirname(os.path.dirname(cfg.INPUT_MET))
     file_meta_data_filename = os.path.splitext(input_filename)[0] + '_file_meta.csv'
     # write file_df_meta to this path
-    file_meta_data_file = os.path.join(input_directory_name, file_meta_data_filename)
+    file_meta_data_file = os.path.join(directory_name, GENERATED_DIR, file_meta_data_filename)
     data_util.write_data(file_meta, file_meta_data_file)  # write meta data of file to file. One row.
 
     # create file for master met formatted for eddypro
     # filename is selected to be master_met_eddypro
     output_filename = os.path.basename(cfg.MASTER_MET)
-    output_directory_name = os.path.dirname(cfg.MASTER_MET)
+    directory_name = os.path.dirname(os.path.dirname(cfg.MASTER_MET))
     eddypro_formatted_met_name = os.path.splitext(output_filename)[0] + '_eddypro.csv'
-    eddypro_formatted_met_file = os.path.join(output_directory_name, eddypro_formatted_met_name)
+    eddypro_formatted_met_file = os.path.join(directory_name, GENERATED_DIR, eddypro_formatted_met_name)
     # start formatting data
     df = EddyProFormat.data_formatting(cfg.MASTER_MET, cfg.INPUT_SOIL_KEY, file_meta, eddypro_formatted_met_file)
     # write formatted df to output path
     data_util.write_data(df, eddypro_formatted_met_file)
 
-    return eddypro_formatted_met_file
+    return eddypro_formatted_met_file, file_meta_data_file
 
 
 def run_eddypro(eddypro_formatted_met_file):
@@ -85,25 +88,22 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
     full_output_df = PyFluxProFormat.data_formatting(eddypro_full_output)
     # met_data has data from row index 1. EddyPro full_output will be formatted to have data from row index 1 also.
     # This is step 3a in guide.
-    # join met_data and full_output in excel sheet (manual step)
 
-    # need to do this step to make pyfluxpro can read the output without error
-    for n in range(1, full_output_df.shape[0]):
-        full_output_df['TIMESTAMP'][n] = pd.to_datetime(full_output_df['TIMESTAMP'][n])
+    # convert timestamp to datetime format so that pyfluxpro can read without error
+    full_output_df['TIMESTAMP'][1:] = pd.to_datetime(full_output_df['TIMESTAMP'][1:])
 
     # write pyfluxpro formatted df to output path
     data_util.write_data(full_output_df, full_output_pyfluxpro)
     # copy and rename the met data file
     shutil.copyfile(met_data_30_input, met_data_30_pyfluxpro)
 
-    met_data_df = pd.read_csv(met_data_30_input)
-    # need to do this step to make pyfluxpro can read the output without error
-    for n in range(1, met_data_df.shape[0]):
-        met_data_df['TIMESTAMP'][n] = pd.to_datetime(met_data_df['TIMESTAMP'][n])
+    met_data_df = pd.read_csv(met_data_30_pyfluxpro)
+    # convert timestamp to datetime format so that pyfluxpro can read without error
+    met_data_df['TIMESTAMP'][1:] = pd.to_datetime(met_data_df['TIMESTAMP'][1:])
 
     full_output_col_list = full_output_df.columns
     met_data_col_list = met_data_df.columns
-
+    # join met_data and full_output in excel sheet
     # write df and met_data df to an excel spreadsheet in two separate tabs
     full_output_sheet_name = os.path.splitext(os.path.basename(full_output_pyfluxpro))[0]
     met_data_sheet_name = os.path.splitext(os.path.basename(met_data_30_pyfluxpro))[0]
@@ -127,13 +127,49 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
 
     writer.save()
     writer.close()
-    print("Master met and full output sheets saved in ", cfg.PYFLUXPRO_INPUT_SHEET)
+    print("PyFluxPro input excel sheet saved in ", cfg.PYFLUXPRO_INPUT_SHEET)
+
+
+def pyfluxpro_ameriflux_processing(input_file, output_file):
+    """
+    Main function to run PyFluxPro formatting for AmeriFlux. Calls other functions
+    Args:
+        input_file (str): PyFluxPro input excel sheet file path
+        output_file (str): Filename to write the PyFluxPro formatted for AmeriFlux
+    Returns : None
+    """
+    full_output_sheet_name = os.path.splitext(os.path.basename(cfg.FULL_OUTPUT_PYFLUXPRO))[0]
+    met_data_sheet_name = os.path.splitext(os.path.basename(cfg.MET_DATA_30_PYFLUXPRO))[0]
+
+    ameriflux_full_output_df, ameriflux_met_df = AmeriFluxFormat.data_formatting(input_file, full_output_sheet_name,
+                                                                                 met_data_sheet_name)
+    ameriflux_full_output_df_col_list = ameriflux_full_output_df.columns
+    ameriflux_met_df_col_list = ameriflux_met_df.columns
+
+    # write df and met_data df to an excel spreadsheet in two separate tabs
+    writer = pd.ExcelWriter(output_file, engine='xlsxwriter', datetime_format='yyyy/mm/dd HH:MM',
+                            date_format='yyyy/mm/dd', engine_kwargs={'options': {'strings_to_numbers': True}})
+
+    # remove header so as to remove built-in formatting of xlsxwriter
+    ameriflux_full_output_df.to_excel(writer, sheet_name=full_output_sheet_name, index=False, header=False, startrow=1)
+    ameriflux_met_df.to_excel(writer, sheet_name=met_data_sheet_name, index=False, header=False, startrow=1)
+
+    full_output_worksheet = writer.sheets[full_output_sheet_name]
+    met_data_worksheet = writer.sheets[met_data_sheet_name]
+    for idx, val in enumerate(ameriflux_full_output_df_col_list):
+        full_output_worksheet.write(0, idx, val)
+    for idx, val in enumerate(ameriflux_met_df_col_list):
+        met_data_worksheet.write(0, idx, val)
+
+    writer.save()
+    writer.close()
+    print("AmeriFlux PyFluxPro excel sheet saved in ", output_file)
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     # run eddypro preprocessing and formatting
-    eddypro_formatted_met_file = eddypro_preprocessing()
+    eddypro_formatted_met_file, file_meta_data_file = eddypro_preprocessing()
 
     # run eddypro
     run_eddypro(eddypro_formatted_met_file)
@@ -151,3 +187,7 @@ if __name__ == '__main__':
     # if eddypro full output file not present
     if not eddypro_full_outfile:
         print("EddyPro full output not present")
+
+    # run ameriflux formatting of pyfluxpro input
+    if os.path.exists(cfg.PYFLUXPRO_INPUT_SHEET):
+        pyfluxpro_ameriflux_processing(cfg.PYFLUXPRO_INPUT_SHEET, cfg.PYFLUXPRO_INPUT_AMERIFLUX)
