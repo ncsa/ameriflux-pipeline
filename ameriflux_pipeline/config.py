@@ -78,7 +78,13 @@ class Config:
     PYFLUXPRO_INPUT_AMERIFLUX = os.getenv('PYFLUXPRO_INPUT_AMERIFLUX',
                                           '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/'
                                           'generated/pyfluxpro_input_ameriflux.xlsx')
-
+    L1_INPUT = os.getenv('L1_INPUT',
+                         '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/input/L1.txt')
+    L1_AMERIFLUX = os.getenv('L1_AMERIFLUX',
+                             '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/generated/L1_ameriflux.txt')
+    L1_AMERIFLUX_MAINSTEM_KEY = os.getenv('L1_AMERIFLUX_MAINSTEM_KEY',
+                                          '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/'
+                                          'input/Ameriflux-Mainstem-Key.xlsx')
     # QA/QC values
     # precipitation threshold values used in creating Eddypro master meteorology data
     QC_PRECIP_LOWER = 0.0  # precipitation lower threshold value (inches)

@@ -17,6 +17,7 @@ from eddypro.eddyproformat import EddyProFormat
 from eddypro.runeddypro import RunEddypro
 from pyfluxpro.pyfluxproformat import PyFluxProFormat
 from pyfluxpro.amerifluxformat import AmeriFluxFormat
+from pyfluxpro.l1format import L1Format
 
 import pandas.io.formats.excel
 pandas.io.formats.excel.header_style = None
@@ -166,6 +167,23 @@ def pyfluxpro_ameriflux_processing(input_file, output_file):
     print("AmeriFlux PyFluxPro excel sheet saved in ", output_file)
 
 
+def pyfluxpro_l1_ameriflux_processing(pyfluxpro_input, l1_input, l1_output, ameriflux_mainstem_key, soils_key):
+    """
+    Main function to run PyFluxPro L1 control file formatting for AmeriFlux. Calls other functions
+    Args:
+        pyfluxpro_input (str): A file path for the PyFluxPro input excel sheet formatted for Ameriflux
+        l1_input (str): A file path for the input L1.txt. This is the PyFluxPro original L1 control file
+        l1_output (str): A file path for the output L1.txt.
+                        This is the PyFluxPro L1 control file formatted for AmeriFlux
+        ameriflux_mainstem_key (str): Variable name key used to match the original variable names to Ameriflux names
+                                        This is an excel file named Ameriflux-Mainstem-Key.xlsx
+        soils_key (str): A file path for input soil key sheet. This is used to match the original and
+                            AmeriFlux variable names
+    Returns: None
+    """
+    df = L1Format.data_formatting(pyfluxpro_input, l1_input, l1_output, ameriflux_mainstem_key, soils_key)
+
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     # run eddypro preprocessing and formatting
@@ -191,3 +209,8 @@ if __name__ == '__main__':
     # run ameriflux formatting of pyfluxpro input
     if os.path.exists(cfg.PYFLUXPRO_INPUT_SHEET):
         pyfluxpro_ameriflux_processing(cfg.PYFLUXPRO_INPUT_SHEET, cfg.PYFLUXPRO_INPUT_AMERIFLUX)
+
+    # run ameriflux formatting of pyfluxpro L1 control file
+    if os.path.exists(cfg.PYFLUXPRO_INPUT_AMERIFLUX) and os.path.exists(cfg.L1_INPUT):
+        pyfluxpro_l1_ameriflux_processing(cfg.PYFLUXPRO_INPUT_AMERIFLUX, cfg.L1_INPUT, cfg.L1_AMERIFLUX,
+                                          cfg.L1_AMERIFLUX_MAINSTEM_KEY, cfg.INPUT_SOIL_KEY)
