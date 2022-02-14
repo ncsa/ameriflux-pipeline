@@ -135,10 +135,10 @@ class EnvEditor():
         self.DESC_PYFLUXPRO_INPUT_SHEET = " file for pyfluxpro input sheet combining full output and met data 30"
         self.INFO_PYFLUXPRO_INPUT_SHEET = "The excel file where you want the fully-processed PyFluxPro input file " \
                                           "to go."
-        self.BROWSE_PYFLUXPRO_INPUT_AMERIFLUX = " PyFluxPro Full Output with AmeriFluxFormating"
-        self.DESC_PYFLUXPRO_INPUT_AMERIFLUX = " output file for pyflux pro input excel file with AmerifFlux formatting"
+        self.BROWSE_PYFLUXPRO_INPUT_AMERIFLUX = " PyFluxPro Full Output with AmeriFlux Formatting"
+        self.DESC_PYFLUXPRO_INPUT_AMERIFLUX = " output file for pyflux pro input excel file with AmeriFlux formatting"
         self.INFO_PYFLUXPRO_INPUT_AMERIFLUX = "The excel file that has the identical content as PyFluxPro input " \
-                                              "excel file with different formtting for AmeriFlux site specific."
+                                              "excel file with variable naming convention accepted by AmeriFlux."
 
         self.SAVE_LABEL = "Save .env file"
         self.SAVE_ENV_FILE = "Save"
