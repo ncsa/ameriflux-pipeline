@@ -24,6 +24,7 @@ pandas.io.formats.excel.header_style = None
 
 GENERATED_DIR = 'generated'
 
+
 def eddypro_preprocessing():
     """
     Main function to run EddyPro processing. Calls other functions
