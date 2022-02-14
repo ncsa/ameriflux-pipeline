@@ -85,6 +85,7 @@ class Config:
     L1_AMERIFLUX_MAINSTEM_KEY = os.getenv('L1_AMERIFLUX_MAINSTEM_KEY',
                                           '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/'
                                           'input/Ameriflux-Mainstem-Key.xlsx')
+
     # QA/QC values
     # precipitation threshold values used in creating Eddypro master meteorology data
     QC_PRECIP_LOWER = 0.0  # precipitation lower threshold value (inches)
