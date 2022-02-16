@@ -167,20 +167,20 @@ def pyfluxpro_ameriflux_processing(input_file, output_file):
     print("AmeriFlux PyFluxPro excel sheet saved in ", output_file)
 
 
-def pyfluxpro_l1_ameriflux_processing(pyfluxpro_input, l1_input, l1_output, ameriflux_mainstem_key):
+def pyfluxpro_l1_ameriflux_processing(pyfluxpro_input, l1_input, l1_ameriflux, l1_output, ameriflux_mainstem_key):
     """
     Main function to run PyFluxPro L1 control file formatting for AmeriFlux. Calls other functions
     Args:
         pyfluxpro_input (str): A file path for the PyFluxPro input excel sheet formatted for Ameriflux
         l1_input (str): A file path for the input L1.txt. This is the PyFluxPro original L1 control file
-        l1_output (str): A file path for the output L1.txt.
-                        This is the PyFluxPro L1 control file formatted for AmeriFlux
+        l1_ameriflux (str): A file path for the L1.txt formatted for AmeriFlux
+        l1_output (str): A file path for the output of L1 run. This typically has .nc extension
         ameriflux_mainstem_key (str): Variable name key used to match the original variable names to Ameriflux names
                                         This is an excel file named Ameriflux-Mainstem-Key.xlsx
     Returns: None
     """
-    L1Format.data_formatting(pyfluxpro_input, l1_input, l1_output, ameriflux_mainstem_key)
-    print("AmeriFlux L1 saved in ", l1_output)
+    L1Format.data_formatting(pyfluxpro_input, l1_input, l1_ameriflux, l1_output, ameriflux_mainstem_key)
+    print("AmeriFlux L1 saved in ", l1_ameriflux)
 
 
 # Press the green button in the gutter to run the script.
@@ -211,5 +211,5 @@ if __name__ == '__main__':
 
     # run ameriflux formatting of pyfluxpro L1 control file
     if os.path.exists(cfg.PYFLUXPRO_INPUT_AMERIFLUX) and os.path.exists(cfg.L1_INPUT):
-        pyfluxpro_l1_ameriflux_processing(cfg.PYFLUXPRO_INPUT_AMERIFLUX, cfg.L1_INPUT, cfg.L1_AMERIFLUX,
+        pyfluxpro_l1_ameriflux_processing(cfg.PYFLUXPRO_INPUT_AMERIFLUX, cfg.L1_INPUT, cfg.L1_AMERIFLUX, cfg.L1_OUTPUT,
                                           cfg.L1_AMERIFLUX_MAINSTEM_KEY)

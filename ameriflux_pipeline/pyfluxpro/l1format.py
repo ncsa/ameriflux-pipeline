@@ -15,7 +15,7 @@ class L1Format:
 
     # main method which calls other functions
     @staticmethod
-    def data_formatting(pyfluxpro_input, l1_input, l1_output, ameriflux_mainstem_key,
+    def data_formatting(pyfluxpro_input, l1_input, l1_output, outfile, ameriflux_mainstem_key,
                         spaces=SPACES, level_line=LEVEL_LINE):
         """
         Main method for the class.
@@ -23,8 +23,8 @@ class L1Format:
         Args:
             pyfluxpro_input (str): A file path for the PyFluxPro input excel sheet formatted for Ameriflux
             l1_input (str): A file path for the input L1.txt. This is the PyFluxPro original L1 control file
-            l1_output (str): A file path for the output L1.txt.
-                            This is the PyFluxPro L1 control file formatted for AmeriFlux
+            l1_output (str): A file path for the output L1.txt formatted for AmeriFlux
+            outfile (str): A file path for the output of L1 run. This typically has .nc extension
             ameriflux_mainstem_key (str): Variable name key used to match the original variable names to Ameriflux names
                                             This is an excel file named Ameriflux-Mainstem-Key.xlsx
             spaces (str): Spaces to be inserted before each section and line
@@ -46,7 +46,7 @@ class L1Format:
         files_lines.append("[Files]")
         filename = os.path.basename(pyfluxpro_input)
         file_path = os.path.dirname(pyfluxpro_input)
-        out_filename = os.path.basename(l1_output)
+        out_filename = os.path.basename(outfile)
 
         file_path_line = spaces + "file_path = " + file_path
         files_lines.append(file_path_line)
