@@ -1,8 +1,4 @@
 import pandas as pd
-import numpy as np
-from datetime import datetime, timedelta
-import time
-import re
 import os
 
 import warnings
@@ -159,21 +155,22 @@ class L1Format:
 
             if name_row.shape[0] > 0:
                 # if name row exists, check if var name should be changed for Ameriflux
-                var_name_index = name_row.index[0]
+                var_name_index = var.index[0]
                 var_org_name = name_row['Text'].iloc[0].split('=')[1].strip()
                 if ameriflux_key['Input sheet variable name'].str.contains(var_org_name).any():
                     var_ameriflux_name = ameriflux_key.loc[ameriflux_key['Input sheet variable name'] == var_org_name,
                                                            'Ameriflux variable name'].iloc[0]
-                    var['Text'].iloc[var_name_index] = "name = " + var_ameriflux_name
+                    var['Text'].iloc[var.index == var_name_index] = "[[" + var_ameriflux_name + "]]"
 
                     if units_row.shape[0] > 0:
                         var_units_index = units_row.index[0]
                         var_ameriflux_units = \
                             ameriflux_key.loc[ameriflux_key['Input sheet variable name'] == var_org_name,
                                               'Units after formatting'].iloc[0]
-                        if len(var_ameriflux_units) > 0:
-                            # replace units only if it needs to be changed
-                            var['Text'].iloc[var_units_index] = "units = " + var_ameriflux_units
+                        if pd.isnull(var_ameriflux_units) == False:
+                            # if unit needs to be changed, if its not NaN in the ameriflux-mainstem sheet
+                            # replace units only if it is not empty
+                            var['Text'].iloc[var.index == var_units_index] = "units = " + var_ameriflux_units
                 # update the original dataframe with modified variable name and unit
                 df.update(var)
 
