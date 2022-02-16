@@ -167,7 +167,7 @@ def pyfluxpro_ameriflux_processing(input_file, output_file):
     print("AmeriFlux PyFluxPro excel sheet saved in ", output_file)
 
 
-def pyfluxpro_l1_ameriflux_processing(pyfluxpro_input, l1_input, l1_output, ameriflux_mainstem_key, soils_key):
+def pyfluxpro_l1_ameriflux_processing(pyfluxpro_input, l1_input, l1_output, ameriflux_mainstem_key):
     """
     Main function to run PyFluxPro L1 control file formatting for AmeriFlux. Calls other functions
     Args:
@@ -177,11 +177,10 @@ def pyfluxpro_l1_ameriflux_processing(pyfluxpro_input, l1_input, l1_output, amer
                         This is the PyFluxPro L1 control file formatted for AmeriFlux
         ameriflux_mainstem_key (str): Variable name key used to match the original variable names to Ameriflux names
                                         This is an excel file named Ameriflux-Mainstem-Key.xlsx
-        soils_key (str): A file path for input soil key sheet. This is used to match the original and
-                            AmeriFlux variable names
     Returns: None
     """
-    df = L1Format.data_formatting(pyfluxpro_input, l1_input, l1_output, ameriflux_mainstem_key, soils_key)
+    L1Format.data_formatting(pyfluxpro_input, l1_input, l1_output, ameriflux_mainstem_key)
+    print("AmeriFlux L1 saved in ", l1_output)
 
 
 # Press the green button in the gutter to run the script.
@@ -213,4 +212,4 @@ if __name__ == '__main__':
     # run ameriflux formatting of pyfluxpro L1 control file
     if os.path.exists(cfg.PYFLUXPRO_INPUT_AMERIFLUX) and os.path.exists(cfg.L1_INPUT):
         pyfluxpro_l1_ameriflux_processing(cfg.PYFLUXPRO_INPUT_AMERIFLUX, cfg.L1_INPUT, cfg.L1_AMERIFLUX,
-                                          cfg.L1_AMERIFLUX_MAINSTEM_KEY, cfg.INPUT_SOIL_KEY)
+                                          cfg.L1_AMERIFLUX_MAINSTEM_KEY)

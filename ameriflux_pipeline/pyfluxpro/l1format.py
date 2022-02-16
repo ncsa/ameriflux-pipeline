@@ -4,6 +4,7 @@ import os
 import warnings
 warnings.filterwarnings("ignore")
 
+
 class L1Format:
     """
     Class to implement formatting of PyFluxPro L1 control file as per AmeriFlux standards
@@ -14,7 +15,7 @@ class L1Format:
 
     # main method which calls other functions
     @staticmethod
-    def data_formatting(pyfluxpro_input, l1_input, l1_output, ameriflux_mainstem_key, soils_key,
+    def data_formatting(pyfluxpro_input, l1_input, l1_output, ameriflux_mainstem_key,
                         spaces=SPACES, level_line=LEVEL_LINE):
         """
         Main method for the class.
@@ -26,8 +27,6 @@ class L1Format:
                             This is the PyFluxPro L1 control file formatted for AmeriFlux
             ameriflux_mainstem_key (str): Variable name key used to match the original variable names to Ameriflux names
                                             This is an excel file named Ameriflux-Mainstem-Key.xlsx
-            soils_key (str): A file path for input soil key sheet. This is used to match the original and
-                                AmeriFlux variable names
             spaces (str): Spaces to be inserted before each section and line
             level_line (str): Line specifying the level. L1 for this section.
         Returns:
@@ -35,8 +34,6 @@ class L1Format:
         """
         # open input file in read mode
         l1 = open(l1_input, 'r')
-        # open output file in write mode
-        l1_output = open(l1_output, 'w+')
         l1_output_lines = []  # comma separated list of lines to be written
         # read lines from l1_input
         l1_lines = l1.readlines()
@@ -69,15 +66,26 @@ class L1Format:
         # write global section lines to l1 output
         l1_output_lines.extend(global_lines)
 
+        # write variable line
+        variable_line = ["[Variables]"]
+        l1_output_lines.extend(variable_line)
+
         # write the variables section to dataframe. this is used to get the indexes easily
         df = pd.DataFrame(l1_lines[variable_ind + 1:], columns=['Text'])
         df['Text'] = df['Text'].apply(lambda x: x.strip())  # remove newline and extra spaces from each line
         variables, var_start_end = L1Format.get_variables(df)
 
         ameriflux_key = pd.read_excel(ameriflux_mainstem_key)  # read AmeriFlux-Mainstem variable name matching file
-        df = L1Format.format_variables(df, var_start_end, ameriflux_key)
+        df = L1Format.format_variables(df, var_start_end, ameriflux_key, spaces)
+        variable_lines = df['Text'].tolist()
+        # write variables section lines to l1 output
+        l1_output_lines.extend(variable_lines)
 
+        # write output lines to file
+        L1Format.save_string_list_to_file(l1_output_lines, l1_output)
 
+        # close files
+        l1.close()
 
     @staticmethod
     def get_global_lines(lines, spaces):
@@ -104,7 +112,6 @@ class L1Format:
                     return global_lines, ind
                 global_lines.append(spaces + line.strip())
 
-
     @staticmethod
     def get_variables(df):
         """
@@ -125,9 +132,8 @@ class L1Format:
             var_start_end.append((start_ind, end_ind))
         return variables, var_start_end
 
-
     @staticmethod
-    def format_variables(df, var_start_end, ameriflux_key):
+    def format_variables(df, var_start_end, ameriflux_key, spaces):
         """
             Change variable names and units to AmeriFlux standard
 
@@ -135,23 +141,41 @@ class L1Format:
                 df (obj): Pandas dataframe with all variable lines from L1.txt
                 var_start_end (list): List of tuple, the starting and ending index for each variable
                 ameriflux_key (obj): Pandas dataframe of AmeriFlux-Mainstem varible name sheet
+                spaces (str): Spaces to be inserted before each section and line
             Returns:
                 df (obj) : Pandas dataframe variable formatted for AmeriFlux
         """
+        # define spaces for formatting in L1
+        var_spaces = spaces
+        attr_spaces = spaces + spaces
+        xl_spaces = spaces + spaces
+        other_spaces = spaces + spaces + spaces
+
+        # iterate over the variables
         for start, end in var_start_end:
             # get each variable in a separate df
             var = df[start:end]
+            # format text as per L1
+            var['Text'].iloc[0] = var_spaces + var['Text'].iloc[0]
+
             # get the [[[xl]]] section
             xl_pattern = "^\[\[\[xl\]\]\]$"
             xl = var[var['Text'].str.contains(xl_pattern)]
             xl_df = df[xl.index[0]:end]
+            # format text as per L1
+            xl_df['Text'].iloc[0] = xl_spaces + xl_df['Text'].iloc[0]
+            xl_df['Text'].iloc[1:] = other_spaces + xl_df['Text'].iloc[1:]
+
             # get the [[[Attr]]] OR [[[attr]]] section
             attr_pattern = "^\[\[\[Attr\]\]\]$|^\[\[\[attr\]\]\]$"
             attr = var[var['Text'].str.contains(attr_pattern)]
             attr_df = df[attr.index[0]:xl.index[0]]
+            # format text as per L1
+            attr_df['Text'].iloc[0] = attr_spaces + attr_df['Text'].iloc[0]
+            attr_df['Text'].iloc[1:] = other_spaces + attr_df['Text'].iloc[1:]
 
-            name_row = xl_df[xl_df['Text'].apply(lambda x: x.startswith("name"))]
-            units_row = attr_df[attr_df['Text'].apply(lambda x: x.startswith("units"))]
+            name_row = xl_df[xl_df['Text'].apply(lambda x: x.strip().startswith("name"))]
+            units_row = attr_df[attr_df['Text'].apply(lambda x: x.strip().startswith("units"))]
 
             if name_row.shape[0] > 0:
                 # if name row exists, check if var name should be changed for Ameriflux
@@ -160,22 +184,32 @@ class L1Format:
                 if ameriflux_key['Input sheet variable name'].str.contains(var_org_name).any():
                     var_ameriflux_name = ameriflux_key.loc[ameriflux_key['Input sheet variable name'] == var_org_name,
                                                            'Ameriflux variable name'].iloc[0]
-                    var['Text'].iloc[var.index == var_name_index] = "[[" + var_ameriflux_name + "]]"
+                    var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_ameriflux_name + "]]"
 
                     if units_row.shape[0] > 0:
                         var_units_index = units_row.index[0]
                         var_ameriflux_units = \
                             ameriflux_key.loc[ameriflux_key['Input sheet variable name'] == var_org_name,
                                               'Units after formatting'].iloc[0]
-                        if pd.isnull(var_ameriflux_units) == False:
+                        if not pd.isnull(var_ameriflux_units):
                             # if unit needs to be changed, if its not NaN in the ameriflux-mainstem sheet
                             # replace units only if it is not empty
-                            var['Text'].iloc[var.index == var_units_index] = "units = " + var_ameriflux_units
+                            var['Text'].iloc[var.index == var_units_index] = other_spaces + \
+                                                                             "units = " + var_ameriflux_units
+
+                # check if variable is soil temp or soil moisture
+                elif (var_org_name.startswith(("Moisture", "SoilTemp", "VWC", "TC")) and
+                      var_org_name.endswith("_Avg")):
+                    # names are already changed to pyfluxpro names by eddyproformat.get_soil_keys() method
+                    # change the unit to percentage
+                    if units_row.shape[0] > 0:
+                        var_units_index = units_row.index[0]
+                        var['Text'].iloc[var.index == var_units_index] = other_spaces + "units = " + '%'
+
                 # update the original dataframe with modified variable name and unit
                 df.update(var)
-
+        # return formatted df
         return df
-
 
     @staticmethod
     def save_string_list_to_file(in_list, outfile):
@@ -183,7 +217,7 @@ class L1Format:
             Save list with string to a file
 
             Args:
-                in_list (list): List of the strings that are the eddypro project file elements
+                in_list (list): List of the strings
                 outfile (str): A file path of the output file
 
             Returns:
@@ -193,4 +227,4 @@ class L1Format:
             with open(outfile, 'w') as f:
                 f.write('\n'.join(in_list))
         except Exception:
-            raise Exception("Failed to create temporary project file")
+            raise Exception("Failed to create file ", outfile)

@@ -85,6 +85,8 @@ class Config:
     L1_AMERIFLUX_MAINSTEM_KEY = os.getenv('L1_AMERIFLUX_MAINSTEM_KEY',
                                           '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/'
                                           'input/Ameriflux-Mainstem-Key.xlsx')
+    L1_OUTPUT = os.getenv('L1_OUTPUT',
+                          '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/generated/Sorghum_2021_L1.nc')
 
     # QA/QC values
     # precipitation threshold values used in creating Eddypro master meteorology data
