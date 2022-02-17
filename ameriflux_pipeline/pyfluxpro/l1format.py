@@ -106,6 +106,7 @@ class L1Format:
             if line.strip() == "[Global]":
                 global_lines.append(line.strip())
                 global_start_writing = True
+                continue
             if global_start_writing:
                 if line.strip() == "[Variables]":
                     global_start_writing = False
@@ -198,8 +199,7 @@ class L1Format:
                                                                              "units = " + var_ameriflux_units
 
                 # check if variable is soil temp or soil moisture
-                elif (var_org_name.startswith(("Moisture", "SoilTemp", "VWC", "TC")) and
-                      var_org_name.endswith("_Avg")):
+                elif var_org_name.startswith(("Moisture", "VWC")) and var_org_name.endswith("_Avg"):
                     # names are already changed to pyfluxpro names by eddyproformat.get_soil_keys() method
                     # change the unit to percentage
                     if units_row.shape[0] > 0:
