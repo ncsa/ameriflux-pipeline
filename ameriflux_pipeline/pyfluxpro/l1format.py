@@ -198,7 +198,7 @@ class L1Format:
                             var['Text'].iloc[var.index == var_units_index] = other_spaces + \
                                                                              "units = " + var_ameriflux_units
 
-                # check if variable is soil temp or soil moisture
+                # check if variable is soil moisture
                 elif var_org_name.startswith(("Moisture", "VWC")) and var_org_name.endswith("_Avg"):
                     # names are already changed to pyfluxpro names by eddyproformat.get_soil_keys() method
                     # change the unit to percentage
