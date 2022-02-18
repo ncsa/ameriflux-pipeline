@@ -208,8 +208,12 @@ if __name__ == '__main__':
     # run ameriflux formatting of pyfluxpro input
     if os.path.exists(cfg.PYFLUXPRO_INPUT_SHEET):
         pyfluxpro_ameriflux_processing(cfg.PYFLUXPRO_INPUT_SHEET, cfg.PYFLUXPRO_INPUT_AMERIFLUX)
+    else:
+        print(cfg.PYFLUXPRO_INPUT_SHEET, "path does not exist")
 
     # run ameriflux formatting of pyfluxpro L1 control file
     if os.path.exists(cfg.PYFLUXPRO_INPUT_AMERIFLUX) and os.path.exists(cfg.L1_INPUT):
         pyfluxpro_l1_ameriflux_processing(cfg.PYFLUXPRO_INPUT_AMERIFLUX, cfg.L1_INPUT, cfg.L1_AMERIFLUX, cfg.L1_OUTPUT,
                                           cfg.L1_AMERIFLUX_MAINSTEM_KEY)
+    else:
+        print("Please check if", cfg.PYFLUXPRO_INPUT_AMERIFLUX, "and", cfg.L1_INPUT, "file exists")
