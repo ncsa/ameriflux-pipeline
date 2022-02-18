@@ -1,9 +1,6 @@
 import pandas as pd
 import os
 
-import warnings
-warnings.filterwarnings("ignore")
-
 
 class L1Format:
     """
@@ -124,7 +121,7 @@ class L1Format:
                 variables (obj) : Pandas dataframe. This is a subset of the input dataframe with only variable names
                 var_start_end (list): List of tuple, the starting and ending index for each variable
         """
-        var_pattern = "^\[\[[a-zA-Z0-9_]+\]\]$"
+        var_pattern = '^\\[\\[[a-zA-Z0-9_]+\\]\\]$'
         variables = df[df['Text'].str.contains(var_pattern)]
         var_start_end = []
         for i in range(len(variables.index) - 1):
@@ -160,7 +157,7 @@ class L1Format:
             var['Text'].iloc[0] = var_spaces + var['Text'].iloc[0]
 
             # get the [[[xl]]] section
-            xl_pattern = "^\[\[\[xl\]\]\]$"
+            xl_pattern = '^\\[\\[\\[xl\\]\\]\\]$'
             xl = var[var['Text'].str.contains(xl_pattern)]
             xl_df = df[xl.index[0]:end]
             # format text as per L1
@@ -168,7 +165,7 @@ class L1Format:
             xl_df['Text'].iloc[1:] = other_spaces + xl_df['Text'].iloc[1:]
 
             # get the [[[Attr]]] OR [[[attr]]] section
-            attr_pattern = "^\[\[\[Attr\]\]\]$|^\[\[\[attr\]\]\]$"
+            attr_pattern = '^\\[\\[\\[Attr\\]\\]\\]$|^\\[\\[\\[attr\\]\\]\\]$'
             attr = var[var['Text'].str.contains(attr_pattern)]
             attr_df = df[attr.index[0]:xl.index[0]]
             # format text as per L1
