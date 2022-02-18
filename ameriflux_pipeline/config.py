@@ -83,3 +83,8 @@ class Config:
     # precipitation threshold values used in creating Eddypro master meteorology data
     QC_PRECIP_LOWER = 0.0  # precipitation lower threshold value (inches)
     QC_PRECIP_UPPER = 0.2  # precipitation upper threshold value (inches)
+
+    # Connect to dataserver
+    SFTP_SERVER = os.getenv('SFTP_SERVER', '')
+    SFTP_USERNAME = os.getenv('SFTP_USERNAME', '')
+    SFTP_PASSWORD = os.getenv('SFTP_PASSWORD', '')
