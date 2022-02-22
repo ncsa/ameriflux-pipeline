@@ -258,7 +258,7 @@ class L1Format:
             # test if all flag values are true
             flags = [var_flag, xl_flag, attr_flag, units_flag, long_name_flag, name_flag, sheet_flag]
             if all(flags):
-                # all flag values are, then break out of for loop
+                # all flag values are true, then break out of for loop
                 break
         # end of for loop, format is as expected
         return True
