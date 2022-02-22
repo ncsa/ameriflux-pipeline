@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+import re
 
 
 class L1Format:
@@ -34,6 +35,11 @@ class L1Format:
         l1_output_lines = []  # comma separated list of lines to be written
         # read lines from l1_input
         l1_lines = l1.readlines()
+
+        # check if input L1 have the same format as expected
+        if not L1Format.check_l1_format(l1_lines):
+            print("Check L1.txt format")
+            return
 
         # write the level line
         l1_output_lines.append(level_line.strip())
@@ -83,6 +89,179 @@ class L1Format:
 
         # close files
         l1.close()
+
+    @staticmethod
+    def check_l1_format(lines):
+        """
+            Check if the formatting for L1 is as expected
+            Args:
+                lines (list): List of strings. Lines in L1.txt
+            Returns:
+                (bool) : Returns True if the format is as expected, else return False
+        """
+        # check Level section
+        line0 = lines[0].rstrip('\n')
+        if not L1Format.check_level_line(line0):
+            print("Incorrect format in Level section")
+            return False
+        # check Files section
+        files_line_index = lines.index('[Files]\n')
+        # check Global section
+        global_line_index = lines.index('[Global]\n')
+        # check Variables section
+        variables_line_index = lines.index('[Variables]\n')
+        if files_line_index and global_line_index:
+            if L1Format.check_files_line(lines[files_line_index + 1:global_line_index]):
+                if L1Format.check_global_line(lines[global_line_index + 1:variables_line_index]):
+                    if L1Format.check_variables_line(lines[variables_line_index + 1:]):
+                        return True
+                    else:
+                        print("Incorrect format in Variables section")
+                        return False
+                else:
+                    print("Incorrect format in Global section")
+                    return False
+            else:
+                print("Incorrect format in Files section")
+                return False
+        else:
+            print("Undefined Files and Global section")
+            return False
+
+    @staticmethod
+    def check_level_line(line):
+        """
+            Check if the formatting for L1 Level section is as expected
+            Args:
+                line (str): Level line from input L1.txt
+            Returns:
+                (bool) : Returns True if the format is as expected, else return False
+        """
+        if line:
+            line_split = line.split('=')
+            if line_split[0].startswith('level') and line_split[1].strip() == 'L1':
+                return True
+        return False
+
+    @staticmethod
+    def check_space(test_string):
+        """
+            Count number of spaces in the string
+            Args:
+                test_string (str): Input string
+            Returns:
+                (int) : Returns the count of empty spaces in the string
+        """
+        return test_string.count(" ")
+
+    @staticmethod
+    def check_files_line(lines):
+        """
+            Check if the formatting for L1 Files section is as expected
+            Args:
+                lines (list): List of strings. Lines in L1.txt
+            Returns:
+                (bool) : Returns True if the format is as expected, else return False
+        """
+        file_path_flag = False  # flag for file_path line
+        out_filename_flag = False  # flag for out_filename line
+        for line in lines:
+            if (line.strip().startswith('file_path')):
+                file_path_flag = True  # found file_path line
+                if L1Format.check_space(line.split('=')[0].rstrip()) != 4:
+                    # number of spaces is not as expected
+                    return False
+            if (line.strip().startswith('out_filename')):
+                out_filename_flag = True  # found out_filename line
+                if L1Format.check_space(line.split('=')[0].rstrip()) != 4:
+                    # number of spaces is not as expected
+                    return False
+            if file_path_flag and out_filename_flag:
+                # test is completed, break out of for loop
+                break
+        return True
+
+    @staticmethod
+    def check_global_line(lines):
+        """
+            Check if the formatting for L1 Global section is as expected
+            Args:
+                lines (list): List of strings. Lines in L1.txt
+            Returns:
+                (bool) : Returns True if the format is as expected, else return False
+        """
+        acknowledgement_flag = False  # flag for acknowledgement line
+        for line in lines:
+            if (line.strip().startswith('acknowledgement')):
+                acknowledgement_flag = True  # found acknowledgment line
+                if L1Format.check_space(line.split('=')[0].rstrip()) != 4:
+                    return False
+            if acknowledgement_flag:
+                # test is complete, break out of for loop
+                break
+        return True
+
+    @staticmethod
+    def check_variables_line(lines):
+        """
+            Check if the formatting for L1 Variables section is as expected
+            Args:
+                lines (list): List of strings. Lines in L1.txt
+            Returns:
+                (bool) : Returns True if the format is as expected, else return False
+        """
+        # define patterns to match
+        var_pattern = '^\\[\\[[a-zA-Z0-9_]+\\]\\]$'
+        xl_pattern = '^\\[\\[\\[xl\\]\\]\\]$'
+        attr_pattern = '^\\[\\[\\[Attr\\]\\]\\]$|^\\[\\[\\[attr\\]\\]\\]$'
+        units_pattern = 'units'
+        long_name_pattern = 'long_name'
+        name_pattern = 'name'
+        sheet_pattern = 'sheet'
+        # define flags for pattern matching line
+        var_flag = False
+        xl_flag = False
+        attr_flag = False
+        units_flag = False
+        long_name_flag = False
+        name_flag = False
+        sheet_flag = False
+        for line in lines:
+            if re.match(var_pattern, line.strip()):
+                var_flag = True
+                if L1Format.check_space(line.rstrip()) != 4:
+                    return False
+            if re.match(xl_pattern, line.strip()):
+                xl_flag = True
+                if L1Format.check_space(line.rstrip()) != 4 * 2:
+                    return False
+            if re.match(attr_pattern, line.strip()):
+                attr_flag = True
+                if L1Format.check_space(line.rstrip()) != 4 * 2:
+                    return False
+            if (line.strip().startswith(units_pattern)):
+                units_flag = True
+                if L1Format.check_space(line.split('=')[0].rstrip()) != 4 * 3:
+                    return False
+            if (line.strip().startswith(long_name_pattern)):
+                long_name_flag = True
+                if L1Format.check_space(line.split('=')[0].rstrip()) != 4 * 3:
+                    return False
+            if (line.strip().startswith(name_pattern)):
+                name_flag = True
+                if L1Format.check_space(line.split('=')[0].rstrip()) != 4 * 3:
+                    return False
+            if (line.strip().startswith(sheet_pattern)):
+                sheet_flag = True
+                if L1Format.check_space(line.split('=')[0].rstrip()) != 4 * 3:
+                    return False
+            # test if all flag values are true
+            flags = [var_flag, xl_flag, attr_flag, units_flag, long_name_flag, name_flag, sheet_flag]
+            if all(flags):
+                # all flag values are, then break out of for loop
+                break
+        # end of for loop, format is as expected
+        return True
 
     @staticmethod
     def get_global_lines(lines, spaces):
