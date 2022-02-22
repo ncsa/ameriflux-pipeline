@@ -39,6 +39,7 @@ class L1Format:
         # check if input L1 have the same format as expected
         if not L1Format.check_l1_format(l1_lines):
             print("Check L1.txt format")
+            l1.close()
             return
 
         # write the level line
