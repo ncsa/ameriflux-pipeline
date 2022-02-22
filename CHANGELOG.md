@@ -24,7 +24,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Restructured code to have data directory and separate directories for master met, eddypro and pyfluxpro. [#68](https://github.com/ncsa/ameriflux-pipeline/issues/68)
 - GUI application for editing and creating .env file [#77](https://github.com/ncsa/ameriflux-pipeline/issues/77)
 - Reconstructed code to handle Maize site data (ZMB) [#78](https://github.com/ncsa/ameriflux-pipeline/issues/78)
-- Added code for pyfluxpro input sheet formatting for AmeriFlux submission [#88](https://github.com/ncsa/ameriflux-pipeline/issues/88)
+- Pyfluxpro input sheet formatting for AmeriFlux submission [#88](https://github.com/ncsa/ameriflux-pipeline/issues/88)
+- Creation of L1.txt meeting AmeriFlux standards [#92](https://github.com/ncsa/ameriflux-pipeline/issues/92)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
