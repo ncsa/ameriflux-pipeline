@@ -158,7 +158,6 @@ class EnvEditor():
         self.DESC_L1_OUTPUT = " output .nc file that is created PyFluxPro L1 run with AmeriFlux format."
         self.INFO_L1_OUTPUT = "The output NC file that is generated as a result of PyFluxPro L1 run with" \
                               " AmeriFlux formatted L1 process."
-
         self.SAVE_LABEL = "Save .env file"
         self.SAVE_ENV_FILE = "Save"
 
