@@ -10,6 +10,14 @@ class Config:
     """
     class to list all configuration settings required for preprocessing and formatting for EddyPro and PyFluxPro
     """
+    # obtaining ghg files using rsync
+    # user confirmation to perform rsync
+    SFTP_CONFIRMATION = os.getenv('SFTP_CONFIRMATION', 'N')
+    SFTP_SERVER = os.getenv('SFTP_SERVER')
+    SFTP_USERNAME = os.getenv('SFTP_USERNAME')
+    SFTP_PASSWORD = os.getenv('SFTP_PASSWORD')
+    SFTP_REMOTE_PATH = os.getenv('SFTP_REMOTE_PATH')
+    SFTP_LOCAL_PATH = os.getenv('SFTP_LOCAL_PATH')
     # input data for creating master meteorology data
     # input met data path
     INPUT_MET = os.getenv('INPUT_MET',
