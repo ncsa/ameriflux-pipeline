@@ -36,4 +36,6 @@
 - Calculation of shortwave out and albedo is as follows :
 - SW_out_Avg = Shortwave In - Net Shortwave = CM3Dn_Avg = SWUp_Avg
 - Albedo_Avg = Shortwave Out / Shortwave In = CM3Dn_Avg / CM3Up_Avg = SWUp_Avg / SWDn_Avg = albedo_avg (already in dataset)
+### 11
+- In Soils key, the EddyPro labels are the same as those used for PyFluxPro L1 and L2 control file variables to meet AmeriFlux standards.
 

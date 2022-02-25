@@ -275,7 +275,7 @@ class L1Format:
 
             Returns:
                 global_lines (list): List of strings to be written to l1_output
-                ind (integer): Index of [[Variables]] section
+                ind (integer): Index of [Variables] section
         """
         global_lines = []
         global_start_writing = False  # flag to check if Global section is over
