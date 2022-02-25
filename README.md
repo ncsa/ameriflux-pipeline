@@ -44,6 +44,16 @@ cd ameriflux-pipeline
 - There is a GUI application for this. Run enveditor.py by typing `python enveditor.py` in command prompt.
 - Example .env file
 ```
+# obtaining ghg files using rsync
+SFTP_CONFIRMATION=N
+SFTP_SERVER=remote.serverl.url
+SFTP_USERNAME=username
+SFTP_PASSWORD=password
+SFTP_REMOTE_PATH=/path/in/the/remote/server/
+SFTP_LOCAL_PATH=/path/in/the/local/machine/
+
+# input data for formatting EddyPro master meteorology data
+USER_CONFIRMATION=A
 INPUT_MET=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/master_met/input/FLUXSB_EC_JanMar2021.csv
 INPUT_PRECIP=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/master_met/input/Precip_IWS_Jan-Feb_2021.xlsx
 MISSING_TIME=96
@@ -51,6 +61,7 @@ USER_CONFIRMATION='Y'
 MASTER_MET=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/master_met/output/met_output.csv
 INPUT_SOIL_KEY=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/eddypro/input/Soils_key.xlsx
 
+# input data for running EddyPro
 EDDYPRO_BIN_LOC=/Applications/eddypro.app/Contents/MacOS/bin
 EDDYPRO_PROJ_FILE_NAME=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/eddypro/input/EddyPro_Run_Template.eddypro
 EDDYPRO_PROJ_TITLE=AmeriFlux_Pipeline
@@ -61,12 +72,18 @@ EDDYPRO_DYN_METADATA=/Users/xxx/Sorghum_2021_dynamic_metadata.csv
 EDDYPRO_OUTPUT_PATH=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/eddypro/output/
 EDDYPRO_INPUT_GHG_PATH=/Users/xxx/Raw_Jan-Mar_2021_GHG_Files/
 
+# PyFluxPro related data
 FULL_OUTPUT_PYFLUXPRO=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/input/full_output.csv
 MET_DATA_30_PYFLUXPRO=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/input/Met_data_30.csv
 PYFLUXPRO_INPUT_SHEET=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/input/pyfluxpro_input.xlsx
+PYFLUXPRO_INPUT_AMERIFLUX=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/generated/pyfluxpro_input_ameriflux.xlsx
 
-QC_PRECIP_LOWER=0.0
-QC_PRECIP_UPPER=0.2
+# PyFluxPro L1 process related data
+L1_INPUT=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/input/L1.txt
+L1_AMERIFLUX=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/generated/L1_ameriflux.txt
+L1_AMERIFLUX_MAINSTEM_KEY=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/input/Ameriflux-Mainstem-Key.xlsx
+L1_OUTPUT=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/generated/Sorghum_2021_L1.nc
+
 ```
 4. Setup virtual environment :
 ```
