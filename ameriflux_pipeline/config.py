@@ -78,15 +78,19 @@ class Config:
     PYFLUXPRO_INPUT_AMERIFLUX = os.getenv('PYFLUXPRO_INPUT_AMERIFLUX',
                                           '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/'
                                           'generated/pyfluxpro_input_ameriflux.xlsx')
-    L1_INPUT = os.getenv('L1_INPUT',
-                         '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/input/L1.txt')
-    L1_AMERIFLUX = os.getenv('L1_AMERIFLUX',
-                             '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/generated/L1_ameriflux.txt')
+    L1_MAINSTEM = os.getenv('L1_MAINSTEM',
+                            '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/input/L1_mainstem.txt')
+    L1_AMERIFLUX_ONLY = os.getenv('L1_AMERIFLUX_ONLY',
+                                  '/Users/ameriflux-pipeline/ameriflux_pipeline/data/'
+                                  'pyfluxpro/input/L1_Ameriflux_ONLY.txt')
     L1_AMERIFLUX_MAINSTEM_KEY = os.getenv('L1_AMERIFLUX_MAINSTEM_KEY',
                                           '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/'
                                           'input/Ameriflux-Mainstem-Key.xlsx')
     L1_OUTPUT = os.getenv('L1_OUTPUT',
                           '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/generated/Sorghum_2021_L1.nc')
+    L1_AMERIFLUX = os.getenv('L1_AMERIFLUX',
+                             '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/generated/L1_ameriflux.txt')
+
 
     # QA/QC values
     # precipitation threshold values used in creating Eddypro master meteorology data
