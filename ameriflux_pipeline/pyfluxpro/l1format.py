@@ -463,6 +463,9 @@ class L1Format:
                 var_name_index = var.index[0]
                 var_ameriflux_name = ameriflux_key.loc[ameriflux_key['Original variable name'] == var_name,
                                                        'Ameriflux variable name'].iloc[0]
+                if var_ameriflux_name in ameriflux_variables:
+                    #  check if variable already written
+                    continue
                 ameriflux_variables.append(var_ameriflux_name)
                 var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_ameriflux_name + "]]"
 
@@ -482,6 +485,9 @@ class L1Format:
                 var_flag = True
                 var_name_index = var.index[0]
                 var_ameriflux_name = moisture_labels[var_name]
+                if var_ameriflux_name in ameriflux_variables:
+                    #  check if variable already written
+                    continue
                 ameriflux_variables.append(var_ameriflux_name)
                 var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_ameriflux_name + "]]"
                 # change the unit to percentage
@@ -494,6 +500,9 @@ class L1Format:
                 var_flag = True
                 var_name_index = var.index[0]
                 var_ameriflux_name = temp_labels[var_name]
+                if var_ameriflux_name in ameriflux_variables:
+                    #  check if variable already written
+                    continue
                 ameriflux_variables.append(var_ameriflux_name)
                 var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_ameriflux_name + "]]"
 
