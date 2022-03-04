@@ -97,7 +97,7 @@ class L1Format:
         # remove newline and extra spaces from each line
         mainstem_var_df['Text'] = mainstem_var_df['Text'].apply(lambda x: x.strip())
         # get df with only variables and a list of variable start and end indexes
-        mainstem_variables, mainstem_var_start_end = L1Format.get_variables(mainstem_var_df)
+        mainstem_variables, mainstem_var_start_end = L1Format.get_variables(mainstem_var_df['Text'])
 
         # get the variable lines to be written
         variable_lines_out, ameriflux_variables = L1Format.format_variables(mainstem_var_df, mainstem_var_start_end,
@@ -388,23 +388,25 @@ class L1Format:
                 global_lines.append(spaces + line.strip())
 
     @staticmethod
-    def get_variables(df):
+    def get_variables(text):
         """
             Get all variables and start and end index for each variable from L1.txt
 
             Args:
-                df (obj): Pandas dataframe with all variable lines from L1.txt
+                text (obj): Pandas series with all variable lines from L1.txt
             Returns:
-                variables (obj) : Pandas dataframe. This is a subset of the input dataframe with only variable names
+                variables (obj) : Pandas series. This is a subset of the input dataframe with only variable names
                 var_start_end (list): List of tuple, the starting and ending index for each variable
         """
+
         var_pattern = '^\\[\\[[a-zA-Z0-9_]+\\]\\]$'
-        variables = df[df['Text'].str.contains(var_pattern)]
+        variables = text[text.str.contains(var_pattern)]
         var_start_end = []
         for i in range(len(variables.index) - 1):
             start_ind = variables.index[i]
             end_ind = variables.index[i + 1]
             var_start_end.append((start_ind, end_ind))
+        var_start_end.append((end_ind, text.last_valid_index()))  # append the start and end index of the last variable
         return variables, var_start_end
 
     @staticmethod
@@ -438,6 +440,7 @@ class L1Format:
             # get each variable in a separate df
             var = df[start:end]
             var_name = var['Text'].iloc[0].strip('[]')
+            #print("input var", var_name)
 
             # get the [[[xl]]] section
             xl_pattern = '^\\[\\[\\[xl\\]\\]\\]$'
@@ -463,10 +466,8 @@ class L1Format:
                 var_name_index = var.index[0]
                 var_ameriflux_name = ameriflux_key.loc[ameriflux_key['Original variable name'] == var_name,
                                                        'Ameriflux variable name'].iloc[0]
-                if var_ameriflux_name in ameriflux_variables:
-                    #  check if variable already written
-                    continue
                 ameriflux_variables.append(var_ameriflux_name)
+                #print("ameriflux var", var_ameriflux_name)
                 var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_ameriflux_name + "]]"
 
                 if units_row.shape[0] > 0:
@@ -485,9 +486,6 @@ class L1Format:
                 var_flag = True
                 var_name_index = var.index[0]
                 var_ameriflux_name = moisture_labels[var_name]
-                if var_ameriflux_name in ameriflux_variables:
-                    #  check if variable already written
-                    continue
                 ameriflux_variables.append(var_ameriflux_name)
                 var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_ameriflux_name + "]]"
                 # change the unit to percentage
@@ -500,9 +498,6 @@ class L1Format:
                 var_flag = True
                 var_name_index = var.index[0]
                 var_ameriflux_name = temp_labels[var_name]
-                if var_ameriflux_name in ameriflux_variables:
-                    #  check if variable already written
-                    continue
                 ameriflux_variables.append(var_ameriflux_name)
                 var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_ameriflux_name + "]]"
 
