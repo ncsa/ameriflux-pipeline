@@ -123,7 +123,8 @@ class L1Format:
         # get the variable lines to be written
         variable_lines_out, ameriflux_variables = L1Format.format_variables(mainstem_var_df, mainstem_var_start_end,
                                                                             soil_moisture_labels, soil_temp_labels,
-                                                                            ameriflux_key, spaces)
+                                                                            ameriflux_key, spaces,
+                                                                            xl_pattern, attr_pattern)
         # write variables section lines to l1 output
         l1_output_lines.extend(variable_lines_out)
 
@@ -276,14 +277,6 @@ class L1Format:
             Returns:
                 (bool) : Returns True if the format is as expected, else return False
         """
-        # define patterns to match
-        var_pattern = '^\\[\\[[a-zA-Z0-9_]+\\]\\]$'
-        xl_pattern = '^\\[\\[\\[xl\\]\\]\\]$'
-        attr_pattern = '^\\[\\[\\[Attr\\]\\]\\]$|^\\[\\[\\[attr\\]\\]\\]$'
-        units_pattern = 'units'
-        long_name_pattern = 'long_name'
-        name_pattern = 'name'
-        sheet_pattern = 'sheet'
         # define flags for pattern matching line
         var_flag = False
         xl_flag = False
@@ -449,7 +442,7 @@ class L1Format:
         return variables, var_start_end
 
     @staticmethod
-    def format_variables(df, var_start_end, moisture_labels, temp_labels, ameriflux_key, spaces):
+    def format_variables(df, var_start_end, moisture_labels, temp_labels, ameriflux_key, spaces, xl_pattern, attr_pattern):
         """
             Change variable names and units to AmeriFlux standard
 
@@ -460,6 +453,8 @@ class L1Format:
                 temp_labels (dict): Mapping from pyfluxpro to ameriflux labels for soil temperature
                 ameriflux_key (obj): Pandas dataframe of AmeriFlux-Mainstem varible name sheet
                 spaces (str): Spaces to be inserted before each section and line
+                xl_pattern (str): Regex pattern to find the [[[xl]]] section within Variables section
+                attr_pattern (str): Regex pattern to find the [[[Attr]]] section within Variables section
             Returns:
                 variable_lines_out (list) : List of variables lines to be written to l1_ameriflux
                 ameriflux_variables (list) : List of ameriflux-friendly variable names in L1
@@ -479,10 +474,8 @@ class L1Format:
             # get each variable in a separate df
             var = df[start:end]
             var_name = var['Text'].iloc[0].strip('[]')
-            #print("input var", var_name)
 
             # get the [[[xl]]] section
-            xl_pattern = '^\\[\\[\\[xl\\]\\]\\]$'
             xl = var[var['Text'].str.contains(xl_pattern)]
             xl_df = df[xl.index[0]:end]
             # format text as per L1
@@ -490,7 +483,6 @@ class L1Format:
             xl_df['Text'].iloc[1:] = other_spaces + xl_df['Text'].iloc[1:]
 
             # get the [[[Attr]]] OR [[[attr]]] section
-            attr_pattern = '^\\[\\[\\[Attr\\]\\]\\]$|^\\[\\[\\[attr\\]\\]\\]$'
             attr = var[var['Text'].str.contains(attr_pattern)]
             attr_df = df[attr.index[0]:xl.index[0]]
             # format text as per L1
@@ -506,7 +498,6 @@ class L1Format:
                 var_ameriflux_name = ameriflux_key.loc[ameriflux_key['Original variable name'] == var_name,
                                                        'Ameriflux variable name'].iloc[0]
                 ameriflux_variables.append(var_ameriflux_name)
-                #print("ameriflux var", var_ameriflux_name)
                 var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_ameriflux_name + "]]"
 
                 if units_row.shape[0] > 0:
