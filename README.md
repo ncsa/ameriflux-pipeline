@@ -49,8 +49,10 @@ SFTP_CONFIRMATION=N
 SFTP_SERVER=remote.serverl.url
 SFTP_USERNAME=username
 SFTP_PASSWORD=password
-SFTP_REMOTE_PATH=/path/in/the/remote/server/
-SFTP_LOCAL_PATH=/path/in/the/local/machine/
+SFTP_GHG_REMOTE_PATH=/path/in/the/remote/server/
+SFTP_GHG_LOCAL_PATH=/path/in/the/local/machine/
+SFTP_MET_REMOTE_PATH=/path/in/the/remote/server/
+SFTP_MET_LOCAL_PATH=/path/in/the/local/machine/
 
 # input data for formatting EddyPro master meteorology data
 USER_CONFIRMATION=A

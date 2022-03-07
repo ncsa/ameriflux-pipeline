@@ -16,8 +16,10 @@ class Config:
     SFTP_SERVER = os.getenv('SFTP_SERVER')
     SFTP_USERNAME = os.getenv('SFTP_USERNAME')
     SFTP_PASSWORD = os.getenv('SFTP_PASSWORD')
-    SFTP_REMOTE_PATH = os.getenv('SFTP_REMOTE_PATH')
-    SFTP_LOCAL_PATH = os.getenv('SFTP_LOCAL_PATH')
+    SFTP_GHG_REMOTE_PATH = os.getenv('SFTP_GHG_REMOTE_PATH')
+    SFTP_GHG_LOCAL_PATH = os.getenv('SFTP_GHG_LOCAL_PATH')
+    SFTP_MET_REMOTE_PATH = os.getenv('SFTP_MET_REMOTE_PATH')
+    SFTP_MET_LOCAL_PATH = os.getenv('SFTP_MET_LOCAL_PATH')
     # input data for creating master meteorology data
     # input met data path
     INPUT_MET = os.getenv('INPUT_MET',
