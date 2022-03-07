@@ -78,6 +78,8 @@ original/
 *.old
 *.nc
 *.env*
+*.tmp
+*.ghg
 
 # related to test file
 *test.py
