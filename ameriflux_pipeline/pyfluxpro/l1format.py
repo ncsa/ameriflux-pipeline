@@ -10,11 +10,22 @@ class L1Format:
     # define global variables
     SPACES = "    "  # set 4 spaces as default for a section in L1
     LEVEL_LINE = "level = L1"  # set the level
+    # define patterns to match
+    VAR_PATTERN = '^\\[\\[[a-zA-Z0-9_]+\\]\\]$'
+    XL_PATTERN = '^\\[\\[\\[xl\\]\\]\\]$'
+    ATTR_PATTERN = '^\\[\\[\\[Attr\\]\\]\\]$|^\\[\\[\\[attr\\]\\]\\]$'
+    UNITS_PATTERN = 'units'
+    LONG_NAME_PATTERN = 'long_name'
+    NAME_PATTERN = 'name'
+    SHEET_PATTERN = 'sheet'
 
     # main method which calls other functions
     @staticmethod
     def data_formatting(pyfluxpro_input, l1_mainstem, l1_ameriflux_only, ameriflux_mainstem_key, file_meta_data_file,
-                        soil_key, outfile, l1_ameriflux_output, spaces=SPACES, level_line=LEVEL_LINE):
+                        soil_key, outfile, l1_ameriflux_output, spaces=SPACES, level_line=LEVEL_LINE,
+                        var_pattern=VAR_PATTERN, xl_pattern=XL_PATTERN, attr_pattern=ATTR_PATTERN,
+                        units_pattern=UNITS_PATTERN, long_name_pattern=LONG_NAME_PATTERN,
+                        name_pattern=NAME_PATTERN, sheet_pattern=SHEET_PATTERN):
         """
         Main method for the class.
 
@@ -31,6 +42,13 @@ class L1Format:
 
             spaces (str): Spaces to be inserted before each section and line
             level_line (str): Line specifying the level. L1 for this section.
+            var_pattern (str): Regex pattern to find the starting line for [Variables] section
+            xl_pattern (str): Regex pattern to find the [[[xl]]] section within Variables section
+            attr_pattern (str): Regex pattern to find the [[[Attr]]] section within Variables section
+            units_pattern (str): Regex pattern to find the units line within Attr section
+            long_name_pattern (str): Regex pattern to find the long_name line within Attr section
+            name_pattern (str): Regex pattern to find the name line within Attr section
+            sheet_pattern (str): Regex pattern to find the sheet line within xl section
         Returns:
             obj: Pandas DataFrame object.
         """
@@ -43,7 +61,10 @@ class L1Format:
         l1_ameriflux_lines = l1_ameriflux.readlines()
 
         # check if input L1 have the same format as expected
-        if not L1Format.check_l1_format(l1_mainstem_lines) or not L1Format.check_l1_format(l1_ameriflux_lines):
+        if not L1Format.check_l1_format(l1_mainstem_lines, var_pattern, xl_pattern, attr_pattern, units_pattern,
+                                        long_name_pattern, name_pattern, sheet_pattern) \
+            or not L1Format.check_l1_format(l1_ameriflux_lines, var_pattern, xl_pattern, attr_pattern, units_pattern,
+                                            long_name_pattern, name_pattern, sheet_pattern):
             print("Check L1.txt format")
             l1_mainstem_lines.close()
             l1_ameriflux_lines.close()
@@ -118,11 +139,19 @@ class L1Format:
         l1_ameriflux.close()
 
     @staticmethod
-    def check_l1_format(lines):
+    def check_l1_format(lines, var_pattern, xl_pattern, attr_pattern, units_pattern, long_name_pattern,
+                        name_pattern, sheet_pattern):
         """
             Check if the formatting for L1 is as expected
             Args:
                 lines (list): List of strings. Lines in L1.txt
+                var_pattern (str): Regex pattern to find the starting line for [Variables] section
+                xl_pattern (str): Regex pattern to find the [[[xl]]] section within Variables section
+                attr_pattern (str): Regex pattern to find the [[[Attr]]] section within Variables section
+                units_pattern (str): Regex pattern to find the units line within Attr section
+                long_name_pattern (str): Regex pattern to find the long_name line within Attr section
+                name_pattern (str): Regex pattern to find the name line within Attr section
+                sheet_pattern (str): Regex pattern to find the sheet line within xl section
             Returns:
                 (bool) : Returns True if the format is as expected, else return False
         """
@@ -140,7 +169,9 @@ class L1Format:
         if files_line_index and global_line_index:
             if L1Format.check_files_line(lines[files_line_index + 1:global_line_index]):
                 if L1Format.check_global_line(lines[global_line_index + 1:variables_line_index]):
-                    if L1Format.check_variables_line(lines[variables_line_index + 1:]):
+                    if L1Format.check_variables_line(lines[variables_line_index + 1:],
+                                                     var_pattern, xl_pattern, attr_pattern, units_pattern,
+                                                     long_name_pattern, name_pattern, sheet_pattern):
                         return True
                     else:
                         print("Incorrect format in Variables section")
@@ -229,11 +260,19 @@ class L1Format:
         return True
 
     @staticmethod
-    def check_variables_line(lines):
+    def check_variables_line(lines, var_pattern, xl_pattern, attr_pattern, units_pattern, long_name_pattern,
+                             name_pattern, sheet_pattern):
         """
             Check if the formatting for L1 Variables section is as expected
             Args:
                 lines (list): List of strings. Lines in L1.txt
+                var_pattern (str): Regex pattern to find the starting line for [Variables] section
+                xl_pattern (str): Regex pattern to find the [[[xl]]] section within Variables section
+                attr_pattern (str): Regex pattern to find the [[[Attr]]] section within Variables section
+                units_pattern (str): Regex pattern to find the units line within Attr section
+                long_name_pattern (str): Regex pattern to find the long_name line within Attr section
+                name_pattern (str): Regex pattern to find the name line within Attr section
+                sheet_pattern (str): Regex pattern to find the sheet line within xl section
             Returns:
                 (bool) : Returns True if the format is as expected, else return False
         """
