@@ -118,7 +118,7 @@ class L1Format:
         # remove newline and extra spaces from each line
         mainstem_var_df['Text'] = mainstem_var_df['Text'].apply(lambda x: x.strip())
         # get df with only variables and a list of variable start and end indexes
-        mainstem_variables, mainstem_var_start_end = L1Format.get_variables(mainstem_var_df['Text'])
+        mainstem_variables, mainstem_var_start_end = L1Format.get_variables(mainstem_var_df['Text'], var_pattern)
 
         # get the variable lines to be written
         variable_lines_out, ameriflux_variables = L1Format.format_variables(mainstem_var_df, mainstem_var_start_end,
@@ -420,18 +420,17 @@ class L1Format:
                 global_lines.append(spaces + line.strip())
 
     @staticmethod
-    def get_variables(text):
+    def get_variables(text, var_pattern):
         """
             Get all variables and start and end index for each variable from L1.txt
 
             Args:
                 text (obj): Pandas series with all variable lines from L1.txt
+                var_pattern (str): Regex pattern to find the starting line for [Variables] section
             Returns:
                 variables (obj) : Pandas series. This is a subset of the input dataframe with only variable names
                 var_start_end (list): List of tuple, the starting and ending index for each variable
         """
-
-        var_pattern = '^\\[\\[[a-zA-Z0-9_]+\\]\\]$'
         variables = text[text.str.contains(var_pattern)]
         var_start_end = []
         for i in range(len(variables.index) - 1):
