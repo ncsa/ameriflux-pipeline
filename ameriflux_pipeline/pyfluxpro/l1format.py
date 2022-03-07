@@ -22,7 +22,8 @@ class L1Format:
     # main method which calls other functions
     @staticmethod
     def data_formatting(pyfluxpro_input, l1_mainstem, l1_ameriflux_only, ameriflux_mainstem_key, file_meta_data_file,
-                        soil_key, outfile, l1_ameriflux_output, spaces=SPACES, level_line=LEVEL_LINE,
+                        soil_key, outfile, l1_ameriflux_output, ameriflux_variable_user_confirmation,
+                        erroring_variable_key, spaces=SPACES, level_line=LEVEL_LINE,
                         var_pattern=VAR_PATTERN, xl_pattern=XL_PATTERN, attr_pattern=ATTR_PATTERN,
                         units_pattern=UNITS_PATTERN, long_name_pattern=LONG_NAME_PATTERN,
                         name_pattern=NAME_PATTERN, sheet_pattern=SHEET_PATTERN):
@@ -39,6 +40,11 @@ class L1Format:
             soil_key (str) : A file path for input soil key sheet
             outfile (str): A file path for the output of L1 run. This typically has .nc extension
             l1_ameriflux_output (str): A file path for the L1.txt that is formatted for Ameriflux standards
+            ameriflux_variable_user_confirmation (str): User decision on whether to replace,
+                                        ignore or ask during runtime in case of erroring variable names in PyFluxPro L1
+            erroring_variable_key (str): Variable name key used to match the original variable names to Ameriflux names
+                                    for variables throwing an error in PyFluxPro L1.
+                                    This is an excel file named L1_erroring_variables.xlsx
 
             spaces (str): Spaces to be inserted before each section and line
             level_line (str): Line specifying the level. L1 for this section.
@@ -79,6 +85,25 @@ class L1Format:
         soil_moisture_labels, soil_temp_labels = L1Format.get_moisture_labels(site_name, df_soil_key)
 
         ameriflux_key = pd.read_excel(ameriflux_mainstem_key)  # read AmeriFlux-Mainstem variable name matching file
+
+        # check if L1 erroring variable names need to be replaced or not
+        ameriflux_variable_user_confirmation = ameriflux_variable_user_confirmation.lower()
+        # by default we do not replace the erroring variables to ameriflux naming standards
+        erroring_variable_flag = 'N'
+        if ameriflux_variable_user_confirmation in ['a', 'ask']:
+            print("Enter Y to replace L1 Erroring variable names to Ameriflux standards. Else enter N")
+            erroring_variable_flag = input("Enter Y/N : ")
+        elif ameriflux_variable_user_confirmation in ['n', 'no']:
+            erroring_variable_flag = 'N'
+        elif ameriflux_variable_user_confirmation in ['y', 'yes']:
+            erroring_variable_flag = 'Y'
+
+        if erroring_variable_flag.lower() in ['n', 'no']:
+            # if user chose not to replace the variable name, read the name mapping
+            # if this file is read, the instance becomes a dataframe, if not the variable type is a string
+            erroring_variable_key = pd.read_excel(erroring_variable_key)  # read L1 erroring variable name matching file
+
+        # writing to output file
 
         # write the level line
         l1_output_lines.append(level_line.strip())
@@ -123,8 +148,8 @@ class L1Format:
         # get the variable lines to be written
         variable_lines_out, ameriflux_variables = L1Format.format_variables(mainstem_var_df, mainstem_var_start_end,
                                                                             soil_moisture_labels, soil_temp_labels,
-                                                                            ameriflux_key, spaces,
-                                                                            xl_pattern, attr_pattern)
+                                                                            ameriflux_key, erroring_variable_key,
+                                                                            spaces, xl_pattern, attr_pattern)
         # write variables section lines to l1 output
         l1_output_lines.extend(variable_lines_out)
 
@@ -441,7 +466,8 @@ class L1Format:
         return variables, var_start_end
 
     @staticmethod
-    def format_variables(df, var_start_end, moisture_labels, temp_labels, ameriflux_key, spaces, xl_pattern, attr_pattern):
+    def format_variables(df, var_start_end, moisture_labels, temp_labels, ameriflux_key, erroring_variable_key,
+                         spaces, xl_pattern, attr_pattern):
         """
             Change variable names and units to AmeriFlux standard
 
@@ -451,6 +477,8 @@ class L1Format:
                 moisture_labels (dict) : Mapping from pyfluxpro to ameriflux labels for soil moisture
                 temp_labels (dict): Mapping from pyfluxpro to ameriflux labels for soil temperature
                 ameriflux_key (obj): Pandas dataframe of AmeriFlux-Mainstem varible name sheet
+                erroring_variable_key (str/obj): Variable name key used to match the original variable names to
+                                        Ameriflux names for variables throwing an error in PyFluxPro L1.
                 spaces (str): Spaces to be inserted before each section and line
                 xl_pattern (str): Regex pattern to find the [[[xl]]] section within Variables section
                 attr_pattern (str): Regex pattern to find the [[[Attr]]] section within Variables section
@@ -490,7 +518,18 @@ class L1Format:
 
             units_row = attr_df[attr_df['Text'].apply(lambda x: x.strip().startswith("units"))]
 
-            if ameriflux_key['Original variable name'].isin([var_name]).any():
+            # check if the variable is one of the erroring variables in L1 PyFluxPro
+            # check if the erroring_variable_key is a dataframe.
+            if isinstance(erroring_variable_key, pd.DataFrame) and erroring_variable_key['PyFluxPro label'].isin([var_name]).any():
+                # the variable name is one of the erroring variables.
+                # do not replace the variable name with ameriflux label
+                var_flag = True
+                var_name_index = var.index[0]
+                ameriflux_variables.append(var_name)
+                var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_name + "]]"
+
+            # if the erroring variable is to be replaced, the Ameriflux friendly variable name is in ameriflux_key
+            elif ameriflux_key['Original variable name'].isin([var_name]).any():
                 var_flag = True
                 # check if var name should be changed for Ameriflux
                 var_name_index = var.index[0]

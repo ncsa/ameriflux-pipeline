@@ -38,7 +38,7 @@ def eddypro_preprocessing():
     # start preprocessing data
     df, file_meta = Preprocessor.data_preprocess(cfg.INPUT_MET, cfg.INPUT_PRECIP,
                                                  float(cfg.QC_PRECIP_LOWER), float(cfg.QC_PRECIP_UPPER),
-                                                 int(cfg.MISSING_TIME), cfg.USER_CONFIRMATION)
+                                                 int(cfg.MISSING_TIME), cfg.MISSING_TIME_USER_CONFIRMATION)
     # TODO : check with Bethany - number of decimal places for numerical values
     # write processed df to output path
     data_util.write_data(df, cfg.MASTER_MET)
@@ -169,7 +169,8 @@ def pyfluxpro_ameriflux_processing(input_file, output_file):
 
 
 def pyfluxpro_l1_ameriflux_processing(pyfluxpro_input, l1_mainstem, l1_ameriflux_only, ameriflux_mainstem_key,
-                                      file_meta_data_file, soil_key, l1_output, l1_ameriflux_output):
+                                      file_meta_data_file, soil_key, l1_output, l1_ameriflux_output,
+                                      ameriflux_variable_user_confirmation, erroring_variable_key):
     """
     Main function to run PyFluxPro L1 control file formatting for AmeriFlux. Calls other functions
     Args:
@@ -182,11 +183,17 @@ def pyfluxpro_l1_ameriflux_processing(pyfluxpro_input, l1_mainstem, l1_ameriflux
         soil_key (str) : A file path for input soil key sheet
         l1_output (str): A file path for the output of L1 run. This typically has .nc extension
         l1_ameriflux_output (str): A file path for the L1.txt that is formatted for Ameriflux standards
+        ameriflux_variable_user_confirmation (str): User decision on whether to replace,
+                                        ignore or ask during runtime in case of erroring variable names in PyFluxPro L1
+        erroring_variable_key (str): Variable name key used to match the original variable names to Ameriflux names
+                                    for variables throwing an error in PyFluxPro L1.
+                                    This is an excel file named L1_erroring_variables.xlsx
 
     Returns: None
     """
     L1Format.data_formatting(pyfluxpro_input, l1_mainstem, l1_ameriflux_only, ameriflux_mainstem_key,
-                                      file_meta_data_file, soil_key, l1_output, l1_ameriflux_output)
+                             file_meta_data_file, soil_key, l1_output, l1_ameriflux_output,
+                             ameriflux_variable_user_confirmation, erroring_variable_key)
     print("AmeriFlux L1 saved in ", l1_ameriflux_output)
 
 
@@ -221,4 +228,5 @@ if __name__ == '__main__':
     # run ameriflux formatting of pyfluxpro L1 control file
     pyfluxpro_l1_ameriflux_processing(cfg.PYFLUXPRO_INPUT_AMERIFLUX, cfg.L1_MAINSTEM, cfg.L1_AMERIFLUX_ONLY,
                                       cfg.L1_AMERIFLUX_MAINSTEM_KEY, file_meta_data_file, cfg.INPUT_SOIL_KEY,
-                                      cfg.L1_OUTPUT, cfg.L1_AMERIFLUX)
+                                      cfg.L1_OUTPUT, cfg.L1_AMERIFLUX, cfg.AMERIFLUX_VARIABLE_USER_CONFIRMATION,
+                                      cfg.L1_AMERIFLUX_ERRORING_VARIABLES_KEY)
