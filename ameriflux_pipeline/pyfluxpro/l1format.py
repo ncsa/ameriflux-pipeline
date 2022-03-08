@@ -486,7 +486,8 @@ class L1Format:
 
             # check if the variable is one of the erroring variables in L1 PyFluxPro
             # check if the erroring_variable_key is a dataframe.
-            if isinstance(erroring_variable_key, pd.DataFrame) and erroring_variable_key['PyFluxPro label'].isin([var_name]).any():
+            if isinstance(erroring_variable_key, pd.DataFrame) and \
+                    erroring_variable_key['PyFluxPro label'].isin([var_name]).any():
                 # the variable name is one of the erroring variables.
                 # do not replace the variable name with ameriflux label
                 var_flag = True

@@ -96,8 +96,8 @@ class Config:
     # Enter 'Y'/'YES' to replace, 'N'/'NO' to ignore and 'A'/'ASK' to await user input during runtime.
     AMERIFLUX_VARIABLE_USER_CONFIRMATION = os.getenv('AMERIFLUX_VARIABLE_USER_CONFIRMATION', 'N')
     L1_AMERIFLUX_ERRORING_VARIABLES_KEY = os.getenv('L1_AMERIFLUX_ERRORING_VARIABLES_KEY',
-                                          '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/'
-                                          'input/L1_erroring_variables.xlsx')
+                                                    '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/'
+                                                    'input/L1_erroring_variables.xlsx')
 
     # QA/QC values
     # precipitation threshold values used in creating Eddypro master meteorology data
