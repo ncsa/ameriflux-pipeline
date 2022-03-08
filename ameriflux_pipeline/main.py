@@ -226,7 +226,7 @@ if __name__ == '__main__':
         print(cfg.PYFLUXPRO_INPUT_SHEET, "path does not exist")
 
     # run ameriflux formatting of pyfluxpro L1 control file
-    pyfluxpro_l1_ameriflux_processing(cfg.PYFLUXPRO_INPUT_AMERIFLUX, cfg.L1_MAINSTEM, cfg.L1_AMERIFLUX_ONLY,
+    pyfluxpro_l1_ameriflux_processing(cfg.PYFLUXPRO_INPUT_AMERIFLUX, cfg.L1_MAINSTEM_INPUT, cfg.L1_AMERIFLUX_ONLY_INPUT,
                                       cfg.L1_AMERIFLUX_MAINSTEM_KEY, file_meta_data_file, cfg.INPUT_SOIL_KEY,
-                                      cfg.L1_AMERIFLUX_OUTPUT, cfg.L1_AMERIFLUX,
+                                      cfg.L1_AMERIFLUX_RUN_OUTPUT, cfg.L1_AMERIFLUX,
                                       cfg.AMERIFLUX_VARIABLE_USER_CONFIRMATION, cfg.L1_AMERIFLUX_ERRORING_VARIABLES_KEY)
