@@ -6,6 +6,7 @@
 
 import pandas as pd
 
+
 def write_data(df, output_data):
     """
         Write the dataframe to csv file
@@ -18,6 +19,7 @@ def write_data(df, output_data):
     """
     print("Write data to file ", output_data)
     df.to_csv(output_data, index=False)
+
 
 def read_excel(file_path):
     """

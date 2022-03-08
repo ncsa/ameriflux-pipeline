@@ -4,6 +4,7 @@ import re
 
 import utils.data_util as data_util
 
+
 class L1Format:
     """
     Class to implement formatting of PyFluxPro L1 control file as per AmeriFlux standards
