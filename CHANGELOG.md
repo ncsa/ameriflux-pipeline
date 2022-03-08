@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Added missing variables to L1.txt for Ameriflux [#99](https://github.com/ncsa/ameriflux-pipeline/issues/99)
 - L1 processing is made more efficient [#100](https://github.com/ncsa/ameriflux-pipeline/issues/100)
 - Added user confirmation to replace certain PyFluxPro variable names to AmeriFlux names [#105](https://github.com/ncsa/ameriflux-pipeline/issues/105)
+- Check formatting of L1 inputs [#109](https://github.com/ncsa/ameriflux-pipeline/issues/109)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
