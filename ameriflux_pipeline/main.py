@@ -6,8 +6,8 @@
 
 import os
 import shutil
-
 import pandas as pd
+import csv
 
 from config import Config as cfg
 import utils.data_util as data_util
@@ -18,6 +18,7 @@ from eddypro.runeddypro import RunEddypro
 from pyfluxpro.pyfluxproformat import PyFluxProFormat
 from pyfluxpro.amerifluxformat import AmeriFluxFormat
 from pyfluxpro.l1format import L1Format
+from pyfluxpro.l2format import L2Format
 
 import pandas.io.formats.excel
 pandas.io.formats.excel.header_style = None
@@ -169,7 +170,7 @@ def pyfluxpro_ameriflux_processing(input_file, output_file):
 
 
 def pyfluxpro_l1_ameriflux_processing(pyfluxpro_input, l1_mainstem, l1_ameriflux_only, ameriflux_mainstem_key,
-                                      file_meta_data_file, soil_key, l1_output, l1_ameriflux_output,
+                                      file_meta_data_file, soil_key, l1_run_output, l1_ameriflux_output,
                                       ameriflux_variable_user_confirmation, erroring_variable_key):
     """
     Main function to run PyFluxPro L1 control file formatting for AmeriFlux. Calls other functions
@@ -181,20 +182,44 @@ def pyfluxpro_l1_ameriflux_processing(pyfluxpro_input, l1_mainstem, l1_ameriflux
                                         This is an excel file named Ameriflux-Mainstem-Key.xlsx
         file_meta_data_file (str) : File containing the meta data, typically the first line of Met data
         soil_key (str) : A file path for input soil key sheet
-        l1_output (str): A file path for the output of L1 run. This typically has .nc extension
-        l1_ameriflux_output (str): A file path for the L1.txt that is formatted for Ameriflux standards
+        l1_run_output (str): A file path for the output of L1 run. This typically has .nc extension
+        l1_ameriflux_output (str): A file path for the generated L1.txt that is formatted for Ameriflux standards
         ameriflux_variable_user_confirmation (str): User decision on whether to replace,
                                         ignore or ask during runtime in case of erroring variable names in PyFluxPro L1
         erroring_variable_key (str): Variable name key used to match the original variable names to Ameriflux names
                                     for variables throwing an error in PyFluxPro L1.
                                     This is an excel file named L1_erroring_variables.xlsx
 
-    Returns: None
+    Returns:
+        pyfluxpro_ameriflux_labels (dict): Mapping of pyfluxpro-friendly label to Ameriflux-friendly labels for
+                                            variables in L1_Ameriflux.txt
     """
-    L1Format.data_formatting(pyfluxpro_input, l1_mainstem, l1_ameriflux_only, ameriflux_mainstem_key,
-                             file_meta_data_file, soil_key, l1_output, l1_ameriflux_output,
-                             ameriflux_variable_user_confirmation, erroring_variable_key)
+    pyfluxpro_ameriflux_labels = L1Format.data_formatting(pyfluxpro_input, l1_mainstem, l1_ameriflux_only,
+                                                   ameriflux_mainstem_key, file_meta_data_file, soil_key, l1_run_output,
+                                                   l1_ameriflux_output, ameriflux_variable_user_confirmation,
+                                                   erroring_variable_key)
     print("AmeriFlux L1 saved in ", l1_ameriflux_output)
+    return pyfluxpro_ameriflux_labels
+
+
+def pyfluxpro_l2_ameriflux_processing(pyfluxpro_ameriflux_labels, l2_mainstem, l2_ameriflux_only,
+                                      l1_run_output, l2_run_output, l2_ameriflux_output):
+    """
+        Main function to run PyFluxPro L2 control file formatting for AmeriFlux. Calls other functions
+
+        Args:
+            pyfluxpro_ameriflux_labels (dict): Mapping of pyfluxpro-friendly label to Ameriflux-friendly labels for
+                                            variables in l1_ameriflux_output
+            l2_mainstem (str): A file path for the input L2.txt. This is the PyFluxPro original L2 control file
+            l2_ameriflux_only (str): A file path for the L2.txt that contains only Ameriflux-friendly variables
+            l1_run_output (str): A file path for the output of L1 run. This typically has .nc extension
+            l2_run_output (str): A file path for the output of L2 run. This typically has .nc extension
+            l2_ameriflux_output (str): A file path for the generated L2.txt that is formatted for Ameriflux standards
+        Returns:
+            None
+        """
+    L2Format.data_formatting(pyfluxpro_ameriflux_labels, l2_mainstem, l2_ameriflux_only, l1_run_output, l2_run_output)
+    print("AmeriFlux L1 saved in ", l2_ameriflux_output)
 
 
 # Press the green button in the gutter to run the script.
@@ -226,7 +251,13 @@ if __name__ == '__main__':
         print(cfg.PYFLUXPRO_INPUT_SHEET, "path does not exist")
 
     # run ameriflux formatting of pyfluxpro L1 control file
-    pyfluxpro_l1_ameriflux_processing(cfg.PYFLUXPRO_INPUT_AMERIFLUX, cfg.L1_MAINSTEM, cfg.L1_AMERIFLUX_ONLY,
-                                      cfg.L1_AMERIFLUX_MAINSTEM_KEY, file_meta_data_file, cfg.INPUT_SOIL_KEY,
-                                      cfg.L1_AMERIFLUX_OUTPUT, cfg.L1_AMERIFLUX,
-                                      cfg.AMERIFLUX_VARIABLE_USER_CONFIRMATION, cfg.L1_AMERIFLUX_ERRORING_VARIABLES_KEY)
+    pyfluxpro_ameriflux_labels = pyfluxpro_l1_ameriflux_processing(cfg.PYFLUXPRO_INPUT_AMERIFLUX, cfg.L1_MAINSTEM,
+                                                                   cfg.L1_AMERIFLUX_ONLY, cfg.L1_AMERIFLUX_MAINSTEM_KEY,
+                                                                   file_meta_data_file, cfg.INPUT_SOIL_KEY,
+                                                                   cfg.L1_AMERIFLUX_OUTPUT, cfg.L1_AMERIFLUX,
+                                                                   cfg.AMERIFLUX_VARIABLE_USER_CONFIRMATION,
+                                                                   cfg.L1_AMERIFLUX_ERRORING_VARIABLES_KEY)
+
+    pyfluxpro_l2_ameriflux_processing(pyfluxpro_ameriflux_labels, l2_mainstem, l2_ameriflux_only,
+                                      l1_run_output, l2_run_output, l2_ameriflux_output)
+

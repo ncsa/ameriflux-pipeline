@@ -14,6 +14,7 @@ class L1Format:
     LEVEL_LINE = "level = L1"  # set the level
     # define patterns to match
     VAR_PATTERN = '^\\[\\[[a-zA-Z0-9_]+\\]\\]$'
+    VAR_PATTERN_WITH_SPACE = '^ {4}\\[\\[[a-zA-Z0-9_]+\\]\\]\n$'
     XL_PATTERN = '^\\[\\[\\[xl\\]\\]\\]$'
     ATTR_PATTERN = '^\\[\\[\\[Attr\\]\\]\\]$|^\\[\\[\\[attr\\]\\]\\]$'
     UNITS_PATTERN = 'units'
@@ -48,7 +49,7 @@ class L1Format:
             spaces (str): Spaces to be inserted before each section and line
             level_line (str): Line specifying the level. L1 for this section.
         Returns:
-            obj: Pandas DataFrame object.
+            dict: Mapping of pyfluxpro-friendly label to Ameriflux-friendly labels for variables in L1_Ameriflux.txt
         """
         # open input file in read mode
         l1_mainstem = open(l1_mainstem, 'r')
@@ -119,7 +120,6 @@ class L1Format:
 
         # get Global section
         mainstem_global_lines, mainstem_variable_ind = L1Format.get_global_lines(l1_mainstem_lines)
-        ameriflux_global_lines, ameriflux_variable_ind = L1Format.get_global_lines(l1_ameriflux_lines)
         # write global section lines to l1 output
         l1_output_lines.extend(mainstem_global_lines)
 
@@ -132,9 +132,9 @@ class L1Format:
         # remove newline and extra spaces from each line
         mainstem_var_df['Text'] = mainstem_var_df['Text'].apply(lambda x: x.strip())
         # get df with only variables and a list of variable start and end indexes
-        mainstem_variables, mainstem_var_start_end = L1Format.get_variables(mainstem_var_df['Text'])
+        mainstem_variables, mainstem_var_start_end = L1Format.get_variables_index(mainstem_var_df['Text'])
 
-        # get the variable lines to be written
+        # get the variable lines to be written and variable name mapping
         variable_lines_out, ameriflux_variables = L1Format.format_variables(mainstem_var_df, mainstem_var_start_end,
                                                                             soil_moisture_labels, soil_temp_labels,
                                                                             ameriflux_key, erroring_variable_key)
@@ -142,7 +142,13 @@ class L1Format:
         l1_output_lines.extend(variable_lines_out)
 
         # read from Ameriflux only L1 file
+        ameriflux_variable_ind = L1Format.get_variable_line_index(l1_ameriflux_lines)
         ameriflux_var_lines = l1_ameriflux_lines[ameriflux_variable_ind + 1:]
+        # get the list of ameriflux-friendly variables
+        ameriflux_var_list = L1Format.get_ameriflux_variables(ameriflux_var_lines)
+        # add to ameriflux_variables mapping
+        for var in ameriflux_var_list:
+            ameriflux_variables[var] = var
 
         # write output lines to file
         L1Format.write_list_to_file(l1_output_lines, l1_ameriflux_output)
@@ -151,6 +157,8 @@ class L1Format:
         # close files
         l1_mainstem.close()
         l1_ameriflux.close()
+
+        return ameriflux_variables
 
     @staticmethod
     def check_l1_format(lines):
@@ -411,7 +419,37 @@ class L1Format:
                 global_lines.append(spaces + line.strip())
 
     @staticmethod
-    def get_variables(text, var_pattern=VAR_PATTERN):
+    def get_variable_line_index(lines):
+        """
+            Get Variables section starting line index
+
+            Args:
+                lines (list): List of the strings that are read fom L1.txt
+            Returns:
+                ind (integer): Index of [Variables] section
+        """
+        for ind, line in enumerate(lines):
+            if line.strip() == "[Variables]":
+                return ind
+
+    @staticmethod
+    def get_ameriflux_variables(lines, pattern = VAR_PATTERN_WITH_SPACE):
+        """
+            Get list of variable names from l1_ameriflux_lines
+
+            Args:
+                lines (list): List of the strings that are read fom L1_ameriflux.txt
+                pattern (str): Regex pattern for variable names including whitespaces
+            Returns:
+                ameriflux_var_list (list): List of variable names
+        """
+        r = re.compile(pattern)
+        ameriflux_var_list = list(filter(r.match, lines))
+        ameriflux_var_list = [x.strip().strip('[]') for x in ameriflux_var_list]
+        return ameriflux_var_list
+
+    @staticmethod
+    def get_variables_index(text, var_pattern=VAR_PATTERN):
         """
             Get all variables and start and end index for each variable from L1.txt
 
@@ -450,7 +488,7 @@ class L1Format:
                 attr_pattern (str): Regex pattern to find the [[[Attr]]] section within Variables section
             Returns:
                 variable_lines_out (list) : List of variables lines to be written to l1_ameriflux
-                ameriflux_variables (list) : List of ameriflux-friendly variable names in L1
+                ameriflux_variables (dict) : Mapping of pyfluxpro-friendly to ameriflux-friendly variable names in L1
         """
         # define spaces for formatting in L1
         var_spaces = spaces
@@ -458,8 +496,9 @@ class L1Format:
         xl_spaces = spaces + spaces
         other_spaces = spaces + spaces + spaces
 
-        variables_out = []  # variable lines to be written
-        ameriflux_variables = []  # list of ameriflux-friendly variables
+        variables_lines_out = []  # variable lines to be written
+        # mapping for variables to be written
+        ameriflux_variables = {}  # dictionary of pyfluxpro-friendly names to ameriflux-friendly names
 
         # iterate over the variables
         for start, end in var_start_end:
@@ -492,7 +531,7 @@ class L1Format:
                 # do not replace the variable name with ameriflux label
                 var_flag = True
                 var_name_index = var.index[0]
-                ameriflux_variables.append(var_name)
+                ameriflux_variables[var_name] = var_name
                 var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_name + "]]"
 
             # if the erroring variable is to be replaced, the Ameriflux friendly variable name is in ameriflux_key
@@ -502,7 +541,7 @@ class L1Format:
                 var_name_index = var.index[0]
                 var_ameriflux_name = ameriflux_key.loc[ameriflux_key['Original variable name'] == var_name,
                                                        'Ameriflux variable name'].iloc[0]
-                ameriflux_variables.append(var_ameriflux_name)
+                ameriflux_variables[var_name] = var_ameriflux_name
                 var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_ameriflux_name + "]]"
 
                 if units_row.shape[0] > 0:
@@ -521,7 +560,7 @@ class L1Format:
                 var_flag = True
                 var_name_index = var.index[0]
                 var_ameriflux_name = moisture_labels[var_name]
-                ameriflux_variables.append(var_ameriflux_name)
+                ameriflux_variables[var_name] = var_ameriflux_name
                 var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_ameriflux_name + "]]"
                 # change the unit to percentage
                 if units_row.shape[0] > 0:
@@ -533,14 +572,14 @@ class L1Format:
                 var_flag = True
                 var_name_index = var.index[0]
                 var_ameriflux_name = temp_labels[var_name]
-                ameriflux_variables.append(var_ameriflux_name)
+                ameriflux_variables[var_name] = var_ameriflux_name
                 var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_ameriflux_name + "]]"
 
             if var_flag:
-                variables_out.extend(var['Text'].tolist())
+                variables_lines_out.extend(var['Text'].tolist())
 
         # end of for loop
-        return variables_out, ameriflux_variables
+        return variables_lines_out, ameriflux_variables
 
     @staticmethod
     def write_list_to_file(in_list, outfile):
