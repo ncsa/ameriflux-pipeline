@@ -78,9 +78,9 @@ class Config:
     PYFLUXPRO_INPUT_AMERIFLUX = os.getenv('PYFLUXPRO_INPUT_AMERIFLUX',
                                           '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/'
                                           'generated/pyfluxpro_input_ameriflux.xlsx')
-    L1_MAINSTEM = os.getenv('L1_MAINSTEM',
+    L1_MAINSTEM_INPUT = os.getenv('L1_MAINSTEM',
                             '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/input/L1_mainstem.txt')
-    L1_AMERIFLUX_ONLY = os.getenv('L1_AMERIFLUX_ONLY',
+    L1_AMERIFLUX_ONLY_INPUT = os.getenv('L1_AMERIFLUX_ONLY',
                                   '/Users/ameriflux-pipeline/ameriflux_pipeline/data/'
                                   'pyfluxpro/input/L1_ameriflux_only.txt')
     L1_AMERIFLUX_MAINSTEM_KEY = os.getenv('L1_AMERIFLUX_MAINSTEM_KEY',
