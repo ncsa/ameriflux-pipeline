@@ -2,6 +2,8 @@ import pandas as pd
 import os
 import re
 
+import utils.data_util as data_util
+
 
 class L1Format:
     """
@@ -22,11 +24,9 @@ class L1Format:
     # main method which calls other functions
     @staticmethod
     def data_formatting(pyfluxpro_input, l1_mainstem, l1_ameriflux_only, ameriflux_mainstem_key, file_meta_data_file,
-                        soil_key, outfile, l1_ameriflux_output, ameriflux_variable_user_confirmation,
-                        erroring_variable_key, spaces=SPACES, level_line=LEVEL_LINE,
-                        var_pattern=VAR_PATTERN, xl_pattern=XL_PATTERN, attr_pattern=ATTR_PATTERN,
-                        units_pattern=UNITS_PATTERN, long_name_pattern=LONG_NAME_PATTERN,
-                        name_pattern=NAME_PATTERN, sheet_pattern=SHEET_PATTERN):
+                        soil_key, outfile, l1_ameriflux_output,
+                        ameriflux_variable_user_confirmation, erroring_variable_key,
+                        spaces=SPACES, level_line=LEVEL_LINE):
         """
         Main method for the class.
 
@@ -45,16 +45,8 @@ class L1Format:
             erroring_variable_key (str): Variable name key used to match the original variable names to Ameriflux names
                                     for variables throwing an error in PyFluxPro L1.
                                     This is an excel file named L1_erroring_variables.xlsx
-
             spaces (str): Spaces to be inserted before each section and line
             level_line (str): Line specifying the level. L1 for this section.
-            var_pattern (str): Regex pattern to find the starting line for [Variables] section
-            xl_pattern (str): Regex pattern to find the [[[xl]]] section within Variables section
-            attr_pattern (str): Regex pattern to find the [[[Attr]]] section within Variables section
-            units_pattern (str): Regex pattern to find the units line within Attr section
-            long_name_pattern (str): Regex pattern to find the long_name line within Attr section
-            name_pattern (str): Regex pattern to find the name line within Attr section
-            sheet_pattern (str): Regex pattern to find the sheet line within xl section
         Returns:
             obj: Pandas DataFrame object.
         """
@@ -67,10 +59,7 @@ class L1Format:
         l1_ameriflux_lines = l1_ameriflux.readlines()
 
         # check if input L1 have the same format as expected
-        if not L1Format.check_l1_format(l1_mainstem_lines, var_pattern, xl_pattern, attr_pattern, units_pattern,
-                                        long_name_pattern, name_pattern, sheet_pattern) \
-            or not L1Format.check_l1_format(l1_ameriflux_lines, var_pattern, xl_pattern, attr_pattern, units_pattern,
-                                            long_name_pattern, name_pattern, sheet_pattern):
+        if not L1Format.check_l1_format(l1_mainstem_lines) or not L1Format.check_l1_format(l1_ameriflux_lines):
             print("Check L1.txt format")
             l1_mainstem_lines.close()
             l1_ameriflux_lines.close()
@@ -81,7 +70,7 @@ class L1Format:
         # get the site name
         file_site_name = file_meta.iloc[0][5]
         site_name = L1Format.get_site_name(file_site_name)
-        df_soil_key = L1Format.read_soil_key(soil_key)
+        df_soil_key = data_util.read_excel(soil_key)
         soil_moisture_labels, soil_temp_labels = L1Format.get_moisture_labels(site_name, df_soil_key)
 
         ameriflux_key = pd.read_excel(ameriflux_mainstem_key)  # read AmeriFlux-Mainstem variable name matching file
@@ -129,8 +118,8 @@ class L1Format:
         l1_output_lines.extend(files_lines)
 
         # get Global section
-        mainstem_global_lines, mainstem_variable_ind = L1Format.get_global_lines(l1_mainstem_lines, spaces)
-        ameriflux_global_lines, ameriflux_variable_ind = L1Format.get_global_lines(l1_ameriflux_lines, spaces)
+        mainstem_global_lines, mainstem_variable_ind = L1Format.get_global_lines(l1_mainstem_lines)
+        ameriflux_global_lines, ameriflux_variable_ind = L1Format.get_global_lines(l1_ameriflux_lines)
         # write global section lines to l1 output
         l1_output_lines.extend(mainstem_global_lines)
 
@@ -143,13 +132,12 @@ class L1Format:
         # remove newline and extra spaces from each line
         mainstem_var_df['Text'] = mainstem_var_df['Text'].apply(lambda x: x.strip())
         # get df with only variables and a list of variable start and end indexes
-        mainstem_variables, mainstem_var_start_end = L1Format.get_variables(mainstem_var_df['Text'], var_pattern)
+        mainstem_variables, mainstem_var_start_end = L1Format.get_variables(mainstem_var_df['Text'])
 
         # get the variable lines to be written
         variable_lines_out, ameriflux_variables = L1Format.format_variables(mainstem_var_df, mainstem_var_start_end,
                                                                             soil_moisture_labels, soil_temp_labels,
-                                                                            ameriflux_key, erroring_variable_key,
-                                                                            spaces, xl_pattern, attr_pattern)
+                                                                            ameriflux_key, erroring_variable_key)
         # write variables section lines to l1 output
         l1_output_lines.extend(variable_lines_out)
 
@@ -165,19 +153,11 @@ class L1Format:
         l1_ameriflux.close()
 
     @staticmethod
-    def check_l1_format(lines, var_pattern, xl_pattern, attr_pattern, units_pattern, long_name_pattern,
-                        name_pattern, sheet_pattern):
+    def check_l1_format(lines):
         """
             Check if the formatting for L1 is as expected
             Args:
                 lines (list): List of strings. Lines in L1.txt
-                var_pattern (str): Regex pattern to find the starting line for [Variables] section
-                xl_pattern (str): Regex pattern to find the [[[xl]]] section within Variables section
-                attr_pattern (str): Regex pattern to find the [[[Attr]]] section within Variables section
-                units_pattern (str): Regex pattern to find the units line within Attr section
-                long_name_pattern (str): Regex pattern to find the long_name line within Attr section
-                name_pattern (str): Regex pattern to find the name line within Attr section
-                sheet_pattern (str): Regex pattern to find the sheet line within xl section
             Returns:
                 (bool) : Returns True if the format is as expected, else return False
         """
@@ -195,9 +175,7 @@ class L1Format:
         if files_line_index and global_line_index:
             if L1Format.check_files_line(lines[files_line_index + 1:global_line_index]):
                 if L1Format.check_global_line(lines[global_line_index + 1:variables_line_index]):
-                    if L1Format.check_variables_line(lines[variables_line_index + 1:],
-                                                     var_pattern, xl_pattern, attr_pattern, units_pattern,
-                                                     long_name_pattern, name_pattern, sheet_pattern):
+                    if L1Format.check_variables_line(lines[variables_line_index + 1:]):
                         return True
                     else:
                         print("Incorrect format in Variables section")
@@ -286,8 +264,9 @@ class L1Format:
         return True
 
     @staticmethod
-    def check_variables_line(lines, var_pattern, xl_pattern, attr_pattern, units_pattern, long_name_pattern,
-                             name_pattern, sheet_pattern):
+    def check_variables_line(lines, var_pattern=VAR_PATTERN, xl_pattern=XL_PATTERN, attr_pattern=ATTR_PATTERN,
+                             units_pattern=UNITS_PATTERN, long_name_pattern=LONG_NAME_PATTERN,
+                             name_pattern=NAME_PATTERN, sheet_pattern=SHEET_PATTERN):
         """
             Check if the formatting for L1 Variables section is as expected
             Args:
@@ -371,19 +350,6 @@ class L1Format:
             return 'Sorghum'
 
     @staticmethod
-    def read_soil_key(input_soil_key):
-        """
-        Method to read soil key excel file.
-        Soil key file contains the mapping for pyfluxpro variables and ameriflux labels for soil temp and moisture
-        Args :
-            input_soil_key (str): soil key file path
-        Returns :
-            obj : pandas dataframe object of the soil keys
-        """
-        soil_key_df = pd.read_excel(input_soil_key)  # read excel file
-        return soil_key_df
-
-    @staticmethod
     def get_moisture_labels(site_name, df_soil_key):
         """
         Method to get a mapping from PyFluxPro labels to Ameriflux labels
@@ -419,7 +385,7 @@ class L1Format:
         return soil_moisture_labels, soil_temp_labels
 
     @staticmethod
-    def get_global_lines(lines, spaces):
+    def get_global_lines(lines, spaces=SPACES):
         """
             Get Global section from L1.txt
 
@@ -445,7 +411,7 @@ class L1Format:
                 global_lines.append(spaces + line.strip())
 
     @staticmethod
-    def get_variables(text, var_pattern):
+    def get_variables(text, var_pattern=VAR_PATTERN):
         """
             Get all variables and start and end index for each variable from L1.txt
 
@@ -467,7 +433,7 @@ class L1Format:
 
     @staticmethod
     def format_variables(df, var_start_end, moisture_labels, temp_labels, ameriflux_key, erroring_variable_key,
-                         spaces, xl_pattern, attr_pattern):
+                         spaces=SPACES, xl_pattern=XL_PATTERN, attr_pattern=ATTR_PATTERN):
         """
             Change variable names and units to AmeriFlux standard
 
@@ -520,7 +486,8 @@ class L1Format:
 
             # check if the variable is one of the erroring variables in L1 PyFluxPro
             # check if the erroring_variable_key is a dataframe.
-            if isinstance(erroring_variable_key, pd.DataFrame) and erroring_variable_key['PyFluxPro label'].isin([var_name]).any():
+            if isinstance(erroring_variable_key, pd.DataFrame) and \
+                    erroring_variable_key['PyFluxPro label'].isin([var_name]).any():
                 # the variable name is one of the erroring variables.
                 # do not replace the variable name with ameriflux label
                 var_flag = True
