@@ -48,7 +48,7 @@ class L1Format:
             spaces (str): Spaces to be inserted before each section and line
             level_line (str): Line specifying the level. L1 for this section.
         Returns:
-            obj: Pandas DataFrame object.
+            None
         """
         # open input file in read mode
         l1_mainstem = open(l1_mainstem, 'r')
