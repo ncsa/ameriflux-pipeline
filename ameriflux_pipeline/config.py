@@ -91,7 +91,6 @@ class Config:
     L1_AMERIFLUX = os.getenv('L1_AMERIFLUX',
                              '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/generated/L1_ameriflux.txt')
 
-
     # QA/QC values
     # precipitation threshold values used in creating Eddypro master meteorology data
     QC_PRECIP_LOWER = 0.0  # precipitation lower threshold value (inches)

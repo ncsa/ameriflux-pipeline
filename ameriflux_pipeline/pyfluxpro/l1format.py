@@ -441,7 +441,8 @@ class L1Format:
         return variables, var_start_end
 
     @staticmethod
-    def format_variables(df, var_start_end, moisture_labels, temp_labels, ameriflux_key, spaces, xl_pattern, attr_pattern):
+    def format_variables(df, var_start_end, moisture_labels, temp_labels, ameriflux_key,
+                         spaces, xl_pattern, attr_pattern):
         """
             Change variable names and units to AmeriFlux standard
 
