@@ -78,17 +78,19 @@ class Config:
     PYFLUXPRO_INPUT_AMERIFLUX = os.getenv('PYFLUXPRO_INPUT_AMERIFLUX',
                                           '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/'
                                           'generated/pyfluxpro_input_ameriflux.xlsx')
+
+    # L1 Ameriflux formatting
     L1_MAINSTEM_INPUT = os.getenv('L1_MAINSTEM_INPUT',
-                                  '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/input/L1_mainstem.txt')
+                            '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/input/L1_mainstem.txt')
     L1_AMERIFLUX_ONLY_INPUT = os.getenv('L1_AMERIFLUX_ONLY_INPUT',
-                                        '/Users/ameriflux-pipeline/ameriflux_pipeline/data/'
-                                        'pyfluxpro/input/L1_Ameriflux_ONLY.txt')
+                                  '/Users/ameriflux-pipeline/ameriflux_pipeline/data/'
+                                  'pyfluxpro/input/L1_Ameriflux_ONLY.txt')
     L1_AMERIFLUX_MAINSTEM_KEY = os.getenv('L1_AMERIFLUX_MAINSTEM_KEY',
                                           '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/'
                                           'input/Ameriflux-Mainstem-Key.xlsx')
     L1_AMERIFLUX_RUN_OUTPUT = os.getenv('L1_AMERIFLUX_RUN_OUTPUT',
-                                        '/Users/ameriflux-pipeline/ameriflux_pipeline/data/'
-                                        'pyfluxpro/generated/Sorghum_2021_L1.nc')
+                                    '/Users/ameriflux-pipeline/ameriflux_pipeline/data/'
+                                    'pyfluxpro/generated/Sorghum_2021_L1.nc')
     L1_AMERIFLUX = os.getenv('L1_AMERIFLUX',
                              '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/generated/L1_ameriflux.txt')
 
