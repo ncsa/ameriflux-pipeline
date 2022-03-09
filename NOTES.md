@@ -36,4 +36,6 @@
 - Calculation of shortwave out and albedo is as follows :
 - SW_out_Avg = Shortwave In - Net Shortwave = CM3Dn_Avg = SWUp_Avg
 - Albedo_Avg = Shortwave Out / Shortwave In = CM3Dn_Avg / CM3Up_Avg = SWUp_Avg / SWDn_Avg = albedo_avg (already in dataset)
+### 11
+- PyFluxPro requires the Timestamp columns to be in this specific order - TIMESTAMP, TIMESTAMP_END, TIMESTAMP_START. These columns should be present at indexes 0, 1, 2 respectively.
 
