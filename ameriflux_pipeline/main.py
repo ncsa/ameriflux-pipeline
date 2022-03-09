@@ -201,7 +201,6 @@ def pyfluxpro_l1_ameriflux_processing(pyfluxpro_input, l1_mainstem, l1_ameriflux
 if __name__ == '__main__':
     # run eddypro preprocessing and formatting
     eddypro_formatted_met_file, file_meta_data_file = eddypro_preprocessing()
-
     # run eddypro
     run_eddypro(eddypro_formatted_met_file)
 
@@ -226,7 +225,7 @@ if __name__ == '__main__':
         print(cfg.PYFLUXPRO_INPUT_SHEET, "path does not exist")
 
     # run ameriflux formatting of pyfluxpro L1 control file
-    pyfluxpro_l1_ameriflux_processing(cfg.PYFLUXPRO_INPUT_AMERIFLUX, cfg.L1_MAINSTEM, cfg.L1_AMERIFLUX_ONLY,
+    pyfluxpro_l1_ameriflux_processing(cfg.PYFLUXPRO_INPUT_AMERIFLUX, cfg.L1_MAINSTEM_INPUT, cfg.L1_AMERIFLUX_ONLY_INPUT,
                                       cfg.L1_AMERIFLUX_MAINSTEM_KEY, file_meta_data_file, cfg.INPUT_SOIL_KEY,
-                                      cfg.L1_AMERIFLUX_OUTPUT, cfg.L1_AMERIFLUX,
+                                      cfg.L1_AMERIFLUX_RUN_OUTPUT, cfg.L1_AMERIFLUX,
                                       cfg.AMERIFLUX_VARIABLE_USER_CONFIRMATION, cfg.L1_AMERIFLUX_ERRORING_VARIABLES_KEY)
