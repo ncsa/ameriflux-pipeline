@@ -26,6 +26,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Reconstructed code to handle Maize site data (ZMB) [#78](https://github.com/ncsa/ameriflux-pipeline/issues/78)
 - Pyfluxpro input sheet formatting for AmeriFlux submission [#88](https://github.com/ncsa/ameriflux-pipeline/issues/88)
 - Creation of L1.txt meeting AmeriFlux standards [#92](https://github.com/ncsa/ameriflux-pipeline/issues/92)
+- Added missing variables to L1.txt for Ameriflux [#99](https://github.com/ncsa/ameriflux-pipeline/issues/99)
+- L1 processing is made more efficient [#100](https://github.com/ncsa/ameriflux-pipeline/issues/100)
+- Check formatting of L1 inputs [#109](https://github.com/ncsa/ameriflux-pipeline/issues/109)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
