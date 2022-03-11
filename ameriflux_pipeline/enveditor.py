@@ -320,7 +320,7 @@ class EnvEditor():
             grid(sticky="w", row=i+2, column=0)
         button_sftp_confirm = tk.Button(second_frame, text=self.INFO_TITLE, command=self.on_click_sftp_confirm). \
             grid(sticky="w", row=i+2, column=1)
-        desc_sftp_confirm= tk.Label(second_frame, text=self.DESC_SFTP_CONFIRMATION, font=self.DESC_FONT). \
+        desc_sftp_confirm = tk.Label(second_frame, text=self.DESC_SFTP_CONFIRMATION, font=self.DESC_FONT). \
             grid(sticky="w", row=i+3, columnspan=3)
         confirm_sftp_list = ("Y", "N")
         confirm_sftp_list_index = 0
@@ -846,11 +846,12 @@ class EnvEditor():
 
         # create L1 mainstem input
         label_l1_mainstem_input = tk.Label(master=second_frame, text=self.BROWSE_L1_MAINSTEM_INPUT,
-                                  font=self.BOLD_FONT).grid(sticky="w", row=i+8, column=0)
+                                           font=self.BOLD_FONT).grid(sticky="w", row=i+8, column=0)
         info_l1_mainstem_input = tk.Button(second_frame, text=self.INFO_TITLE, font=self.MAIN_FONT,
-                                  command=self.on_click_l1_mainstem_input).grid(sticky="w", row=i+8, column=1)
-        button_browse_l1_mainstem_input = tk.Button(master=second_frame, text="Browse", font=self.MAIN_FONT,
-                                           command=self.browse_l1_mainstem_input).grid(sticky="w", row=i+8, column=2)
+                                           command=self.on_click_l1_mainstem_input).grid(sticky="w", row=i+8, column=1)
+        button_browse_l1_mainstem_input = tk.Button(
+            master=second_frame, text="Browse", font=self.MAIN_FONT, command=self.browse_l1_mainstem_input).\
+            grid(sticky="w", row=i+8, column=2)
         desc_l1_mainstem_input = tk.Label(second_frame, text=self.DESC_L1_MAINSTEM_INPUT, font=self.DESC_FONT) \
             .grid(sticky="w", row=i+9, column=0, columnspan=3)
         self.path_l1_mainstem_input = tk.Label(master=second_frame, text=self.L1_MAINSTEM_INPUT, font=self.MAIN_FONT)
@@ -860,17 +861,18 @@ class EnvEditor():
 
         # create l1 ameriflux only input
         label_l1_ameriflux_only_input = tk.Label(master=second_frame, text=self.BROWSE_L1_AMERIFLUX_ONLY_INPUT,
-                                      font=self.BOLD_FONT).grid(sticky="w", row=i+12, column=0)
+                                                 font=self.BOLD_FONT).grid(sticky="w", row=i+12, column=0)
         info_l1_ameriflux_only_input = tk.Button(second_frame, text=self.INFO_TITLE, font=self.MAIN_FONT,
-                                      command=self.on_click_l1_ameriflux_only_input). \
+                                                 command=self.on_click_l1_ameriflux_only_input). \
             grid(sticky="w", row=i+12, column=1)
         button_browse_l1_ameriflux_only_input = \
             tk.Button(master=second_frame, text="Browse", font=self.MAIN_FONT,
                       command=self.browse_l1_ameriflux_only_input).grid(sticky="w", row=i+12, column=2)
-        desc_l1_ameriflux_only_input = tk.Label(second_frame, text=self.DESC_L1_AMERIFLUX_ONLY_INPUT, font=self.DESC_FONT). \
+        desc_l1_ameriflux_only_input = tk.Label(
+            second_frame, text=self.DESC_L1_AMERIFLUX_ONLY_INPUT, font=self.DESC_FONT). \
             grid(sticky="w", row=i+13, column=0, columnspan=3)
-        self.path_l1_ameriflux_only_input = tk.Label(master=second_frame, text=self.L1_AMERIFLUX_ONLY_INPUT,
-                                          font=self.MAIN_FONT)
+        self.path_l1_ameriflux_only_input = tk.Label(
+            master=second_frame, text=self.L1_AMERIFLUX_ONLY_INPUT, font=self.MAIN_FONT)
         self.path_l1_ameriflux_only_input.grid(sticky="w", row=i+14, column=0, columnspan=3)
         label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL_SUB). \
             grid(sticky="w", row=i+15, column=0, columnspan=3)
@@ -894,9 +896,9 @@ class EnvEditor():
 
         # create l1 ameriflux run output
         label_l1_ameriflux_run_output = tk.Label(master=second_frame, text=self.BROWSE_L1_AMERIFLUX_RUN_OUTPUT,
-                                      font=self.BOLD_FONT).grid(sticky="w", row=i+20, column=0)
+                                                 font=self.BOLD_FONT).grid(sticky="w", row=i+20, column=0)
         info_l1_ameriflux_run_output = tk.Button(second_frame, text=self.INFO_TITLE, font=self.MAIN_FONT,
-                                      command=self.on_click_l1_ameriflux_run_output). \
+                                                 command=self.on_click_l1_ameriflux_run_output). \
             grid(sticky="w", row=i+20, column=1)
         button_browse_l1_ameriflux_run_output = \
             tk.Button(master=second_frame, text="Browse", font=self.MAIN_FONT,
@@ -904,25 +906,24 @@ class EnvEditor():
         desc_l1_ameriflux_run_output = tk.Label(
             second_frame, text=self.DESC_L1_AMERIFLUX_RUN_OUTPUT, font=self.DESC_FONT). \
             grid(sticky="w", row=i+21, column=0, columnspan=3)
-        self.path_l1_ameriflux_run_output = tk.Label(master=second_frame, text=self.L1_AMERIFLUX_RUN_OUTPUT,
-                                          font=self.MAIN_FONT)
+        self.path_l1_ameriflux_run_output = tk.Label(
+            master=second_frame, text=self.L1_AMERIFLUX_RUN_OUTPUT, font=self.MAIN_FONT)
         self.path_l1_ameriflux_run_output.grid(sticky="w", row=i+22, column=0, columnspan=3)
         label_separation = tk.Label(master=second_frame,
                                     text=self.SEPARATION_LABEL_SUB).grid(sticky="w", row=i+23, column=0, columnspan=3)
 
         # create L1 output ameriflux"
         label_l1_ameriflux = tk.Label(master=second_frame, text=self.BROWSE_L1_AMERIFLUX,
-                                   font=self.BOLD_FONT).grid(sticky="w", row=i+24, column=0)
+                                      font=self.BOLD_FONT).grid(sticky="w", row=i+24, column=0)
         info_l1_ameriflux = tk.Button(second_frame, text=self.INFO_TITLE, font=self.MAIN_FONT,
-                                   command=self.on_click_l1_ameriflux). \
+                                      command=self.on_click_l1_ameriflux). \
             grid(sticky="w", row=i+24, column=1)
         button_browse_l1_ameriflux = \
             tk.Button(master=second_frame, text="Browse", font=self.MAIN_FONT,
                       command=self.browse_l1_ameriflux).grid(sticky="w", row=i+24, column=2)
         desc_l1_ameriflux = tk.Label(second_frame, text=self.DESC_L1_AMERIFLUX, font=self.DESC_FONT). \
             grid(sticky="w", row=i+25, column=0, columnspan=3)
-        self.path_l1_ameriflux = tk.Label(master=second_frame, text=self.L1_AMERIFLUX,
-                                       font=self.MAIN_FONT)
+        self.path_l1_ameriflux = tk.Label(master=second_frame, text=self.L1_AMERIFLUX, font=self.MAIN_FONT)
         self.path_l1_ameriflux.grid(sticky="w", row=i+26, column=0, columnspan=3)
         label_separation = tk.Label(master=second_frame,
                                     text=self.SEPARATION_LABEL_SUB).grid(sticky="w", row=i+27, column=0, columnspan=3)
