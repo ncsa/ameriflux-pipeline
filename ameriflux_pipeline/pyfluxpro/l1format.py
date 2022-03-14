@@ -152,7 +152,6 @@ class L1Format:
 
         # write output lines to file
         L1Format.write_list_to_file(l1_output_lines, l1_ameriflux_output)
-        L1Format.append_list_to_file(ameriflux_var_lines, l1_ameriflux_output)
 
         # close files
         l1_mainstem.close()
@@ -582,6 +581,71 @@ class L1Format:
         return variables_lines_out, ameriflux_variables
 
     @staticmethod
+    def format_ameriflux_var_units(df, var_start_end, ameriflux_key,
+                                   spaces=SPACES, xl_pattern=XL_PATTERN, attr_pattern=ATTR_PATTERN):
+        """
+            Change variable units for Ameriflux only variables
+
+            Args:
+                df (obj): Pandas dataframe with all variable lines from L1_ameriflux_only.txt
+                var_start_end (list): List of tuple, the starting and ending index for each ameriflux variable
+                ameriflux_key (obj): Pandas dataframe of AmeriFlux-Mainstem varible name sheet
+                spaces (str): Spaces to be inserted before each section and line
+                xl_pattern (str): Regex pattern to find the [[[xl]]] section within Variables section
+                attr_pattern (str): Regex pattern to find the [[[Attr]]] section within Variables section
+            Returns:
+                variable_lines_out (list) : List of variables lines to be written to l1_ameriflux
+        """
+        # define spaces for formatting in L1
+        var_spaces = spaces
+        attr_spaces = spaces + spaces
+        xl_spaces = spaces + spaces
+        other_spaces = spaces + spaces + spaces
+
+        variables_out = []  # variable lines to be written
+        # iterate over the variables
+        for start, end in var_start_end:
+            var_flag = False  # flag to see if variable has been changed or not
+            # get each variable in a separate df
+            var = df[start:end]
+            var_name = var['Text'].iloc[0].strip('[]')
+            # get the [[[xl]]] section
+            xl = var[var['Text'].str.contains(xl_pattern)]
+            xl_df = df[xl.index[0]:end]
+            # format text as per L1
+            xl_df['Text'].iloc[0] = xl_spaces + xl_df['Text'].iloc[0]
+            xl_df['Text'].iloc[1:] = other_spaces + xl_df['Text'].iloc[1:]
+
+            # get the [[[Attr]]] OR [[[attr]]] section
+            attr = var[var['Text'].str.contains(attr_pattern)]
+            attr_df = df[attr.index[0]:xl.index[0]]
+            # format text as per L1
+            attr_df['Text'].iloc[0] = attr_spaces + attr_df['Text'].iloc[0]
+            attr_df['Text'].iloc[1:] = other_spaces + attr_df['Text'].iloc[1:]
+
+            units_row = attr_df[attr_df['Text'].apply(lambda x: x.strip().startswith("units"))]
+
+            if ameriflux_key['Ameriflux variable name'].isin([var_name]).any():
+                var_flag = True
+                if units_row.shape[0] > 0:
+                    # check if units need to be changed
+                    var_units_index = units_row.index[0]
+                    var_ameriflux_units = \
+                        ameriflux_key.loc[ameriflux_key['Ameriflux variable name'] == var_name,
+                                          'Units after formatting'].iloc[0]
+                    if not pd.isnull(var_ameriflux_units):
+                        # if unit needs to be changed, if its not NaN in the ameriflux-mainstem sheet
+                        # replace units only if it is not empty
+                        # NOTES 12
+                        var['Text'].iloc[var.index == var_units_index] = other_spaces + \
+                                                                         "units = " + var_ameriflux_units
+            if var_flag:
+                variables_out.extend(var['Text'].tolist())
+
+        # end of for loop
+        return variables_out
+
+    @staticmethod
     def write_list_to_file(in_list, outfile):
         """
             Save list with string to a file
@@ -596,7 +660,7 @@ class L1Format:
         try:
             with open(outfile, 'w') as f:
                 f.write('\n'.join(in_list))
-                f.write('\n')  # write a new line at the end
+            print("AmeriFlux L1 saved in ", outfile)
         except Exception:
             raise Exception("Failed to create file ", outfile)
 
