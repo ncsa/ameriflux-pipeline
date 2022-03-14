@@ -194,7 +194,6 @@ def pyfluxpro_l1_ameriflux_processing(pyfluxpro_input, l1_mainstem, l1_ameriflux
     L1Format.data_formatting(pyfluxpro_input, l1_mainstem, l1_ameriflux_only, ameriflux_mainstem_key,
                              file_meta_data_file, soil_key, l1_output, l1_ameriflux_output,
                              ameriflux_variable_user_confirmation, erroring_variable_key)
-    print("AmeriFlux L1 saved in ", l1_ameriflux_output)
 
 
 # Press the green button in the gutter to run the script.

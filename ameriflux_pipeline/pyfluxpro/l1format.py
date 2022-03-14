@@ -631,6 +631,6 @@ class L1Format:
         try:
             with open(outfile, 'w') as f:
                 f.write('\n'.join(in_list))
-                f.write('\n')  # write a new line at the end
+            print("AmeriFlux L1 saved in ", outfile)
         except Exception:
             raise Exception("Failed to create file ", outfile)
