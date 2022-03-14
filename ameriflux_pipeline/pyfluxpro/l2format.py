@@ -17,7 +17,7 @@ class L2Format:
     # main method which calls other functions
     @staticmethod
     def data_formatting(pyfluxpro_ameriflux_labels, l2_mainstem, l2_ameriflux_only, l1_run_output, l2_run_output,
-                        spaces=SPACES, level_line=LEVEL_LINE):
+                        l2_ameriflux_output, spaces=SPACES, level_line=LEVEL_LINE):
         """
         Main method for the class.
 

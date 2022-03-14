@@ -12,11 +12,14 @@ class L1Format:
     # define global variables
     SPACES = "    "  # set 4 spaces as default for a section in L1
     LEVEL_LINE = "level = L1"  # set the level
+
     # define patterns to match
+    # variable names have alphanumeric characters and underscores with two square brackets
     VAR_PATTERN = '^\\[\\[[a-zA-Z0-9_]+\\]\\]$'
+    # variable name lines starts with 4 spaces and ends with new line
     VAR_PATTERN_WITH_SPACE = '^ {4}\\[\\[[a-zA-Z0-9_]+\\]\\]\n$'
-    XL_PATTERN = '^\\[\\[\\[xl\\]\\]\\]$'
-    ATTR_PATTERN = '^\\[\\[\\[Attr\\]\\]\\]$|^\\[\\[\\[attr\\]\\]\\]$'
+    XL_PATTERN = '^\\[\\[\\[xl\\]\\]\\]$'  # to match [[xl]] line
+    ATTR_PATTERN = '^\\[\\[\\[Attr\\]\\]\\]$|^\\[\\[\\[attr\\]\\]\\]$'  # to match [[Attr]] or [[attr]] line
     UNITS_PATTERN = 'units'
     LONG_NAME_PATTERN = 'long_name'
     NAME_PATTERN = 'name'
@@ -508,14 +511,23 @@ class L1Format:
 
             # get the [[[xl]]] section
             xl = var[var['Text'].str.contains(xl_pattern)]
-            xl_df = df[xl.index[0]:end]
+            # get the [[[Attr]]] OR [[[attr]]] section
+            attr = var[var['Text'].str.contains(attr_pattern)]
+
+            # check which section comes first
+            if xl.index[0] > attr.index[0]:
+                # attr section comes first
+                xl_df = df[xl.index[0]:end]
+                attr_df = df[attr.index[0]:xl.index[0]]
+            else:
+                # xl section comes first
+                attr_df = df[attr.index[0]:end]
+                xl_df = df[xl.index[0]:attr.index[0]]
+
             # format text as per L1
             xl_df['Text'].iloc[0] = xl_spaces + xl_df['Text'].iloc[0]
             xl_df['Text'].iloc[1:] = other_spaces + xl_df['Text'].iloc[1:]
 
-            # get the [[[Attr]]] OR [[[attr]]] section
-            attr = var[var['Text'].str.contains(attr_pattern)]
-            attr_df = df[attr.index[0]:xl.index[0]]
             # format text as per L1
             attr_df['Text'].iloc[0] = attr_spaces + attr_df['Text'].iloc[0]
             attr_df['Text'].iloc[1:] = other_spaces + attr_df['Text'].iloc[1:]
@@ -664,20 +676,3 @@ class L1Format:
         except Exception:
             raise Exception("Failed to create file ", outfile)
 
-    @staticmethod
-    def append_list_to_file(in_list, outfile):
-        """
-            Save list with string to a file
-
-            Args:
-                in_list (list): List of the strings
-                outfile (str): A file path of the output file
-
-            Returns:
-                None
-        """
-        try:
-            with open(outfile, 'a') as f:
-                f.write(''.join(in_list))
-        except Exception:
-            raise Exception("Failed to append to file ", outfile)
