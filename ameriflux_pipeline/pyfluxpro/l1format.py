@@ -137,7 +137,7 @@ class L1Format:
         # get df with only variables and a list of variable start and end indexes
         mainstem_variables, mainstem_var_start_end = L1Format.get_variables_index(mainstem_var_df['Text'])
 
-        # get the variable lines to be written and variable name mapping
+        # get the mainstem variable lines to be written and variable name mapping
         variable_lines_out, ameriflux_variables = L1Format.format_variables(mainstem_var_df, mainstem_var_start_end,
                                                                             soil_moisture_labels, soil_temp_labels,
                                                                             ameriflux_key, erroring_variable_key)
@@ -435,7 +435,7 @@ class L1Format:
                 return ind
 
     @staticmethod
-    def get_ameriflux_variables(lines, pattern = VAR_PATTERN_WITH_SPACE):
+    def get_ameriflux_variables(lines, pattern=VAR_PATTERN_WITH_SPACE):
         """
             Get list of variable names from l1_ameriflux_lines
 
@@ -447,6 +447,7 @@ class L1Format:
         """
         r = re.compile(pattern)
         ameriflux_var_list = list(filter(r.match, lines))
+        # strip spaces and brackets to get only the variable name
         ameriflux_var_list = [x.strip().strip('[]') for x in ameriflux_var_list]
         return ameriflux_var_list
 
