@@ -479,17 +479,30 @@ class L1Format:
 
             # get the [[[xl]]] section
             xl = var[var['Text'].str.contains(xl_pattern)]
-            xl_df = df[xl.index[0]:end]
+            # get the [[[Attr]]] OR [[[attr]]] section
+            attr = var[var['Text'].str.contains(attr_pattern)]
+
+            # check which section comes first
+            if xl.index[0] > attr.index[0]:
+                # attr section comes first
+                xl_df = df[xl.index[0]:end]
+                attr_df = df[attr.index[0]:xl.index[0]]
+            else:
+                # xl section comes first
+                attr_df = df[attr.index[0]:end]
+                xl_df = df[xl.index[0]:attr.index[0]]
+
             # format text as per L1
             xl_df['Text'].iloc[0] = xl_spaces + xl_df['Text'].iloc[0]
             xl_df['Text'].iloc[1:] = other_spaces + xl_df['Text'].iloc[1:]
 
-            # get the [[[Attr]]] OR [[[attr]]] section
-            attr = var[var['Text'].str.contains(attr_pattern)]
-            attr_df = df[attr.index[0]:xl.index[0]]
             # format text as per L1
             attr_df['Text'].iloc[0] = attr_spaces + attr_df['Text'].iloc[0]
             attr_df['Text'].iloc[1:] = other_spaces + attr_df['Text'].iloc[1:]
+
+            # update the variable df
+            var.update(xl_df)
+            var.update(attr_df)
 
             units_row = attr_df[attr_df['Text'].apply(lambda x: x.strip().startswith("units"))]
 
@@ -580,19 +593,37 @@ class L1Format:
             # get each variable in a separate df
             var = df[start:end]
             var_name = var['Text'].iloc[0].strip('[]')
+
+            # set the spacing for variable name line
+            var_name_index = var.index[0]
+            var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_name + "]]"
+
             # get the [[[xl]]] section
             xl = var[var['Text'].str.contains(xl_pattern)]
-            xl_df = df[xl.index[0]:end]
+            # get the [[[Attr]]] OR [[[attr]]] section
+            attr = var[var['Text'].str.contains(attr_pattern)]
+
+            # check which section comes first
+            if xl.index[0] > attr.index[0]:
+                # attr section comes first
+                xl_df = df[xl.index[0]:end]
+                attr_df = df[attr.index[0]:xl.index[0]]
+            else:
+                # xl section comes first
+                attr_df = df[attr.index[0]:end]
+                xl_df = df[xl.index[0]:attr.index[0]]
+
             # format text as per L1
             xl_df['Text'].iloc[0] = xl_spaces + xl_df['Text'].iloc[0]
             xl_df['Text'].iloc[1:] = other_spaces + xl_df['Text'].iloc[1:]
 
-            # get the [[[Attr]]] OR [[[attr]]] section
-            attr = var[var['Text'].str.contains(attr_pattern)]
-            attr_df = df[attr.index[0]:xl.index[0]]
             # format text as per L1
             attr_df['Text'].iloc[0] = attr_spaces + attr_df['Text'].iloc[0]
             attr_df['Text'].iloc[1:] = other_spaces + attr_df['Text'].iloc[1:]
+
+            # update the variable df
+            var.update(xl_df)
+            var.update(attr_df)
 
             units_row = attr_df[attr_df['Text'].apply(lambda x: x.strip().startswith("units"))]
 
