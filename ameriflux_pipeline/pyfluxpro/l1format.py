@@ -532,6 +532,9 @@ class L1Format:
             attr_df['Text'].iloc[0] = attr_spaces + attr_df['Text'].iloc[0]
             attr_df['Text'].iloc[1:] = other_spaces + attr_df['Text'].iloc[1:]
 
+            var.update(xl_df)
+            var.update(attr_df)
+
             units_row = attr_df[attr_df['Text'].apply(lambda x: x.strip().startswith("units"))]
 
             # check if the variable is one of the erroring variables in L1 PyFluxPro
