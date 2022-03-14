@@ -34,7 +34,7 @@ class Config:
     # NOTE 9
     # User confirmation to insert large number of missing timestamps
     # Enter 'Y'/'YES' to insert, 'N'/'NO' to ignore and 'A'/'ASK' to await user input during runtime.
-    USER_CONFIRMATION = os.getenv('USER_CONFIRMATION', 'Y')
+    MISSING_TIME_USER_CONFIRMATION = os.getenv('MISSING_TIME_USER_CONFIRMATION', 'Y')
     # master met output data path
     MASTER_MET = os.getenv('MASTER_MET',
                            '/Users/ameriflux-pipeline/ameriflux_pipeline/data/'
@@ -88,19 +88,28 @@ class Config:
     PYFLUXPRO_INPUT_AMERIFLUX = os.getenv('PYFLUXPRO_INPUT_AMERIFLUX',
                                           '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/'
                                           'generated/pyfluxpro_input_ameriflux.xlsx')
+
+    # L1 Ameriflux formatting
     L1_MAINSTEM_INPUT = os.getenv('L1_MAINSTEM_INPUT',
-                            '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/input/L1_mainstem.txt')
+                                  '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/input/L1_mainstem.txt')
     L1_AMERIFLUX_ONLY_INPUT = os.getenv('L1_AMERIFLUX_ONLY_INPUT',
-                                  '/Users/ameriflux-pipeline/ameriflux_pipeline/data/'
-                                  'pyfluxpro/input/L1_ameriflux_only.txt')
+                                        '/Users/ameriflux-pipeline/ameriflux_pipeline/data/'
+                                        'pyfluxpro/input/L1_Ameriflux_ONLY.txt')
     L1_AMERIFLUX_MAINSTEM_KEY = os.getenv('L1_AMERIFLUX_MAINSTEM_KEY',
                                           '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/'
                                           'input/Ameriflux-Mainstem-Key.xlsx')
     L1_AMERIFLUX_RUN_OUTPUT = os.getenv('L1_AMERIFLUX_RUN_OUTPUT',
-                                    '/Users/ameriflux-pipeline/ameriflux_pipeline/data/'
-                                    'pyfluxpro/generated/Sorghum_2021_L1.nc')
+                                        '/Users/ameriflux-pipeline/ameriflux_pipeline/data/'
+                                        'pyfluxpro/generated/Sorghum_2021_L1.nc')
     L1_AMERIFLUX = os.getenv('L1_AMERIFLUX',
                              '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/generated/L1_ameriflux.txt')
+
+    # User confirmation to replace erroring Ameriflux variable names in L1
+    # Enter 'Y'/'YES' to replace, 'N'/'NO' to ignore and 'A'/'ASK' to await user input during runtime.
+    AMERIFLUX_VARIABLE_USER_CONFIRMATION = os.getenv('AMERIFLUX_VARIABLE_USER_CONFIRMATION', 'N')
+    L1_AMERIFLUX_ERRORING_VARIABLES_KEY = os.getenv('L1_AMERIFLUX_ERRORING_VARIABLES_KEY',
+                                                    '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/'
+                                                    'input/L1_erroring_variables.xlsx')
 
     # QA/QC values
     # precipitation threshold values used in creating Eddypro master meteorology data
