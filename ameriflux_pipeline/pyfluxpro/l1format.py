@@ -665,21 +665,3 @@ class L1Format:
             print("AmeriFlux L1 saved in ", outfile)
         except Exception:
             raise Exception("Failed to create file ", outfile)
-
-    @staticmethod
-    def append_list_to_file(in_list, outfile):
-        """
-            Save list with string to a file
-
-            Args:
-                in_list (list): List of the strings
-                outfile (str): A file path of the output file
-
-            Returns:
-                None
-        """
-        try:
-            with open(outfile, 'a') as f:
-                f.write(''.join(in_list))
-        except Exception:
-            raise Exception("Failed to append to file ", outfile)
