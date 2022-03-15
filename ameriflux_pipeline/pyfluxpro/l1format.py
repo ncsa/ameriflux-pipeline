@@ -147,6 +147,19 @@ class L1Format:
         # read from Ameriflux only L1 file
         ameriflux_variable_ind = L1Format.get_variable_line_index(l1_ameriflux_lines)
         ameriflux_var_lines = l1_ameriflux_lines[ameriflux_variable_ind + 1:]
+        ameriflux_var_df = pd.DataFrame(ameriflux_var_lines, columns=['Text'])
+        # remove newline and extra spaces from each line
+        ameriflux_var_df['Text'] = ameriflux_var_df['Text'].apply(lambda x: x.strip())
+        # get df with only variables and a list of variable start and end indexes
+        ameriflux_variables, ameriflux_var_start_end = L1Format.get_variables_index(ameriflux_var_df['Text'])
+        # get the variable lines to be written
+        variable_lines_out = L1Format.format_ameriflux_var_units(ameriflux_var_df,
+                                                                 ameriflux_var_start_end, ameriflux_key)
+
+        # write variables section lines to l1 output
+        l1_output_lines.extend(variable_lines_out)
+
+
         # get the list of ameriflux-friendly variables
         ameriflux_var_list = L1Format.get_ameriflux_variables(ameriflux_var_lines)
         # add to ameriflux_variables mapping
@@ -501,7 +514,7 @@ class L1Format:
 
         variables_lines_out = []  # variable lines to be written
         # mapping for variables to be written
-        ameriflux_variables = {}  # dictionary of pyfluxpro-friendly names to ameriflux-friendly names
+        variables_mapping = {}  # dictionary of pyfluxpro-friendly names to ameriflux-friendly names
 
         # iterate over the variables
         for start, end in var_start_end:
@@ -533,6 +546,7 @@ class L1Format:
             attr_df['Text'].iloc[0] = attr_spaces + attr_df['Text'].iloc[0]
             attr_df['Text'].iloc[1:] = other_spaces + attr_df['Text'].iloc[1:]
 
+            # update the variable df
             var.update(xl_df)
             var.update(attr_df)
 
@@ -625,19 +639,37 @@ class L1Format:
             # get each variable in a separate df
             var = df[start:end]
             var_name = var['Text'].iloc[0].strip('[]')
+
+            # set the spacing for variable name line
+            var_name_index = var.index[0]
+            var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_name + "]]"
+
             # get the [[[xl]]] section
             xl = var[var['Text'].str.contains(xl_pattern)]
-            xl_df = df[xl.index[0]:end]
+            # get the [[[Attr]]] OR [[[attr]]] section
+            attr = var[var['Text'].str.contains(attr_pattern)]
+
+            # check which section comes first
+            if xl.index[0] > attr.index[0]:
+                # attr section comes first
+                xl_df = df[xl.index[0]:end]
+                attr_df = df[attr.index[0]:xl.index[0]]
+            else:
+                # xl section comes first
+                attr_df = df[attr.index[0]:end]
+                xl_df = df[xl.index[0]:attr.index[0]]
+
             # format text as per L1
             xl_df['Text'].iloc[0] = xl_spaces + xl_df['Text'].iloc[0]
             xl_df['Text'].iloc[1:] = other_spaces + xl_df['Text'].iloc[1:]
 
-            # get the [[[Attr]]] OR [[[attr]]] section
-            attr = var[var['Text'].str.contains(attr_pattern)]
-            attr_df = df[attr.index[0]:xl.index[0]]
             # format text as per L1
             attr_df['Text'].iloc[0] = attr_spaces + attr_df['Text'].iloc[0]
             attr_df['Text'].iloc[1:] = other_spaces + attr_df['Text'].iloc[1:]
+
+            # update the variable df
+            var.update(xl_df)
+            var.update(attr_df)
 
             units_row = attr_df[attr_df['Text'].apply(lambda x: x.strip().startswith("units"))]
 
@@ -679,4 +711,3 @@ class L1Format:
             print("AmeriFlux L1 saved in ", outfile)
         except Exception:
             raise Exception("Failed to create file ", outfile)
-
