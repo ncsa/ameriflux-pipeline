@@ -18,6 +18,7 @@ from eddypro.runeddypro import RunEddypro
 from pyfluxpro.pyfluxproformat import PyFluxProFormat
 from pyfluxpro.amerifluxformat import AmeriFluxFormat
 from pyfluxpro.l1format import L1Format
+from utils.syncdata import SyncData as syncdata
 
 import pandas.io.formats.excel
 pandas.io.formats.excel.header_style = None
@@ -32,12 +33,13 @@ def eddypro_preprocessing():
     Args:
         None
     Returns :
-        None
+        eddypro_formatted_met_file (str) : File name of the Met data formatted for eddypro
+        file_meta_data_file (str) : File containing the meta data, typically the first line of Met data
     """
     # start preprocessing data
     df, file_meta = Preprocessor.data_preprocess(cfg.INPUT_MET, cfg.INPUT_PRECIP,
                                                  float(cfg.QC_PRECIP_LOWER), float(cfg.QC_PRECIP_UPPER),
-                                                 int(cfg.MISSING_TIME), cfg.USER_CONFIRMATION)
+                                                 int(cfg.MISSING_TIME), cfg.MISSING_TIME_USER_CONFIRMATION)
     # TODO : check with Bethany - number of decimal places for numerical values
     # write processed df to output path
     data_util.write_data(df, cfg.MASTER_MET)
@@ -167,27 +169,41 @@ def pyfluxpro_ameriflux_processing(input_file, output_file):
     print("AmeriFlux PyFluxPro excel sheet saved in ", output_file)
 
 
-def pyfluxpro_l1_ameriflux_processing(pyfluxpro_input, l1_input, l1_ameriflux, l1_output, ameriflux_mainstem_key):
+def pyfluxpro_l1_ameriflux_processing(pyfluxpro_input, l1_mainstem, l1_ameriflux_only, ameriflux_mainstem_key,
+                                      file_meta_data_file, soil_key, l1_output, l1_ameriflux_output,
+                                      ameriflux_variable_user_confirmation, erroring_variable_key):
     """
     Main function to run PyFluxPro L1 control file formatting for AmeriFlux. Calls other functions
     Args:
         pyfluxpro_input (str): A file path for the PyFluxPro input excel sheet formatted for Ameriflux
-        l1_input (str): A file path for the input L1.txt. This is the PyFluxPro original L1 control file
-        l1_ameriflux (str): A file path for the L1.txt formatted for AmeriFlux
-        l1_output (str): A file path for the output of L1 run. This typically has .nc extension
+        l1_mainstem (str): A file path for the input L1.txt. This is the PyFluxPro original L1 control file
+        l1_ameriflux_only (str): A file path for the L1.txt that contains only Ameriflux-friendly variables
         ameriflux_mainstem_key (str): Variable name key used to match the original variable names to Ameriflux names
                                         This is an excel file named Ameriflux-Mainstem-Key.xlsx
+        file_meta_data_file (str) : File containing the meta data, typically the first line of Met data
+        soil_key (str) : A file path for input soil key sheet
+        l1_output (str): A file path for the output of L1 run. This typically has .nc extension
+        l1_ameriflux_output (str): A file path for the L1.txt that is formatted for Ameriflux standards
+        ameriflux_variable_user_confirmation (str): User decision on whether to replace,
+                                        ignore or ask during runtime in case of erroring variable names in PyFluxPro L1
+        erroring_variable_key (str): Variable name key used to match the original variable names to Ameriflux names
+                                    for variables throwing an error in PyFluxPro L1.
+                                    This is an excel file named L1_erroring_variables.xlsx
+
     Returns: None
     """
-    L1Format.data_formatting(pyfluxpro_input, l1_input, l1_ameriflux, l1_output, ameriflux_mainstem_key)
-    print("AmeriFlux L1 saved in ", l1_ameriflux)
+    L1Format.data_formatting(pyfluxpro_input, l1_mainstem, l1_ameriflux_only, ameriflux_mainstem_key,
+                             file_meta_data_file, soil_key, l1_output, l1_ameriflux_output,
+                             ameriflux_variable_user_confirmation, erroring_variable_key)
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
+    # sync data from the server
+    syncdata.sync_data()
+
     # run eddypro preprocessing and formatting
     eddypro_formatted_met_file, file_meta_data_file = eddypro_preprocessing()
-
     # run eddypro
     run_eddypro(eddypro_formatted_met_file)
 
@@ -212,8 +228,7 @@ if __name__ == '__main__':
         print(cfg.PYFLUXPRO_INPUT_SHEET, "path does not exist")
 
     # run ameriflux formatting of pyfluxpro L1 control file
-    if os.path.exists(cfg.PYFLUXPRO_INPUT_AMERIFLUX) and os.path.exists(cfg.L1_INPUT):
-        pyfluxpro_l1_ameriflux_processing(cfg.PYFLUXPRO_INPUT_AMERIFLUX, cfg.L1_INPUT, cfg.L1_AMERIFLUX, cfg.L1_OUTPUT,
-                                          cfg.L1_AMERIFLUX_MAINSTEM_KEY)
-    else:
-        print("Please check if", cfg.PYFLUXPRO_INPUT_AMERIFLUX, "and", cfg.L1_INPUT, "file exists")
+    pyfluxpro_l1_ameriflux_processing(cfg.PYFLUXPRO_INPUT_AMERIFLUX, cfg.L1_MAINSTEM_INPUT, cfg.L1_AMERIFLUX_ONLY_INPUT,
+                                      cfg.L1_AMERIFLUX_MAINSTEM_KEY, file_meta_data_file, cfg.INPUT_SOIL_KEY,
+                                      cfg.L1_AMERIFLUX_RUN_OUTPUT, cfg.L1_AMERIFLUX,
+                                      cfg.AMERIFLUX_VARIABLE_USER_CONFIRMATION, cfg.L1_AMERIFLUX_ERRORING_VARIABLES_KEY)

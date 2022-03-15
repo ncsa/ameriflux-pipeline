@@ -10,6 +10,16 @@ class Config:
     """
     class to list all configuration settings required for preprocessing and formatting for EddyPro and PyFluxPro
     """
+    # obtaining ghg files using rsync
+    # user confirmation to perform rsync
+    SFTP_CONFIRMATION = os.getenv('SFTP_CONFIRMATION', 'N')
+    SFTP_SERVER = os.getenv('SFTP_SERVER')
+    SFTP_USERNAME = os.getenv('SFTP_USERNAME')
+    SFTP_PASSWORD = os.getenv('SFTP_PASSWORD')
+    SFTP_GHG_REMOTE_PATH = os.getenv('SFTP_GHG_REMOTE_PATH')
+    SFTP_GHG_LOCAL_PATH = os.getenv('SFTP_GHG_LOCAL_PATH')
+    SFTP_MET_REMOTE_PATH = os.getenv('SFTP_MET_REMOTE_PATH')
+    SFTP_MET_LOCAL_PATH = os.getenv('SFTP_MET_LOCAL_PATH')
     # input data for creating master meteorology data
     # input met data path
     INPUT_MET = os.getenv('INPUT_MET',
@@ -24,7 +34,7 @@ class Config:
     # NOTE 9
     # User confirmation to insert large number of missing timestamps
     # Enter 'Y'/'YES' to insert, 'N'/'NO' to ignore and 'A'/'ASK' to await user input during runtime.
-    USER_CONFIRMATION = os.getenv('USER_CONFIRMATION', 'Y')
+    MISSING_TIME_USER_CONFIRMATION = os.getenv('MISSING_TIME_USER_CONFIRMATION', 'Y')
     # master met output data path
     MASTER_MET = os.getenv('MASTER_MET',
                            '/Users/ameriflux-pipeline/ameriflux_pipeline/data/'
@@ -78,17 +88,35 @@ class Config:
     PYFLUXPRO_INPUT_AMERIFLUX = os.getenv('PYFLUXPRO_INPUT_AMERIFLUX',
                                           '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/'
                                           'generated/pyfluxpro_input_ameriflux.xlsx')
-    L1_INPUT = os.getenv('L1_INPUT',
-                         '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/input/L1.txt')
-    L1_AMERIFLUX = os.getenv('L1_AMERIFLUX',
-                             '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/generated/L1_ameriflux.txt')
+
+    # L1 Ameriflux formatting
+    L1_MAINSTEM_INPUT = os.getenv('L1_MAINSTEM_INPUT',
+                                  '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/input/L1_mainstem.txt')
+    L1_AMERIFLUX_ONLY_INPUT = os.getenv('L1_AMERIFLUX_ONLY_INPUT',
+                                        '/Users/ameriflux-pipeline/ameriflux_pipeline/data/'
+                                        'pyfluxpro/input/L1_Ameriflux_ONLY.txt')
     L1_AMERIFLUX_MAINSTEM_KEY = os.getenv('L1_AMERIFLUX_MAINSTEM_KEY',
                                           '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/'
                                           'input/Ameriflux-Mainstem-Key.xlsx')
-    L1_OUTPUT = os.getenv('L1_OUTPUT',
-                          '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/generated/Sorghum_2021_L1.nc')
+    L1_AMERIFLUX_RUN_OUTPUT = os.getenv('L1_AMERIFLUX_RUN_OUTPUT',
+                                        '/Users/ameriflux-pipeline/ameriflux_pipeline/data/'
+                                        'pyfluxpro/generated/Sorghum_2021_L1.nc')
+    L1_AMERIFLUX = os.getenv('L1_AMERIFLUX',
+                             '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/generated/L1_ameriflux.txt')
+
+    # User confirmation to replace erroring Ameriflux variable names in L1
+    # Enter 'Y'/'YES' to replace, 'N'/'NO' to ignore and 'A'/'ASK' to await user input during runtime.
+    AMERIFLUX_VARIABLE_USER_CONFIRMATION = os.getenv('AMERIFLUX_VARIABLE_USER_CONFIRMATION', 'N')
+    L1_AMERIFLUX_ERRORING_VARIABLES_KEY = os.getenv('L1_AMERIFLUX_ERRORING_VARIABLES_KEY',
+                                                    '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/'
+                                                    'input/L1_erroring_variables.xlsx')
 
     # QA/QC values
     # precipitation threshold values used in creating Eddypro master meteorology data
     QC_PRECIP_LOWER = 0.0  # precipitation lower threshold value (inches)
     QC_PRECIP_UPPER = 0.2  # precipitation upper threshold value (inches)
+
+    # Connect to dataserver
+    SFTP_SERVER = os.getenv('SFTP_SERVER', '')
+    SFTP_USERNAME = os.getenv('SFTP_USERNAME', '')
+    SFTP_PASSWORD = os.getenv('SFTP_PASSWORD', '')
