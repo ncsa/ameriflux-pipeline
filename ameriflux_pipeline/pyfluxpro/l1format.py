@@ -24,7 +24,9 @@ class L1Format:
     # main method which calls other functions
     @staticmethod
     def data_formatting(pyfluxpro_input, l1_mainstem, l1_ameriflux_only, ameriflux_mainstem_key, file_meta_data_file,
-                        soil_key, outfile, l1_ameriflux_output, spaces=SPACES, level_line=LEVEL_LINE):
+                        soil_key, outfile, l1_ameriflux_output,
+                        ameriflux_variable_user_confirmation, erroring_variable_key,
+                        spaces=SPACES, level_line=LEVEL_LINE):
         """
         Main method for the class.
 
@@ -38,6 +40,11 @@ class L1Format:
             soil_key (str) : A file path for input soil key sheet
             outfile (str): A file path for the output of L1 run. This typically has .nc extension
             l1_ameriflux_output (str): A file path for the L1.txt that is formatted for Ameriflux standards
+            ameriflux_variable_user_confirmation (str): User decision on whether to replace,
+                                        ignore or ask during runtime in case of erroring variable names in PyFluxPro L1
+            erroring_variable_key (str): Variable name key used to match the original variable names to Ameriflux names
+                                    for variables throwing an error in PyFluxPro L1.
+                                    This is an excel file named L1_erroring_variables.xlsx
             spaces (str): Spaces to be inserted before each section and line
             level_line (str): Line specifying the level. L1 for this section.
         Returns:
@@ -67,6 +74,25 @@ class L1Format:
         soil_moisture_labels, soil_temp_labels = L1Format.get_moisture_labels(site_name, df_soil_key)
 
         ameriflux_key = pd.read_excel(ameriflux_mainstem_key)  # read AmeriFlux-Mainstem variable name matching file
+
+        # check if L1 erroring variable names need to be replaced or not
+        ameriflux_variable_user_confirmation = ameriflux_variable_user_confirmation.lower()
+        # by default we do not replace the erroring variables to ameriflux naming standards
+        erroring_variable_flag = 'N'
+        if ameriflux_variable_user_confirmation in ['a', 'ask']:
+            print("Enter Y to replace L1 Erroring variable names to Ameriflux standards. Else enter N")
+            erroring_variable_flag = input("Enter Y/N : ")
+        elif ameriflux_variable_user_confirmation in ['n', 'no']:
+            erroring_variable_flag = 'N'
+        elif ameriflux_variable_user_confirmation in ['y', 'yes']:
+            erroring_variable_flag = 'Y'
+
+        if erroring_variable_flag.lower() in ['n', 'no']:
+            # if user chose not to replace the variable name, read the name mapping
+            # if this file is read, the instance becomes a dataframe, if not the variable type is a string
+            erroring_variable_key = pd.read_excel(erroring_variable_key)  # read L1 erroring variable name matching file
+
+        # writing to output file
 
         # write the level line
         l1_output_lines.append(level_line.strip())
@@ -111,16 +137,25 @@ class L1Format:
         # get the variable lines to be written
         variable_lines_out, ameriflux_variables = L1Format.format_variables(mainstem_var_df, mainstem_var_start_end,
                                                                             soil_moisture_labels, soil_temp_labels,
-                                                                            ameriflux_key)
+                                                                            ameriflux_key, erroring_variable_key)
         # write variables section lines to l1 output
         l1_output_lines.extend(variable_lines_out)
 
         # read from Ameriflux only L1 file
-        ameriflux_var_lines = l1_ameriflux_lines[ameriflux_variable_ind + 1:]
+        ameriflux_var_df = pd.DataFrame(l1_ameriflux_lines[ameriflux_variable_ind + 1:], columns=['Text'])
+        # remove newline and extra spaces from each line
+        ameriflux_var_df['Text'] = ameriflux_var_df['Text'].apply(lambda x: x.strip())
+        # get df with only variables and a list of variable start and end indexes
+        ameriflux_variables, ameriflux_var_start_end = L1Format.get_variables(ameriflux_var_df['Text'])
+        # get the variable lines to be written
+        variable_lines_out = L1Format.format_ameriflux_var_units(ameriflux_var_df,
+                                                                 ameriflux_var_start_end, ameriflux_key)
+
+        # write variables section lines to l1 output
+        l1_output_lines.extend(variable_lines_out)
 
         # write output lines to file
         L1Format.write_list_to_file(l1_output_lines, l1_ameriflux_output)
-        L1Format.append_list_to_file(ameriflux_var_lines, l1_ameriflux_output)
 
         # close files
         l1_mainstem.close()
@@ -406,7 +441,7 @@ class L1Format:
         return variables, var_start_end
 
     @staticmethod
-    def format_variables(df, var_start_end, moisture_labels, temp_labels, ameriflux_key,
+    def format_variables(df, var_start_end, moisture_labels, temp_labels, ameriflux_key, erroring_variable_key,
                          spaces=SPACES, xl_pattern=XL_PATTERN, attr_pattern=ATTR_PATTERN):
         """
             Change variable names and units to AmeriFlux standard
@@ -417,6 +452,8 @@ class L1Format:
                 moisture_labels (dict) : Mapping from pyfluxpro to ameriflux labels for soil moisture
                 temp_labels (dict): Mapping from pyfluxpro to ameriflux labels for soil temperature
                 ameriflux_key (obj): Pandas dataframe of AmeriFlux-Mainstem varible name sheet
+                erroring_variable_key (str/obj): Variable name key used to match the original variable names to
+                                        Ameriflux names for variables throwing an error in PyFluxPro L1.
                 spaces (str): Spaces to be inserted before each section and line
                 xl_pattern (str): Regex pattern to find the [[[xl]]] section within Variables section
                 attr_pattern (str): Regex pattern to find the [[[Attr]]] section within Variables section
@@ -442,21 +479,46 @@ class L1Format:
 
             # get the [[[xl]]] section
             xl = var[var['Text'].str.contains(xl_pattern)]
-            xl_df = df[xl.index[0]:end]
+            # get the [[[Attr]]] OR [[[attr]]] section
+            attr = var[var['Text'].str.contains(attr_pattern)]
+
+            # check which section comes first
+            if xl.index[0] > attr.index[0]:
+                # attr section comes first
+                xl_df = df[xl.index[0]:end]
+                attr_df = df[attr.index[0]:xl.index[0]]
+            else:
+                # xl section comes first
+                attr_df = df[attr.index[0]:end]
+                xl_df = df[xl.index[0]:attr.index[0]]
+
             # format text as per L1
             xl_df['Text'].iloc[0] = xl_spaces + xl_df['Text'].iloc[0]
             xl_df['Text'].iloc[1:] = other_spaces + xl_df['Text'].iloc[1:]
 
-            # get the [[[Attr]]] OR [[[attr]]] section
-            attr = var[var['Text'].str.contains(attr_pattern)]
-            attr_df = df[attr.index[0]:xl.index[0]]
             # format text as per L1
             attr_df['Text'].iloc[0] = attr_spaces + attr_df['Text'].iloc[0]
             attr_df['Text'].iloc[1:] = other_spaces + attr_df['Text'].iloc[1:]
 
+            # update the variable df
+            var.update(xl_df)
+            var.update(attr_df)
+
             units_row = attr_df[attr_df['Text'].apply(lambda x: x.strip().startswith("units"))]
 
-            if ameriflux_key['Original variable name'].isin([var_name]).any():
+            # check if the variable is one of the erroring variables in L1 PyFluxPro
+            # check if the erroring_variable_key is a dataframe.
+            if isinstance(erroring_variable_key, pd.DataFrame) and \
+                    erroring_variable_key['PyFluxPro label'].isin([var_name]).any():
+                # the variable name is one of the erroring variables.
+                # do not replace the variable name with ameriflux label
+                var_flag = True
+                var_name_index = var.index[0]
+                ameriflux_variables.append(var_name)
+                var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_name + "]]"
+
+            # if the erroring variable is to be replaced, the Ameriflux friendly variable name is in ameriflux_key
+            elif ameriflux_key['Original variable name'].isin([var_name]).any():
                 var_flag = True
                 # check if var name should be changed for Ameriflux
                 var_name_index = var.index[0]
@@ -503,6 +565,89 @@ class L1Format:
         return variables_out, ameriflux_variables
 
     @staticmethod
+    def format_ameriflux_var_units(df, var_start_end, ameriflux_key,
+                                   spaces=SPACES, xl_pattern=XL_PATTERN, attr_pattern=ATTR_PATTERN):
+        """
+            Change variable units for Ameriflux only variables
+
+            Args:
+                df (obj): Pandas dataframe with all variable lines from L1_ameriflux_only.txt
+                var_start_end (list): List of tuple, the starting and ending index for each ameriflux variable
+                ameriflux_key (obj): Pandas dataframe of AmeriFlux-Mainstem varible name sheet
+                spaces (str): Spaces to be inserted before each section and line
+                xl_pattern (str): Regex pattern to find the [[[xl]]] section within Variables section
+                attr_pattern (str): Regex pattern to find the [[[Attr]]] section within Variables section
+            Returns:
+                variable_lines_out (list) : List of variables lines to be written to l1_ameriflux
+        """
+        # define spaces for formatting in L1
+        var_spaces = spaces
+        attr_spaces = spaces + spaces
+        xl_spaces = spaces + spaces
+        other_spaces = spaces + spaces + spaces
+
+        variables_out = []  # variable lines to be written
+        # iterate over the variables
+        for start, end in var_start_end:
+            var_flag = False  # flag to see if variable has been changed or not
+            # get each variable in a separate df
+            var = df[start:end]
+            var_name = var['Text'].iloc[0].strip('[]')
+
+            # set the spacing for variable name line
+            var_name_index = var.index[0]
+            var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_name + "]]"
+
+            # get the [[[xl]]] section
+            xl = var[var['Text'].str.contains(xl_pattern)]
+            # get the [[[Attr]]] OR [[[attr]]] section
+            attr = var[var['Text'].str.contains(attr_pattern)]
+
+            # check which section comes first
+            if xl.index[0] > attr.index[0]:
+                # attr section comes first
+                xl_df = df[xl.index[0]:end]
+                attr_df = df[attr.index[0]:xl.index[0]]
+            else:
+                # xl section comes first
+                attr_df = df[attr.index[0]:end]
+                xl_df = df[xl.index[0]:attr.index[0]]
+
+            # format text as per L1
+            xl_df['Text'].iloc[0] = xl_spaces + xl_df['Text'].iloc[0]
+            xl_df['Text'].iloc[1:] = other_spaces + xl_df['Text'].iloc[1:]
+
+            # format text as per L1
+            attr_df['Text'].iloc[0] = attr_spaces + attr_df['Text'].iloc[0]
+            attr_df['Text'].iloc[1:] = other_spaces + attr_df['Text'].iloc[1:]
+
+            # update the variable df
+            var.update(xl_df)
+            var.update(attr_df)
+
+            units_row = attr_df[attr_df['Text'].apply(lambda x: x.strip().startswith("units"))]
+
+            if ameriflux_key['Ameriflux variable name'].isin([var_name]).any():
+                var_flag = True
+                if units_row.shape[0] > 0:
+                    # check if units need to be changed
+                    var_units_index = units_row.index[0]
+                    var_ameriflux_units = \
+                        ameriflux_key.loc[ameriflux_key['Ameriflux variable name'] == var_name,
+                                          'Units after formatting'].iloc[0]
+                    if not pd.isnull(var_ameriflux_units):
+                        # if unit needs to be changed, if its not NaN in the ameriflux-mainstem sheet
+                        # replace units only if it is not empty
+                        # NOTES 12
+                        var['Text'].iloc[var.index == var_units_index] = other_spaces + \
+                                                                         "units = " + var_ameriflux_units
+            if var_flag:
+                variables_out.extend(var['Text'].tolist())
+
+        # end of for loop
+        return variables_out
+
+    @staticmethod
     def write_list_to_file(in_list, outfile):
         """
             Save list with string to a file
@@ -517,24 +662,6 @@ class L1Format:
         try:
             with open(outfile, 'w') as f:
                 f.write('\n'.join(in_list))
-                f.write('\n')  # write a new line at the end
+            print("AmeriFlux L1 saved in ", outfile)
         except Exception:
             raise Exception("Failed to create file ", outfile)
-
-    @staticmethod
-    def append_list_to_file(in_list, outfile):
-        """
-            Save list with string to a file
-
-            Args:
-                in_list (list): List of the strings
-                outfile (str): A file path of the output file
-
-            Returns:
-                None
-        """
-        try:
-            with open(outfile, 'a') as f:
-                f.write(''.join(in_list))
-        except Exception:
-            raise Exception("Failed to append to file ", outfile)
