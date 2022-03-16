@@ -87,3 +87,9 @@ original/
 # pyfluxpro
 *L1.txt
 *L2.txt
+
+# generated folder
+*/generated/
+
+# template folder
+*/templates/
