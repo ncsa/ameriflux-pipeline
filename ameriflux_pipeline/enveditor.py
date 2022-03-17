@@ -20,12 +20,12 @@ class EnvEditor():
         self.INFO_TITLE = "info"
 
         self.LINE_SFTP = 0
-        self.LINE_MISSING_TIME_USER_CONFIRMATION = 36
-        self.LINE_EDDYPRO_FORMAT = 44
-        self.LINE_EDDYPRO_RUN = 88
-        self.LINE_PYFLUX_PRO = 143
-        self.LINE_PYFLUX_L1 = 172
-        self.LINE_SAVE_ENV = 205
+        # self.LINE_MISSING_TIME_USER_CONFIRMATION = 36
+        self.LINE_EDDYPRO_FORMAT = 36
+        self.LINE_EDDYPRO_RUN = 86
+        self.LINE_PYFLUX_PRO = 141
+        self.LINE_PYFLUX_L1 = 170
+        self.LINE_SAVE_ENV = 203
 
         # ftp rsync variables
         self.SFTP_LABEL = " Sync files from the server"
@@ -447,34 +447,34 @@ class EnvEditor():
         self.path_sftp_met_local_path = tk.Label(
             master=second_frame, text=self.SFTP_MET_LOCAL_PATH, font=self.MAIN_FONT)
         self.path_sftp_met_local_path.grid(sticky="w", row=i + 32, column=0, columnspan=3)
-        label_separation = tk.Label(master=second_frame, text="").grid(sticky="w", row=i+33, column=0, columnspan=3)
-        label_separation = tk.Label(master=second_frame, text="").grid(sticky="w", row=i+34, column=0, columnspan=3)
+        label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL_SUB). \
+            grid(sticky="w", row=i+33, column=0, columnspan=3)
 
-        ########################################################
-        i = self.LINE_MISSING_TIME_USER_CONFIRMATION
-        # create user confirmation
-        label_user_confirm = tk.Label(
-            second_frame, text=self.MISSING_TIME_USER_CONFIRMATION_LABEL, font=self.MAIN_BOLD_FONT). \
-            grid(sticky="w", row=i, columnspan=3)
-        label_separation = tk.Label(second_frame, text=self.SEPARATION_LABEL).grid(sticky="w", row=i+1, columnspan=3)
-        browse_user_confirm = tk.Label(
-            second_frame, text=self.BROWSE_MISSING_TIME_USER_CONFIRAMTION, font=self.BOLD_FONT). \
-            grid(sticky="w", row=i+2, column=0)
-        button_uesr_confirm = tk.Button(second_frame, text=self.INFO_TITLE, command=self.on_click_user_confirm).\
-            grid(sticky="w", row=i+2, column=1)
-        desc_user_confirm = tk.Label(
-            second_frame, text=self.DESC_MISSING_TIME_USER_CONFIRMATION, font=self.DESC_FONT).\
-            grid(sticky="w", row=i+3, columnspan=3)
-        confirm_list = ("Y", "N", "A")
-        confirm_list_index = 0
-        for index, value in enumerate(confirm_list):
-            if value == self.MISSING_TIME_USER_CONFIRMATION:
-                confirm_list_index = index
-        # n = tk.StringVar()
-        self.combo_confirm = ttk.Combobox(second_frame)
-        self.combo_confirm['values'] = confirm_list
-        self.combo_confirm.current(confirm_list_index)
-        self.combo_confirm.grid(sticky="w", row=i+4, columnspan=3)
+        # ########################################################
+        # i = self.LINE_MISSING_TIME_USER_CONFIRMATION
+        # # create user confirmation
+        # label_user_confirm = tk.Label(
+        #     second_frame, text=self.MISSING_TIME_USER_CONFIRMATION_LABEL, font=self.MAIN_BOLD_FONT). \
+        #     grid(sticky="w", row=i, columnspan=3)
+        # label_separation = tk.Label(second_frame, text=self.SEPARATION_LABEL).grid(sticky="w", row=i+1, columnspan=3)
+        # browse_user_confirm = tk.Label(
+        #     second_frame, text=self.BROWSE_MISSING_TIME_USER_CONFIRAMTION, font=self.BOLD_FONT). \
+        #     grid(sticky="w", row=i+2, column=0)
+        # button_uesr_confirm = tk.Button(second_frame, text=self.INFO_TITLE, command=self.on_click_user_confirm).\
+        #     grid(sticky="w", row=i+2, column=1)
+        # desc_user_confirm = tk.Label(
+        #     second_frame, text=self.DESC_MISSING_TIME_USER_CONFIRMATION, font=self.DESC_FONT).\
+        #     grid(sticky="w", row=i+3, columnspan=3)
+        # confirm_list = ("Y", "N", "A")
+        # confirm_list_index = 0
+        # for index, value in enumerate(confirm_list):
+        #     if value == self.MISSING_TIME_USER_CONFIRMATION:
+        #         confirm_list_index = index
+        # # n = tk.StringVar()
+        # self.combo_confirm = ttk.Combobox(second_frame)
+        # self.combo_confirm['values'] = confirm_list
+        # self.combo_confirm.current(confirm_list_index)
+        # self.combo_confirm.grid(sticky="w", row=i+4, columnspan=3)
 
         #############################################################
         i = self.LINE_EDDYPRO_FORMAT
@@ -486,77 +486,101 @@ class EnvEditor():
         label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL).\
             grid(sticky="w", row=i+3, columnspan=3)
 
-        # create eddypro format input meteorology data
-        label_input_met = tk.Label(master=second_frame, text=self.BROWSE_INPUT_MET, font=self.BOLD_FONT). \
+        # create missing time user confirmation box
+        browse_user_confirm = tk.Label(
+            second_frame, text=self.BROWSE_MISSING_TIME_USER_CONFIRAMTION, font=self.BOLD_FONT). \
             grid(sticky="w", row=i+4, column=0)
-        button_info_input_met = tk.Button(second_frame, text=self.INFO_TITLE, command=self.on_click_input_met). \
+        button_uesr_confirm = tk.Button(second_frame, text=self.INFO_TITLE, command=self.on_click_user_confirm). \
             grid(sticky="w", row=i+4, column=1)
-        button_browse_input_met = tk.Button(master=second_frame, text="Browse", font=self.MAIN_FONT,
-                                            command=self.browse_input_met). \
-            grid(sticky="w", row=i+4, column=2)
-        desc_input_met = tk.Label(second_frame, text=self.DESC_INPUT_MET, font=self.DESC_FONT).\
-            grid(sticky="w", row=i+5, column=0, columnspan=3)
-        self.path_input_met = tk.Label(master=second_frame, text=self.INPUT_MET, font=self.MAIN_FONT)
-        self.path_input_met.grid(sticky="w", row=i+6, column=0, columnspan=3)
+        desc_user_confirm = tk.Label(
+            second_frame, text=self.DESC_MISSING_TIME_USER_CONFIRMATION, font=self.DESC_FONT). \
+            grid(sticky="w", row=i+5, columnspan=3)
+        confirm_list = ("Y", "N", "A")
+        confirm_list_index = 0
+        for index, value in enumerate(confirm_list):
+            if value == self.MISSING_TIME_USER_CONFIRMATION:
+                confirm_list_index = index
+        # n = tk.StringVar()
+        self.combo_confirm = ttk.Combobox(second_frame)
+        self.combo_confirm['values'] = confirm_list
+        self.combo_confirm.current(confirm_list_index)
+        self.combo_confirm.grid(sticky="w", row=i+6, columnspan=3)
         label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL_SUB). \
             grid(sticky="w", row=i+7, column=0, columnspan=3)
 
-        # create eddypro format input precipitation data
-        label_input_precip = tk.Label(master=second_frame, text=self.BROWSE_INPUT_PRECIP, font=self.BOLD_FONT). \
+        # create eddypro format input meteorology data
+        label_input_met = tk.Label(master=second_frame, text=self.BROWSE_INPUT_MET, font=self.BOLD_FONT). \
             grid(sticky="w", row=i+8, column=0)
-        button_info_input_precip = tk.Button(second_frame, text=self.INFO_TITLE, command=self.on_click_input_precip). \
+        button_info_input_met = tk.Button(second_frame, text=self.INFO_TITLE, command=self.on_click_input_met). \
             grid(sticky="w", row=i+8, column=1)
-        button_browse_input_precip = tk.Button(master=second_frame, text="Browse", font=self.MAIN_FONT,
-                                               command=self.browse_input_precip). \
+        button_browse_input_met = tk.Button(master=second_frame, text="Browse", font=self.MAIN_FONT,
+                                            command=self.browse_input_met). \
             grid(sticky="w", row=i+8, column=2)
-        desc_input_precip = tk.Label(second_frame, text=self.DESC_INPUT_PRECIP, font=self.DESC_FONT).\
+        desc_input_met = tk.Label(second_frame, text=self.DESC_INPUT_MET, font=self.DESC_FONT).\
             grid(sticky="w", row=i+9, column=0, columnspan=3)
-        self.path_input_precip = tk.Label(master=second_frame, text=self.INPUT_PRECIP, font=self.MAIN_FONT)
-        self.path_input_precip.grid(sticky="w", row=i+10, column=0, columnspan=3)
+        self.path_input_met = tk.Label(master=second_frame, text=self.INPUT_MET, font=self.MAIN_FONT)
+        self.path_input_met.grid(sticky="w", row=i+10, column=0, columnspan=3)
         label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL_SUB). \
             grid(sticky="w", row=i+11, column=0, columnspan=3)
 
-        # create eddypro format missing time
-        missing_time_label = tk.Label(master=second_frame, text="Missing Time", font=self.BOLD_FONT). \
+        # create eddypro format input precipitation data
+        label_input_precip = tk.Label(master=second_frame, text=self.BROWSE_INPUT_PRECIP, font=self.BOLD_FONT). \
             grid(sticky="w", row=i+12, column=0)
-        button_info_missing_time = tk.Button(second_frame, text=self.INFO_TITLE, command=self.on_click_missing_time).\
-            grid(sticky="w", row=i+12, column=1, columnspan=2)
-        desc_missing_time = tk.Label(second_frame, text=self.DESC_MISSING_TIME, font=self.DESC_FONT).\
+        button_info_input_precip = tk.Button(second_frame, text=self.INFO_TITLE, command=self.on_click_input_precip). \
+            grid(sticky="w", row=i+12, column=1)
+        button_browse_input_precip = tk.Button(master=second_frame, text="Browse", font=self.MAIN_FONT,
+                                               command=self.browse_input_precip). \
+            grid(sticky="w", row=i+12, column=2)
+        desc_input_precip = tk.Label(second_frame, text=self.DESC_INPUT_PRECIP, font=self.DESC_FONT).\
             grid(sticky="w", row=i+13, column=0, columnspan=3)
-        self.missing_time = tk.Entry(master=second_frame, width=10, font=self.MAIN_FONT)
-        if self.MISSING_TIME is not None:
-            self.missing_time.insert(0, self.MISSING_TIME)
-        self.missing_time.grid(sticky="w", row=i+14, column=0, columnspan=3)
+        self.path_input_precip = tk.Label(master=second_frame, text=self.INPUT_PRECIP, font=self.MAIN_FONT)
+        self.path_input_precip.grid(sticky="w", row=i+14, column=0, columnspan=3)
         label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL_SUB). \
             grid(sticky="w", row=i+15, column=0, columnspan=3)
 
-        # create eddypro format master met
-        label_master_met = tk.Label(master=second_frame, text=self.BROWSE_MASTER_MET, font=self.BOLD_FONT). \
+        # create eddypro format missing time
+        missing_time_label = tk.Label(master=second_frame, text="Missing Time", font=self.BOLD_FONT). \
             grid(sticky="w", row=i+16, column=0)
-        button_info_master_met = tk.Button(second_frame, text=self.INFO_TITLE, command=self.on_click_master_met).\
-            grid(sticky="w", row=i+16, column=1)
-        button_browse_input_master_met = tk.Button(master=second_frame, text="Browse",
-                                                   font=self.MAIN_FONT, command=self.browse_master_met). \
-            grid(sticky="w", row=i+16, column=2)
-        desc_master_met = tk.Label(second_frame, text=self.DESC_MASTER_MET, font=self.DESC_FONT).\
-            grid(sticky="w", row=i+17, column=0, columnspan=2)
-        self.path_master_met = tk.Label(master=second_frame, text=self.MASTER_MET, font=self.MAIN_FONT)
-        self.path_master_met.grid(sticky="w", row=i+18, column=0, columnspan=3)
+        button_info_missing_time = tk.Button(second_frame, text=self.INFO_TITLE, command=self.on_click_missing_time).\
+            grid(sticky="w", row=i+16, column=1, columnspan=2)
+        desc_missing_time = tk.Label(second_frame, text=self.DESC_MISSING_TIME, font=self.DESC_FONT).\
+            grid(sticky="w", row=i+17, column=0, columnspan=3)
+        self.missing_time = tk.Entry(master=second_frame, width=10, font=self.MAIN_FONT)
+        if self.MISSING_TIME is not None:
+            self.missing_time.insert(0, self.MISSING_TIME)
+        self.missing_time.grid(sticky="w", row=i+18, column=0, columnspan=3)
         label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL_SUB). \
             grid(sticky="w", row=i+19, column=0, columnspan=3)
 
+        # create eddypro format master met
+        label_master_met = tk.Label(master=second_frame, text=self.BROWSE_MASTER_MET, font=self.BOLD_FONT). \
+            grid(sticky="w", row=i+20, column=0)
+        button_info_master_met = tk.Button(second_frame, text=self.INFO_TITLE, command=self.on_click_master_met).\
+            grid(sticky="w", row=i+20, column=1)
+        button_browse_input_master_met = tk.Button(master=second_frame, text="Browse",
+                                                   font=self.MAIN_FONT, command=self.browse_master_met). \
+            grid(sticky="w", row=i+20, column=2)
+        desc_master_met = tk.Label(second_frame, text=self.DESC_MASTER_MET, font=self.DESC_FONT).\
+            grid(sticky="w", row=i+21, column=0, columnspan=2)
+        self.path_master_met = tk.Label(master=second_frame, text=self.MASTER_MET, font=self.MAIN_FONT)
+        self.path_master_met.grid(sticky="w", row=i+22, column=0, columnspan=3)
+        label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL_SUB). \
+            grid(sticky="w", row=i+23, column=0, columnspan=3)
+
         # create eddypro format input soil key
         label_soil_key = tk.Label(master=second_frame, text=self.BROWSE_INPUT_SOIL_KEY, font=self.BOLD_FONT). \
-            grid(sticky="w", row=i+20, column=0)
+            grid(sticky="w", row=i+24, column=0)
         button_info_soil_key = tk.Button(second_frame, text=self.INFO_TITLE, command=self.on_click_soil_key).\
-            grid(sticky="w", row=i+20, column=1)
+            grid(sticky="w", row=i+24, column=1)
         button_browse_input_soil_key = tk.Button(master=second_frame, text="Browse",
                                                  font=self.MAIN_FONT, command=self.browse_input_soil_key). \
-            grid(sticky="w", row=i+20, column=2)
+            grid(sticky="w", row=i+24, column=2)
         desc_input_soil_key = tk.Label(second_frame, text=self.DESC_INPUT_SOIL_KEY, font=self.DESC_FONT).\
-            grid(sticky="w", row=i+21, column=0, columnspan=2)
+            grid(sticky="w", row=i+25, column=0, columnspan=2)
         self.path_input_soil_key = tk.Label(master=second_frame, text=self.INPUT_SOIL_KEY, font=self.MAIN_FONT)
-        self.path_input_soil_key.grid(sticky="w", row=i+22, column=0, columnspan=3)
+        self.path_input_soil_key.grid(sticky="w", row=i+26, column=0, columnspan=3)
+        label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL_SUB). \
+            grid(sticky="w", row=i+27, column=0, columnspan=3)
 
         #############################################################
         # create eddypro run main title
@@ -1201,7 +1225,7 @@ class EnvEditor():
         self.L1_AMERIFLUX_ERRORING_VARIABLES_KEY = filepath
 
     def save_env(self):
-        sftp_title_line = "# obtaining ghg files using rsync"
+        sftp_title_line = "# Sync files from the server"
         sftp_confirm_line = "SFTP_CONFIRMATION=" + self.combo_ameriflux_variable_confirm.get()
         sftp_server_line = "SFTP_SERVER=" + str(self.sftp_server.get())
         sftp_username_line = "SFTP_USERNAME=" + str(self.sftp_username.get())
@@ -1211,16 +1235,15 @@ class EnvEditor():
         sftp_met_remote_path_line = "SFTP_MET_REMOTE_PATH=" + str(self.sftp_met_remote_path.get())
         sftp_met_local_path_line = "SFTP_MET_LOCAL_PATH=" + self.SFTP_MET_LOCAL_PATH
 
+        eddypro_input_title_line = "# Variables for EddyPro formatting"
         user_conform_line = "MISSING_TIME_USER_CONFIRMATION=" + self.combo_confirm.get()
-
-        eddypro_input_title_line = "# input data for formatting EddyPro master meteorology data"
         eddypro_input_met_line = "INPUT_MET=" + self.INPUT_MET
         eddypro_input_precip_line = "INPUT_PRECIP=" + self.INPUT_PRECIP
         eddypro_missing_time_line = "MISSING_TIME=" + str(self.missing_time.get())
         eddypro_master_met_line = "MASTER_MET=" + self.MASTER_MET
         eddypro_input_soil_key_line = "INPUT_SOIL_KEY=" + self.INPUT_SOIL_KEY
 
-        eddypro_run_title_line = "# input data for running EddyPro"
+        eddypro_run_title_line = "# Variables for EddyPro running"
         eddypro_bin_loc_line = "EDDYPRO_BIN_LOC=" + self.EDDYPRO_BIN_LOC
         eddypro_proj_template_line = "EDDYPRO_PROJ_FILE_TEMPLATE=" + self.EDDYPRO_PROJ_FILE_TEMPLATE
         eddypro_proj_file_name_line = "EDDYPRO_PROJ_FILE_NAME=" + self.EDDYPRO_PROJ_FILE_NAME
@@ -1232,13 +1255,13 @@ class EnvEditor():
         eddypro_output_path_line = "EDDYPRO_OUTPUT_PATH=" + self.EDDYPRO_OUTPUT_PATH
         eddypro_input_ghg_path_line = "EDDYPRO_INPUT_GHG_PATH=" + self.EDDYPRO_INPUT_GHG_PATH
 
-        pyfluxpro_title_line = "# PyFluxPro related data"
+        pyfluxpro_title_line = "# Variables for PyFluxPro running"
         pyfluxpro_full_output_line = "FULL_OUTPUT_PYFLUXPRO=" + self.FULL_OUTPUT_PYFLUXPRO
         pyfluxpro_met_data_line = "MET_DATA_30_PYFLUXPRO=" + self.MET_DATA_30_PYFLUXPRO
         pyfluxpro_input_sheet_line = "PYFLUXPRO_INPUT_SHEET=" + self.PYFLUXPRO_INPUT_SHEET
         pyfluxpro_input_ameriflux_line = "PYFLUXPRO_INPUT_AMERIFLUX=" + self.PYFLUXPRO_INPUT_AMERIFLUX
 
-        pyfluxpro_l1_line = "# PyFluxPro L1 process related data"
+        pyfluxpro_l1_line = "# Variables for PyFluxPro AmeriFlux formatting"
         pyfluxpro_l1_user_confirmation_line = "AMERIFLUX_VARIABLE_USER_CONFIRMATION=" + \
                                               self.combo_ameriflux_variable_confirm.get()
         pyfluxpro_l1_mainstem_input_line = "L1_MAINSTEM_INPUT=" + self.L1_MAINSTEM_INPUT
@@ -1248,14 +1271,13 @@ class EnvEditor():
         pyfluxpro_l1_ameriflux_line = "L1_AMERIFLUX=" + self.L1_AMERIFLUX
         pyfluxpro_l1_error_variables_key_line = \
             "L1_AMERIFLUX_ERRORING_VARIABLES_KEY=" + self.L1_AMERIFLUX_ERRORING_VARIABLES_KEY
+
         lines = [
             sftp_title_line, sftp_confirm_line, sftp_server_line, sftp_username_line,
             sftp_password_line, sftp_ghg_remote_path_line, sftp_ghg_local_path_line,
             sftp_met_remote_path_line, sftp_met_local_path_line,
             "",
-            user_conform_line,
-            "",
-            eddypro_input_title_line, eddypro_input_met_line, eddypro_input_precip_line,
+            eddypro_input_title_line, user_conform_line, eddypro_input_met_line, eddypro_input_precip_line,
             eddypro_missing_time_line, eddypro_master_met_line, eddypro_input_soil_key_line,
             "",
             eddypro_run_title_line, eddypro_bin_loc_line, eddypro_proj_template_line, eddypro_proj_file_name_line,
