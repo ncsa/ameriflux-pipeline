@@ -47,3 +47,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - AmeriFlux L1 formatting variable names in env editor [#118](https://github.com/ncsa/ameriflux-pipeline/issues/118)
 - Timestamp column ordering in Ameriflux-friendly pyfluxpro input excel sheet. [#112](https://github.com/ncsa/ameriflux-pipeline/issues/112)
+- Updated README file with detailed set up and run information. [#120](https://github.com/ncsa/ameriflux-pipeline/issues/120)
