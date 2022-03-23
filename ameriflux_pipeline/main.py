@@ -19,6 +19,7 @@ from pyfluxpro.pyfluxproformat import PyFluxProFormat
 from pyfluxpro.amerifluxformat import AmeriFluxFormat
 from pyfluxpro.l1format import L1Format
 from pyfluxpro.l2format import L2Format
+from utils.syncdata import SyncData as syncdata
 
 import pandas.io.formats.excel
 pandas.io.formats.excel.header_style = None
@@ -229,9 +230,11 @@ def pyfluxpro_l2_ameriflux_processing(pyfluxpro_ameriflux_labels, l2_mainstem, l
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
+    # sync data from the server
+    syncdata.sync_data()
+
     # run eddypro preprocessing and formatting
     eddypro_formatted_met_file, file_meta_data_file = eddypro_preprocessing()
-
     # run eddypro
     run_eddypro(eddypro_formatted_met_file)
 
@@ -266,4 +269,3 @@ if __name__ == '__main__':
 
     pyfluxpro_l2_ameriflux_processing(pyfluxpro_ameriflux_labels, cfg.L2_MAINSTEM_INPUT, cfg.L2_AMERIFLUX_ONLY_INPUT,
                                       cfg.L1_AMERIFLUX_RUN_OUTPUT, cfg.L2_AMERIFLUX_RUN_OUTPUT, cfg.L2_AMERIFLUX)
-

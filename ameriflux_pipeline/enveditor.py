@@ -8,7 +8,6 @@ import os
 import tkinter as tk
 
 from tkinter import ttk as ttk
-from tkinter import tix as tix
 from tkinter import filedialog, messagebox
 from dotenv import load_dotenv
 
@@ -20,13 +19,48 @@ class EnvEditor():
         self.SEPARATION_LABEL_SUB = "------------------"
         self.INFO_TITLE = "info"
 
-        self.LINE_USER_CONFIRMATION = 0
-        self.LINE_EDDYPRO_FORMAT = 5
-        self.LINE_EDDYPRO_RUN = 29
-        self.LINE_PYFLUX_PRO = 74
-        self.LINE_PYFLUX_L1 = 93
-        self.LINE_SAVE_ENV = 113
+        self.LINE_SFTP = 0
+        self.LINE_USER_CONFIRMATION = 36
+        self.LINE_EDDYPRO_FORMAT = 44
+        self.LINE_EDDYPRO_RUN = 55
+        self.LINE_PYFLUX_PRO = 110
+        self.LINE_PYFLUX_L1 = 129
+        self.LINE_SAVE_ENV = 149
 
+        # ftp rsync variables
+        self.SFTP_LABEL = " Sync files from the server"
+        self.BROWSE_SFTP_CONFIRMATION = " User confirmation for syncing from the server"
+        self.DESC_SFTP_CONFIRMATION = " user decision on whether to sync files from remote server"
+        self.INFO_SFTP_CONFIRMATION = "When the answer is yes, the remote directory and local directory " \
+                                      "with sync files."
+        self.BROWSE_SFTP_SERVER = " Remote FTP Server URL"
+        self.DESC_SFTP_SERVER = " URL of the remote FTP server"
+        self.INFO_SFTP_SERVER = "The URL of the remote FTP server for connecting to local machine" \
+                                " for syncing the local and remote directories."
+        self.BROWSE_SFTP_USERNAME = " Username of the server"
+        self.DESC_SFTP_USERNAME = " Username of the remote FTP server"
+        self.INFO_SFTP_USERNAME = "Username that will be used for accessing the remote FTP server."
+        self.BROWSE_SFTP_PASSWORD = " Password of the server"
+        self.DESC_SFTP_PASSWORD = " Password of the remote FTP server"
+        self.INFO_SFTP_PASSWORD = "Password that will be used for accessing the remote FTP server."
+        self.BROWSE_SFTP_GHG_REMOTE_PATH = " Remote directory location for GHG files"
+        self.DESC_SFTP_GHG_REMOTE_PATH = " Directory path for GHG files in the remote FTP server that will be synced"
+        self.INFO_SFTP_GHG_REMOTE_PATH = "Directory path for GHG files in the remote FTP server. The files in the " \
+                                         "directory will be synced to the local directory. "
+        self.BROWSE_SFTP_GHG_LOCAL_PATH = " Local directory location for GHG files"
+        self.DESC_SFTP_GHG_LOCAL_PATH = " Directory path for GHG files in the local machine that will be synced"
+        self.INFO_SFTP_GHG_LOCAL_PATH = "Directory path for GHG files in the local machine. The files in the remote " \
+                                        "directory will be synced here."
+        self.BROWSE_SFTP_MET_REMOTE_PATH = " Remote directory location for MET files"
+        self.DESC_SFTP_MET_REMOTE_PATH = " Directory path for MET files in the remote FTP server that will be synced"
+        self.INFO_SFTP_MET_REMOTE_PATH = "Directory path for MET files in the remote FTP server. The files in the " \
+                                         "directory will be synced to the local directory. "
+        self.BROWSE_SFTP_MET_LOCAL_PATH = " Local directory location for MET files"
+        self.DESC_SFTP_MET_LOCAL_PATH = " Directory path for MET files in the local machine that will be synced"
+        self.INFO_SFTP_MET_LOCAL_PATH = "Directory path for MET files in the local machine. The files in the remote " \
+                                        "directory will be synced here."
+
+        # user confirmation variable
         self.USER_CONFIRMATION_LABEL = " User confirmation"
         self.BROWSE_USER_CONFIRAMTION = " Missing Timestamp Confirmation"
         self.DESC_USER_CONFIRMATION = " user decision on whether to insert, ignore or ask during runtime in case of " \
@@ -38,6 +72,7 @@ class EnvEditor():
                                       "asked only if the number of missing timestamps are bigger than missing " \
                                       "timestamps thresholds"
 
+        # eddypro fomatting variables
         self.EDDYPRO_FORMAT_VARIABLE = " Variables for EddyPro formatting"
         self.BROWSE_INPUT_MET = " Input Meteorology Data"
         self.DESC_INPUT_MET = " input meteorology data [DATA FILE]"
@@ -69,6 +104,7 @@ class EnvEditor():
                                    "If soil sensors have changed recently, ensure that the key is accurate before " \
                                    "proceeding. "
 
+        # eddypro running variables
         self.EDDYPRO_RUNNING_VARIABLE = " Variables for EddyPro running"
         self.BROWSE_EDDYPRO_BIN = " EddyPro Bin Folder"
         self.DESC_EDDYPRO_BIN = " location of eddypro bin directory [DIRECTORY]"
@@ -170,6 +206,15 @@ class EnvEditor():
         # Load .env file
         load_dotenv()
 
+        self.SFTP_CONFIRMATION = os.getenv('SFTP_CONFIRMATION')
+        self.SFTP_SERVER = os.getenv('SFTP_SERVER')
+        self.SFTP_USERNAME = os.getenv('SFTP_USERNAME')
+        self.SFTP_PASSWORD = os.getenv('SFTP_PASSWORD')
+        self.SFTP_GHG_REMOTE_PATH = os.getenv('SFTP_GHG_REMOTE_PATH')
+        self.SFTP_GHG_LOCAL_PATH = os.getenv('SFTP_GHG_LOCAL_PATH')
+        self.SFTP_MET_REMOTE_PATH = os.getenv('SFTP_MET_REMOTE_PATH')
+        self.SFTP_MET_LOCAL_PATH = os.getenv('SFTP_MET_LOCAL_PATH')
+
         self.USER_CONFIRMATION = os.getenv('USER_CONFIRMATION')
 
         self.INPUT_MET = os.getenv('INPUT_MET')
@@ -241,6 +286,146 @@ class EnvEditor():
         ########################################################
         ########################################################
         ########################################################
+        i = self.LINE_SFTP
+        # create user confirmation
+        label_sftp_confirm = tk.Label(second_frame, text=self.SFTP_LABEL, font=self.MAIN_BOLD_FONT). \
+            grid(sticky="w", row=i, columnspan=3)
+        label_separation = tk.Label(second_frame, text=self.SEPARATION_LABEL).grid(sticky="w", row=i+1, columnspan=3)
+        browse_sftp_confirm = tk.Label(second_frame, text=self.BROWSE_SFTP_CONFIRMATION, font=self.BOLD_FONT). \
+            grid(sticky="w", row=i+2, column=0)
+        button_sftp_confirm = tk.Button(second_frame, text=self.INFO_TITLE, command=self.on_click_sftp_confirm). \
+            grid(sticky="w", row=i+2, column=1)
+        desc_sftp_confirm = tk.Label(second_frame, text=self.DESC_SFTP_CONFIRMATION, font=self.DESC_FONT). \
+            grid(sticky="w", row=i+3, columnspan=3)
+        confirm_sftp_list = ("Y", "N")
+        confirm_sftp_list_index = 0
+        for index, value in enumerate(confirm_sftp_list):
+            if value == self.SFTP_CONFIRMATION:
+                confirm_sftp_list_index = index
+        # n = tk.StringVar()
+        self.combo_sftp_confirm = ttk.Combobox(second_frame)
+        self.combo_sftp_confirm['values'] = confirm_sftp_list
+        self.combo_sftp_confirm.current(confirm_sftp_list_index)
+        self.combo_sftp_confirm.grid(sticky="w", row=i+4, columnspan=3)
+        label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL_SUB). \
+            grid(sticky="w", row=i+5, column=0, columnspan=3)
+
+        # create sftp server url
+        label_sftp_server = tk.Label(master=second_frame, text=self.BROWSE_SFTP_SERVER, font=self.BOLD_FONT). \
+            grid(sticky="w", row=i+6, column=0)
+        info_sftp_server = tk.Button(second_frame, text=self.INFO_TITLE, command=self.on_click_sftp_server). \
+            grid(sticky="w", row=i+6, column=1, columnspan=2)
+        desc_sftp_server = tk.Label(second_frame, text=self.DESC_SFTP_SERVER, font=self.DESC_FONT). \
+            grid(sticky="w", row=i+7, column=0, columnspan=3)
+        self.sftp_server = tk.Entry(master=second_frame, width=40, font=self.MAIN_FONT)
+        if self.SFTP_SERVER is not None:
+            self.sftp_server.insert(0, self.SFTP_SERVER)
+        self.sftp_server.grid(sticky="w", row=i+8, column=0, columnspan=3)
+        label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL_SUB). \
+            grid(sticky="w", row=i+9, column=0, columnspan=3)
+
+        # create sftp username
+        label_sftp_username = tk.Label(master=second_frame, text=self.BROWSE_SFTP_USERNAME, font=self.BOLD_FONT). \
+            grid(sticky="w", row=i+10, column=0)
+        info_sftp_username = tk.Button(second_frame, text=self.INFO_TITLE, command=self.on_click_sftp_username). \
+            grid(sticky="w", row=i+10, column=1, columnspan=2)
+        desc_sftp_username = tk.Label(second_frame, text=self.DESC_SFTP_USERNAME, font=self.DESC_FONT). \
+            grid(sticky="w", row=i+11, column=0, columnspan=3)
+        self.sftp_username = tk.Entry(master=second_frame, width=20, font=self.MAIN_FONT)
+        if self.SFTP_USERNAME is not None:
+            self.sftp_username.insert(0, self.SFTP_USERNAME)
+        self.sftp_username.grid(sticky="w", row=i+12, column=0, columnspan=3)
+        label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL_SUB). \
+            grid(sticky="w", row=i+13, column=0, columnspan=3)
+
+        # create sftp password
+        label_sftp_password = tk.Label(master=second_frame, text=self.BROWSE_SFTP_PASSWORD, font=self.BOLD_FONT). \
+            grid(sticky="w", row=i+14, column=0)
+        info_sftp_password = tk.Button(second_frame, text=self.INFO_TITLE, command=self.on_click_sftp_password). \
+            grid(sticky="w", row=i+14, column=1, columnspan=2)
+        desc_sftp_password = tk.Label(second_frame, text=self.DESC_SFTP_PASSWORD, font=self.DESC_FONT). \
+            grid(sticky="w", row=i+15, column=0, columnspan=3)
+        self.sftp_password = tk.Entry(master=second_frame, width=20, font=self.MAIN_FONT, show="*")
+        if self.SFTP_PASSWORD is not None:
+            self.sftp_password.insert(0, self.SFTP_PASSWORD)
+        self.sftp_password.grid(sticky="w", row=i+16, column=0, columnspan=3)
+        label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL_SUB). \
+            grid(sticky="w", row=i+17, column=0, columnspan=3)
+
+        # create sftp ghg remote path
+        label_ftp_ghg_remote_path = tk.Label(
+            master=second_frame, text=self.BROWSE_SFTP_GHG_REMOTE_PATH, font=self.BOLD_FONT).\
+            grid(sticky="w", row=i+18, column=0)
+        info_sftp_ghg_remote_path = tk.Button(
+            second_frame, text=self.INFO_TITLE, command=self.on_click_sftp_ghg_remote_path).\
+            grid(sticky="w", row=i+18, column=1, columnspan=2)
+        desc_sftp_ghg_remote_path = tk.Label(
+            second_frame, text=self.DESC_SFTP_GHG_REMOTE_PATH, font=self.DESC_FONT).\
+            grid(sticky="w", row=i+19, column=0, columnspan=3)
+        self.sftp_ghg_remote_path = tk.Entry(master=second_frame, width=60, font=self.MAIN_FONT)
+        if self.SFTP_GHG_REMOTE_PATH is not None:
+            self.sftp_ghg_remote_path.insert(0, self.SFTP_GHG_REMOTE_PATH)
+        self.sftp_ghg_remote_path.grid(sticky="w", row=i+20, column=0, columnspan=3)
+        label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL_SUB). \
+            grid(sticky="w", row=i+21, column=0, columnspan=3)
+
+        # create sftp ghg local path
+        label_sftp_ghg_local_path = tk.Label(
+            master=second_frame, text=self.BROWSE_SFTP_GHG_LOCAL_PATH, font=self.BOLD_FONT).\
+            grid(sticky="w", row=i+22, column=0)
+        button_sftp_ghg_local_path = tk.Button(
+            second_frame, text=self.INFO_TITLE, command=self.on_click_sftp_ghg_local_path).\
+            grid(sticky="w", row=i+22, column=1)
+        button_sftp_ghg_local_path = tk.Button(
+            master=second_frame, text="Browse", font=self.MAIN_FONT, command=self.browse_sftp_ghg_local_path).\
+            grid(sticky="w", row=i+22, column=2)
+        desc_sftp_ghg_local_path = tk.Label(
+            second_frame, text=self.DESC_SFTP_GHG_LOCAL_PATH, font=self.DESC_FONT).\
+            grid(sticky="w", row=i+23, column=0, columnspan=3)
+        self.path_sftp_ghg_local_path = tk.Label(
+            master=second_frame, text=self.SFTP_GHG_LOCAL_PATH, font=self.MAIN_FONT)
+        self.path_sftp_ghg_local_path.grid(sticky="w", row=i + 24, column=0, columnspan=3)
+        label_separation = tk.Label(
+            master=second_frame, text=self.SEPARATION_LABEL_SUB).\
+            grid(sticky="w", row=i+25, column=0, columnspan=3)
+
+        # create sftp met remote path
+        label_ftp_met_remote_path = tk.Label(
+            master=second_frame, text=self.BROWSE_SFTP_MET_REMOTE_PATH, font=self.BOLD_FONT).\
+            grid(sticky="w", row=i+26, column=0)
+        info_sftp_met_remote_path = tk.Button(
+            second_frame, text=self.INFO_TITLE, command=self.on_click_sftp_met_remote_path).\
+            grid(sticky="w", row=i+26, column=1, columnspan=2)
+        desc_sftp_met_remote_path = tk.Label(
+            second_frame, text=self.DESC_SFTP_MET_REMOTE_PATH, font=self.DESC_FONT).\
+            grid(sticky="w", row=i+27, column=0, columnspan=3)
+        self.sftp_met_remote_path = tk.Entry(master=second_frame, width=60, font=self.MAIN_FONT)
+        if self.SFTP_MET_REMOTE_PATH is not None:
+            self.sftp_met_remote_path.insert(0, self.SFTP_MET_REMOTE_PATH)
+        self.sftp_met_remote_path.grid(sticky="w", row=i+28, column=0, columnspan=3)
+        label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL_SUB).\
+            grid(sticky="w", row=i+29, column=0, columnspan=3)
+
+        # create sftp met local path
+        label_sftp_met_local_path = tk.Label(
+            master=second_frame, text=self.BROWSE_SFTP_MET_LOCAL_PATH, font=self.BOLD_FONT).\
+            grid(sticky="w", row=i+30, column=0)
+        button_sftp_met_local_path = tk.Button(
+            second_frame, text=self.INFO_TITLE, command=self.on_click_sftp_met_local_path).\
+            grid(sticky="w", row=i+30, column=1)
+        button_sftp_met_local_path = tk.Button(
+            master=second_frame, text="Browse", font=self.MAIN_FONT, command=self.browse_sftp_met_local_path). \
+            grid(sticky="w", row=i+30, column=2)
+        desc_sftp_met_local_path = tk.Label(
+            second_frame, text=self.DESC_SFTP_MET_LOCAL_PATH, font=self.DESC_FONT).\
+            grid(sticky="w", row=i+31, column=0, columnspan=3)
+        self.path_sftp_met_local_path = tk.Label(
+            master=second_frame, text=self.SFTP_MET_LOCAL_PATH, font=self.MAIN_FONT)
+        self.path_sftp_met_local_path.grid(sticky="w", row=i + 32, column=0, columnspan=3)
+        label_separation = tk.Label(master=second_frame, text="").grid(sticky="w", row=i+33, column=0, columnspan=3)
+        label_separation = tk.Label(master=second_frame, text="").grid(sticky="w", row=i+34, column=0, columnspan=3)
+
+        ########################################################
         i = self.LINE_USER_CONFIRMATION
         # create user confirmation
         label_user_confirm = tk.Label(second_frame, text=self.USER_CONFIRMATION_LABEL, font=self.MAIN_BOLD_FONT). \
@@ -257,7 +442,7 @@ class EnvEditor():
         for index, value in enumerate(confirm_list):
             if value == self.USER_CONFIRMATION:
                 confirm_list_index = index
-        n = tk.StringVar()
+        # n = tk.StringVar()
         self.combo_confirm = ttk.Combobox(second_frame)
         self.combo_confirm['values'] = confirm_list
         self.combo_confirm.current(confirm_list_index)
@@ -686,6 +871,24 @@ class EnvEditor():
 
         root.mainloop()
 
+    def browse_sftp_ghg_local_path(self):
+        filepath = tk.StringVar()
+        if filepath == "":
+            filepath = filedialog.askdirectory(initialdir=os.getcwd())
+        else:
+            filepath = filedialog.askdirectory(initialdir=filepath)
+        self.path_sftp_ghg_local_path.config(text=filepath)
+        self.SFTP_GHG_LOCAL_PATH = filepath
+
+    def browse_sftp_met_local_path(self):
+        filepath = tk.StringVar()
+        if filepath == "":
+            filepath = filedialog.askdirectory(initialdir=os.getcwd())
+        else:
+            filepath = filedialog.askdirectory(initialdir=filepath)
+        self.path_sftp_met_local_path.config(text=filepath)
+        self.SFTP_MET_LOCAL_PATH = filepath
+
     def browse_input_met(self):
         filepath = tk.StringVar()
         if filepath == "":
@@ -887,6 +1090,16 @@ class EnvEditor():
         self.L1_OUTPUT = filepath
 
     def save_env(self):
+        sftp_title_line = "# obtaining ghg files using rsync"
+        sftp_confirm_line = "SFTP_CONFIRMATION=" + self.combo_sftp_confirm.get()
+        sftp_server_line = "SFTP_SERVER=" + str(self.sftp_server.get())
+        sftp_username_line = "SFTP_USERNAME=" + str(self.sftp_username.get())
+        sftp_password_line = "SFTP_PASSWORD=" + str(self.sftp_password.get())
+        sftp_ghg_remote_path_line = "SFTP_GHG_REMOTE_PATH=" + str(self.sftp_ghg_remote_path.get())
+        sftp_ghg_local_path_line = "SFTP_GHG_LOCAL_PATH=" + self.SFTP_GHG_LOCAL_PATH
+        sftp_met_remote_path_line = "SFTP_MET_REMOTE_PATH=" + str(self.sftp_met_remote_path.get())
+        sftp_met_local_path_line = "SFTP_MET_LOCAL_PATH=" + self.SFTP_MET_LOCAL_PATH
+
         user_conform_line = "USER_CONFIRMATION=" + self.combo_confirm.get()
 
         eddypro_input_title_line = "# input data for formatting EddyPro master meteorology data"
@@ -921,6 +1134,10 @@ class EnvEditor():
         pyfluxpro_l1_output_line = "L1_OUTPUT=" + self.L1_OUTPUT
 
         lines = [
+            sftp_title_line, sftp_confirm_line, sftp_server_line, sftp_username_line,
+            sftp_password_line, sftp_ghg_remote_path_line, sftp_ghg_local_path_line,
+            sftp_met_remote_path_line, sftp_met_local_path_line,
+            "",
             user_conform_line,
             "",
             eddypro_input_title_line, eddypro_input_met_line, eddypro_input_precip_line,
@@ -951,6 +1168,30 @@ class EnvEditor():
 
     def _on_mousewheel(self, event):
         self.main_canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+
+    def on_click_sftp_confirm(self):
+        tk.messagebox.showinfo("Info", self.INFO_SFTP_CONFIRMATION)
+
+    def on_click_sftp_server(self):
+        tk.messagebox.showinfo("Info", self.INFO_SFTP_SERVER)
+
+    def on_click_sftp_username(self):
+        tk.messagebox.showinfo("Info", self.INFO_SFTP_USERNAME)
+
+    def on_click_sftp_password(self):
+        tk.messagebox.showinfo("Info", self.INFO_SFTP_PASSWORD)
+
+    def on_click_sftp_ghg_remote_path(self):
+        tk.messagebox.showinfo("Info", self.INFO_SFTP_GHG_REMOTE_PATH)
+
+    def on_click_sftp_ghg_local_path(self):
+        tk.messagebox.showinfo("Info", self.INFO_SFTP_GHG_LOCAL_PATH)
+
+    def on_click_sftp_met_remote_path(self):
+        tk.messagebox.showinfo("Info", self.INFO_SFTP_MET_REMOTE_PATH)
+
+    def on_click_sftp_met_local_path(self):
+        tk.messagebox.showinfo("Info", self.INFO_SFTP_MET_LOCAL_PATH)
 
     def on_click_user_confirm(self):
         tk.messagebox.showinfo("Info", self.INFO_USER_CONFIRMATION)
