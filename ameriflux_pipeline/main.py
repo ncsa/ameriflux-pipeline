@@ -198,23 +198,23 @@ def pyfluxpro_l1_ameriflux_processing(pyfluxpro_input, l1_mainstem, l1_ameriflux
                                     This is an excel file named L1_erroring_variables.xlsx
 
     Returns:
-        pyfluxpro_ameriflux_labels (dict): Mapping of pyfluxpro-friendly label to Ameriflux-friendly labels for
+        pyfluxpro_ameriflux_label (dict): Mapping of pyfluxpro-friendly label to Ameriflux-friendly labels for
                                             variables in L1_Ameriflux.txt
     """
-    pyfluxpro_ameriflux_labels = L1Format.data_formatting(pyfluxpro_input, l1_mainstem, l1_ameriflux_only,
-                                                   ameriflux_mainstem_key, file_meta_data_file, soil_key, l1_run_output,
-                                                   l1_ameriflux_output, ameriflux_variable_user_confirmation,
-                                                   erroring_variable_key)
-    return pyfluxpro_ameriflux_labels
+    pyfluxpro_ameriflux_label = L1Format.data_formatting(pyfluxpro_input, l1_mainstem, l1_ameriflux_only,
+                                                         ameriflux_mainstem_key, file_meta_data_file, soil_key,
+                                                         l1_run_output, l1_ameriflux_output,
+                                                         ameriflux_variable_user_confirmation, erroring_variable_key)
+    return pyfluxpro_ameriflux_label
 
 
-def pyfluxpro_l2_ameriflux_processing(pyfluxpro_ameriflux_labels, l2_mainstem, l2_ameriflux_only,
+def pyfluxpro_l2_ameriflux_processing(pyfluxpro_ameriflux_label, l2_mainstem, l2_ameriflux_only,
                                       l1_run_output, l2_run_output, l2_ameriflux_output):
     """
         Main function to run PyFluxPro L2 control file formatting for AmeriFlux. Calls other functions
 
         Args:
-            pyfluxpro_ameriflux_labels (dict): Mapping of pyfluxpro-friendly label to Ameriflux-friendly labels for
+            pyfluxpro_ameriflux_label (dict): Mapping of pyfluxpro-friendly label to Ameriflux-friendly labels for
                                             variables in l1_ameriflux_output
             l2_mainstem (str): A file path for the input L2.txt. This is the PyFluxPro original L2 control file
             l2_ameriflux_only (str): A file path for the L2.txt that contains only Ameriflux-friendly variables
@@ -224,7 +224,7 @@ def pyfluxpro_l2_ameriflux_processing(pyfluxpro_ameriflux_labels, l2_mainstem, l
         Returns:
             None
         """
-    L2Format.data_formatting(pyfluxpro_ameriflux_labels, l2_mainstem, l2_ameriflux_only, l1_run_output, l2_run_output,
+    L2Format.data_formatting(pyfluxpro_ameriflux_label, l2_mainstem, l2_ameriflux_only, l1_run_output, l2_run_output,
                              l2_ameriflux_output)
 
 

@@ -95,15 +95,14 @@ class L2Format:
 
         # get the variable lines to be written
         ameriflux_variable_lines_out = L2Format.format_variables(ameriflux_var_df, ameriflux_var_start_end,
-                                                       pyfluxpro_ameriflux_labels)
+                                                                 pyfluxpro_ameriflux_labels)
         l2_output_lines.extend(ameriflux_variable_lines_out)
         mainstem_variable_lines_out = L2Format.format_variables(mainstem_var_df, mainstem_var_start_end,
-                                                       pyfluxpro_ameriflux_labels)
+                                                                pyfluxpro_ameriflux_labels)
         l2_output_lines.extend(mainstem_variable_lines_out)
 
         # write output lines to file
         L2Format.write_list_to_file(l2_output_lines, l2_ameriflux_output)
-
 
     @staticmethod
     def get_variable_line_index(lines):
@@ -155,7 +154,6 @@ class L2Format:
             var_start_end.append((start_ind, end_ind))
         var_start_end.append((end_ind, text.last_valid_index()))  # append the start and end index of the last variable
         return variables, var_start_end
-
 
     @staticmethod
     def format_variables(df, var_start_end, labels, spaces=SPACES, DependencyCheck_pattern=DEPENDENCYCHECK_PATTERN,
@@ -226,9 +224,9 @@ class L2Format:
             if section1_startindex is not None:
                 section0_endindex = section1_startindex
             else:
-            # index 1 value is None
-            # if index 1 is None, index 2 is also None because of sorting
-            # section ends where variable section ends
+                # index 1 value is None
+                # if index 1 is None, index 2 is also None because of sorting
+                # section ends where variable section ends
                 section0_endindex = end
 
             first_df = var.loc[section0_startindex: section0_endindex-1]
@@ -289,9 +287,8 @@ class L2Format:
                     ExcludeDates_df['Text'].loc[first_index] = ExcludeDates_spaces + \
                                                                 ExcludeDates_df['Text'].loc[first_index]
                     ExcludeDates_df['Text'].loc[first_index+1:] = other_spaces + \
-                                                                   ExcludeDates_df['Text'].loc[first_index+1:]
+                                                                  ExcludeDates_df['Text'].loc[first_index+1:]
                     var.update(ExcludeDates_df)
-
             variables_lines_out.extend(var['Text'].tolist())
 
         return variables_lines_out

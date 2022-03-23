@@ -139,9 +139,11 @@ class L1Format:
         mainstem_variables, mainstem_var_start_end = L1Format.get_variables_index(mainstem_var_df['Text'])
 
         # get the mainstem variable lines to be written and variable name mapping
-        variable_lines_out, mainstem_variables_mapping = L1Format.format_variables(mainstem_var_df, mainstem_var_start_end,
-                                                                            soil_moisture_labels, soil_temp_labels,
-                                                                            ameriflux_key, erroring_variable_key)
+        variable_lines_out, mainstem_variables_mapping = L1Format.format_variables(mainstem_var_df,
+                                                                                   mainstem_var_start_end,
+                                                                                   soil_moisture_labels,
+                                                                                   soil_temp_labels,
+                                                                                   ameriflux_key, erroring_variable_key)
         # write variables section lines to l1 output
         l1_output_lines.extend(variable_lines_out)
 
