@@ -38,6 +38,7 @@
 - Albedo_Avg = Shortwave Out / Shortwave In = CM3Dn_Avg / CM3Up_Avg = SWUp_Avg / SWDn_Avg = albedo_avg (already in dataset)
 ### 11
 - In Soils key, the EddyPro labels are the same as those used for PyFluxPro L1 and L2 control file variables to meet AmeriFlux standards.
+- PyFluxPro requires the Timestamp columns to be in this specific order - TIMESTAMP, TIMESTAMP_END, TIMESTAMP_START. These columns should be present at indexes 0, 1, 2 respectively.
 - PyFluxPro formatting to AmeriFlux standards uses two L1.txt files. 
 - One is mainstem L1 and other L1 will contain only the variables that are not present in mainstem but is needed for Ameriflux. These will be named Ameriflux_Only.
 - There will not be duplicate variables ie. there will not be variables that are present in both these files.

@@ -91,13 +91,17 @@ class AmeriFluxFormat:
         """
         df['TIMESTAMP'] = pd.to_datetime(df['TIMESTAMP'])
         # shift each timestamp 30min behind and store in another column
-        df.insert(0, 'TIMESTAMP_START', df['TIMESTAMP'])
+        # NOTES 11
+        df.insert(0, 'TIMESTAMP', df.pop('TIMESTAMP'))
         df.insert(1, 'TIMESTAMP_END', df['TIMESTAMP'] + timedelta(minutes=30))
+        df.insert(2, 'TIMESTAMP_START', df['TIMESTAMP'])
+
         # convert to correct format. Not used currently
         # df = AmeriFluxFormat.timestamp_format(df, ['TIMESTAMP', 'TIMESTAMP_START', 'TIMESTAMP_END'])
         # add columns in meta data
-        df_meta.insert(0, 'TIMESTAMP_START', 'TS')
         df_meta.insert(1, 'TIMESTAMP_END', 'TS')
+        df_meta.insert(2, 'TIMESTAMP_START', 'TS')
+
         return df, df_meta
 
     # currently not used

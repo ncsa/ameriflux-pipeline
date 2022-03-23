@@ -235,6 +235,7 @@ if __name__ == '__main__':
 
     # run eddypro preprocessing and formatting
     eddypro_formatted_met_file, file_meta_data_file = eddypro_preprocessing()
+
     # run eddypro
     run_eddypro(eddypro_formatted_met_file)
 
