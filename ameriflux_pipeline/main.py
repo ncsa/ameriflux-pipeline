@@ -266,6 +266,6 @@ if __name__ == '__main__':
                                                                    cfg.L1_AMERIFLUX,
                                                                    cfg.AMERIFLUX_VARIABLE_USER_CONFIRMATION,
                                                                    cfg.L1_AMERIFLUX_ERRORING_VARIABLES_KEY)
-
+    # run ameriflux formatting of pyfluxpro L2 control file
     pyfluxpro_l2_ameriflux_processing(pyfluxpro_ameriflux_labels, cfg.L2_MAINSTEM_INPUT, cfg.L2_AMERIFLUX_ONLY_INPUT,
                                       cfg.L1_AMERIFLUX_RUN_OUTPUT, cfg.L2_AMERIFLUX_RUN_OUTPUT, cfg.L2_AMERIFLUX)
