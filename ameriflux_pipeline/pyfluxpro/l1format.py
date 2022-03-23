@@ -515,7 +515,8 @@ class L1Format:
 
         # iterate over the variables
         for start, end in var_start_end:
-            var_flag = False  # flag to see if variable has been changed or not
+            # NOTES 13
+            var_flag = False  # flag to see if variable is to be written or not
             # get each variable in a separate df
             var = df[start:end]
             var_name = var['Text'].iloc[0].strip('[]')

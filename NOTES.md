@@ -45,4 +45,7 @@
 - PyFluxPro does not recognise the unit for SH variable. The unit for SH variable has been changed to 'kg/kg'. 
 - This is updated in the Ameriflux-Mainstem Key excel sheet under the 'Units after formatting' column.
 - If original unit is to be kept, remove 'kg/kg' from the cell.
+### 13
+- For Ameriflux-friendly L1 and L2, we only write Ameriflux friendly variables which are listed out in the Ameriflux-Mainstem-Key.xlsx.
+
 
