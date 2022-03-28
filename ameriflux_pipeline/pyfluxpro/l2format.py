@@ -270,6 +270,8 @@ class L2Format:
                 source_line = DependencyCheck_df['Text'].iloc[1]  # source line is the second line of df
                 # replace values with pattern x_[0-9] with empty string
                 updated_source_line = re.sub(r"x_[0-9]+", "", source_line)
+                # change H2O_IRGA_Vr to H2O_SIGMA
+                updated_source_line = re.sub(r"H2O_IRGA_Vr", "H2O_SIGMA", updated_source_line)
                 # add updated lines with appropriate spaces
                 first_index = DependencyCheck_df.first_valid_index()
                 if first_index:
