@@ -82,6 +82,10 @@ class L2Format:
         l2_mainstem_var_lines = l2_mainstem_lines[mainstem_variable_ind + 1: mainstem_plot_ind]
         l2_ameriflux_var_lines = l2_ameriflux_lines[ameriflux_variable_ind + 1: ameriflux_plot_ind]
 
+        # write variable line
+        variable_line = ["[Variables]"]
+        l2_output_lines.extend(variable_line)
+
         # write the variables section to dataframe. this is used to get the indexes easily
         mainstem_var_df = pd.DataFrame(l2_mainstem_var_lines, columns=['Text'])
         # remove newline and extra spaces from each line
@@ -100,6 +104,12 @@ class L2Format:
         mainstem_variable_lines_out = L2Format.format_variables(mainstem_var_df, mainstem_var_start_end,
                                                                 pyfluxpro_ameriflux_labels)
         l2_output_lines.extend(mainstem_variable_lines_out)
+
+        # get the Plots section from Mainstem L2
+        l2_mainstem_plot_lines = l2_mainstem_lines[mainstem_plot_ind:l2_mainstem_lines_last_valid_index + 1]
+        l2_mainstem_plot_lines = [line.rstrip() for line in l2_mainstem_plot_lines]
+        plot_lines_out = L2Format.format_plots(l2_mainstem_plot_lines, pyfluxpro_ameriflux_labels)
+        l2_output_lines.extend(plot_lines_out)
 
         # write output lines to file
         L2Format.write_list_to_file(l2_output_lines, l2_ameriflux_output)
@@ -292,6 +302,37 @@ class L2Format:
             variables_lines_out.extend(var['Text'].tolist())
 
         return variables_lines_out
+
+    @staticmethod
+    def format_plots(plot_lines, labels, spaces=SPACES):
+        """
+            Format Plots section lines as per Ameriflux Standard. Replace variables with Ameriflux-friendly labels
+            Args:
+                plot_lines (list): List of the strings from l2 plot section
+                labels (dict) : Mapping from pyfluxpro to ameriflux labels
+                spaces (str): Spaces to be inserted before each section and line
+            Returns:
+                (list) : List of strings formatted for Ameriflux
+        """
+        plot_lines_out = ['' for i in range(len(plot_lines))]  # create empty list of length same as plots section
+        other_spaces = spaces + spaces  # spaces for Variables line
+        labels = dict((k.upper(), v.upper()) for k, v in labels.items())  # convert to uppercase for uniformity
+
+        for ind, line in enumerate(plot_lines):
+            if str(line).strip().startswith('variables'):
+                # get list of variable names and replace with Ameriflux-friendly labels
+                variables = line.split('=')[1].strip()
+                variables_list = variables.split(',')
+                updated_variables_list = []
+                for var in variables_list:
+                    if var.upper() in labels:
+                        updated_variables_list.append(labels[var.upper()])
+                updated_variables = ','.join(updated_variables_list)
+                plot_lines_out[ind] = other_spaces + 'variables = ' + updated_variables
+            else:
+                plot_lines_out[ind] = line
+
+        return plot_lines_out
 
     @staticmethod
     def write_list_to_file(in_list, outfile):
