@@ -600,7 +600,7 @@ class L1Format:
             elif var_name.startswith("Ts_"):
                 var_flag = True
                 var_name_index = var.index[0]
-                var_ameriflux_name = temp_labels[var_name]
+                var_ameriflux_name = temp_labels[var_name].upper()
                 variables_mapping[var_name] = var_ameriflux_name
                 var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_ameriflux_name + "]]"
 
