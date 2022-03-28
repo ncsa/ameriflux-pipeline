@@ -239,7 +239,7 @@ class L2Format:
                 # section ends where variable section ends
                 section0_endindex = end
 
-            first_df = var.loc[section0_startindex: section0_endindex-1]
+            first_df = var.loc[section0_startindex: section0_endindex - 1]
             second_df, third_df = None, None
             if section2_startindex is not None:
                 section1_endindex = section2_startindex
@@ -250,9 +250,9 @@ class L2Format:
                 section2_endindex = end
 
             if section1_startindex is not None:
-                second_df = var.loc[section1_startindex: section1_endindex-1]
+                second_df = var.loc[section1_startindex: section1_endindex - 1]
             if section2_startindex is not None:
-                third_df = var.loc[section2_startindex: section2_endindex-1]
+                third_df = var.loc[section2_startindex: section2_endindex - 1]
 
             df_list = [first_df, second_df, third_df]  # contains the actual df
             df_list = [x for x in df_list if x is not None]
@@ -274,7 +274,7 @@ class L2Format:
                 first_index = DependencyCheck_df.first_valid_index()
                 if first_index:
                     DependencyCheck_df['Text'].loc[first_index] = DependencyCheck_spaces + \
-                                                                   DependencyCheck_df['Text'].loc[first_index]
+                                                                  DependencyCheck_df['Text'].loc[first_index]
                     DependencyCheck_df['Text'].loc[first_index + 1] = other_spaces + updated_source_line
                     var.update(DependencyCheck_df)
 
@@ -285,7 +285,8 @@ class L2Format:
                 first_index = RangeCheck_df.first_valid_index()
                 if first_index:
                     RangeCheck_df['Text'].loc[first_index] = RangeCheck_spaces + RangeCheck_df['Text'].loc[first_index]
-                    RangeCheck_df['Text'].loc[first_index+1:] = other_spaces + RangeCheck_df['Text'].loc[first_index+1:]
+                    RangeCheck_df['Text'].loc[first_index + 1:] = other_spaces + RangeCheck_df['Text'].loc[
+                                                                                 first_index + 1:]
                     var.update(RangeCheck_df)
 
             ex_index = title_list.index("ExcludeDates")
@@ -295,9 +296,9 @@ class L2Format:
                 first_index = ExcludeDates_df.first_valid_index()
                 if first_index:
                     ExcludeDates_df['Text'].loc[first_index] = ExcludeDates_spaces + \
-                                                                ExcludeDates_df['Text'].loc[first_index]
-                    ExcludeDates_df['Text'].loc[first_index+1:] = other_spaces + \
-                                                                  ExcludeDates_df['Text'].loc[first_index+1:]
+                                                               ExcludeDates_df['Text'].loc[first_index]
+                    ExcludeDates_df['Text'].loc[first_index + 1:] = other_spaces + \
+                                                                    ExcludeDates_df['Text'].loc[first_index + 1:]
                     var.update(ExcludeDates_df)
             variables_lines_out.extend(var['Text'].tolist())
 
