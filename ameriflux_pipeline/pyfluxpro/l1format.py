@@ -482,7 +482,7 @@ class L1Format:
             end_ind = variables.index[i + 1]
             var_start_end.append((start_ind, end_ind))
         # append the start and end index of the last variable
-        var_start_end.append((end_ind, text.last_valid_index()+1))  
+        var_start_end.append((end_ind, text.last_valid_index()+1))
         return variables, var_start_end
 
     @staticmethod
