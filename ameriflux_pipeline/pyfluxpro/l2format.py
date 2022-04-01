@@ -162,7 +162,8 @@ class L2Format:
             start_ind = variables.index[i]
             end_ind = variables.index[i + 1]
             var_start_end.append((start_ind, end_ind))
-        var_start_end.append((end_ind, text.last_valid_index()))  # append the start and end index of the last variable
+        # append the start and end index of the last variable
+        var_start_end.append((end_ind, text.last_valid_index()+1))
         return variables, var_start_end
 
     @staticmethod
@@ -263,23 +264,6 @@ class L2Format:
             # initialize all sections as None
             DependencyCheck_df, RangeCheck_df, ExcludeDates_df = None, None, None
 
-            dep_index = title_list.index("DependencyCheck")
-            if dep_index < len(df_list):
-                DependencyCheck_df = df_list[dep_index]
-                # get the source line and delete footprint variable with pattern x_[0-9]+
-                source_line = DependencyCheck_df['Text'].iloc[1]  # source line is the second line of df
-                # replace values with pattern x_[0-9] with empty string
-                updated_source_line = re.sub(r"x_[0-9]+", "", source_line)
-                # change H2O_IRGA_Vr to H2O_SIGMA
-                updated_source_line = re.sub(r"H2O_IRGA_Vr", "H2O_SIGMA", updated_source_line)
-                # add updated lines with appropriate spaces
-                first_index = DependencyCheck_df.first_valid_index()
-                if first_index:
-                    DependencyCheck_df['Text'].loc[first_index] = DependencyCheck_spaces + \
-                                                                  DependencyCheck_df['Text'].loc[first_index]
-                    DependencyCheck_df['Text'].loc[first_index + 1] = other_spaces + updated_source_line
-                    var.update(DependencyCheck_df)
-
             range_index = title_list.index("RangeCheck")
             if range_index < len(df_list):
                 RangeCheck_df = df_list[range_index]
@@ -302,6 +286,39 @@ class L2Format:
                     ExcludeDates_df['Text'].loc[first_index + 1:] = other_spaces + \
                                                                     ExcludeDates_df['Text'].loc[first_index + 1:]
                     var.update(ExcludeDates_df)
+
+            dep_index = title_list.index("DependencyCheck")
+            if dep_index < len(df_list):
+                DependencyCheck_df = df_list[dep_index]
+                # get the source line and delete footprint variable with pattern x_[0-9]+
+                source_line = DependencyCheck_df['Text'].iloc[1]  # source line is the second line of df
+                # replace values with pattern x_[0-9] with empty string
+                updated_source_line = re.sub(r"x_[0-9]+", "", source_line)
+                # NOTES 14
+                # change H2O_IRGA_Vr to H2O_SIGMA
+                updated_source_line = re.sub(r"H2O_IRGA_Vr", "H2O_SIGMA", updated_source_line)
+                # check if the source line is valid / not empty
+                sources = updated_source_line.split('=')
+                if len(sources) == 2:
+                    # remove unnecessary comma
+                    updated_source_line = re.sub(r",", '', updated_source_line)
+                    sources = updated_source_line.split('=')
+                    print(sources)
+                    if sources[1] in ['', ' ']:
+                        # the source line is empty
+                        updated_source_line = ''
+                # add updated lines with appropriate spaces
+                first_index = DependencyCheck_df.first_valid_index()
+                if first_index and len(updated_source_line) > 0:
+                    # update only if valid index and valid source line
+                    DependencyCheck_df['Text'].loc[first_index] = DependencyCheck_spaces + \
+                                                                  DependencyCheck_df['Text'].loc[first_index]
+                    DependencyCheck_df['Text'].loc[first_index + 1] = other_spaces + updated_source_line
+                    var.update(DependencyCheck_df)
+                elif first_index:
+                    # delete DependencyCheck df from var
+                    var.drop([first_index, first_index+1], inplace=True)
+
             variables_lines_out.extend(var['Text'].tolist())
 
         return variables_lines_out
