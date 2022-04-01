@@ -221,7 +221,7 @@ class EnvEditor():
         self.DESC_L2_MAINSTEM_INPUT = " filename for L2 control file for mainstem variables"
         self.INFO_L2_MAINSTEM_INPUT = "PyFluxpro input L control file for mainstem variables"
         self.BROWSE_L2_AMERIFLUX_ONLY_INPUT = " L2.txt file formatted for AmeriFlux"
-        self.DESC_L2_AMERIFLUX_ONLY_INPUT =  " PyFluxpro input L2 control file for ameriflux-only variables."
+        self.DESC_L2_AMERIFLUX_ONLY_INPUT = " PyFluxpro input L2 control file for ameriflux-only variables."
         self.INFO_L2_AMERIFLUX_ONLY_INPUT = "The txt file needed by the process with AmeriFlux specific " \
                                             "formatting for PyFluxPro's L2 process."
         self.BROWSE_L2_AMERIFLUX_RUN_OUTPUT = " L2 output nc file name that will be generated"
@@ -998,17 +998,16 @@ class EnvEditor():
 
         # create L2 mainstem input
         label_l2_mainstem_input = tk.Label(master=second_frame, text=self.BROWSE_L2_MAINSTEM_INPUT,
-                                         font=self.BOLD_FONT).grid(sticky="w", row=i+32, column=0)
+                                           font=self.BOLD_FONT).grid(sticky="w", row=i+32, column=0)
         info_l2_mainstem_input = tk.Button(second_frame, text=self.INFO_TITLE, font=self.MAIN_FONT,
-                                         command=self.on_click_l2_mainstem_input). \
+                                           command=self.on_click_l2_mainstem_input). \
             grid(sticky="w", row=i+32, column=1)
         button_browse_l2_mainstem_input = \
             tk.Button(master=second_frame, text="Browse", font=self.MAIN_FONT,
                       command=self.browse_l2_mainstem_input).grid(sticky="w", row=i+32, column=2)
         desc_l2_mainstem_input = tk.Label(second_frame, text=self.DESC_L2_MAINSTEM_INPUT, font=self.DESC_FONT). \
             grid(sticky="w", row=i+33, column=0, columnspan=3)
-        self.path_l2_mainstem_input = tk.Label(master=second_frame, text=self.L2_MAINSTEM_INPUT,
-                                             font=self.MAIN_FONT)
+        self.path_l2_mainstem_input = tk.Label(master=second_frame, text=self.L2_MAINSTEM_INPUT, font=self.MAIN_FONT)
         self.path_l2_mainstem_input.grid(sticky="w", row=i+34, column=0, columnspan=3)
         label_separation = tk.Label(master=second_frame,
                                     text=self.SEPARATION_LABEL_SUB).grid(sticky="w", row=i+35, column=0, columnspan=3)
