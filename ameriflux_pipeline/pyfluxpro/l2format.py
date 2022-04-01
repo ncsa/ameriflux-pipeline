@@ -270,9 +270,29 @@ class L2Format:
                 # format with spaces
                 first_index = RangeCheck_df.first_valid_index()
                 if first_index:
-                    RangeCheck_df['Text'].loc[first_index] = RangeCheck_spaces + RangeCheck_df['Text'].loc[first_index]
-                    RangeCheck_df['Text'].loc[first_index + 1:] = other_spaces + RangeCheck_df['Text'].loc[
-                                                                                 first_index + 1:]
+                    if ameriflux_var_name.startswith("SWC_"):
+                        # NOTES 15. Convert lower and upper ranges to percentage
+                        lower_line = RangeCheck_df['Text'].loc[first_index + 1]
+                        upper_line = RangeCheck_df['Text'].loc[first_index + 2]
+                        # fix lower range
+                        lower_range_values = lower_line.split('=')[1].strip().split(',')
+                        lower_range_values = [float(x) * 100 for x in lower_range_values]
+                        lower_line = ",".join([str(i) for i in lower_range_values])
+                        lower_line = 'lower = ' + lower_line
+                        RangeCheck_df['Text'].loc[first_index + 1] = lower_line
+                        # fix upper range
+                        upper_range_values = upper_line.split('=')[1].strip().split(',')
+                        upper_range_values = [float(x) * 100 for x in upper_range_values]
+                        upper_line = ",".join([str(i) for i in upper_range_values])
+                        upper_line = 'upper = ' + upper_line
+                        RangeCheck_df['Text'].loc[first_index + 2] = upper_line
+
+                    # set the correct spaces
+                    RangeCheck_df['Text'].loc[first_index] = \
+                        RangeCheck_spaces + RangeCheck_df['Text'].loc[first_index]
+                    RangeCheck_df['Text'].loc[first_index + 1:] = \
+                        other_spaces + RangeCheck_df['Text'].loc[first_index + 1:]
+                    # update var df
                     var.update(RangeCheck_df)
 
             ex_index = title_list.index("ExcludeDates")
@@ -287,6 +307,8 @@ class L2Format:
                                                                     ExcludeDates_df['Text'].loc[first_index + 1:]
                     var.update(ExcludeDates_df)
 
+            # Dependency check is done at last since we might need to delete the whole check itself.
+            # dropping rows is easier to be done at the end
             dep_index = title_list.index("DependencyCheck")
             if dep_index < len(df_list):
                 DependencyCheck_df = df_list[dep_index]
@@ -303,7 +325,6 @@ class L2Format:
                     # remove unnecessary comma
                     updated_source_line = re.sub(r",", '', updated_source_line)
                     sources = updated_source_line.split('=')
-                    print(sources)
                     if sources[1] in ['', ' ']:
                         # the source line is empty
                         updated_source_line = ''
@@ -336,7 +357,6 @@ class L2Format:
         """
         plot_lines_out = ['' for i in range(len(plot_lines))]  # create empty list of length same as plots section
         other_spaces = spaces + spaces  # spaces for Variables line
-        labels = dict((k.upper(), v.upper()) for k, v in labels.items())  # convert to uppercase for uniformity
 
         for ind, line in enumerate(plot_lines):
             if str(line).strip().startswith('variables'):
@@ -345,8 +365,8 @@ class L2Format:
                 variables_list = variables.split(',')
                 updated_variables_list = []
                 for var in variables_list:
-                    if var.upper() in labels:
-                        updated_variables_list.append(labels[var.upper()])
+                    if var in labels:
+                        updated_variables_list.append(labels[var])
                 updated_variables = ','.join(updated_variables_list)
                 plot_lines_out[ind] = other_spaces + 'variables = ' + updated_variables
             else:
