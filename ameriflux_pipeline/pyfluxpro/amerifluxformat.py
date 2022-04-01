@@ -136,11 +136,11 @@ class AmeriFluxFormat:
             obj: Pandas DataFrame object
         """
         # convert columns given in AmeriFlux mainstem keys
-        if 'Albedo_Avg' in met_df:
-            if met_df['Albedo_Avg'] > 1:
-                met_df['ALB'] = 1
-            else:
-                met_df['ALB'] = 100 * met_df['Albedo_Avg']
+        # get Albedo_avg column and convert to ALB
+        albedo_col = None
+        albedo_col = str(met_df.filter(regex=("albedo_Avg|Albedo_Avg|albedo_avg|Aldebo_avg")).columns[0])
+        if albedo_col:
+            met_df['ALB'] = met_df[albedo_col].apply(lambda x: 1 if float(x) > 1 else float(x) * 100)
             met_df_meta['ALB'] = '%'
 
         if 'VPD' in full_output_df:
