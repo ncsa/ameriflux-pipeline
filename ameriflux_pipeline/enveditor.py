@@ -174,7 +174,7 @@ class EnvEditor():
         self.DESC_PYFLUXPRO_INPUT_SHEET = " file for pyfluxpro input sheet combining full output and met data 30"
         self.INFO_PYFLUXPRO_INPUT_SHEET = "The excel file where you want the fully-processed PyFluxPro input file " \
                                           "to go."
-        self.BROWSE_PYFLUXPRO_INPUT_AMERIFLUX = " PyFluxPro Full Output with AmeriFlux Formatting"
+        self.BROWSE_PYFLUXPRO_INPUT_AMERIFLUX = " PyFluxPro input excel sheet with Ameriflux formatting"
         self.DESC_PYFLUXPRO_INPUT_AMERIFLUX = " output file for pyflux pro input excel file with AmeriFlux formatting"
         self.INFO_PYFLUXPRO_INPUT_AMERIFLUX = "The excel file that has the identical content as PyFluxPro input " \
                                               "excel file with variable naming convention accepted by AmeriFlux."
@@ -219,7 +219,7 @@ class EnvEditor():
         # PyFluxPro L2 related data
         self.BROWSE_L2_MAINSTEM_INPUT = " PyFluxPro L2.txt file"
         self.DESC_L2_MAINSTEM_INPUT = " filename for L2 control file for mainstem variables"
-        self.INFO_L2_MAINSTEM_INPUT = "PyFluxpro input L control file for mainstem variables"
+        self.INFO_L2_MAINSTEM_INPUT = "PyFluxpro input L2 control file for mainstem variables"
         self.BROWSE_L2_AMERIFLUX_ONLY_INPUT = " L2.txt file formatted for AmeriFlux"
         self.DESC_L2_AMERIFLUX_ONLY_INPUT = " PyFluxpro input L2 control file for ameriflux-only variables."
         self.INFO_L2_AMERIFLUX_ONLY_INPUT = "The txt file needed by the process with AmeriFlux specific " \
