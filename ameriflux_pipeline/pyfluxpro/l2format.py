@@ -297,10 +297,10 @@ class L2Format:
                 # format with spaces
                 first_index = ExcludeDates_df.first_valid_index()
                 if first_index:
-                    ExcludeDates_df['Text'].loc[first_index] = ExcludeDates_spaces + \
-                                                               ExcludeDates_df['Text'].loc[first_index]
-                    ExcludeDates_df['Text'].loc[first_index + 1:] = other_spaces + \
-                                                                    ExcludeDates_df['Text'].loc[first_index + 1:]
+                    ExcludeDates_df['Text'].loc[first_index] = \
+                        ExcludeDates_spaces + ExcludeDates_df['Text'].loc[first_index]
+                    ExcludeDates_df['Text'].loc[first_index + 1:] = \
+                        other_spaces + ExcludeDates_df['Text'].loc[first_index + 1:]
                     var.update(ExcludeDates_df)
             variables_lines_out.extend(var['Text'].tolist())
 
