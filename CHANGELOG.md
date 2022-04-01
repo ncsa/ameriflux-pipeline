@@ -33,9 +33,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Added user confirmation to replace certain PyFluxPro variable names to AmeriFlux names [#105](https://github.com/ncsa/ameriflux-pipeline/issues/105)
 - Check formatting of L1 inputs [#109](https://github.com/ncsa/ameriflux-pipeline/issues/109)
 - Updating units for Ameriflux only variables [#115](https://github.com/ncsa/ameriflux-pipeline/issues/115)
-- Check formatting of L1 inputs [#109](https://github.com/ncsa/ameriflux-pipeline/issues/109)
-- AmeriFlux L1 formatting variables to env editor [#108](https://github.com/ncsa/ameriflux-pipeline/issues/108)
 - AmeriFlux L1 erroring variables to env editor [#117](https://github.com/ncsa/ameriflux-pipeline/issues/117)
+- Creation of L2.txt meeting Ameriflux standards [#101](https://github.com/ncsa/ameriflux-pipeline/issues/101)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)

@@ -48,6 +48,10 @@ original/
 
 # EddyPro proj file
 *.eddypro
+# GHG files
+*.ghg
+# Tmp files from EddyPro run
+*.tmp
 
 # jupyter notebook checkpoints folder
 .ipynb_checkpoints
