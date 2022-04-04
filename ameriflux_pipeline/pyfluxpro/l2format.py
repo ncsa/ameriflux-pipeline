@@ -272,8 +272,14 @@ class L2Format:
                 if first_index:
                     if ameriflux_var_name.startswith("SWC_"):
                         # NOTES 15. Convert lower and upper ranges to percentage
-                        lower_line = RangeCheck_df['Text'].loc[first_index + 1]
-                        upper_line = RangeCheck_df['Text'].loc[first_index + 2]
+                        first_line = RangeCheck_df['Text'].loc[first_index + 1]
+                        second_line = RangeCheck_df['Text'].loc[first_index + 2]
+                        if first_line.split('=')[0].strip() == 'lower':
+                            lower_line = first_line
+                            upper_line = second_line
+                        else:
+                            lower_line = second_line
+                            upper_line = first_line
                         # fix lower range
                         lower_range_values = lower_line.split('=')[1].strip().split(',')
                         lower_range_values = [float(x) * 100 for x in lower_range_values]
