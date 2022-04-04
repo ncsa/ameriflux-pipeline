@@ -136,9 +136,12 @@ class AmeriFluxFormat:
             obj: Pandas DataFrame object
         """
         # convert columns given in AmeriFlux mainstem keys
-        # get Albedo_avg column and convert to ALB
-        albedo_col = None
-        albedo_col = str(met_df.filter(regex=("albedo_Avg|Albedo_Avg|albedo_avg|Aldebo_avg")).columns[0])
+        # get Albedo column and convert to ALB
+        try:
+            albedo_col = str(met_df.filter(regex=("albedo|Albedo|ALBEDO")).columns[0])
+        except:
+            print("Albedo column not present")
+            albedo_col = None
         if albedo_col:
             met_df['ALB'] = met_df[albedo_col].apply(lambda x: 1 if float(x) > 1 else float(x) * 100)
             met_df_meta['ALB'] = '%'
