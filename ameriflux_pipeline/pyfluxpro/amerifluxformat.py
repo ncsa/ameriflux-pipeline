@@ -139,7 +139,7 @@ class AmeriFluxFormat:
         # get Albedo column and convert to ALB
         try:
             albedo_col = str(met_df.filter(regex=("albedo|Albedo|ALBEDO")).columns[0])
-        except:
+        except IndexError as ex:
             print("Albedo column not present")
             albedo_col = None
         if albedo_col:
