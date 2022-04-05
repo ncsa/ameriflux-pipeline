@@ -162,7 +162,8 @@ class L2Format:
             start_ind = variables.index[i]
             end_ind = variables.index[i + 1]
             var_start_end.append((start_ind, end_ind))
-        var_start_end.append((end_ind, text.last_valid_index()))  # append the start and end index of the last variable
+        # append the start and end index of the last variable
+        var_start_end.append((end_ind, text.last_valid_index()+1))
         return variables, var_start_end
 
     @staticmethod
@@ -263,32 +264,41 @@ class L2Format:
             # initialize all sections as None
             DependencyCheck_df, RangeCheck_df, ExcludeDates_df = None, None, None
 
-            dep_index = title_list.index("DependencyCheck")
-            if dep_index < len(df_list):
-                DependencyCheck_df = df_list[dep_index]
-                # get the source line and delete footprint variable with pattern x_[0-9]+
-                source_line = DependencyCheck_df['Text'].iloc[1]  # source line is the second line of df
-                # replace values with pattern x_[0-9] with empty string
-                updated_source_line = re.sub(r"x_[0-9]+", "", source_line)
-                # change H2O_IRGA_Vr to H2O_SIGMA
-                updated_source_line = re.sub(r"H2O_IRGA_Vr", "H2O_SIGMA", updated_source_line)
-                # add updated lines with appropriate spaces
-                first_index = DependencyCheck_df.first_valid_index()
-                if first_index:
-                    DependencyCheck_df['Text'].loc[first_index] = DependencyCheck_spaces + \
-                                                                  DependencyCheck_df['Text'].loc[first_index]
-                    DependencyCheck_df['Text'].loc[first_index + 1] = other_spaces + updated_source_line
-                    var.update(DependencyCheck_df)
-
             range_index = title_list.index("RangeCheck")
             if range_index < len(df_list):
                 RangeCheck_df = df_list[range_index]
                 # format with spaces
                 first_index = RangeCheck_df.first_valid_index()
                 if first_index:
-                    RangeCheck_df['Text'].loc[first_index] = RangeCheck_spaces + RangeCheck_df['Text'].loc[first_index]
-                    RangeCheck_df['Text'].loc[first_index + 1:] = other_spaces + RangeCheck_df['Text'].loc[
-                                                                                 first_index + 1:]
+                    if ameriflux_var_name.startswith("SWC_"):
+                        # NOTES 15. Convert lower and upper ranges to percentage
+                        first_line = RangeCheck_df['Text'].loc[first_index + 1]
+                        second_line = RangeCheck_df['Text'].loc[first_index + 2]
+                        if first_line.split('=')[0].strip() == 'lower':
+                            lower_line = first_line
+                            upper_line = second_line
+                        else:
+                            lower_line = second_line
+                            upper_line = first_line
+                        # fix lower range
+                        lower_range_values = lower_line.split('=')[1].strip().split(',')
+                        lower_range_values = [float(x) * 100 for x in lower_range_values]
+                        lower_line = ",".join([str(i) for i in lower_range_values])
+                        lower_line = 'lower = ' + lower_line
+                        RangeCheck_df['Text'].loc[first_index + 1] = lower_line
+                        # fix upper range
+                        upper_range_values = upper_line.split('=')[1].strip().split(',')
+                        upper_range_values = [float(x) * 100 for x in upper_range_values]
+                        upper_line = ",".join([str(i) for i in upper_range_values])
+                        upper_line = 'upper = ' + upper_line
+                        RangeCheck_df['Text'].loc[first_index + 2] = upper_line
+
+                    # set the correct spaces
+                    RangeCheck_df['Text'].loc[first_index] = \
+                        RangeCheck_spaces + RangeCheck_df['Text'].loc[first_index]
+                    RangeCheck_df['Text'].loc[first_index + 1:] = \
+                        other_spaces + RangeCheck_df['Text'].loc[first_index + 1:]
+                    # update var df
                     var.update(RangeCheck_df)
 
             ex_index = title_list.index("ExcludeDates")
@@ -302,6 +312,40 @@ class L2Format:
                     ExcludeDates_df['Text'].loc[first_index + 1:] = \
                         other_spaces + ExcludeDates_df['Text'].loc[first_index + 1:]
                     var.update(ExcludeDates_df)
+
+            # Dependency check is done at last since we might need to delete the whole check itself.
+            # dropping rows is easier to be done at the end
+            dep_index = title_list.index("DependencyCheck")
+            if dep_index < len(df_list):
+                DependencyCheck_df = df_list[dep_index]
+                # get the source line and delete footprint variable with pattern x_[0-9]+
+                source_line = DependencyCheck_df['Text'].iloc[1]  # source line is the second line of df
+                # replace values with pattern x_[0-9] with empty string
+                updated_source_line = re.sub(r"x_[0-9]+", "", source_line)
+                # NOTES 14
+                # change H2O_IRGA_Vr to H2O_SIGMA
+                updated_source_line = re.sub(r"H2O_IRGA_Vr", "H2O_SIGMA", updated_source_line)
+                # check if the source line is valid / not empty
+                sources = updated_source_line.split('=')
+                if len(sources) == 2:
+                    # remove unnecessary comma
+                    updated_source_line = re.sub(r",", '', updated_source_line)
+                    sources = updated_source_line.split('=')
+                    if sources[1] in ['', ' ']:
+                        # the source line is empty
+                        updated_source_line = ''
+                # add updated lines with appropriate spaces
+                first_index = DependencyCheck_df.first_valid_index()
+                if first_index and len(updated_source_line) > 0:
+                    # update only if valid index and valid source line
+                    DependencyCheck_df['Text'].loc[first_index] = DependencyCheck_spaces + \
+                                                                  DependencyCheck_df['Text'].loc[first_index]
+                    DependencyCheck_df['Text'].loc[first_index + 1] = other_spaces + updated_source_line
+                    var.update(DependencyCheck_df)
+                elif first_index:
+                    # delete DependencyCheck df from var
+                    var.drop([first_index, first_index+1], inplace=True)
+
             variables_lines_out.extend(var['Text'].tolist())
 
         return variables_lines_out
@@ -319,7 +363,6 @@ class L2Format:
         """
         plot_lines_out = ['' for i in range(len(plot_lines))]  # create empty list of length same as plots section
         other_spaces = spaces + spaces  # spaces for Variables line
-        labels = dict((k.upper(), v.upper()) for k, v in labels.items())  # convert to uppercase for uniformity
 
         for ind, line in enumerate(plot_lines):
             if str(line).strip().startswith('variables'):
@@ -328,8 +371,8 @@ class L2Format:
                 variables_list = variables.split(',')
                 updated_variables_list = []
                 for var in variables_list:
-                    if var.upper() in labels:
-                        updated_variables_list.append(labels[var.upper()])
+                    if var in labels:
+                        updated_variables_list.append(labels[var])
                 updated_variables = ','.join(updated_variables_list)
                 plot_lines_out[ind] = other_spaces + 'variables = ' + updated_variables
             else:

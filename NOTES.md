@@ -48,5 +48,9 @@
 - If original unit is to be kept, remove 'kg/kg' from the cell.
 ### 13
 - For Ameriflux-friendly L1 and L2, we only write Ameriflux friendly variables which are listed out in the Ameriflux-Mainstem-Key.xlsx.
+### 14
+- For Ameriflux-friendly L2, H2O_SIGMA is used as DependecyCheck source instead of H2O_IRGA_Vr
+### 15
+- For Soil water content variables in Ameriflux-friendly L2, range checks should be multiplied by 100 as these are in percentages.
 
 
