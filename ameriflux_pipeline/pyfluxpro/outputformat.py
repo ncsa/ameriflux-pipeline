@@ -43,14 +43,14 @@ class OutputFormat:
         # remove QCFlag variables
         l2_keys = [ele for ele in l2_keys if not ele.endswith('_QCFlag')]
 
-        # get time data
+        # NOTES 16. Get time data
         if 'time' not in l2_keys:
             print("time variable not in L2 output")
             return
         time_var = l2.variables['time']
         time_units = time_var.units
         time = time_var[:]
-        time = netCDF4.num2date(time, units=time_units, calendar='gregorian')  # calendar can be 365_day / gregorian
+        time = num2date(time, units=time_units, calendar='gregorian')  # calendar can be 365_day / gregorian
         time_data = time.data
 
         # create a dataframe
