@@ -39,8 +39,6 @@ class AmeriFluxFormat:
         # Step 1 of guide
         full_output_df = AmeriFluxFormat.replace_empty(full_output_df)
         met_df = AmeriFluxFormat.replace_empty(met_df)
-        # step 2 in guide
-        met_df, met_df_meta = AmeriFluxFormat.timestamp_met_df(met_df, met_df_meta)
 
         # step 3,4,5,6,7 in guide
         full_output_df, full_output_df_meta, met_df, met_df_meta = AmeriFluxFormat.\
@@ -77,6 +75,7 @@ class AmeriFluxFormat:
         df = df.replace('NAN', np.nan)
         return df
 
+    # currently not used
     @staticmethod
     def timestamp_met_df(df, df_meta):
         """
@@ -91,7 +90,6 @@ class AmeriFluxFormat:
         """
         df['TIMESTAMP'] = pd.to_datetime(df['TIMESTAMP'])
         # shift each timestamp 30min behind and store in another column
-        # NOTES 11
         df.insert(0, 'TIMESTAMP', df.pop('TIMESTAMP'))
         df.insert(1, 'TIMESTAMP_END', df['TIMESTAMP'] + timedelta(minutes=30))
         df.insert(2, 'TIMESTAMP_START', df['TIMESTAMP'])

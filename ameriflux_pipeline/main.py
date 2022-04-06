@@ -86,7 +86,7 @@ def run_eddypro(eddypro_formatted_met_file):
 
 def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30_input, met_data_30_pyfluxpro):
     """
-    Main function to run PlyFluxPro processing. Calls other functions
+    Main function to run PyFluxPro processing. Calls other functions
 
     Args:
         eddypro_full_output (str): EddyPro full_output file path
