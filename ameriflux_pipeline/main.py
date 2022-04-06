@@ -250,7 +250,9 @@ def pyfluxpro_output_ameriflux_processing(l2_run_output, file_meta_data_file, er
     ameriflux_df, ameriflux_file_name = OutputFormat.data_formatting(l2_run_output, file_meta_data_file,
                                                                      erroring_variable_flag, erroring_variable_key)
     ameriflux_file_name = ameriflux_file_name + '.csv'
-    data_util.write_data(ameriflux_df, ameriflux_file_name)
+    directory_name = os.path.dirname(l2_run_output)
+    output_file = os.path.join(directory_name, ameriflux_file_name)
+    data_util.write_data(ameriflux_df, output_file)
 
 
 # Press the green button in the gutter to run the script.
