@@ -19,6 +19,7 @@ from pyfluxpro.pyfluxproformat import PyFluxProFormat
 from pyfluxpro.amerifluxformat import AmeriFluxFormat
 from pyfluxpro.l1format import L1Format
 from pyfluxpro.l2format import L2Format
+from pyfluxpro.outputformat import OutputFormat
 from utils.syncdata import SyncData as syncdata
 
 import pandas.io.formats.excel
@@ -200,12 +201,14 @@ def pyfluxpro_l1_ameriflux_processing(pyfluxpro_input, l1_mainstem, l1_ameriflux
     Returns:
         pyfluxpro_ameriflux_label (dict): Mapping of pyfluxpro-friendly label to Ameriflux-friendly labels for
                                             variables in L1_Ameriflux.txt
+        erroring_variable_flag (str): A flag denoting whether some PyFluxPro variables (erroring variables) have been
+                                     renamed to Ameriflux labels. Y is renamed, N if not. By default it is N.
     """
-    pyfluxpro_ameriflux_label = L1Format.data_formatting(pyfluxpro_input, l1_mainstem, l1_ameriflux_only,
+    pyfluxpro_ameriflux_label, erroring_variable_flag = L1Format.data_formatting(pyfluxpro_input, l1_mainstem, l1_ameriflux_only,
                                                          ameriflux_mainstem_key, file_meta_data_file, soil_key,
                                                          l1_run_output, l1_ameriflux_output,
                                                          ameriflux_variable_user_confirmation, erroring_variable_key)
-    return pyfluxpro_ameriflux_label
+    return pyfluxpro_ameriflux_label, erroring_variable_flag
 
 
 def pyfluxpro_l2_ameriflux_processing(pyfluxpro_ameriflux_label, l2_mainstem, l2_ameriflux_only,
@@ -226,6 +229,26 @@ def pyfluxpro_l2_ameriflux_processing(pyfluxpro_ameriflux_label, l2_mainstem, l2
         """
     L2Format.data_formatting(pyfluxpro_ameriflux_label, l2_mainstem, l2_ameriflux_only, l1_run_output, l2_run_output,
                              l2_ameriflux_output)
+
+def pyfluxpro_output_ameriflux_processing(l2_run_output, file_meta_data_file, erroring_variable_flag,
+                                          erroring_variable_key):
+    """
+    Main function to run PyFluxPro output file formatting for AmeriFlux. Calls other functions
+
+    Args:
+        l2_run_output (str): Full filepath of pyfluxpro L2 run output. This typically has a .nc extension
+        file_meta_data_file (str) : File containing the meta data, typically the first line of Met data
+        erroring_variable_flag (str): A flag denoting whether some PyFluxPro variables (erroring variables) have
+                                    been renamed to Ameriflux labels. Y is renamed, N if not. By default it is N.
+        erroring_variable_key (str): Variable name key used to match the original variable names to Ameriflux names
+                                for variables throwing an error in PyFluxPro L1.
+                                This is an excel file named L1_erroring_variables.xlsx
+    Returns:
+        None
+    """
+    ameriflux_df, ameriflux_file_name = OutputFormat.data_formatting(l2_run_output, file_meta_data_file, erroring_variable_flag, erroring_variable_key)
+    ameriflux_file_name = ameriflux_file_name + '.csv'
+    data_util.write_data(ameriflux_df, ameriflux_file_name)
 
 
 # Press the green button in the gutter to run the script.
@@ -260,7 +283,7 @@ if __name__ == '__main__':
         print(cfg.PYFLUXPRO_INPUT_SHEET, "path does not exist")
 
     # run ameriflux formatting of pyfluxpro L1 control file
-    pyfluxpro_ameriflux_labels = pyfluxpro_l1_ameriflux_processing(cfg.PYFLUXPRO_INPUT_AMERIFLUX, cfg.L1_MAINSTEM_INPUT,
+    pyfluxpro_ameriflux_labels, erroring_variable_flag = pyfluxpro_l1_ameriflux_processing(cfg.PYFLUXPRO_INPUT_AMERIFLUX, cfg.L1_MAINSTEM_INPUT,
                                                                    cfg.L1_AMERIFLUX_ONLY_INPUT,
                                                                    cfg.L1_AMERIFLUX_MAINSTEM_KEY, file_meta_data_file,
                                                                    cfg.INPUT_SOIL_KEY, cfg.L1_AMERIFLUX_RUN_OUTPUT,
@@ -270,3 +293,7 @@ if __name__ == '__main__':
     # run ameriflux formatting of pyfluxpro L2 control file
     pyfluxpro_l2_ameriflux_processing(pyfluxpro_ameriflux_labels, cfg.L2_MAINSTEM_INPUT, cfg.L2_AMERIFLUX_ONLY_INPUT,
                                       cfg.L1_AMERIFLUX_RUN_OUTPUT, cfg.L2_AMERIFLUX_RUN_OUTPUT, cfg.L2_AMERIFLUX)
+
+    pyfluxpro_output_ameriflux_processing(cfg.L2_AMERIFLUX_RUN_OUTPUT, file_meta_data_file, erroring_variable_flag,
+                                          cfg.L1_AMERIFLUX_ERRORING_VARIABLES_KEY)
+
