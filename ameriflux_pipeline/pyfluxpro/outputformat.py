@@ -8,6 +8,7 @@ import re
 import os.path
 from netCDF4 import Dataset, num2date
 
+
 class OutputFormat:
     """
        Class to implement formatting of PyFluxPro output .nc file as per guide for Ameriflux submission
@@ -36,7 +37,8 @@ class OutputFormat:
             return
         l2 = Dataset(input_file, mode='r')  # read netCDF file
         l2_keys = list(l2.variables.keys())
-        unwanted_variables = ['latitude', 'longitude','crs', 'station_name']  # list of unwanted variables to be removed
+        # list of unwanted variables to be removed
+        unwanted_variables = ['latitude', 'longitude', 'crs', 'station_name']
         l2_keys = [ele for ele in l2_keys if ele not in unwanted_variables]
         # remove QCFlag variables
         l2_keys = [ele for ele in l2_keys if not ele.endswith('_QCFlag')]
@@ -113,8 +115,8 @@ class OutputFormat:
         Returns:
             bool: True if data spans the entire year, False if not.
         """
-        start_year, start_month, start_day, start_hour, start_minute = start.year, start.month, start.day, start.hour, \
-                                                                       start.minute
+        start_year, start_month, start_day, start_hour, start_minute = \
+            start.year, start.month, start.day, start.hour, start.minute
         end_year, end_month, end_day, end_hour, end_minute = end.year, end.month, end.day, end.hour, end.minute
         if start_year != end_year-1:
             print("Year in timestamp_start and timestamp_end does not match")
@@ -134,7 +136,7 @@ class OutputFormat:
         else:
             return True
 
-    ### TODO : This method has been used in 3 files (L1Format and EddyProFormat).
+    # TODO : This method has been used in 3 files (L1Format and EddyProFormat).
     # Maybe place this in main or pass in just the site name as arguments
     @staticmethod
     def get_site_name(file_site_name):
