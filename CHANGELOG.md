@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - AmeriFlux L1 erroring variables to env editor [#117](https://github.com/ncsa/ameriflux-pipeline/issues/117)
 - Creation of L2.txt meeting Ameriflux standards [#101](https://github.com/ncsa/ameriflux-pipeline/issues/101)
 - L2 AmeriFlux formatting variables to env editor. [#126](https://github.com/ncsa/ameriflux-pipeline/issues/126)
+- Formatting of PyFluxPro output for Ameriflux. [#130](https://github.com/ncsa/ameriflux-pipeline/issues/130)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
