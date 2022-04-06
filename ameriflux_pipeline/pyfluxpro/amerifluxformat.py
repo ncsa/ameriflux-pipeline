@@ -2,20 +2,17 @@ import pandas as pd
 import numpy as np
 from datetime import timedelta
 
-import warnings
-warnings.filterwarnings("ignore")
-
 
 class AmeriFluxFormat:
     """
-    Class to implement formatting of PyFluxPro input excel sheet as per guide
+    Class to implement formatting of PyFluxPro input excel sheet as per guide for Ameriflux submission
     """
 
     # main method which calls other functions
     @staticmethod
     def data_formatting(input_file, full_output_sheet_name, met_data_sheet_name):
         """
-        Constructor for the class
+        Method to implement data formatting for PyFluxPro input excel sheet. Calls other methods.
 
         Args:
             input_file (str): A file path for the input data. This is the PyFluxPro input excel sheet
