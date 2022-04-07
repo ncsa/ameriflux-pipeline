@@ -3,6 +3,7 @@ File to format the output netCDF files from PyFluxPro to Ameriflux standards
 '''
 
 import pandas as pd
+import numpy as np
 from datetime import datetime, timedelta
 import re
 import os.path
@@ -32,9 +33,9 @@ class OutputFormat:
             obj: Pandas DataFrame object formatted for Ameriflux
             filename (str): Filename for writing the dataframe to csv
         """
-        if os.path.splitext(input_file)[1] != 'nc':
+        if os.path.splitext(input_file)[1] != '.nc':
             print("Run output file not in netCDF format. No .nc extension")
-            return
+            return None, None
         l2 = Dataset(input_file, mode='r')  # read netCDF file
         l2_keys = list(l2.variables.keys())
         # list of unwanted variables to be removed
@@ -72,11 +73,14 @@ class OutputFormat:
         for col in timestamp_cols:
             df[col] = df[col].map(lambda t: t.strftime('%Y%m%d%H%M'))
         # drop additional time columns
-        df.drop(columns=['TIMESTAMP', 'time'], inplace=True)
+        df.drop(columns=['TIMESTAMP'], inplace=True)
 
         # add met data to dataframe
         for var_name in l2_keys:
             df[var_name] = l2.variables[var_name][:].flatten()
+            # convert to numeric and round to 3 decimal points
+            df[var_name] = df[var_name].apply(pd.to_numeric, errors='coerce')
+            df[var_name] = df[var_name].round(decimals=3)
 
         # drop columns if exists
         # step 2 in guide
@@ -90,7 +94,10 @@ class OutputFormat:
             column_labels = dict(zip(erroring_variable_key['PyFluxPro label'],
                                      erroring_variable_key['Ameriflux label']))
             df.rename(columns=column_labels, inplace=True)
-
+        # drop additional time columns
+        df.drop(columns=['time'], inplace=True)
+        # fill all empty cells with -9999
+        df.replace(np.nan, '-9999', inplace=True)
         # create the filename
         # read file_meta
         file_meta = pd.read_csv(file_meta_data_file)

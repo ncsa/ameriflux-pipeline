@@ -249,6 +249,9 @@ def pyfluxpro_output_ameriflux_processing(l2_run_output, file_meta_data_file, er
     """
     ameriflux_df, ameriflux_file_name = OutputFormat.data_formatting(l2_run_output, file_meta_data_file,
                                                                      erroring_variable_flag, erroring_variable_key)
+    if ameriflux_file_name is None:
+        print("PyFluxPro run output not formatted for Ameriflux")
+        return
     ameriflux_file_name = ameriflux_file_name + '.csv'
     directory_name = os.path.dirname(l2_run_output)
     output_file = os.path.join(directory_name, ameriflux_file_name)
@@ -293,6 +296,7 @@ if __name__ == '__main__':
                                           file_meta_data_file, cfg.INPUT_SOIL_KEY, cfg.L1_AMERIFLUX_RUN_OUTPUT,
                                           cfg.L1_AMERIFLUX, cfg.AMERIFLUX_VARIABLE_USER_CONFIRMATION,
                                           cfg.L1_AMERIFLUX_ERRORING_VARIABLES_KEY)
+
     # run ameriflux formatting of pyfluxpro L2 control file
     pyfluxpro_l2_ameriflux_processing(pyfluxpro_ameriflux_labels, cfg.L2_MAINSTEM_INPUT, cfg.L2_AMERIFLUX_ONLY_INPUT,
                                       cfg.L1_AMERIFLUX_RUN_OUTPUT, cfg.L2_AMERIFLUX_RUN_OUTPUT, cfg.L2_AMERIFLUX)
