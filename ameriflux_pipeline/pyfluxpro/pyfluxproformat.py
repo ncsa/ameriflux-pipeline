@@ -98,7 +98,7 @@ class PyFluxProFormat:
         # convert string to numerical
         df['sonic_temperature'] = df['sonic_temperature'].apply(pd.to_numeric, errors='coerce')
         df['sonic_temperature_C'] = df['sonic_temperature']-273.15  # convert to celsius
-        df['sonic_temperature_C'].round(3)  # round to 3 decimal places
+        df['sonic_temperature_C'] = df['sonic_temperature_C'].round(3)  # round to 3 decimal places
         df_meta['sonic_temperature_C'] = '[C]'  # add new variable and unit to meta df
         return df, df_meta
 
