@@ -47,7 +47,7 @@ class OutputFormat:
         # NOTES 16. Get time data
         if 'time' not in l2_keys:
             print("time variable not in L2 output")
-            return
+            return None , None
         time_var = l2.variables['time']
         time_units = time_var.units
         time = time_var[:]
