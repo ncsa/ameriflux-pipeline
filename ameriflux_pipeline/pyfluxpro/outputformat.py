@@ -7,6 +7,7 @@ import numpy as np
 from datetime import datetime, timedelta
 import re
 import os.path
+# NOTES 18
 from netCDF4 import Dataset, num2date
 
 

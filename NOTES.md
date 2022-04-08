@@ -56,6 +56,8 @@
 ### 17 
 - Pipeline is split into two phases, one to be run before PyFluxPro and one after PyFluxPro.
 - The first phase generates L1 and L2 control files that meet Ameriflux standards
-- The second phase generates the csv file named US-Ui<site_name>_HH_<timestamp_start>_<timestamp_end>.csv that meets Ameriflux standards.
+- The second phase generates the csv file named US-Ui<site_name>\_HH\_<timestamp_start>_<timestamp_end>.csv that meets Ameriflux standards.
+### 18
+- netCDF4 python library is supported only in Python version 3.8. This pipeline has a strict requirement of Python 3.8
 
 
