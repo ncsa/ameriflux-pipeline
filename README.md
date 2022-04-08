@@ -6,20 +6,27 @@ This automated code creates master met data, runs EddyPro automatically and crea
 ## Prerequisites
 
 ### Requirements
-- Python 3.8+
+- Python 3.8
 - EddyPro 7.0.6 (https://www.licor.com/env/support/EddyPro/software.html) exec files
-- PyFluxPro 3.2.0+ (https://github.com/OzFlux/PyFluxPro)
+- PyFluxPro 3.3.2 (https://github.com/OzFlux/PyFluxPro)
 
 ## Files :
-- master_met/preprocessor.py creates the master met data file
-- eddypro/eddyproformat.py creates master met data formatted for eddypro headless run
-- eddypro/runeddypro.py is responsible for the eddypro headless run
-- pyfluxpro/pyfluxproformat.py creates the input excel sheet for pyfluxpro
-- utils/data_util.py performs data write operations
+- master_met / preprocessor.py creates the master met data file
+- eddypro / eddyproformat.py creates master met data formatted for eddypro headless run
+- eddypro / runeddypro.py is responsible for the eddypro headless run
+- pyfluxpro / pyfluxproformat.py creates the input excel sheet for pyfluxpro
+- pyfluxpro / amerifluxformat.py creates the input excel sheet for pyfluxpro as per Ameriflux standards
+- pyfluxpro / l1format.py creates L1 control file as per Ameriflux standards
+- pyfluxpro / l2format.py creates L2 control file as per Ameriflux standards
+- pyfluxpro / outputformat.py creates csv file with data formatted for Ameriflux submission from the L2 run output
+- utils / data_util.py performs data write operations
+- utils / syncdata.py performs syncing of GHG data with server and local
+- templates/ folder keeps the eddypro project files needed to run EddyPro headless
 - enveditor.py is the GUI for helping the users to set the input and output data
-- main.py is the main file to run.
 - config.py lists all configurations
 - requirements.txt lists the required packages
+- pre_pyfluxpro.py runs all processing steps till PyFluxPro runs. It generates L1 and L2 control files as per Ameriflux standards
+- post_pyfluxpro.py runs all post processing steps to convert the L2 run output to csv file required for Ameriflux submission.
 
 ## Installation
 
@@ -37,7 +44,7 @@ cd ameriflux-pipeline
 - Python virtualenv package should be installed in the machine
 - (Linux or MAC):
 ```
-virtualenv -p python3 venv
+virtualenv -p python3.8 venv
 source venv/bin/activate
 ```
 - (Windows):
@@ -45,7 +52,11 @@ source venv/bin/activate
 python -m venv env
 .\env\Scripts\activate
 ```
-
+- Or if you prefer to use conda,
+```
+conda create --prefix=venv python=3.8
+conda activate venv
+```
 4. Install dependencies:
 - The model is tested on Python 3.8, with dependencies listed in requirements.txt.
 - To install these Python dependencies, please run following command in your virtual env
@@ -62,17 +73,32 @@ conda install --file requirements.txt
 - Give the full path to all input and output file location.
 - There is a GUI application for this. Run enveditor.py under ameriflux_pipeline directory 
   by typing `python enveditor.py` in command prompt after cd into ameriflux_pipleline directory.
-- Details about the parameters are describes in the section 7 below
+- Details about the parameters are describes in the section 9 below
 
-6. To run python module with default parameters, please run:
+6. To run python module for processing till PyFluxPro L1 and L2 control files, please run:
 ```
-python main.py
+python pre_pyfluxpro.py
 ```
+This creates 
+- master met data, 
+- master met data formatted for eddypro, 
+- eddypro full output, 
+- pyfluxpro input excel sheet, 
+- pyfluxpro input excel sheet formatted for Ameriflux, 
+- L1 and L2 control files formatted for Ameriflux.
 
-7. Example .env file
+7. Run PyFluxPro version 3.3.2 with the generated L1 and L2 control files to produce graphs and perform quality checks on the data.
+
+8. To run python module for post processing of PyFluxPro L2 run output to produce Ameriflux-ready data, please run:
+```
+python post_pyfluxpro.py
+```
+This produces a csv file that is Ameriflux-friendly in the same directory as the L2 run output.
+
+9. Example .env file
 - Using enveditor.py is recommended than directly modifying config.py file or .env file.
-- There are buttons for more information and description in each items.
-- Save will generate .env file in the proper location.
+- There are buttons for more information and description on each item.
+- Save button at the bottom will generate .env file in the proper location.
 - There are several groups of variables in the editor
 - Sync files from the server 
   - allows the user to sync the ghg files and met files 
@@ -135,4 +161,8 @@ L1_AMERIFLUX_RUN_OUTPUT=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/py
 L1_AMERIFLUX=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/generated/L1_ameriflux.txt
 L1_AMERIFLUX_ERRORING_VARIABLES_KEY=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/input/L1_erroring_variables.xlsx
 
+L2_MAINSTEM_INPUT=/Users/xxx/data/pyfluxpro/input/L2_mainstem.txt
+L2_AMERIFLUX_ONLY_INPUT=/Users/xxx/data/pyfluxpro/input/L2_AF.txt
+L2_AMERIFLUX_RUN_OUTPUT=/Users/xxx/data/pyfluxpro/generated/Sorghum_2021_L2.nc
+L2_AMERIFLUX=/Users/xxx/data/pyfluxpro/generated/L2_ameriflux.txt
 ```
