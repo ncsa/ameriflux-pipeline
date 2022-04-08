@@ -7,7 +7,7 @@
 import os
 import shutil
 import pandas as pd
-import csv
+from distutils import util
 
 from config import Config as cfg
 import utils.data_util as data_util
@@ -28,32 +28,23 @@ pandas.io.formats.excel.header_style = None
 GENERATED_DIR = 'generated'
 
 
-def eddypro_preprocessing():
+def eddypro_preprocessing(file_meta_data_file):
     """
     Main function to run EddyPro processing. Calls other functions
 
     Args:
-        None
+        file_meta_data_file (str) : Filepath to write the meta data, typically the first line of Met data
     Returns :
         eddypro_formatted_met_file (str) : File name of the Met data formatted for eddypro
-        file_meta_data_file (str) : File containing the meta data, typically the first line of Met data
     """
     # start preprocessing data
     df, file_meta = Preprocessor.data_preprocess(cfg.INPUT_MET, cfg.INPUT_PRECIP,
                                                  float(cfg.QC_PRECIP_LOWER), float(cfg.QC_PRECIP_UPPER),
                                                  int(cfg.MISSING_TIME), cfg.MISSING_TIME_USER_CONFIRMATION)
-    # TODO : check with Bethany - number of decimal places for numerical values
     # write processed df to output path
     data_util.write_data(df, cfg.MASTER_MET)
 
     # Write file meta data to another file
-    # this can be omitted.
-    # The file meta data is passed as a df (file_meta) to eddyproformat. No need for writing to file.
-    input_filename = os.path.basename(cfg.INPUT_MET)
-    directory_name = os.path.dirname(os.path.dirname(cfg.INPUT_MET))
-    file_meta_data_filename = os.path.splitext(input_filename)[0] + '_file_meta.csv'
-    # write file_df_meta to this path
-    file_meta_data_file = os.path.join(directory_name, GENERATED_DIR, file_meta_data_filename)
     data_util.write_data(file_meta, file_meta_data_file)  # write meta data of file to file. One row.
 
     # create file for master met formatted for eddypro
@@ -67,7 +58,7 @@ def eddypro_preprocessing():
     # write formatted df to output path
     data_util.write_data(df, eddypro_formatted_met_file)
 
-    return eddypro_formatted_met_file, file_meta_data_file
+    return eddypro_formatted_met_file
 
 
 def run_eddypro(eddypro_formatted_met_file):
@@ -143,7 +134,7 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
 
 def pyfluxpro_ameriflux_processing(input_file, output_file):
     """
-    Main function to run PyFluxPro formatting for AmeriFlux. Calls other functions
+    Function to format PyFluxPro input excel sheet for AmeriFlux. Calls other functions
     Args:
         input_file (str): PyFluxPro input excel sheet file path
         output_file (str): Filename to write the PyFluxPro formatted for AmeriFlux
@@ -179,7 +170,7 @@ def pyfluxpro_ameriflux_processing(input_file, output_file):
 
 def pyfluxpro_l1_ameriflux_processing(pyfluxpro_input, l1_mainstem, l1_ameriflux_only, ameriflux_mainstem_key,
                                       file_meta_data_file, soil_key, l1_run_output, l1_ameriflux_output,
-                                      ameriflux_variable_user_confirmation, erroring_variable_key):
+                                      erroring_variable_flag, erroring_variable_key):
     """
     Main function to run PyFluxPro L1 control file formatting for AmeriFlux. Calls other functions
     Args:
@@ -192,8 +183,8 @@ def pyfluxpro_l1_ameriflux_processing(pyfluxpro_input, l1_mainstem, l1_ameriflux
         soil_key (str) : A file path for input soil key sheet
         l1_run_output (str): A file path for the output of L1 run. This typically has .nc extension
         l1_ameriflux_output (str): A file path for the generated L1.txt that is formatted for Ameriflux standards
-        ameriflux_variable_user_confirmation (str): User decision on whether to replace,
-                                        ignore or ask during runtime in case of erroring variable names in PyFluxPro L1
+        erroring_variable_flag (str): A flag denoting whether some PyFluxPro variables (erroring variables) are
+                                        renamed to Ameriflux labels in L1. Y is renamed, N if not. By default it is N.
         erroring_variable_key (str): Variable name key used to match the original variable names to Ameriflux names
                                     for variables throwing an error in PyFluxPro L1.
                                     This is an excel file named L1_erroring_variables.xlsx
@@ -204,11 +195,11 @@ def pyfluxpro_l1_ameriflux_processing(pyfluxpro_input, l1_mainstem, l1_ameriflux
         erroring_variable_flag (str): A flag denoting whether some PyFluxPro variables (erroring variables) have been
                                      renamed to Ameriflux labels. Y is renamed, N if not. By default it is N.
     """
-    pyfluxpro_ameriflux_label, erroring_variable_flag = \
+    pyfluxpro_ameriflux_labels = \
         L1Format.data_formatting(pyfluxpro_input, l1_mainstem, l1_ameriflux_only, ameriflux_mainstem_key,
                                  file_meta_data_file, soil_key, l1_run_output, l1_ameriflux_output,
-                                 ameriflux_variable_user_confirmation, erroring_variable_key)
-    return pyfluxpro_ameriflux_label, erroring_variable_flag
+                                 erroring_variable_flag, erroring_variable_key)
+    return pyfluxpro_ameriflux_labels
 
 
 def pyfluxpro_l2_ameriflux_processing(pyfluxpro_ameriflux_label, l2_mainstem, l2_ameriflux_only,
@@ -226,7 +217,7 @@ def pyfluxpro_l2_ameriflux_processing(pyfluxpro_ameriflux_label, l2_mainstem, l2
             l2_ameriflux_output (str): A file path for the generated L2.txt that is formatted for Ameriflux standards
         Returns:
             None
-        """
+    """
     L2Format.data_formatting(pyfluxpro_ameriflux_label, l2_mainstem, l2_ameriflux_only, l1_run_output, l2_run_output,
                              l2_ameriflux_output)
 
@@ -234,7 +225,7 @@ def pyfluxpro_l2_ameriflux_processing(pyfluxpro_ameriflux_label, l2_mainstem, l2
 def pyfluxpro_output_ameriflux_processing(l2_run_output, file_meta_data_file, erroring_variable_flag,
                                           erroring_variable_key):
     """
-    Main function to run PyFluxPro output file formatting for AmeriFlux. Calls other functions
+    Function to run PyFluxPro output file formatting for AmeriFlux. Calls other functions
 
     Args:
         l2_run_output (str): Full filepath of pyfluxpro L2 run output. This typically has a .nc extension
@@ -258,13 +249,21 @@ def pyfluxpro_output_ameriflux_processing(l2_run_output, file_meta_data_file, er
     data_util.write_data(ameriflux_df, output_file)
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
+def processing(file_meta_data_file, erroring_variable_flag):
+    """
+       Function to run Master met, EddyPro and PyFluxPro file formatting for AmeriFlux. Calls other functions
+
+       Args:
+           file_meta_data_file (str): Filepath to write the meta data, typically the first line of Met data
+           erroring_variable_flag (str): A flag denoting whether some PyFluxPro variables (erroring variables) have
+                                       been renamed to Ameriflux labels. Y is renamed, N if not. By default it is N.
+       Returns:
+           (bool): True if method runs successfully, False if not
+    """
     # sync data from the server
     syncdata.sync_data()
-
     # run eddypro preprocessing and formatting
-    eddypro_formatted_met_file, file_meta_data_file = eddypro_preprocessing()
+    eddypro_formatted_met_file = eddypro_preprocessing(file_meta_data_file)
 
     # run eddypro
     run_eddypro(eddypro_formatted_met_file)
@@ -282,24 +281,70 @@ if __name__ == '__main__':
     # if eddypro full output file not present
     if not eddypro_full_outfile:
         print("EddyPro full output not present")
+        # return failure
+        return False
 
     # run ameriflux formatting of pyfluxpro input
     if os.path.exists(cfg.PYFLUXPRO_INPUT_SHEET):
         pyfluxpro_ameriflux_processing(cfg.PYFLUXPRO_INPUT_SHEET, cfg.PYFLUXPRO_INPUT_AMERIFLUX)
     else:
         print(cfg.PYFLUXPRO_INPUT_SHEET, "path does not exist")
+        # return failure
+        return False
 
     # run ameriflux formatting of pyfluxpro L1 control file
-    pyfluxpro_ameriflux_labels, erroring_variable_flag = \
+    pyfluxpro_ameriflux_labels = \
         pyfluxpro_l1_ameriflux_processing(cfg.PYFLUXPRO_INPUT_AMERIFLUX, cfg.L1_MAINSTEM_INPUT,
                                           cfg.L1_AMERIFLUX_ONLY_INPUT, cfg.L1_AMERIFLUX_MAINSTEM_KEY,
                                           file_meta_data_file, cfg.INPUT_SOIL_KEY, cfg.L1_AMERIFLUX_RUN_OUTPUT,
-                                          cfg.L1_AMERIFLUX, cfg.AMERIFLUX_VARIABLE_USER_CONFIRMATION,
+                                          cfg.L1_AMERIFLUX, erroring_variable_flag,
                                           cfg.L1_AMERIFLUX_ERRORING_VARIABLES_KEY)
+    if pyfluxpro_ameriflux_labels is None:
+        print("Check L1 processing")
+        # return failure
+        return False
 
     # run ameriflux formatting of pyfluxpro L2 control file
-    pyfluxpro_l2_ameriflux_processing(pyfluxpro_ameriflux_labels, cfg.L2_MAINSTEM_INPUT, cfg.L2_AMERIFLUX_ONLY_INPUT,
-                                      cfg.L1_AMERIFLUX_RUN_OUTPUT, cfg.L2_AMERIFLUX_RUN_OUTPUT, cfg.L2_AMERIFLUX)
+    pyfluxpro_l2_ameriflux_processing(pyfluxpro_ameriflux_labels, cfg.L2_MAINSTEM_INPUT,
+                                      cfg.L2_AMERIFLUX_ONLY_INPUT, cfg.L1_AMERIFLUX_RUN_OUTPUT,
+                                      cfg.L2_AMERIFLUX_RUN_OUTPUT, cfg.L2_AMERIFLUX)
+    print("Run PyFluxPro V3.3.2 with the generated L1 and L2 control files")
+    print("Generated control files in", cfg.L1_AMERIFLUX, cfg.L2_AMERIFLUX)
 
-    pyfluxpro_output_ameriflux_processing(cfg.L2_AMERIFLUX_RUN_OUTPUT, file_meta_data_file, erroring_variable_flag,
-                                          cfg.L1_AMERIFLUX_ERRORING_VARIABLES_KEY)
+    # return success
+    return True
+
+# Press the green button in the gutter to run the script.
+if __name__ == '__main__':
+    # Main function - Split into 2 sections, one before PyFluxPro L1 and L2 run, and one after L2 run.
+
+    # Some preprocessing
+    # Filename to write file meta data
+    input_filename = os.path.basename(cfg.INPUT_MET)
+    directory_name = os.path.dirname(os.path.dirname(cfg.INPUT_MET))
+    file_meta_data_filename = os.path.splitext(input_filename)[0] + '_file_meta.csv'
+    # write file_df_meta to this path
+    file_meta_data_file = os.path.join(directory_name, GENERATED_DIR, file_meta_data_filename)
+
+    # check if L1 erroring variable names need to be replaced or not
+    ameriflux_variable_user_confirmation = cfg.AMERIFLUX_VARIABLE_USER_CONFIRMATION.lower()
+    # by default we do not replace the erroring variables to ameriflux naming standards
+    erroring_variable_flag = 'N'
+    if ameriflux_variable_user_confirmation in ['a', 'ask']:
+        print("Enter Y to replace L1 Erroring variable names to Ameriflux standards. Else enter N")
+        erroring_variable_flag = input("Enter Y/N : ")
+    elif ameriflux_variable_user_confirmation in ['n', 'no']:
+        erroring_variable_flag = 'N'
+    elif ameriflux_variable_user_confirmation in ['y', 'yes']:
+        erroring_variable_flag = 'Y'
+
+    pyfluxpro_processing_confirmation = util.strtobool(cfg.PYFLUXPRO_RUN_OUTPUT_ONLY)
+
+    if not bool(pyfluxpro_processing_confirmation):
+        # run till pyfluxpro to get L1_ameriflux.txt and L2_ameriflux.txt
+        # if pyfluxpro run output is not present, run the pipeline before pyfluxpro and break
+        is_success = processing(file_meta_data_file, erroring_variable_flag)
+    else:
+        # run ameriflux formatting of pyfluxpro run output
+        pyfluxpro_output_ameriflux_processing(cfg.L2_AMERIFLUX_RUN_OUTPUT, file_meta_data_file, erroring_variable_flag,
+                                              cfg.L1_AMERIFLUX_ERRORING_VARIABLES_KEY)

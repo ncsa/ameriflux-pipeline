@@ -29,7 +29,7 @@ class L1Format:
     @staticmethod
     def data_formatting(pyfluxpro_input, l1_mainstem, l1_ameriflux_only, ameriflux_mainstem_key, file_meta_data_file,
                         soil_key, outfile, l1_ameriflux_output,
-                        ameriflux_variable_user_confirmation, erroring_variable_key,
+                        erroring_variable_flag, erroring_variable_key,
                         spaces=SPACES, level_line=LEVEL_LINE):
         """
         Main method for the class.
@@ -44,8 +44,8 @@ class L1Format:
             soil_key (str) : A file path for input soil key sheet
             outfile (str): A file path for the output of L1 run. This typically has .nc extension
             l1_ameriflux_output (str): A file path for the L1.txt that is formatted for Ameriflux standards
-            ameriflux_variable_user_confirmation (str): User decision on whether to replace,
-                                        ignore or ask during runtime in case of erroring variable names in PyFluxPro L1
+            erroring_variable_flag (str): A flag denoting whether some PyFluxPro variables (erroring variables) are
+                                        renamed to Ameriflux labels in L1. Y is renamed, N if not. By default it is N.
             erroring_variable_key (str): Variable name key used to match the original variable names to Ameriflux names
                                         for variables throwing an error in PyFluxPro L1.
                                         This is an excel file named L1_erroring_variables.xlsx
@@ -53,8 +53,6 @@ class L1Format:
             level_line (str): Line specifying the level. L1 for this section.
         Returns:
             dict: Mapping of pyfluxpro-friendly label to Ameriflux-friendly labels for variables in L1_Ameriflux.txt
-            str: A flag denoting whether some PyFluxPro variables (erroring variables) have been renamed to
-                Ameriflux labels. Y is renamed, N if not. By default it is N.
         """
         # open input file in read mode
         l1_mainstem = open(l1_mainstem, 'r')
@@ -69,7 +67,7 @@ class L1Format:
             print("Check L1.txt format")
             l1_mainstem_lines.close()
             l1_ameriflux_lines.close()
-            return
+            return None
 
         # read file_meta
         file_meta = pd.read_csv(file_meta_data_file)
@@ -80,18 +78,6 @@ class L1Format:
         soil_moisture_labels, soil_temp_labels = L1Format.get_moisture_labels(site_name, df_soil_key)
 
         ameriflux_key = pd.read_excel(ameriflux_mainstem_key)  # read AmeriFlux-Mainstem variable name matching file
-
-        # check if L1 erroring variable names need to be replaced or not
-        ameriflux_variable_user_confirmation = ameriflux_variable_user_confirmation.lower()
-        # by default we do not replace the erroring variables to ameriflux naming standards
-        erroring_variable_flag = 'N'
-        if ameriflux_variable_user_confirmation in ['a', 'ask']:
-            print("Enter Y to replace L1 Erroring variable names to Ameriflux standards. Else enter N")
-            erroring_variable_flag = input("Enter Y/N : ")
-        elif ameriflux_variable_user_confirmation in ['n', 'no']:
-            erroring_variable_flag = 'N'
-        elif ameriflux_variable_user_confirmation in ['y', 'yes']:
-            erroring_variable_flag = 'Y'
 
         if erroring_variable_flag.lower() in ['n', 'no']:
             # if user chose not to replace the variable name, read the name mapping
@@ -174,7 +160,8 @@ class L1Format:
         l1_mainstem.close()
         l1_ameriflux.close()
 
-        return variable_mapping, erroring_variable_flag
+        # return pyfluxpro to ameriflux label mapping
+        return variable_mapping
 
     @staticmethod
     def check_l1_format(lines):
