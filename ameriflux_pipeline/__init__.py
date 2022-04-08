@@ -5,10 +5,11 @@
 # and is available at https://www.mozilla.org/en-US/MPL/2.0/
 
 from ameriflux_pipeline.config import Config
+import ameriflux_pipeline.enveditor
 import ameriflux_pipeline.pre_pyfluxpro
 import ameriflux_pipeline.post_pyfluxpro
 import ameriflux_pipeline.utils.data_util
-import ameriflux_pipeline.utils.syncdata
+from ameriflux_pipeline.utils.syncdata import SyncData
 from ameriflux_pipeline.eddypro.eddyproformat import EddyProFormat
 from ameriflux_pipeline.eddypro.runeddypro import RunEddypro
 from ameriflux_pipeline.master_met.preprocessor import Preprocessor
