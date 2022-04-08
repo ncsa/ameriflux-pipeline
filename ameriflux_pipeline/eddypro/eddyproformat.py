@@ -47,7 +47,6 @@ class EddyProFormat:
 
         # all empty values are replaced by 'NAN' in preprocessor.replace_empty() function
         # replace 'NAN' with np.nan for ease of manipulation
-        # TODO : check if this conversion is needed. Currently it is used in fillna function
         df.replace('NAN', np.nan, inplace=True)
 
         # step 3 of guide. change timestamp format
