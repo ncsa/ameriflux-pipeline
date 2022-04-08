@@ -338,6 +338,7 @@ if __name__ == '__main__':
     elif ameriflux_variable_user_confirmation in ['y', 'yes']:
         erroring_variable_flag = 'Y'
 
+    # NOTES 17
     pyfluxpro_processing_confirmation = util.strtobool(cfg.PYFLUXPRO_RUN_OUTPUT_ONLY)
 
     if not bool(pyfluxpro_processing_confirmation):

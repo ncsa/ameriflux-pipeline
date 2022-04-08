@@ -53,5 +53,9 @@
 - For Soil water content variables in Ameriflux-friendly L2, range checks should be multiplied by 100 as these are in percentages.
 ### 16
 - TIMESTAMP_START and TIMESTAMP_END column is created from time column from netCDF PyFluxPro output and inserted at indexes 0 and 1 respectively.
+### 17 
+- Pipeline is split into two phases, one to be run before PyFluxPro and one after PyFluxPro.
+- The first phase generates L1 and L2 control files that meet Ameriflux standards
+- The second phase generates the csv file named US-Ui<site_name>_HH_<timestamp_start>_<timestamp_end>.csv that meets Ameriflux standards.
 
 
