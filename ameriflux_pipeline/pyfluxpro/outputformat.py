@@ -107,7 +107,7 @@ class OutputFormat:
         ameriflux_site_name = OutputFormat.get_ameriflux_site_name(site_name)
         start_time = df['TIMESTAMP_START'].iloc[0]
         end_time = df['TIMESTAMP_END'].iloc[-1]
-        ameriflux_file_name = 'US-Ui' + ameriflux_site_name + '_HH_' + start_time + end_time
+        ameriflux_file_name = 'US-Ui' + str(ameriflux_site_name) + '_HH_' + str(start_time) + str(end_time)
 
         # return processed dataframe and ameriflux filename
         return df, ameriflux_file_name
