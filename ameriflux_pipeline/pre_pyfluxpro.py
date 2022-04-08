@@ -314,7 +314,7 @@ if __name__ == '__main__':
 
     # run pre-processing steps of PyFluxPro L1 an L2
     start = time.time()
-    print("Post-processing of PyFluxPro run output has been started")
+    print("Pre-processing of PyFluxPro run output has been started")
     is_success = pre_processing(file_meta_data_file, erroring_variable_flag)
     if is_success:
         print("Successfully completed pre-processing of PyFluxPro L1 and L2")
