@@ -7,7 +7,7 @@
 import os
 import shutil
 import pandas as pd
-from distutils import util
+import time
 
 from config import Config as cfg
 import utils.data_util as data_util
@@ -19,7 +19,7 @@ from pyfluxpro.pyfluxproformat import PyFluxProFormat
 from pyfluxpro.amerifluxformat import AmeriFluxFormat
 from pyfluxpro.l1format import L1Format
 from pyfluxpro.l2format import L2Format
-from pyfluxpro.outputformat import OutputFormat
+
 from utils.syncdata import SyncData as syncdata
 
 import pandas.io.formats.excel
@@ -222,34 +222,7 @@ def pyfluxpro_l2_ameriflux_processing(pyfluxpro_ameriflux_label, l2_mainstem, l2
                              l2_ameriflux_output)
 
 
-def pyfluxpro_output_ameriflux_processing(l2_run_output, file_meta_data_file, erroring_variable_flag,
-                                          erroring_variable_key):
-    """
-    Function to run PyFluxPro output file formatting for AmeriFlux. Calls other functions
-
-    Args:
-        l2_run_output (str): Full filepath of pyfluxpro L2 run output. This typically has a .nc extension
-        file_meta_data_file (str) : File containing the meta data, typically the first line of Met data
-        erroring_variable_flag (str): A flag denoting whether some PyFluxPro variables (erroring variables) have
-                                    been renamed to Ameriflux labels. Y is renamed, N if not. By default it is N.
-        erroring_variable_key (str): Variable name key used to match the original variable names to Ameriflux names
-                                for variables throwing an error in PyFluxPro L1.
-                                This is an excel file named L1_erroring_variables.xlsx
-    Returns:
-        None
-    """
-    ameriflux_df, ameriflux_file_name = OutputFormat.data_formatting(l2_run_output, file_meta_data_file,
-                                                                     erroring_variable_flag, erroring_variable_key)
-    if ameriflux_file_name is None:
-        print("PyFluxPro run output not formatted for Ameriflux")
-        return
-    ameriflux_file_name = ameriflux_file_name + '.csv'
-    directory_name = os.path.dirname(l2_run_output)
-    output_file = os.path.join(directory_name, ameriflux_file_name)
-    data_util.write_data(ameriflux_df, output_file)
-
-
-def processing(file_meta_data_file, erroring_variable_flag):
+def pre_processing(file_meta_data_file, erroring_variable_flag):
     """
        Function to run Master met, EddyPro and PyFluxPro file formatting for AmeriFlux. Calls other functions
 
@@ -314,9 +287,10 @@ def processing(file_meta_data_file, erroring_variable_flag):
     # return success
     return True
 
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    # Main function - Split into 2 sections, one before PyFluxPro L1 and L2 run, and one after L2 run.
+    # Main function
 
     # Some preprocessing
     # Filename to write file meta data
@@ -338,14 +312,13 @@ if __name__ == '__main__':
     elif ameriflux_variable_user_confirmation in ['y', 'yes']:
         erroring_variable_flag = 'Y'
 
-    # NOTES 17
-    pyfluxpro_processing_confirmation = util.strtobool(cfg.PYFLUXPRO_RUN_OUTPUT_ONLY)
-
-    if not bool(pyfluxpro_processing_confirmation):
-        # run till pyfluxpro to get L1_ameriflux.txt and L2_ameriflux.txt
-        # if pyfluxpro run output is not present, run the pipeline before pyfluxpro and break
-        is_success = processing(file_meta_data_file, erroring_variable_flag)
-    else:
-        # run ameriflux formatting of pyfluxpro run output
-        pyfluxpro_output_ameriflux_processing(cfg.L2_AMERIFLUX_RUN_OUTPUT, file_meta_data_file, erroring_variable_flag,
-                                              cfg.L1_AMERIFLUX_ERRORING_VARIABLES_KEY)
+    # run pre-processing steps of PyFluxPro L1 an L2
+    start = time.time()
+    print("Post-processing of PyFluxPro run output has been started")
+    is_success = pre_processing(file_meta_data_file, erroring_variable_flag)
+    if is_success:
+        print("Successfully completed pre-processing of PyFluxPro L1 and L2")
+    end = time.time()
+    hours, rem = divmod(end - start, 3600)
+    minutes, seconds = divmod(rem, 60)
+    print("Total elapsed time is : {:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))

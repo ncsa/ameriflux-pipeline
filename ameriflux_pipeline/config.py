@@ -10,8 +10,6 @@ class Config:
     """
     class to list all configuration settings required for preprocessing and formatting for EddyPro and PyFluxPro
     """
-    # start pipeline from modification of pyfluxpro run output only
-    PYFLUXPRO_RUN_OUTPUT_ONLY = os.getenv('PYFLUXPRO_RUN_OUTPUT_ONLY', 'N')
     # obtaining ghg files using rsync
     # user confirmation to perform rsync
     SFTP_CONFIRMATION = os.getenv('SFTP_CONFIRMATION', 'N')
