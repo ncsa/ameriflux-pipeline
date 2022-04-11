@@ -123,23 +123,16 @@ if __name__ == '__main__':
     start_date = str(cfg.START_DATE)
     end_date = str(cfg.END_DATE)
 
-    file_flag = True  # flag to check if all file exists
-    for file in files:
-        if not os.path.exists(file):
-            print(file, "does not exist")
-            file_flag = False
-            break
-    if file_flag:
-        df, file_meta = data_processing(files, start_date, end_date)
-        # make file_meta and df the same length to read as proper csv
-        num_columns = df.shape[1]
-        for i in range(len(file_meta), num_columns):
-            file_meta.append(' ')
-        file_meta_line = ','.join(file_meta)
-        # write processed df to output path
-        data_util.write_data(df, cfg.INPUT_MET)
-        # Prepend the file_meta to the met data csv
-        with open(cfg.INPUT_MET, 'r+') as f:
-            content = f.read()
-            f.seek(0, 0)
-            f.write(file_meta_line.rstrip('\r\n') + '\n' + content)
+    df, file_meta = data_processing(files, start_date, end_date)
+    # make file_meta and df the same length to read as proper csv
+    num_columns = df.shape[1]
+    for i in range(len(file_meta), num_columns):
+        file_meta.append(' ')
+    file_meta_line = ','.join(file_meta)
+    # write processed df to output path
+    data_util.write_data(df, cfg.INPUT_MET)
+    # Prepend the file_meta to the met data csv
+    with open(cfg.INPUT_MET, 'r+') as f:
+        content = f.read()
+        f.seek(0, 0)
+        f.write(file_meta_line.rstrip('\r\n') + '\n' + content)
