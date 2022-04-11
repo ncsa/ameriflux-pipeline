@@ -7,14 +7,12 @@
 import pandas as pd
 import numpy as np
 from datetime import timedelta
-import os
-import utils.data_util as data_util
 
 import warnings
 warnings.filterwarnings("ignore")
 
 
-class Preprocessor:
+class MasterMetProcessor:
     '''
     Class to implement preprocessing of meteorological data as per guide
     This class also implements formatting of meteorological data for PyFluxPro.
@@ -43,37 +41,37 @@ class Preprocessor:
 
         # read input meteorological data file
         # NOTE 1
-        df, file_df_meta = Preprocessor.read_met_data(input_met_path)
+        df, file_df_meta = MasterMetProcessor.read_met_data(input_met_path)
         print("Data contains ", df.shape[0], "rows ", df.shape[1], "columns")
 
         # get meta data
         # NOTE 2
-        df_meta, file_meta = Preprocessor.get_meta_data(file_df_meta)
+        df_meta, file_meta = MasterMetProcessor.get_meta_data(file_df_meta)
         # NOTE 4
-        df_meta = Preprocessor.add_U_V_units(df_meta)
+        df_meta = MasterMetProcessor.add_U_V_units(df_meta)
 
         # read input precipitation data file
         user_confirmation = user_confirmation.lower()
-        df_precip = Preprocessor.read_precip_data(input_precip_path, precip_lower, precip_upper,
+        df_precip = MasterMetProcessor.read_precip_data(input_precip_path, precip_lower, precip_upper,
                                                   missing_time_threshold, user_confirmation)
 
         # change column data types
-        df = Preprocessor.change_datatype(df)
+        df = MasterMetProcessor.change_datatype(df)
 
         # NOTE 6
         # set new variables
         new_variables = []
         # sync time
-        df, new_variables = Preprocessor.sync_time(df, new_variables)
+        df, new_variables = MasterMetProcessor.sync_time(df, new_variables)
 
         # check for missing timestamps. get timedelta between 2 rows and add as a new column
-        df['timedelta'] = Preprocessor.get_timedelta(df['timestamp_sync'])
+        df['timedelta'] = MasterMetProcessor.get_timedelta(df['timestamp_sync'])
         # add the new column to new_variables
         new_variables.append('timedelta')
 
         # create missing timestamps
         # NOTE 7
-        df, insert_flag = Preprocessor.insert_missing_timestamp(df, 'timestamp_sync', 30.0,
+        df, insert_flag = MasterMetProcessor.insert_missing_timestamp(df, 'timestamp_sync', 30.0,
                                                                 missing_time_threshold, user_confirmation)
         if insert_flag == 'N':
             # user confirmed not to insert missing timestamps. Return to main program
@@ -81,25 +79,25 @@ class Preprocessor:
             return df
 
         # correct timestamp string format - step 1 in guide
-        df = Preprocessor.timestamp_format(df)
+        df = MasterMetProcessor.timestamp_format(df)
 
         # step 5 in guide. Calculation of soil heat flux
         # TODO : test with old data (non-critical)
-        if Preprocessor.soil_heat_flux_check(df):
-            df['shf_1_Avg'] = Preprocessor.soil_heat_flux_calculation(df['shf_mV_Avg(1)'], df['shf_cal_Avg(1)'])
+        if MasterMetProcessor.soil_heat_flux_check(df):
+            df['shf_1_Avg'] = MasterMetProcessor.soil_heat_flux_calculation(df['shf_mV_Avg(1)'], df['shf_cal_Avg(1)'])
 
         # Step 6 in guide. Absolute humidity check
-        df['Ah_fromRH'] = Preprocessor.AhFromRH(df['AirTC_Avg'], df['RH_Avg'])
+        df['Ah_fromRH'] = MasterMetProcessor.AhFromRH(df['AirTC_Avg'], df['RH_Avg'])
         # add Ah_fromRH column and unit to df_meta
         Ah_fromRH_unit = 'g/m^3'
         df_meta['Ah_fromRH'] = Ah_fromRH_unit
 
         # Step 4 in guide
-        df = Preprocessor.replace_empty(df)
+        df = MasterMetProcessor.replace_empty(df)
 
         # NOTE 6
         # delete newly created temp variables
-        df = Preprocessor.delete_new_variables(df, new_variables)
+        df = MasterMetProcessor.delete_new_variables(df, new_variables)
 
         # step 8 in guide - add precip data. join df and df_precip
         # keep all met data and have NaN for precip values that are missing - left join with met data
@@ -233,7 +231,7 @@ class Preprocessor:
         # TODO: Ask Bethany - if missing time threshold for precip data is ok to be same as met data
         # NOTE 5
         # perform qa qc checks for precip data
-        df = Preprocessor.precip_qaqc(df, precip_lower, precip_upper, missing_time_threshold, user_confirmation)
+        df = MasterMetProcessor.precip_qaqc(df, precip_lower, precip_upper, missing_time_threshold, user_confirmation)
         # convert precipitation from in to mm
         # TODO : import cf_units and use to convert units. / udunits
         df['Precipitation (mm)'] = df['Precipitation (in)'] * 25.4  # convert inches to millimeter
@@ -270,8 +268,8 @@ class Preprocessor:
             obj (Pandas DataFrame object): processed and cleaned precip dataframe
         """
         # check timestamps, if present for every 5 min
-        df['timedelta'] = Preprocessor.get_timedelta(df['Date & Time (CST)'])
-        df, insert_flag = Preprocessor.insert_missing_timestamp(df, 'Date & Time (CST)', 5.0,
+        df['timedelta'] = MasterMetProcessor.get_timedelta(df['Date & Time (CST)'])
+        df, insert_flag = MasterMetProcessor.insert_missing_timestamp(df, 'Date & Time (CST)', 5.0,
                                                                 missing_time_threshold, user_confirmation)
         if insert_flag == 'N':
             # user confirmed not to insert missing timestamps.
@@ -487,7 +485,7 @@ class Preprocessor:
         Returns:
             AhFromRH (float) : Absolute humidity in g/m3
         """
-        VPsat = Preprocessor.es(T)
+        VPsat = MasterMetProcessor.es(T)
         vp = RH * VPsat / 100
         Rv = 461.5  # constant : gas constant for water vapour, J/kg/K
         AhFromRH = 1000000 * vp / ((T + 273.15) * Rv)

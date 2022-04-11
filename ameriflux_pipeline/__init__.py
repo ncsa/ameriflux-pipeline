@@ -12,7 +12,7 @@ import ameriflux_pipeline.utils.data_util
 from ameriflux_pipeline.utils.syncdata import SyncData
 from ameriflux_pipeline.eddypro.eddyproformat import EddyProFormat
 from ameriflux_pipeline.eddypro.runeddypro import RunEddypro
-from ameriflux_pipeline.master_met.preprocessor import Preprocessor
+from ameriflux_pipeline.master_met.mastermetprocessor import MasterMetProcessor
 from ameriflux_pipeline.pyfluxpro.pyfluxproformat import PyFluxProFormat
 from ameriflux_pipeline.pyfluxpro.amerifluxformat import AmeriFluxFormat
 from ameriflux_pipeline.pyfluxpro.l1format import L1Format
