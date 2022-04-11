@@ -16,6 +16,7 @@ import utils.data_util as data_util
 
 GENERATED_DIR = 'generated'
 
+
 def read_met_data(data_path):
     """
     Reads data and returns dataframe containing the met data and another df containing meta data
@@ -28,13 +29,9 @@ def read_met_data(data_path):
         df_meta (obj) : Pandas DataFrame object
     """
     # read data using csv
-    try:
-        with open(data_path, newline='') as f:
-            reader = csv.reader(f)
-            file_meta = next(reader)  # gets the first line - file meta data
-    except:
-        print("Error reading ", data_path)
-        return None, None, None
+    with open(data_path, newline='') as f:
+        reader = csv.reader(f)
+        file_meta = next(reader)  # gets the first line - file meta data
 
     # get met data in a dataframe
     try:
@@ -71,7 +68,8 @@ def read_met_data(data_path):
 
 def data_processing(files, start_date, end_date):
     """
-       Function to preprocess the data. This method merges several .dat files into one csv file, sorts the file to have data between start and end dates
+       Function to preprocess the data.
+       This method merges several .dat files into one csv file, sorts the file to have data between start and end dates
 
        Args:
            files (list(str)): List of filepath to read met data
@@ -117,11 +115,9 @@ def data_processing(files, start_date, end_date):
         return None, None
 
 
-
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     # Main function to pre-process dat files and merge according to start and end dates
-
     # Some data preprocessing
     files = [str(f).strip() for f in cfg.MERGE_FILES.split(',')]
     start_date = str(cfg.START_DATE)
@@ -147,4 +143,3 @@ if __name__ == '__main__':
             content = f.read()
             f.seek(0, 0)
             f.write(file_meta_line.rstrip('\r\n') + '\n' + content)
-

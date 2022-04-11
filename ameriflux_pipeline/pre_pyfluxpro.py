@@ -38,9 +38,10 @@ def eddypro_preprocessing(file_meta_data_file):
         eddypro_formatted_met_file (str) : File name of the Met data formatted for eddypro
     """
     # start preprocessing data
-    df, file_meta = MasterMetProcessor.data_preprocess(cfg.INPUT_MET, cfg.INPUT_PRECIP,
-                                                 float(cfg.QC_PRECIP_LOWER), float(cfg.QC_PRECIP_UPPER),
-                                                 int(cfg.MISSING_TIME), cfg.MISSING_TIME_USER_CONFIRMATION)
+    df, file_meta = \
+        MasterMetProcessor.data_preprocess(cfg.INPUT_MET, cfg.INPUT_PRECIP, float(cfg.QC_PRECIP_LOWER),
+                                           float(cfg.QC_PRECIP_UPPER), int(cfg.MISSING_TIME),
+                                           cfg.MISSING_TIME_USER_CONFIRMATION)
     # write processed df to output path
     data_util.write_data(df, cfg.MASTER_MET)
 

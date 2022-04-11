@@ -53,7 +53,7 @@ class MasterMetProcessor:
         # read input precipitation data file
         user_confirmation = user_confirmation.lower()
         df_precip = MasterMetProcessor.read_precip_data(input_precip_path, precip_lower, precip_upper,
-                                                  missing_time_threshold, user_confirmation)
+                                                        missing_time_threshold, user_confirmation)
 
         # change column data types
         df = MasterMetProcessor.change_datatype(df)
@@ -72,7 +72,7 @@ class MasterMetProcessor:
         # create missing timestamps
         # NOTE 7
         df, insert_flag = MasterMetProcessor.insert_missing_timestamp(df, 'timestamp_sync', 30.0,
-                                                                missing_time_threshold, user_confirmation)
+                                                                      missing_time_threshold, user_confirmation)
         if insert_flag == 'N':
             # user confirmed not to insert missing timestamps. Return to main program
             print("Ignoring missing timestamps in met data. Return to main")
@@ -270,7 +270,7 @@ class MasterMetProcessor:
         # check timestamps, if present for every 5 min
         df['timedelta'] = MasterMetProcessor.get_timedelta(df['Date & Time (CST)'])
         df, insert_flag = MasterMetProcessor.insert_missing_timestamp(df, 'Date & Time (CST)', 5.0,
-                                                                missing_time_threshold, user_confirmation)
+                                                                      missing_time_threshold, user_confirmation)
         if insert_flag == 'N':
             # user confirmed not to insert missing timestamps.
             print("Ignoring missing timestamps in precip data")
