@@ -115,14 +115,16 @@ def data_processing(files, start_date, end_date):
         return None, None
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    # Main function to pre-process dat files and merge according to start and end dates
-    # Some data preprocessing
-    files = [str(f).strip() for f in cfg.MERGE_FILES.split(',')]
-    start_date = str(cfg.START_DATE)
-    end_date = str(cfg.END_DATE)
-
+def main(files, start_date, end_date):
+    """
+       Main function to pre-process dat files. Calls other functions
+       Args:
+           files (list(str)): List of filepath to read met data
+           start_date (str): Start date for met data to be merged
+           end_date (str): End date for met data to be merged
+       Returns:
+           None
+    """
     df, file_meta = data_processing(files, start_date, end_date)
     # make file_meta and df the same length to read as proper csv
     num_columns = df.shape[1]
@@ -136,3 +138,13 @@ if __name__ == '__main__':
         content = f.read()
         f.seek(0, 0)
         f.write(file_meta_line.rstrip('\r\n') + '\n' + content)
+
+
+# Press the green button in the gutter to run the script.
+if __name__ == '__main__':
+    # Some data preprocessing
+    files = [str(f).strip() for f in cfg.MERGE_FILES.split(',')]
+    start_date = str(cfg.START_DATE)
+    end_date = str(cfg.END_DATE)
+    # TODO : check if file exists. Check data validity of dates
+    main(files, start_date, end_date)
