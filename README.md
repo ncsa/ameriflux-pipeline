@@ -105,6 +105,8 @@ This produces a csv file that is Ameriflux-friendly in the same directory as the
   - need to provide server url and auth information, such as username and password
   - need to set up the file path from the server and local machine
   - only runs when the confirmation is set to 'Y'
+- Variables for merging met data files 
+  - a list of files can be given as input to be merged to a csv file for further processing
 - Variables for EddyPro formatting
   - files or variables needed for formatting the eddypro input file
 - Variables for EddyPro running
@@ -125,6 +127,11 @@ SFTP_GHG_REMOTE_PATH=/path/in/the/remote/server/
 SFTP_GHG_LOCAL_PATH=/path/in/the/local/machine/
 SFTP_MET_REMOTE_PATH=/path/in/the/remote/server/
 SFTP_MET_LOCAL_PATH=/path/in/the/local/machine/
+
+# input files to be merged 
+MERGE_FILES=/Users/xx/master_met/input/FluxSB_EC.dat, /Users/xx/master_met/input/FluxSB_EC.dat.9.backup, /Users/xx/master_met/input/FluxSB_EC.dat.10.backup
+START_DATE=2021-01-01
+END_DATE=2021-12-31
 
 # Variables for EddyPro formatting
 MISSING_TIME_USER_CONFIRMATION=A
