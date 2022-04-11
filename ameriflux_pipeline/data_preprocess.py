@@ -6,10 +6,10 @@
 
 import pandas as pd
 import numpy as np
-from datetime import datetime
 import os
 import shutil
 import csv
+from pandas.errors import ParserError
 
 from config import Config as cfg
 import utils.data_util as data_util
@@ -78,8 +78,7 @@ def data_processing(files, start_date, end_date):
            start_date (str): Start date for met data to be merged
            end_date (str): End date for met data to be merged
        Returns:
-          met_df, meta_df, file_meta (df): Pandas dataframe object - merged met data
-           (df): Pandas dataframe object - meta data
+           (df): Pandas dataframe object - merged met data including units and meta data
            (str): First line of file - meta data of file
     """
     dfs = []  # list of dataframes for each file
@@ -101,7 +100,6 @@ def data_processing(files, start_date, end_date):
     met_data = pd.concat(dfs)
     meta_df = pd.concat(meta_dfs)
     meta_df = meta_df.head(2)  # first 2 rows will give units and min/avg
-
     # get met data between start date and end date
     met_data['TIMESTAMP_datetime'] = pd.to_datetime(met_data['TIMESTAMP'])
     met_data = met_data.sort_values(by='TIMESTAMP_datetime')
@@ -110,7 +108,14 @@ def data_processing(files, start_date, end_date):
     end_date = pd.to_datetime(end_date).date()
     met_data = met_data[(met_data['date'] > start_date) & (met_data['date'] <= end_date)]
     met_data.drop(columns=['TIMESTAMP_datetime', 'date'], inplace=True)
-    return met_data, meta_df, file_meta
+
+    if meta_df.shape[1] == met_data.shape[1]:
+        df = pd.concat([meta_df, met_data], ignore_index=True)
+        return df, file_meta
+    else:
+        print("Meta and data file columns not matching")
+        return None, None
+
 
 
 # Press the green button in the gutter to run the script.
@@ -129,16 +134,17 @@ if __name__ == '__main__':
             file_flag = False
             break
     if file_flag:
-        df, meta_df, file_meta = data_processing(files, start_date, end_date)
+        df, file_meta = data_processing(files, start_date, end_date)
+        # make file_meta and df the same length to read as proper csv
+        num_columns = df.shape[1]
+        for i in range(len(file_meta), num_columns):
+            file_meta.append(' ')
+        file_meta_line = ','.join(file_meta)
         # write processed df to output path
         data_util.write_data(df, cfg.INPUT_MET)
-        # Filename to write file meta data
-        input_filename = os.path.basename(cfg.INPUT_MET)
-        directory_name = os.path.dirname(os.path.dirname(cfg.INPUT_MET))
-        file_meta_data_filename = os.path.splitext(input_filename)[0] + '_file_meta.csv'
-        # write file_df_meta to this path
-        file_meta_data_file = os.path.join(directory_name, GENERATED_DIR, file_meta_data_filename)
-        # Write file meta data to another file
-        data_util.write_data(file_meta, file_meta_data_file)  # write meta data of file. One row.
-
+        # Prepend the file_meta to the met data csv
+        with open(cfg.INPUT_MET, 'r+') as f:
+            content = f.read()
+            f.seek(0, 0)
+            f.write(file_meta_line.rstrip('\r\n') + '\n' + content)
 
