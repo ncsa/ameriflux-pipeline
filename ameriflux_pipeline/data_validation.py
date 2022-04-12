@@ -9,6 +9,8 @@ class Validation:
     '''
     Class to implement data validation
     '''
+    # TODO: add methods for date validation, file if exists validation, string input validation.
+
     @staticmethod
     def integer_validation(data):
         """
