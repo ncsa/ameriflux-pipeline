@@ -107,6 +107,8 @@ This produces a csv file that is Ameriflux-friendly in the same directory as the
   - only runs when the confirmation is set to 'Y'
 - Variables for merging met data files 
   - a list of files can be given as input to be merged to a csv file for further processing
+  - This is used to merge met data that might be split across various files. 
+  - The pipeline takes in a list of files and start and end dates as input so as to merge the files and write to file in csv format.
 - Variables for EddyPro formatting
   - files or variables needed for formatting the eddypro input file
 - Variables for EddyPro running
