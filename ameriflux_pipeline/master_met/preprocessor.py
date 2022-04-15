@@ -229,17 +229,20 @@ class Preprocessor:
             obj: Pandas DataFrame object
         """
         df = pd.read_excel(data_path)  # read excel file
-        df.drop(['Station'], axis=1, inplace=True)  # drop unwanted columns
+        station_col = str(df.filter(regex=("Station|station")).columns[0])
+        df.drop([station_col], axis=1, inplace=True)  # drop unwanted columns
         # TODO: Ask Bethany - if missing time threshold for precip data is ok to be same as met data
         # NOTE 5
         # perform qa qc checks for precip data
         df = Preprocessor.precip_qaqc(df, precip_lower, precip_upper, missing_time_threshold, user_confirmation)
         # convert precipitation from in to mm
         # TODO : import cf_units and use to convert units. / udunits
-        df['Precipitation (mm)'] = df['Precipitation (in)'] * 25.4  # convert inches to millimeter
-        df.drop(['Precipitation (in)'], axis=1, inplace=True)  # drop unwanted columns
+        precip_col = str(df.filter(regex=("Precipitation|precipitation")).columns[0])
+        df['Precipitation (mm)'] = df[precip_col] * 25.4  # convert inches to millimeter
+        df.drop([precip_col], axis=1, inplace=True)  # drop unwanted columns
         # convert 5min samples to 30min samples by taking the sum
-        df = df.set_index('Date & Time (CST)')
+        time_col = str(df.filter(regex=("Time|time|CST")).columns[0])
+        df = df.set_index(time_col)
         precip_series = pd.Series(df['Precipitation (mm)'], index=df.index)
         # resampling to 30min timeslots. 00-30 is summed and stored in 00min. (beginning of timestamp)
         # skipna False accounts for NaN in values. If NaN present, the 30min resample has value of NaN.
@@ -270,8 +273,9 @@ class Preprocessor:
             obj (Pandas DataFrame object): processed and cleaned precip dataframe
         """
         # check timestamps, if present for every 5 min
-        df['timedelta'] = Preprocessor.get_timedelta(df['Date & Time (CST)'])
-        df, insert_flag = Preprocessor.insert_missing_timestamp(df, 'Date & Time (CST)', 5.0,
+        time_col = str(df.filter(regex=("Time|time|CST")).columns[0])
+        df['timedelta'] = Preprocessor.get_timedelta(df[time_col])
+        df, insert_flag = Preprocessor.insert_missing_timestamp(df, time_col, 5.0,
                                                                 missing_time_threshold, user_confirmation)
         if insert_flag == 'N':
             # user confirmed not to insert missing timestamps.
@@ -280,11 +284,12 @@ class Preprocessor:
         df.drop(['timedelta'], axis=1, inplace=True)
         # check precip values in between 0 and 0.2 in
         # get indexes where precip is greater than 0.2 or less than 0.
-        invalid_indexes = df.index[(df['Precipitation (in)'] > precip_upper)].to_list()
-        invalid_indexes.extend(df.index[(df['Precipitation (in)'] < precip_lower)].to_list())
+        precip_col = str(df.filter(regex=("Precipitation|precipitation")).columns[0])
+        invalid_indexes = df.index[(df[precip_col] > precip_upper)].to_list()
+        invalid_indexes.extend(df.index[(df[precip_col] < precip_lower)].to_list())
         # replace precip value with NaN at invalid indexes
         for index in invalid_indexes:
-            df['Precipitation (in)'].iloc[index] = np.nan
+            df[precip_col].iloc[index] = np.nan
         # return cleaned df
         return df
 
