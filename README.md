@@ -132,11 +132,6 @@ SFTP_GHG_LOCAL_PATH=/path/in/the/local/machine/
 SFTP_MET_REMOTE_PATH=/path/in/the/remote/server/
 SFTP_MET_LOCAL_PATH=/path/in/the/local/machine/
 
-# input files to be merged 
-MERGE_FILES=/Users/xx/master_met/input/FluxSB_EC.dat, /Users/xx/master_met/input/FluxSB_EC.dat.9.backup, /Users/xx/master_met/input/FluxSB_EC.dat.10.backup
-START_DATE=2021-01-01
-END_DATE=2021-12-31
-
 # Variables for EddyPro formatting
 MISSING_TIME_USER_CONFIRMATION=A
 INPUT_MET=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/master_met/input/FLUXSB_EC_JanMar2021.csv
