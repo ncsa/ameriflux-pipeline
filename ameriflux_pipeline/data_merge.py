@@ -13,8 +13,6 @@ from pandas.errors import ParserError
 from config import Config as cfg
 import utils.data_util as data_util
 
-GENERATED_DIR = 'generated'
-
 
 def read_met_data(data_path):
     """
