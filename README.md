@@ -25,6 +25,7 @@ This automated code creates master met data, runs EddyPro automatically and crea
 - enveditor.py is the GUI for helping the users to set the input and output data
 - config.py lists all configurations
 - requirements.txt lists the required packages
+- data_merge.py merges multiple .dat files containing raw met data to a csv file that can then be used in the pipeline.
 - pre_pyfluxpro.py runs all processing steps till PyFluxPro runs. It generates L1 and L2 control files as per Ameriflux standards
 - post_pyfluxpro.py runs all post processing steps to convert the L2 run output to csv file required for Ameriflux submission.
 
@@ -67,8 +68,13 @@ pip install -r requirements.txt
 ```
 conda install --file requirements.txt
 ```
+5. If multiple dat files needs to be merged, run ```python data_merge.py```. 
+- To request all command line parameters, please run ```python data_merge.py --help``` 
+- To run the python module with default parameters run ```python data_merge.py```
+- Run command example with all arguments:
+``` python data_merge.py --data '/Users/xx/data/master_met/input/FluxSB_EC.dat,/Users/xx/data/master_met/input/FluxSB_EC.dat.9.backup,/Users/xx/data/master_met/input/FluxSB_EC.dat.10.backup' --start '2021-01-01' --end '2021-12-31' --output '/Users/xx/data/master_met/input/Flux.csv' ```
 
-5. Set necessary parameters
+8. Set necessary parameters for pre and post processing of PyFluxPro and EddyPro
 - This can be done by creating .env file under ameriflux_pipeline directory, or directly change the values in config.py
 - Give the full path to all input and output file location.
 - There is a GUI application for this. Run enveditor.py under ameriflux_pipeline directory 
