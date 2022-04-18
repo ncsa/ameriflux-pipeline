@@ -4,14 +4,13 @@
 # terms of the Mozilla Public License v2.0 which accompanies this distribution,
 # and is available at https://www.mozilla.org/en-US/MPL/2.0/
 
+import argparse
 import pandas as pd
 import os
 import shutil
 import csv
-from pandas.errors import ParserError
-
-from config import Config as cfg
 import utils.data_util as data_util
+from pandas.errors import ParserError
 
 
 def read_met_data(data_path):
@@ -112,26 +111,27 @@ def data_processing(files, start_date, end_date):
         return None, None
 
 
-def main(files, start_date, end_date):
+def main(files, start_date, end_date, output_file):
     """
        Main function to pre-process dat files. Calls other functions
        Args:
            files (list(str)): List of filepath to read met data
            start_date (str): Start date for met data to be merged
            end_date (str): End date for met data to be merged
+           output_file (str): Full file path to write the merged csv
        Returns:
            None
     """
     df, file_meta = data_processing(files, start_date, end_date)
     # make file_meta and df the same length to read as proper csv
     num_columns = df.shape[1]
-    for i in range(len(file_meta), num_columns):
+    for _ in range(len(file_meta), num_columns):
         file_meta.append(' ')
     file_meta_line = ','.join(file_meta)
     # write processed df to output path
-    data_util.write_data(df, cfg.INPUT_MET)
+    data_util.write_data(df, output_file)
     # Prepend the file_meta to the met data csv
-    with open(cfg.INPUT_MET, 'r+') as f:
+    with open(output_file, 'r+') as f:
         content = f.read()
         f.seek(0, 0)
         f.write(file_meta_line.rstrip('\r\n') + '\n' + content)
@@ -139,9 +139,26 @@ def main(files, start_date, end_date):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
+    print("Automatic merging of met files started")
+    # get arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--data", action="store", default=None, help=".dat files for merging")
+    parser.add_argument("--start", action="store", default="2021-01-01", help="Start date for merging in yyyy-mm-dd")
+    parser.add_argument("--end", action="store", default='2021-12-31', help="End date for merging in yyyy-mm-dd")
+    parser.add_argument("--output", action="store",
+                        default=os.path.join(os.getcwd(), "data", "master_met", "input", "Flux.csv"),
+                        help="File path to write the output merged csv file")
+    args = parser.parse_args()
     # Some data preprocessing
-    files = [str(f).strip() for f in cfg.MERGE_FILES.split(',')]
-    start_date = str(cfg.START_DATE)
-    end_date = str(cfg.END_DATE)
+    files = []
+    if args.data is None:
+        num_files = input("Enter number of files to be merged : ")
+        for i in range(int(num_files)):
+            files.append(input("Enter full file path for file" + str(i+1) + " : "))
+    else:
+        files = [str(f).strip() for f in args.data.split(',')]
+    start_date = str(args.start)
+    end_date = str(args.end)
+    output_file = str(args.output)
     # TODO : check if file exists. Check data validity of dates
-    main(files, start_date, end_date)
+    main(files, start_date, end_date, output_file)

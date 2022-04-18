@@ -27,11 +27,6 @@ class Config:
     SFTP_MET_REMOTE_PATH = os.getenv('SFTP_MET_REMOTE_PATH')
     SFTP_MET_LOCAL_PATH = os.getenv('SFTP_MET_LOCAL_PATH')
 
-    # input data to merge met data for specific time periods
-    MERGE_FILES = os.getenv('MERGE_FILES', '')
-    START_DATE = os.getenv('START_DATE', '')
-    END_DATE = os.getenv('END_DATE', '')
-
     # input data for creating master meteorology data
     # input met data path
     INPUT_MET = os.getenv('INPUT_MET',
