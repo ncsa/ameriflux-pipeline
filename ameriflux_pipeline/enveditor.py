@@ -296,6 +296,19 @@ class EnvEditor():
         self.run()
 
     def run(self):
+        # check if there is .env file
+        # checking this by SFTP_CONFIRMATION variable is not none
+        is_env = True
+        if os.getenv('SFTP_CONFIRMATION') is None:
+            is_env =False
+
+        # if .env doesn't exist, pre fill the values
+        if not is_env:
+            print("There is no .env file. The GUI will fill default values. "
+                  "Please make sure if every values are correct.")
+
+            self.preset_variables()
+
         # create main gui window
         root = tk.Tk()
         root.title("AmeriFlux Pipeline Environment Setter")
@@ -1077,307 +1090,334 @@ class EnvEditor():
         root.mainloop()
 
     def browse_sftp_ghg_local_path(self):
-        filepath = tk.StringVar()
+        filepath = self.SFTP_GHG_LOCAL_PATH
         if filepath == "":
             filepath = filedialog.askdirectory(initialdir=os.getcwd())
         else:
             filepath = filedialog.askdirectory(initialdir=filepath)
-        self.path_sftp_ghg_local_path.config(text=filepath)
-        self.SFTP_GHG_LOCAL_PATH = filepath
+        if filepath != "":
+            self.path_sftp_ghg_local_path.config(text=filepath)
+            self.SFTP_GHG_LOCAL_PATH = filepath
 
     def browse_sftp_met_local_path(self):
-        filepath = tk.StringVar()
+        filepath = self.SFTP_MET_LOCAL_PATH
         if filepath == "":
             filepath = filedialog.askdirectory(initialdir=os.getcwd())
         else:
             filepath = filedialog.askdirectory(initialdir=filepath)
-        self.path_sftp_met_local_path.config(text=filepath)
-        self.SFTP_MET_LOCAL_PATH = filepath
+        if filepath != "":
+            self.path_sftp_met_local_path.config(text=filepath)
+            self.SFTP_MET_LOCAL_PATH = filepath
 
     def browse_input_met(self):
-        filepath = tk.StringVar()
+        filepath = self.INPUT_MET
         if filepath == "":
             filepath = filedialog.askopenfilename(initialdir=os.getcwd(),
                                                   title="select a file", filetypes=[("csv files", "*.csv")])
         else:
             filepath = filedialog.askopenfilename(initialdir=filepath,
                                                   title="select a file", filetypes=[("csv files", "*.csv")])
-        filepath = self.check_extension_and_add(filepath, ".csv")
-        self.path_input_met.config(text=filepath)
-        self.INPUT_MET = filepath
+        if filepath != "":
+            filepath = self.check_extension_and_add(filepath, ".csv")
+            self.path_input_met.config(text=filepath)
+            self.INPUT_MET = filepath
 
     def browse_input_precip(self):
-        filepath = tk.StringVar()
+        filepath = self.INPUT_PRECIP
         if filepath == "":
             filepath = filedialog.askopenfilename(initialdir=os.getcwd(),
                                                   title="select a file", filetypes=[("xlsx files", "*.xlsx")])
         else:
             filepath = filedialog.askopenfilename(initialdir=filepath,
                                                   title="select a file", filetypes=[("xlsx files", "*.xlsx")])
-        filepath = self.check_extension_and_add(filepath, ".xlsx")
-        self.path_input_precip.config(text=filepath)
-        self.INPUT_PRECIP = filepath
+        if filepath != "":
+            filepath = self.check_extension_and_add(filepath, ".xlsx")
+            self.path_input_precip.config(text=filepath)
+            self.INPUT_PRECIP = filepath
 
     def browse_master_met(self):
-        filepath = tk.StringVar()
+        filepath = self.MASTER_MET
         if filepath == "":
             filepath = filedialog.askdirectory(initialdir=os.getcwd())
         else:
             filepath = filedialog.askdirectory(initialdir=filepath)
-        filepath = os.path.join(filepath, 'met_output.csv')
-        self.path_master_met.config(text=filepath)
-        self.MASTER_MET = filepath
+        if filepath != "":
+            filepath = os.path.join(filepath, 'met_output.csv')
+            self.path_master_met.config(text=filepath)
+            self.MASTER_MET = filepath
 
     def browse_input_soil_key(self):
-        filepath = tk.StringVar()
+        filepath = self.INPUT_SOIL_KEY
         if filepath == "":
             filepath = filedialog.askopenfilename(initialdir=os.getcwd(),
                                                   title="select a file", filetypes=[("xlsx files", "*.xlsx")])
         else:
             filepath = filedialog.askopenfilename(initialdir=filepath,
                                                   title="select a file", filetypes=[("xlsx files", "*.xlsx")])
-        filepath = self.check_extension_and_add(filepath, ".xlsx")
-        self.path_input_soil_key.config(text=filepath)
-        self.INPUT_SOIL_KEY = filepath
+        if filepath != "":
+            filepath = self.check_extension_and_add(filepath, ".xlsx")
+            self.path_input_soil_key.config(text=filepath)
+            self.INPUT_SOIL_KEY = filepath
 
     def browse_eddypro_bin(self):
-        filepath = tk.StringVar()
+        filepath = self.EDDYPRO_BIN_LOC
         if filepath == "":
             filepath = filedialog.askdirectory(initialdir=os.getcwd())
         else:
             filepath = filedialog.askdirectory(initialdir=filepath)
-        self.path_eddypro_bin.config(text=filepath)
-        self.EDDYPRO_BIN_LOC = filepath
+        if filepath != "":
+            self.path_eddypro_bin.config(text=filepath)
+            self.EDDYPRO_BIN_LOC = filepath
 
     def browse_eddypro_proj_template(self):
-        filepath = tk.StringVar()
+        filepath = self.EDDYPRO_PROJ_FILE_TEMPLATE
         if filepath == "":
             filepath = filedialog.askopenfilename(initialdir=os.getcwd(),
                                                   title="select a file", filetypes=[("eddypro files", "*.eddypro")])
         else:
             filepath = filedialog.askopenfilename(initialdir=filepath,
                                                   title="select a file", filetypes=[("eddypro files", "*.eddypro")])
-        filepath = self.check_extension_and_add(filepath, ".eddypro")
-        self.path_eddypro_proj_template.config(text=filepath)
-        self.EDDYPRO_PROJ_FILE_TEMPLATE = filepath
+        if filepath != "":
+            filepath = self.check_extension_and_add(filepath, ".eddypro")
+            self.path_eddypro_proj_template.config(text=filepath)
+            self.EDDYPRO_PROJ_FILE_TEMPLATE = filepath
 
     def browse_eddypro_proj_file_name(self):
-        filepath = tk.StringVar()
+        filepath = self.EDDYPRO_PROJ_FILE_NAME
         if filepath == "":
             filepath = filedialog.asksaveasfilename(initialdir=os.getcwd(),
                                                     title="select a file", filetypes=[("eddypro files", "*.eddypro")])
         else:
             filepath = filedialog.asksaveasfilename(initialdir=filepath,
                                                     title="select a file", filetypes=[("eddypro files", "*.eddypro")])
-        filepath = self.check_extension_and_add(filepath, ".eddypro")
-        self.path_eddypro_proj_file_name.config(text=filepath)
-        self.EDDYPRO_PROJ_FILE_NAME = filepath
+        if filepath != "":
+            filepath = self.check_extension_and_add(filepath, ".eddypro")
+            self.path_eddypro_proj_file_name.config(text=filepath)
+            self.EDDYPRO_PROJ_FILE_NAME = filepath
 
     def browse_eddypro_proj_file(self):
-        filepath = tk.StringVar()
+        filepath = self.EDDYPRO_PROJ_FILE
         if filepath == "":
             filepath = filedialog.askopenfilename(initialdir=os.getcwd(),
                                                   title="select a file", filetypes=[("metadata files", "*.metadata")])
         else:
             filepath = filedialog.askopenfilename(initialdir=filepath,
                                                   title="select a file", filetypes=[("metadata files", "*.metadata")])
-        filepath = self.check_extension_and_add(filepath, ".metadata")
-        self.path_eddypro_proj_file.config(text=filepath)
-        self.EDDYPRO_PROJ_FILE = filepath
+        if filepath != "":
+            filepath = self.check_extension_and_add(filepath, ".metadata")
+            self.path_eddypro_proj_file.config(text=filepath)
+            self.EDDYPRO_PROJ_FILE = filepath
 
     def browse_eddypro_dyn_metadata(self):
-        filepath = tk.StringVar()
+        filepath = self.EDDYPRO_DYN_METADATA
         if filepath == "":
             filepath = filedialog.askopenfilename(initialdir=os.getcwd(),
                                                   title="select a file", filetypes=[("csv files", "*.csv")])
         else:
             filepath = filedialog.askopenfilename(initialdir=filepath,
                                                   title="select a file", filetypes=[("csv files", "*.csv")])
-        filepath = self.check_extension_and_add(filepath, ".csv")
-        self.path_eddypro_dyn_metadata.config(text=filepath)
-        self.EDDYPRO_DYN_METADATA = filepath
+        if filepath != "":
+            filepath = self.check_extension_and_add(filepath, ".csv")
+            self.path_eddypro_dyn_metadata.config(text=filepath)
+            self.EDDYPRO_DYN_METADATA = filepath
 
     def browse_eddypro_output_path(self):
-        filepath = tk.StringVar()
+        filepath = self.EDDYPRO_OUTPUT_PATH
         if filepath == "":
             filepath = filedialog.askdirectory(initialdir=os.getcwd())
         else:
             filepath = filedialog.askdirectory(initialdir=filepath)
-        self.path_eddypro_output_path.config(text=filepath)
-        self.EDDYPRO_OUTPUT_PATH = filepath
+        if filepath != "":
+            self.path_eddypro_output_path.config(text=filepath)
+            self.EDDYPRO_OUTPUT_PATH = filepath
 
     def browse_eddypro_input_ghg_path(self):
-        filepath = tk.StringVar()
+        filepath = self.EDDYPRO_INPUT_GHG_PATH
         if filepath == "":
             filepath = filedialog.askdirectory(initialdir=os.getcwd())
         else:
             filepath = filedialog.askdirectory(initialdir=filepath)
-        self.path_eddypro_input_ghg_path.config(text=filepath)
-        self.EDDYPRO_INPUT_GHG_PATH = filepath
+        if filepath != "":
+            self.path_eddypro_input_ghg_path.config(text=filepath)
+            self.EDDYPRO_INPUT_GHG_PATH = filepath
 
     def browse_pyfluxpro_full_output(self):
-        filepath = tk.StringVar()
+        filepath = self.FULL_OUTPUT_PYFLUXPRO
         if filepath == "":
             filepath = filedialog.askdirectory(initialdir=os.getcwd())
         else:
             filepath = filedialog.askdirectory(initialdir=filepath)
-        filepath = os.path.join(filepath, "full_output.csv")
-        self.path_pyfluxpro_full_output.config(text=filepath)
-        self.FULL_OUTPUT_PYFLUXPRO = filepath
+        if filepath != "":
+            filepath = os.path.join(filepath, "full_output.csv")
+            self.path_pyfluxpro_full_output.config(text=filepath)
+            self.FULL_OUTPUT_PYFLUXPRO = filepath
 
     def browse_pyfluxpro_met_data(self):
-        filepath = tk.StringVar()
+        filepath = self.MET_DATA_30_PYFLUXPRO
         if filepath == "":
             filepath = filedialog.askdirectory(initialdir=os.getcwd())
         else:
             filepath = filedialog.askdirectory(initialdir=filepath)
-        filepath = os.path.join(filepath, "Met_data_30.csv")
-        self.path_pyfluxpro_met_data.config(text=filepath)
-        self.MET_DATA_30_PYFLUXPRO = filepath
+        if filepath != "":
+            filepath = os.path.join(filepath, "Met_data_30.csv")
+            self.path_pyfluxpro_met_data.config(text=filepath)
+            self.MET_DATA_30_PYFLUXPRO = filepath
 
     def browse_pyfluxpro_input_sheet(self):
-        filepath = tk.StringVar()
+        filepath = self.PYFLUXPRO_INPUT_SHEET
         if filepath == "":
             filepath = filedialog.asksaveasfilename(
                 initialdir=os.getcwd(), title="select a file", filetypes=[("xlsx files", "*.xlsx")])
         else:
             filepath = filedialog.asksaveasfilename(
                 initialdir=filepath, title="select a file", filetypes=[("xlsx files", "*.xlsx")])
-        filepath = self.check_extension_and_add(filepath, ".xlsx")
-        self.path_pyfluxpro_input_sheet.config(text=filepath)
-        self.PYFLUXPRO_INPUT_SHEET = filepath
+        if filepath != "":
+            filepath = self.check_extension_and_add(filepath, ".xlsx")
+            self.path_pyfluxpro_input_sheet.config(text=filepath)
+            self.PYFLUXPRO_INPUT_SHEET = filepath
 
     def browse_pyfluxpro_input_ameriflux(self):
-        filepath = tk.StringVar()
+        filepath = self.PYFLUXPRO_INPUT_AMERIFLUX
         if filepath == "":
             filepath = filedialog.asksaveasfilename(
                 initialdir=os.getcwd(), title="select a file", filetypes=[("xlsx files", "*.xlsx")])
         else:
             filepath = filedialog.asksaveasfilename(
                 initialdir=filepath, title="select a file", filetypes=[("xlsx files", "*.xlsx")])
-        filepath = self.check_extension_and_add(filepath, ".txt")
-        self.path_pyfluxpro_input_ameriflux.config(text=filepath)
-        self.PYFLUXPRO_INPUT_AMERIFLUX = filepath
+        if filepath != "":
+            filepath = self.check_extension_and_add(filepath, ".txt")
+            self.path_pyfluxpro_input_ameriflux.config(text=filepath)
+            self.PYFLUXPRO_INPUT_AMERIFLUX = filepath
 
     def browse_l1_mainstem_input(self):
-        filepath = tk.StringVar()
+        filepath = self.L1_MAINSTEM_INPUT
         if filepath == "":
             filepath = filedialog.askopenfilename(initialdir=os.getcwd(),
                                                   title="select a file", filetypes=[("txt files", "*.txt")])
         else:
             filepath = filedialog.askopenfilename(initialdir=filepath,
                                                   title="select a file", filetypes=[("txt files", "*.txt")])
-        filepath = self.check_extension_and_add(filepath, ".txt")
-        self.path_l1_mainstem_input.config(text=filepath)
-        self.L1_MAINSTEM_INPUT = filepath
+        if filepath != "":
+            filepath = self.check_extension_and_add(filepath, ".txt")
+            self.path_l1_mainstem_input.config(text=filepath)
+            self.L1_MAINSTEM_INPUT = filepath
 
     def browse_l1_ameriflux_only_input(self):
-        filepath = tk.StringVar()
+        filepath = self.L1_AMERIFLUX_ONLY_INPUT
         if filepath == "":
             filepath = filedialog.askopenfilename(
                 initialdir=os.getcwd(), title="select a file", filetypes=[("txt files", "*.txt")])
         else:
             filepath = filedialog.askopenfilename(
                 initialdir=filepath, title="select a file", filetypes=[("txt files", "*.txt")])
-        filepath = self.check_extension_and_add(filepath, ".txt")
-        self.path_l1_ameriflux_only_input.config(text=filepath)
-        self.L1_AMERIFLUX_ONLY_INPUT = filepath
+        if filepath != "":
+            filepath = self.check_extension_and_add(filepath, ".txt")
+            self.path_l1_ameriflux_only_input.config(text=filepath)
+            self.L1_AMERIFLUX_ONLY_INPUT = filepath
 
     def browse_l1_mainstem_key(self):
-        filepath = tk.StringVar()
+        filepath = self.L1_AMERIFLUX_MAINSTEM_KEY
         if filepath == "":
             filepath = filedialog.askopenfilename(initialdir=os.getcwd(),
                                                   title="select a file", filetypes=[("excel files", "*.xlsx")])
         else:
             filepath = filedialog.askopenfilename(initialdir=filepath,
                                                   title="select a file", filetypes=[("excel files", "*.xlsx")])
-        filepath = self.check_extension_and_add(filepath, ".xlsx")
-        self.path_l1_mainstem_key.config(text=filepath)
-        self.L1_AMERIFLUX_MAINSTEM_KEY = filepath
+        if filepath != "":
+            filepath = self.check_extension_and_add(filepath, ".xlsx")
+            self.path_l1_mainstem_key.config(text=filepath)
+            self.L1_AMERIFLUX_MAINSTEM_KEY = filepath
 
     def browse_l1_ameriflux_run_output(self):
-        filepath = tk.StringVar()
+        filepath = self.L1_AMERIFLUX_RUN_OUTPUT
         if filepath == "":
-            filepath = filedialog.askopenfilename(
+            filepath = filedialog.asksaveasfilename(
                 initialdir=os.getcwd(), title="select a file", filetypes=[("nc files", "*.nc")])
         else:
-            filepath = filedialog.askopenfilename(
+            filepath = filedialog.asksaveasfilename(
                 initialdir=filepath, title="select a file", filetypes=[("nc files", "*.nc")])
-        filepath = self.check_extension_and_add(filepath, ".nc")
-        self.path_l1_ameriflux_run_output.config(text=filepath)
-        self.L1_AMERIFLUX_RUN_OUTPUT = filepath
+        if filepath != "":
+            filepath = self.check_extension_and_add(filepath, ".nc")
+            self.path_l1_ameriflux_run_output.config(text=filepath)
+            self.L1_AMERIFLUX_RUN_OUTPUT = filepath
 
     def browse_l1_ameriflux(self):
-        filepath = tk.StringVar()
+        filepath = self.L1_AMERIFLUX
         if filepath == "":
             filepath = filedialog.asksaveasfilename(
                 initialdir=os.getcwd(), title="select a file", filetypes=[("txt files", "*.txt")])
         else:
             filepath = filedialog.asksaveasfilename(
                 initialdir=filepath, title="select a file", filetypes=[("txt files", "*.txt")])
-        filepath = self.check_extension_and_add(filepath, ".txt")
-        self.path_l1_ameriflux.config(text=filepath)
-        self.L1_AMERIFLUX = filepath
+        if filepath != "":
+            filepath = self.check_extension_and_add(filepath, ".txt")
+            self.path_l1_ameriflux.config(text=filepath)
+            self.L1_AMERIFLUX = filepath
 
     def browse_l1_ameriflux_erroring_variables_key(self):
-        filepath = tk.StringVar()
+        filepath = self.L1_AMERIFLUX_ERRORING_VARIABLES_KEY
         if filepath == "":
             filepath = filedialog.askopenfilename(initialdir=os.getcwd(),
                                                   title="select a file", filetypes=[("excel files", "*.xlsx")])
         else:
             filepath = filedialog.askopenfilename(initialdir=filepath,
                                                   title="select a file", filetypes=[("excel files", "*.xlsx")])
-        filepath = self.check_extension_and_add(filepath, ".xlsx")
-        self.path_l1_ameriflux_erroring_variables_key.config(text=filepath)
-        self.L1_AMERIFLUX_ERRORING_VARIABLES_KEY = filepath
+        if filepath != "":
+            filepath = self.check_extension_and_add(filepath, ".xlsx")
+            self.path_l1_ameriflux_erroring_variables_key.config(text=filepath)
+            self.L1_AMERIFLUX_ERRORING_VARIABLES_KEY = filepath
 
     def browse_l2_mainstem_input(self):
-        filepath = tk.StringVar()
+        filepath = self.L2_MAINSTEM_INPUT
         if filepath == "":
             filepath = filedialog.askopenfilename(initialdir=os.getcwd(),
                                                   title="select a file", filetypes=[("txt files", "*.txt")])
         else:
             filepath = filedialog.askopenfilename(initialdir=filepath,
                                                   title="select a file", filetypes=[("txt files", "*.txt")])
-        filepath = self.check_extension_and_add(filepath, ".txt")
-        self.path_l2_mainstem_input.config(text=filepath)
-        self.L2_MAINSTEM_INPUT = filepath
+        if filepath != "":
+            filepath = self.check_extension_and_add(filepath, ".txt")
+            self.path_l2_mainstem_input.config(text=filepath)
+            self.L2_MAINSTEM_INPUT = filepath
 
     def browse_l2_ameriflux_only_input(self):
-        filepath = tk.StringVar()
+        filepath = self.L2_AMERIFLUX_ONLY_INPUT
         if filepath == "":
             filepath = filedialog.askopenfilename(
                 initialdir=os.getcwd(), title="select a file", filetypes=[("txt files", "*.txt")])
         else:
             filepath = filedialog.askopenfilename(
                 initialdir=filepath, title="select a file", filetypes=[("txt files", "*.txt")])
-        filepath = self.check_extension_and_add(filepath, ".txt")
-        self.path_l2_ameriflux_only_input.config(text=filepath)
-        self.L2_AMERIFLUX_ONLY_INPUT = filepath
+        if filepath != "":
+            filepath = self.check_extension_and_add(filepath, ".txt")
+            self.path_l2_ameriflux_only_input.config(text=filepath)
+            self.L2_AMERIFLUX_ONLY_INPUT = filepath
 
     def browse_l2_ameriflux_run_output(self):
-        filepath = tk.StringVar()
+        filepath = self.L2_AMERIFLUX_RUN_OUTPUT
         if filepath == "":
-            filepath = filedialog.askopenfilename(
+            filepath = filedialog.asksaveasfilename(
                 initialdir=os.getcwd(), title="select a file", filetypes=[("nc files", "*.nc")])
         else:
-            filepath = filedialog.askopenfilename(
+            filepath = filedialog.asksaveasfilename(
                 initialdir=filepath, title="select a file", filetypes=[("nc files", "*.nc")])
-        filepath = self.check_extension_and_add(filepath, ".nc")
-        self.path_l2_ameriflux_run_output.config(text=filepath)
-        self.L2_AMERIFLUX_RUN_OUTPUT = filepath
+        if filepath != "":
+            filepath = self.check_extension_and_add(filepath, ".nc")
+            self.path_l2_ameriflux_run_output.config(text=filepath)
+            self.L2_AMERIFLUX_RUN_OUTPUT = filepath
 
     def browse_l2_ameriflux(self):
-        filepath = tk.StringVar()
+        filepath = self.L2_AMERIFLUX
         if filepath == "":
             filepath = filedialog.asksaveasfilename(
                 initialdir=os.getcwd(), title="select a file", filetypes=[("txt files", "*.txt")])
         else:
             filepath = filedialog.asksaveasfilename(
                 initialdir=filepath, title="select a file", filetypes=[("txt files", "*.txt")])
-        filepath = self.check_extension_and_add(filepath, ".txt")
-        self.path_l2_ameriflux.config(text=filepath)
-        self.L2_AMERIFLUX = filepath
+        if filepath != "":
+            filepath = self.check_extension_and_add(filepath, ".txt")
+            self.path_l2_ameriflux.config(text=filepath)
+            self.L2_AMERIFLUX = filepath
 
     def check_extension_and_add(self, instring, extension):
         # parset the extension
@@ -1387,6 +1427,54 @@ class EnvEditor():
             instring = instring + extension
 
         return instring
+
+    def preset_variables(self):
+        current_dir = os.path.dirname(os.path.realpath(__file__))
+        self.SFTP_CONFIRMATION = "N"
+        self.SFTP_SERVER = "remote.ftp.server.url"
+        self.SFTP_USERNAME = "username"
+        self.SFTP_PASSWORD = "password"
+        self.SFTP_GHG_REMOTE_PATH = "remote/path/for/ghg/file/folder"
+        self.SFTP_GHG_LOCAL_PATH = current_dir + "/data/eddypro/input"
+        self.SFTP_MET_REMOTE_PATH = "remote/path/for/met/data"
+        self.SFTP_MET_LOCAL_PATH = current_dir + "/data/master_met/input"
+
+        self.MISSING_TIME_USER_CONFIRMATION = "Y"
+
+        self.INPUT_MET = current_dir + "/data/master_met/input"
+        self.INPUT_PRECIP = current_dir + "/data/master_met/input"
+        self.MISSING_TIME = "96"
+        self.MASTER_MET = current_dir + "/data/master_met/generated"
+        self.INPUT_SOIL_KEY = current_dir + "/data/eddypro/input"
+
+        self.EDDYPRO_BIN_LOC = "C:/Program Files/LI-COR/EddyPro-7.0.7/bin"
+        self.EDDYPRO_PROJ_FILE_TEMPLATE = current_dir + "/data/templates"
+        self.EDDYPRO_PROJ_FILE_NAME = current_dir + "/data/templates"
+        self.EDDYPRO_PROJ_TITLE = "Project Title"
+        self.EDDYPRO_PROJ_ID = "Project ID"
+        self.EDDYPRO_FILE_PROTOTYPE = "yyyy-mm-ddTHHMM??_Sorghum-00137.ghg"
+        self.EDDYPRO_PROJ_FILE = current_dir + "/data/eddypro/input"
+        self.EDDYPRO_DYN_METADATA = current_dir + "data/eddypro/input"
+        self.EDDYPRO_OUTPUT_PATH = current_dir + "/data/eddypro/generated"
+        self.EDDYPRO_INPUT_GHG_PATH = current_dir + "/data/eddypro/input"
+
+        self.FULL_OUTPUT_PYFLUXPRO = current_dir + "/data/pyfluxpro/generated"
+        self.MET_DATA_30_PYFLUXPRO = current_dir + "/data/pyfluxpro/generated"
+        self.PYFLUXPRO_INPUT_SHEET = current_dir + "/data/pyfluxpro/generated"
+        self.PYFLUXPRO_INPUT_AMERIFLUX = current_dir + "/data/pyfluxpro/generated"
+
+        self.AMERIFLUX_VARIABLE_USER_CONFIRMATION = "N"
+        self.L1_MAINSTEM_INPUT = current_dir + "/data/pyfluxpro/input"
+        self.L1_AMERIFLUX_ONLY_INPUT = current_dir + "/data/pyfluxpro/input"
+        self.L1_AMERIFLUX_MAINSTEM_KEY = current_dir + "/data/pyfluxpro/input"
+        self.L1_AMERIFLUX_RUN_OUTPUT = current_dir + "/data/pyfluxpro/generated"
+        self.L1_AMERIFLUX = current_dir + "/data/pyfluxpro/generated"
+        self.L1_AMERIFLUX_ERRORING_VARIABLES_KEY = current_dir + "/data/pyfluxpro/input"
+        self.L2_MAINSTEM_INPUT = current_dir + "/data/pyfluxpro/input"
+        self.L2_AMERIFLUX_ONLY_INPUT = current_dir + "/data/pyfluxpro/input"
+        self.L2_AMERIFLUX_RUN_OUTPUT = current_dir + "/data/pyfluxpro/generated"
+        self.L2_AMERIFLUX = current_dir + "/data/pyfluxpro/generated"
+
 
     def save_env(self):
         sftp_title_line = "# Sync files from the server"
