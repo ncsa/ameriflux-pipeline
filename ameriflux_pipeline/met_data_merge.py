@@ -100,7 +100,7 @@ def data_processing(files, start_date, end_date):
     met_data['date'] = met_data['TIMESTAMP_datetime'].dt.date
     start_date = pd.to_datetime(start_date).date()
     end_date = pd.to_datetime(end_date).date()
-    met_data = met_data[(met_data['date'] > start_date) & (met_data['date'] <= end_date)]
+    met_data = met_data[(met_data['date'] >= start_date) & (met_data['date'] <= end_date)]
     met_data.drop(columns=['TIMESTAMP_datetime', 'date'], inplace=True)
 
     if meta_df.shape[1] == met_data.shape[1]:
@@ -142,7 +142,7 @@ if __name__ == '__main__':
     print("Automatic merging of met files started")
     # get arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument("--data", action="store", default=None, help=".dat files for merging")
+    parser.add_argument("--data", action="store", default=None, nargs='*', help=".dat files for merging")
     parser.add_argument("--start", action="store", default="2021-01-01", help="Start date for merging in yyyy-mm-dd")
     parser.add_argument("--end", action="store", default='2021-12-31', help="End date for merging in yyyy-mm-dd")
     parser.add_argument("--output", action="store",
@@ -156,7 +156,7 @@ if __name__ == '__main__':
         for i in range(int(num_files)):
             files.append(input("Enter full file path for file" + str(i+1) + " : "))
     else:
-        files = [str(f).strip() for f in args.data.split(',')]
+        files = [f.replace(',', '') for f in args.data]
     start_date = str(args.start)
     end_date = str(args.end)
     output_file = str(args.output)
