@@ -166,6 +166,8 @@ if __name__ == '__main__':
         else:
             # if space separated, args will be treated as multiple arguments. replace comma with empty string
             files = [f.replace(',', ' ').strip() for f in args.data]
+    # remove duplicate files
+    files = list(set(files))
     start_date = str(args.start)
     end_date = str(args.end)
     output_file = str(args.output)
