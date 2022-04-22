@@ -1,4 +1,4 @@
-# Copyright (c) 2021 University of Illinois and others. All rights reserved.
+# Copyright (c) 2022 University of Illinois and others. All rights reserved.
 #
 # This program and the accompanying materials are made available under the
 # terms of the Mozilla Public License v2.0 which accompanies this distribution,
@@ -11,8 +11,10 @@ import time
 
 from config import Config as cfg
 import utils.data_util as data_util
+from utils.syncdata import SyncData as syncdata
 
-from master_met.preprocessor import Preprocessor
+from data_validation import Validation
+from master_met.mastermetprocessor import MasterMetProcessor
 from eddypro.eddyproformat import EddyProFormat
 from eddypro.runeddypro import RunEddypro
 from pyfluxpro.pyfluxproformat import PyFluxProFormat
@@ -20,12 +22,25 @@ from pyfluxpro.amerifluxformat import AmeriFluxFormat
 from pyfluxpro.l1format import L1Format
 from pyfluxpro.l2format import L2Format
 
-from utils.syncdata import SyncData as syncdata
-
 import pandas.io.formats.excel
 pandas.io.formats.excel.header_style = None
 
 GENERATED_DIR = 'generated'
+
+
+def validation(data, type):
+    """
+    Method to check data validation
+    Args:
+        data (str): Input data to validate
+        type (str): Type of data expected
+    Returns :
+        (bool): True if input data and type matches, False if not
+    """
+    if type == 'int':
+        return Validation.integer_validation(data)
+    elif type == 'float':
+        return Validation.float_validation(data)
 
 
 def eddypro_preprocessing(file_meta_data_file):
@@ -38,9 +53,20 @@ def eddypro_preprocessing(file_meta_data_file):
         eddypro_formatted_met_file (str) : File name of the Met data formatted for eddypro
     """
     # start preprocessing data
-    df, file_meta = Preprocessor.data_preprocess(cfg.INPUT_MET, cfg.INPUT_PRECIP,
-                                                 float(cfg.QC_PRECIP_LOWER), float(cfg.QC_PRECIP_UPPER),
-                                                 int(cfg.MISSING_TIME), cfg.MISSING_TIME_USER_CONFIRMATION)
+    missing_time = cfg.MISSING_TIME
+    qc_precip_lower = cfg.QC_PRECIP_LOWER
+    qc_precip_upper = cfg.QC_PRECIP_UPPER
+    validation_flag = \
+        validation(missing_time, 'int') and validation(qc_precip_upper, 'float') and \
+        validation(qc_precip_lower, 'float')
+    if not validation_flag:
+        print("Data not valid")
+        return ''
+
+    df, file_meta = \
+        MasterMetProcessor.data_preprocess(cfg.INPUT_MET, cfg.INPUT_PRECIP, float(qc_precip_lower),
+                                           float(qc_precip_upper), int(missing_time),
+                                           cfg.MISSING_TIME_USER_CONFIRMATION)
     # write processed df to output path
     data_util.write_data(df, cfg.MASTER_MET)
 
@@ -237,6 +263,10 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
     syncdata.sync_data()
     # run eddypro preprocessing and formatting
     eddypro_formatted_met_file = eddypro_preprocessing(file_meta_data_file)
+    if not os.path.exists(eddypro_formatted_met_file):
+        # return failure
+        print("EddyPro Processing failed")
+        return False
 
     # run eddypro
     run_eddypro(eddypro_formatted_met_file)

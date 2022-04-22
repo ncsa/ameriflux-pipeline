@@ -6,7 +6,7 @@
 
 import os
 
-from ameriflux_pipeline.master_met.preprocessor import Preprocessor
+from ameriflux_pipeline.master_met.mastermetprocessor import MasterMetProcessor
 
 
 def test_preprocessor():
@@ -15,7 +15,7 @@ def test_preprocessor():
     output = "../data/output.csv"
     metadata = "../data/FLUXSB_EC.dat.meta.csv"
 
-    df = Preprocessor.data_preprocess(input, output, 96)
+    df = MasterMetProcessor.data_preprocess(input, output, 96)
 
     assert 'Ah_fromRH' in df
 
