@@ -5,6 +5,7 @@
 # and is available at https://www.mozilla.org/en-US/MPL/2.0/
 
 import argparse
+import re
 import pandas as pd
 import os
 import shutil
@@ -152,11 +153,19 @@ if __name__ == '__main__':
     # Some data preprocessing
     files = []
     if args.data is None:
+        # no data is given as argument. ask for data during runtime.
         num_files = input("Enter number of files to be merged : ")
         for i in range(int(num_files)):
             files.append(input("Enter full file path for file" + str(i+1) + " : "))
     else:
-        files = [f.replace(',', '') for f in args.data]
+        # data argument is given as parameter
+        if len(args.data) == 1:
+            # if comma separated, args will be treated as one argument. split by comma.
+            file = args.data[0]
+            files = file.split(',')
+        else:
+            # if space separated, args will be treated as multiple arguments. replace comma with empty string
+            files = [f.replace(',', ' ').strip() for f in args.data]
     start_date = str(args.start)
     end_date = str(args.end)
     output_file = str(args.output)
