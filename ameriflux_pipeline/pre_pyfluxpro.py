@@ -261,12 +261,23 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
     """
     # sync data from the server
     syncdata.sync_data()
+
     # run eddypro preprocessing and formatting
     eddypro_formatted_met_file = eddypro_preprocessing(file_meta_data_file)
     if not os.path.exists(eddypro_formatted_met_file):
         # return failure
         print("EddyPro Processing failed")
         return False
+
+    # archive old eddypro output path
+    outfile_list = os.listdir(cfg.EDDYPRO_OUTPUT_PATH)
+    if len(outfile_list) > 0:
+        # eddypro output dir not empty. archive and clean dir
+        shutil.make_archive(cfg.EDDYPRO_OUTPUT_PATH, 'zip', cfg.EDDYPRO_OUTPUT_PATH)
+        # delete the directory and all files in it.
+        shutil.rmtree(cfg.EDDYPRO_OUTPUT_PATH)
+        # create an empty directory
+        os.makedirs(cfg.EDDYPRO_OUTPUT_PATH)
 
     # run eddypro
     run_eddypro(eddypro_formatted_met_file)
@@ -286,7 +297,7 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
         print("EddyPro full output not present")
         # return failure
         return False
-
+    
     # run ameriflux formatting of pyfluxpro input
     if os.path.exists(cfg.PYFLUXPRO_INPUT_SHEET):
         pyfluxpro_ameriflux_processing(cfg.PYFLUXPRO_INPUT_SHEET, cfg.PYFLUXPRO_INPUT_AMERIFLUX)
