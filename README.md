@@ -11,7 +11,7 @@ This automated code creates master met data, runs EddyPro automatically and crea
 - PyFluxPro 3.3.2 (https://github.com/OzFlux/PyFluxPro)
 
 ## Files :
-- master_met / preprocessor.py creates the master met data file
+- master_met / mastermetprocessor.py creates the master met data file
 - eddypro / eddyproformat.py creates master met data formatted for eddypro headless run
 - eddypro / runeddypro.py is responsible for the eddypro headless run
 - pyfluxpro / pyfluxproformat.py creates the input excel sheet for pyfluxpro
