@@ -11,9 +11,14 @@ from tkinter import ttk as ttk
 from tkinter import filedialog, messagebox
 from dotenv import load_dotenv
 
+from eddypro.runeddypro import RunEddypro
+
 
 class EnvEditor():
     def __init__(self):
+        # check what is the current platform
+        self.OS_PLATFORM = RunEddypro.get_platform()
+
         # text variables
         self.SEPARATION_LABEL = "---------------------------------------------------------"
         self.SEPARATION_LABEL_SUB = "------------------"
@@ -1377,7 +1382,13 @@ class EnvEditor():
         self.MASTER_MET = current_dir + "/data/master_met/output"
         self.INPUT_SOIL_KEY = current_dir + "/data/eddypro/input"
 
-        self.EDDYPRO_BIN_LOC = "C:/Program Files/LI-COR/EddyPro-7.0.7/bin"
+        if self.OS_PLATFORM.lower() == "windows":
+            self.EDDYPRO_BIN_LOC = "C:/Program Files/LI-COR/EddyPro-7.0.7/bin"
+        elif self.OS_PLATFORM.lower() == "os x":
+            self.EDDYPRO_BIN_LOC = "/Applications/eddypro.app/Contents/MacOS/bin"
+        else:
+            raise Exception("The current platform is currently not being supported.")
+
         self.EDDYPRO_PROJ_FILE_TEMPLATE = current_dir + "/data/templates"
         self.EDDYPRO_PROJ_FILE_NAME = current_dir + "/data/templates"
         self.EDDYPRO_PROJ_TITLE = "Project Title"
