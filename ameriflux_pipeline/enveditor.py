@@ -1445,7 +1445,7 @@ class EnvEditor():
         self.INPUT_PRECIP = current_dir + "/data/master_met/input"
         self.MISSING_TIME = "96"
         self.MASTER_MET = current_dir + "/data/master_met/output"
-        self.INPUT_SOIL_KEY = current_dir + "/data/eddypro/keys"
+        self.INPUT_SOIL_KEY = current_dir + "/data/eddypro/input"
 
         self.EDDYPRO_BIN_LOC = "C:/Program Files/LI-COR/EddyPro-7.0.7/bin"
         self.EDDYPRO_PROJ_FILE_TEMPLATE = current_dir + "/data/templates"
@@ -1465,15 +1465,15 @@ class EnvEditor():
 
         self.AMERIFLUX_VARIABLE_USER_CONFIRMATION = "N"
         self.L1_MAINSTEM_INPUT = current_dir + "/data/pyfluxpro/input"
-        self.L1_AMERIFLUX_ONLY_INPUT = current_dir + "/data/pyfluxpro/input"
-        self.L1_AMERIFLUX_MAINSTEM_KEY = current_dir + "/data/pyfluxpro/input"
-        self.L1_AMERIFLUX_RUN_OUTPUT = current_dir + "/data/pyfluxpro/output_af"
-        self.L1_AMERIFLUX = current_dir + "/data/pyfluxpro/output"
-        self.L1_AMERIFLUX_ERRORING_VARIABLES_KEY = current_dir + "/data/pyfluxpro/input"
+        self.L1_AMERIFLUX_ONLY_INPUT = current_dir + "/data/pyfluxpro/input_ameriflux"
+        self.L1_AMERIFLUX_MAINSTEM_KEY = current_dir + "/data/pyfluxpro/input_ameriflux"
+        self.L1_AMERIFLUX_RUN_OUTPUT = current_dir + "/data/pyfluxpro/output_ameriflux"
+        self.L1_AMERIFLUX = current_dir + "/data/pyfluxpro/output_ameriflux"
+        self.L1_AMERIFLUX_ERRORING_VARIABLES_KEY = current_dir + "/data/pyfluxpro/input_ameriflux"
         self.L2_MAINSTEM_INPUT = current_dir + "/data/pyfluxpro/input"
-        self.L2_AMERIFLUX_ONLY_INPUT = current_dir + "/data/pyfluxpro/input"
-        self.L2_AMERIFLUX_RUN_OUTPUT = current_dir + "/data/pyfluxpro/output_af"
-        self.L2_AMERIFLUX = current_dir + "/data/pyfluxpro/output_af"
+        self.L2_AMERIFLUX_ONLY_INPUT = current_dir + "/data/pyfluxpro/input_ameriflux"
+        self.L2_AMERIFLUX_RUN_OUTPUT = current_dir + "/data/pyfluxpro/output_ameriflux"
+        self.L2_AMERIFLUX = current_dir + "/data/pyfluxpro/output_ameriflux"
 
 
     def save_env(self):
