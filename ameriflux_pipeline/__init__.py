@@ -18,4 +18,3 @@ from ameriflux_pipeline.pyfluxpro.amerifluxformat import AmeriFluxFormat
 from ameriflux_pipeline.pyfluxpro.l1format import L1Format
 from ameriflux_pipeline.pyfluxpro.l2format import L2Format
 from ameriflux_pipeline.pyfluxpro.outputformat import OutputFormat
-
