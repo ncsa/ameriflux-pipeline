@@ -54,3 +54,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Timestamp column ordering in Ameriflux-friendly pyfluxpro input excel sheet. [#112](https://github.com/ncsa/ameriflux-pipeline/issues/112)
 - Updated README file with detailed set up and run information. [#120](https://github.com/ncsa/ameriflux-pipeline/issues/120)
 - Automatically add proper file extension when there is none in env editor. [#122](https://github.com/ncsa/ameriflux-pipeline/issues/122)
+- Description and info in env editor updated. [#150](https://github.com/ncsa/ameriflux-pipeline/issues/150)
