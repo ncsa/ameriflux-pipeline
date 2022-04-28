@@ -303,9 +303,7 @@ class EnvEditor():
     def run(self):
         # check if there is .env file
         # checking this by SFTP_CONFIRMATION variable is not none
-        is_env = True
-        if os.getenv('SFTP_CONFIRMATION') is None:
-            is_env = False
+        is_env = os.path.exists('.env')
 
         # if .env doesn't exist, pre fill the values
         if not is_env:
