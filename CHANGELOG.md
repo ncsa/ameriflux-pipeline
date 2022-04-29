@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Env variable for automating user confirmation to insert large number of missing timestamps. [#52](https://github.com/ncsa/ameriflux-pipeline/issues/52)
 - Merging of met data and precip data with different timestamps. [#54](https://github.com/ncsa/ameriflux-pipeline/issues/54)
 - Automated creation of pyfluxpro input excel spreadsheet [#55](https://github.com/ncsa/ameriflux-pipeline/issues/55)
-- EddyPro automation separation for Mac and Windos. [#56](https://github.com/ncsa/ameriflux-pipeline/issues/56)
+- EddyPro automation separation for Mac and Windows. [#56](https://github.com/ncsa/ameriflux-pipeline/issues/56)
 - Data sync between remote sftp server and local machine. [#57](https://github.com/ncsa/ameriflux-pipeline/issues/57)
 - Restructured code to have data directory and separate directories for master met, eddypro and pyfluxpro. [#68](https://github.com/ncsa/ameriflux-pipeline/issues/68)
 - GUI application for editing and creating .env file [#77](https://github.com/ncsa/ameriflux-pipeline/issues/77)
