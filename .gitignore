@@ -80,6 +80,7 @@ original/
 *.env*
 *.tmp
 *.ghg
+*.txt
 
 # related to test file
 *test.py
