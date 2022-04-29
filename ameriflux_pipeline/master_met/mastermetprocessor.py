@@ -120,18 +120,18 @@ class MasterMetProcessor:
             shortwave_out = 'CM3Dn_Avg'
         df['SW_out_Avg'] = df[shortwave_out]
         df_meta['SW_out_Avg'] = SW_unit  # add shortwave radiation units
-        if 'albedo_Avg' not in df.columns:
+        albedo_col = str(df.filter(regex=("Albedo|albedo|ALB")).columns[0])
+        if albedo_col not in df.columns:
             # calculate albedo_avg from shortwave out and shortwave in
             if 'SWDn_Avg' in df.columns:
                 shortwave_in = 'SWDn_Avg'
             elif 'CM3Up_Avg' in df.columns:
                 shortwave_in = 'CM3Up_Avg'
             # avoid zero division error
-            df['Albedo_Avg'] = df.apply(lambda x: float(x[shortwave_out]) / float(x[shortwave_in])
+            df[albedo_col] = df.apply(lambda x: float(x[shortwave_out]) / float(x[shortwave_in])
                                         if float(x[shortwave_in]) != 0 else np.nan, axis=1)
 
-            df['Albedo_Avg'] = df['Albedo_Avg'].replace(np.nan, 0.0)
-            df_meta['Albedo_Avg'] = SW_unit  # add shortwave radiation units
+        df_meta[albedo_col] = SW_unit  # add shortwave radiation units
 
         # NOTE 2
         # concat the meta df and df if number of columns is the same
@@ -154,6 +154,7 @@ class MasterMetProcessor:
             df (obj): Pandas DataFrame object
             file_df_meta (obj) : Pandas DataFrame object
         """
+        print("Read file", data_path)
         df = pd.read_csv(data_path, header=None)  # read file without headers.
 
         # process df to get meta data
@@ -304,6 +305,8 @@ class MasterMetProcessor:
         """
         cols = df.columns.drop('TIMESTAMP')
         df[cols] = df[cols].apply(pd.to_numeric, errors='coerce')  # coerce will replace all non-numeric values with NaN
+        # there could be values like INF in met data. Replace with NAN
+        df[cols] = df[cols].replace([np.inf, -np.inf], np.nan)
         return df
 
     @staticmethod
