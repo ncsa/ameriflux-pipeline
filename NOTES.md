@@ -59,5 +59,7 @@
 - The second phase generates the csv file named US-Ui<site_name>\_HH\_<timestamp_start>_<timestamp_end>.csv that meets Ameriflux standards.
 ### 18
 - netCDF4 python library is supported only in Python version 3.8. This pipeline has a strict requirement of Python 3.8
+### 19
+- During merge of dat files / raw met files from the server, the end date is taken as the next day midnight so that after timestamp shift of 30min the Flux data file contains data for the whole year
 
 
