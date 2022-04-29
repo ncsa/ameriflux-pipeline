@@ -129,7 +129,7 @@ class MasterMetProcessor:
                 shortwave_in = 'CM3Up_Avg'
             # avoid zero division error
             df[albedo_col] = df.apply(lambda x: float(x[shortwave_out]) / float(x[shortwave_in])
-                                        if float(x[shortwave_in]) != 0 else np.nan, axis=1)
+                                      if float(x[shortwave_in]) != 0 else np.nan, axis=1)
 
         df_meta[albedo_col] = SW_unit  # add shortwave radiation units
 
