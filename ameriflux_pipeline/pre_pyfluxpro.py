@@ -276,7 +276,7 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
         # eddypro output dir not empty. move all files
         source_dir = cfg.EDDYPRO_OUTPUT_PATH
         # create a dir with timestamp name in the same path
-        dest_dir = os.path.dirname(cfg.EDDYPRO_OUTPUT_PATH) + datetime.now().strftime('%Y-%m-%d_%H-%M')
+        dest_dir = os.path.dirname(cfg.EDDYPRO_OUTPUT_PATH) + '_run_result_' + datetime.now().strftime('%Y-%m-%d_%H-%M')
         os.makedirs(dest_dir)
         for f in outfile_list:
             # move each file
