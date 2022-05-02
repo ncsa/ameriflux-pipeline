@@ -53,6 +53,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - File type of output files are matched based on the actual file. [#139](https://github.com/ncsa/ameriflux-pipeline/issues/139)
 - Env editor set values empty when the cancel is selected. [#142](https://github.com/ncsa/ameriflux-pipeline/issues/142)
 - Generate correct warnings if pyfluxpro L2 run output does not span an entire year [#145](https://github.com/ncsa/ameriflux-pipeline/issues/145)
+- Archive non-empty EddyPro Run output directory. [#143](https://github.com/ncsa/ameriflux-pipeline/issues/143)
 
 ### Changed
 - AmeriFlux L1 formatting variable names in env editor [#118](https://github.com/ncsa/ameriflux-pipeline/issues/118)

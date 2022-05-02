@@ -8,6 +8,7 @@ import os
 import shutil
 import pandas as pd
 import time
+from datetime import datetime
 
 from config import Config as cfg
 import utils.data_util as data_util
@@ -261,12 +262,27 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
     """
     # sync data from the server
     syncdata.sync_data()
+
     # run eddypro preprocessing and formatting
     eddypro_formatted_met_file = eddypro_preprocessing(file_meta_data_file)
     if not os.path.exists(eddypro_formatted_met_file):
         # return failure
         print("EddyPro Processing failed")
         return False
+
+    # archive old eddypro output path
+    outfile_list = os.listdir(cfg.EDDYPRO_OUTPUT_PATH)
+    if len(outfile_list) > 0:
+        # eddypro output dir not empty. move all files
+        source_dir = cfg.EDDYPRO_OUTPUT_PATH
+        # create a dir with timestamp name in the same path
+        dest_dir = os.path.dirname(cfg.EDDYPRO_OUTPUT_PATH) + '_run_result_' + datetime.now().strftime('%Y-%m-%d_%H-%M')
+        os.makedirs(dest_dir)
+        for f in outfile_list:
+            # move each file
+            source = os.path.join(source_dir, f)
+            dest = os.path.join(dest_dir, f)
+            shutil.move(source, dest)
 
     # run eddypro
     run_eddypro(eddypro_formatted_met_file)
@@ -286,7 +302,7 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
         print("EddyPro full output not present")
         # return failure
         return False
-
+    
     # run ameriflux formatting of pyfluxpro input
     if os.path.exists(cfg.PYFLUXPRO_INPUT_SHEET):
         pyfluxpro_ameriflux_processing(cfg.PYFLUXPRO_INPUT_SHEET, cfg.PYFLUXPRO_INPUT_AMERIFLUX)

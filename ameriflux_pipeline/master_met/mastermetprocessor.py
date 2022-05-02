@@ -42,7 +42,7 @@ class MasterMetProcessor:
         # read input meteorological data file
         # NOTE 1
         df, file_df_meta = MasterMetProcessor.read_met_data(input_met_path)
-        print("Data contains ", df.shape[0], "rows ", df.shape[1], "columns")
+        print("Met Data contains ", df.shape[0], "rows ", df.shape[1], "columns")
 
         # get meta data
         # NOTE 2
