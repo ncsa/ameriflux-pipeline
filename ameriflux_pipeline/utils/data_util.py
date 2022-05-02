@@ -5,7 +5,8 @@
 # and is available at https://www.mozilla.org/en-US/MPL/2.0/
 
 import pandas as pd
-
+import pathlib
+import os
 
 def write_data(df, output_data):
     """
@@ -32,3 +33,17 @@ def read_excel(file_path):
     """
     df = pd.read_excel(file_path)  # read excel file
     return df
+
+def find_output_dir(file_path):
+    """
+        find output directory
+
+        Args:
+            file_path (str): File path to read data
+        Returns:
+            dir (str): output directory name
+    """
+    path = pathlib.Path(file_path)
+    dir = os.path.dirname(path)
+
+    return dir
