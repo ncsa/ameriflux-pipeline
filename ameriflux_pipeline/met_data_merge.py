@@ -5,7 +5,6 @@
 # and is available at https://www.mozilla.org/en-US/MPL/2.0/
 
 import argparse
-import re
 import pandas as pd
 import numpy as np
 import os
@@ -84,7 +83,11 @@ def read_met_data(data_path):
     df = df.iloc[3:, :]  # drop first and second row as it is the units and min / avg
     df.reset_index(drop=True, inplace=True)  # reset index after dropping rows
 
-    return df, file_meta, df_meta
+    # get the site name from file_meta
+    file_site_name = file_meta[5]
+    site_name = data_util.get_site_name(file_site_name)
+
+    return df, file_meta, df_meta, site_name
 
 
 def data_processing(files, start_date, end_date):
@@ -102,6 +105,7 @@ def data_processing(files, start_date, end_date):
     """
     dfs = []  # list of dataframes for each file
     meta_dfs = []  # list of meta data from each file
+    site_names = []
     for file in files:
         root = os.getcwd()
         basename = os.path.basename(file)
@@ -112,9 +116,17 @@ def data_processing(files, start_date, end_date):
         input_file = os.path.join(root, directory_name, basename)
         # copy and rename
         shutil.copyfile(input_file, output_file)
-        df, file_meta, df_meta = read_met_data(output_file)
+        df, file_meta, df_meta, site_name = read_met_data(output_file)
+
+        # check if the sites are the same for all metdata
+        site_names.append(site_name)
+        if len(set(site_names)) != 1:
+            print("Data merge for different sites not recommended.")
+            return None, None
+        # all site names are the same. Append df to list
         dfs.append(df)
         meta_dfs.append(df_meta)
+
     # concat all dataframes in list
     met_data = pd.concat(dfs, axis=0, ignore_index=True)
     # replace empty string and string with only spaces with NAN
@@ -152,7 +164,7 @@ def main(files, start_date, end_date, output_file):
            None
     """
     df, file_meta = data_processing(files, start_date, end_date)
-    if df:
+    if df is not None:
         # make file_meta and df the same length to read as proper csv
         num_columns = df.shape[1]
         for _ in range(len(file_meta), num_columns):
