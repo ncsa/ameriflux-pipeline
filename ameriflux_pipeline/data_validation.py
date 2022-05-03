@@ -9,7 +9,7 @@ class Validation:
     '''
     Class to implement data validation
     '''
-    # TODO: add methods for date validation, file if exists validation, string input validation.
+    # TODO: add methods for date validation, string input validation.
 
     @staticmethod
     def integer_validation(data):
@@ -38,3 +38,40 @@ class Validation:
             return True
         except ValueError:
             return False
+
+    @staticmethod
+    def string_validation(data):
+        """
+        Method to check if the input data is a valid string
+        Returns True if valid string, else returns False
+        Args:
+            data: Input data to check for string datatype
+        Returns:
+            (bool): True if float, else False
+        """
+        return isinstance(data, str)
+
+    @staticmethod
+    def equality_validation(data1, data2):
+        """
+        Method to check if both inputs are equal
+        Returns True if equal, else returns False
+        Args:
+            data1: Input data 1
+            data2: Input data 2
+        Returns:
+            (bool): True if float, else False
+        """
+        return data1 == data2
+
+    @staticmethod
+    def path_validation(path, type):
+        """
+        Method to check if both inputs are equal
+        Returns True if equal, else returns False
+        Args:
+            data1: Input data 1
+            data2: Input data 2
+        Returns:
+            (bool): True if float, else False
+        """
