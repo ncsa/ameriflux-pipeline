@@ -295,8 +295,8 @@ class EddyProFormat:
         Returns:
             df (object): Processed Pandas DataFrame object
         """
-        df.replace({'W/m^2': 'W+1m-2', '√Ç¬µmols/m√Ç¬≤/s': 'umol+1m-2s-1', 'Kelvin': 'K',
-                    'm/s': 'm+1s-1', 'Deg': 'degrees', 'vwc': 'm+3m-3'}, inplace=True)
+        df.replace({'W/m^2': 'W+1m-2', '√Ç¬µmols/m√Ç¬≤/s': 'umol+1m-2s-1', '¬µmols/m¬≤/s': 'umol+1m-2s-1',
+                    'Kelvin': 'K', 'm/s': 'm+1s-1', 'Deg': 'degrees', 'vwc': 'm+3m-3'}, inplace=True)
         return df
 
     @staticmethod
@@ -313,6 +313,6 @@ class EddyProFormat:
         if not set(req_cols).issubset(set(df.columns)):
             print("WARNING")
             print(' and '.join(set(req_cols).difference(df.columns)), end='')
-            print(" are not present")
+            print(" are not present in met_output_eddypro")
         else:
-            print("All required columns are present in dataframe")
+            print("All required columns are present in met_output_eddypro")

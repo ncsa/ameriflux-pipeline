@@ -59,5 +59,9 @@
 - The second phase generates the csv file named US-Ui<site_name>\_HH\_<timestamp_start>_<timestamp_end>.csv that meets Ameriflux standards.
 ### 18
 - netCDF4 python library is supported only in Python version 3.8. This pipeline has a strict requirement of Python 3.8
+### 20
+- From July 14, 2021, the datalogger met variables names were changed. Hence when merging the met data, certain old variables names are to be changed to newer standardized variable names.
+- {'CM3Up_Avg': 'SWDn_Avg', 'CM3Dn_Avg': 'SWUp_Avg', 'CG3UpCo_Avg': 'LWDnCo_Avg', 'CG3DnCo_Avg': 'LWUpCo_Avg', 'NetTot_Avg': 'Rn_Avg', 'cnr1_T_C_Avg': 'CNR1TC_Avg', 'cnr1_T_K_Avg': 'CNR1TK_Avg', 'Rs_net_Avg': 'NetRs_Avg', 'Rl_net_Avg': 'NetRl_Avg' , 'VWC_': 'VWC1_}
+
 
 
