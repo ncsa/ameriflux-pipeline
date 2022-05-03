@@ -7,6 +7,7 @@
 import argparse
 import re
 import pandas as pd
+import numpy as np
 import os
 import shutil
 import csv
@@ -58,18 +59,27 @@ def read_met_data(data_path):
     df = df.applymap(lambda x: str(x).replace('*', ''))
     df.columns = df.iloc[0]  # set column names
     # NOTES 20
-    col_labels = {'CM3Up_Avg': 'SWDn_Avg', 'CM3Dn_Avg': 'SWUp_Avg', 'CG3UpCo_Avg': 'LWDnCo_Avg',
-                  'CG3DnCo_Avg': 'LWUpCo_Avg', 'NetTot_Avg': 'Rn_Avg', 'cnr1_T_C_Avg': 'CNR1TC_Avg',
-                  'cnr1_T_K_Avg': 'CNR1TK_Avg', 'Rs_net_Avg': 'NetRs_Avg', 'Rl_net_Avg': 'NetRl_Avg',
-                  'albedo_Avg': 'Albedo_Avg'
+    col_labels = {'CM3Up_Avg': 'SWDn_Avg', 'CM3Dn_Avg': 'SWUp_Avg', 'CG3Up_Avg': 'LWDn_Avg', 'CG3Dn_Avg': 'LWUp_Avg',
+                  'CG3UpCo_Avg': 'LWDnCo_Avg', 'CG3DnCo_Avg': 'LWUpCo_Avg', 'NetTot_Avg': 'Rn_Avg',
+                  'cnr1_T_C_Avg': 'CNR1TC_Avg', 'cnr1_T_K_Avg': 'CNR1TK_Avg',
+                  'Rs_net_Avg': 'NetRs_Avg', 'Rl_net_Avg': 'NetRl_Avg', 'albedo_Avg': 'Albedo_Avg'
                   }
     df.rename(columns=col_labels, inplace=True)
+    df_meta.rename(columns=col_labels, inplace=True)
     # change VWC to VWC1
     vwc_col = [col for col in df if col.startswith('VWC_')]
     vwc_labels = {}
     for col in vwc_col:
         vwc_labels[col] = 'VWC1_' + col.split('_')[1] + '_Avg'
     df.rename(columns=vwc_labels, inplace=True)
+    df_meta.rename(columns=vwc_labels, inplace=True)
+    # change TC to TC1
+    tc_col = [col for col in df if col.startswith('TC_')]
+    tc_labels = {}
+    for col in tc_col:
+        tc_labels[col] = 'TC1_' + col.split('_')[1] + '_Avg'
+    df.rename(columns=tc_labels, inplace=True)
+    df_meta.rename(columns=tc_labels, inplace=True)
 
     df = df.iloc[3:, :]  # drop first and second row as it is the units and min / avg
     df.reset_index(drop=True, inplace=True)  # reset index after dropping rows
@@ -103,14 +113,16 @@ def data_processing(files, start_date, end_date):
         # copy and rename
         shutil.copyfile(input_file, output_file)
         df, file_meta, df_meta = read_met_data(output_file)
-        print(df.columns)
-        print(df.shape)
         dfs.append(df)
         meta_dfs.append(df_meta)
     # concat all dataframes in list
-    met_data = pd.concat(dfs)
-    meta_df = pd.concat(meta_dfs)
+    met_data = pd.concat(dfs, axis=0, ignore_index=True)
+    # replace empty string and string with only spaces with NAN
+    met_data.replace(r'^\s*$', np.nan, regex=True, inplace=True)
+    meta_df = pd.concat(meta_dfs, axis=0, ignore_index=True)
+    meta_df.replace(r'^\s*$', np.nan, regex=True, inplace=True)
     meta_df = meta_df.head(2)  # first 2 rows will give units and min/avg
+
     # get met data between start date and end date
     met_data['TIMESTAMP_datetime'] = pd.to_datetime(met_data['TIMESTAMP'])
     met_data = met_data.sort_values(by='TIMESTAMP_datetime')
@@ -119,16 +131,14 @@ def data_processing(files, start_date, end_date):
     end_date = pd.to_datetime(end_date).date()
     met_data = met_data[(met_data['date'] >= start_date) & (met_data['date'] <= end_date)]
     met_data.drop(columns=['TIMESTAMP_datetime', 'date'], inplace=True)
-    df = pd.concat([meta_df, met_data], ignore_index=True)
-    return df, file_meta
-    '''
+
     if meta_df.shape[1] == met_data.shape[1]:
         df = pd.concat([meta_df, met_data], ignore_index=True)
         return df, file_meta
     else:
-        print("Meta and data file columns not matching")
+        print("Meta and data file columns not matching", meta_df.shape[1], met_data.shape[1])
         return None, None
-    '''
+
 
 def main(files, start_date, end_date, output_file):
     """
@@ -142,18 +152,21 @@ def main(files, start_date, end_date, output_file):
            None
     """
     df, file_meta = data_processing(files, start_date, end_date)
-    # make file_meta and df the same length to read as proper csv
-    num_columns = df.shape[1]
-    for _ in range(len(file_meta), num_columns):
-        file_meta.append(' ')
-    file_meta_line = ','.join(file_meta)
-    # write processed df to output path
-    data_util.write_data(df, output_file)
-    # Prepend the file_meta to the met data csv
-    with open(output_file, 'r+') as f:
-        content = f.read()
-        f.seek(0, 0)
-        f.write(file_meta_line.rstrip('\r\n') + '\n' + content)
+    if df:
+        # make file_meta and df the same length to read as proper csv
+        num_columns = df.shape[1]
+        for _ in range(len(file_meta), num_columns):
+            file_meta.append(' ')
+        file_meta_line = ','.join(file_meta)
+        # write processed df to output path
+        data_util.write_data(df, output_file)
+        # Prepend the file_meta to the met data csv
+        with open(output_file, 'r+') as f:
+            content = f.read()
+            f.seek(0, 0)
+            f.write(file_meta_line.rstrip('\r\n') + '\n' + content)
+    else:
+        print("Data merge failed. Aborting")
 
 
 # Press the green button in the gutter to run the script.
