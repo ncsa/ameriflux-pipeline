@@ -302,7 +302,6 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
         print("EddyPro full output not present")
         # return failure
         return False
-    
     # run ameriflux formatting of pyfluxpro input
     if os.path.exists(cfg.PYFLUXPRO_INPUT_SHEET):
         pyfluxpro_ameriflux_processing(cfg.PYFLUXPRO_INPUT_SHEET, cfg.PYFLUXPRO_INPUT_AMERIFLUX)

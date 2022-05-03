@@ -7,6 +7,7 @@
 import pandas as pd
 import re
 
+
 def write_data(df, output_data):
     """
         Write the dataframe to csv file
