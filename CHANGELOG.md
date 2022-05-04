@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Env variable for automating user confirmation to insert large number of missing timestamps. [#52](https://github.com/ncsa/ameriflux-pipeline/issues/52)
 - Merging of met data and precip data with different timestamps. [#54](https://github.com/ncsa/ameriflux-pipeline/issues/54)
 - Automated creation of pyfluxpro input excel spreadsheet [#55](https://github.com/ncsa/ameriflux-pipeline/issues/55)
-- EddyPro automation separation for Mac and Windos. [#56](https://github.com/ncsa/ameriflux-pipeline/issues/56)
+- EddyPro automation separation for Mac and Windows. [#56](https://github.com/ncsa/ameriflux-pipeline/issues/56)
 - Data sync between remote sftp server and local machine. [#57](https://github.com/ncsa/ameriflux-pipeline/issues/57)
 - Restructured code to have data directory and separate directories for master met, eddypro and pyfluxpro. [#68](https://github.com/ncsa/ameriflux-pipeline/issues/68)
 - GUI application for editing and creating .env file [#77](https://github.com/ncsa/ameriflux-pipeline/issues/77)
@@ -52,6 +52,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - PyFluxPro output nc file variable in env editor set to save file. [#138](https://github.com/ncsa/ameriflux-pipeline/issues/138)
 - File type of output files are matched based on the actual file. [#139](https://github.com/ncsa/ameriflux-pipeline/issues/139)
 - Env editor set values empty when the cancel is selected. [#142](https://github.com/ncsa/ameriflux-pipeline/issues/142)
+- Generate correct warnings if pyfluxpro L2 run output does not span an entire year [#145](https://github.com/ncsa/ameriflux-pipeline/issues/145)
 - Archive non-empty EddyPro Run output directory. [#143](https://github.com/ncsa/ameriflux-pipeline/issues/143)
 
 ### Changed
