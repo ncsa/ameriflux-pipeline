@@ -8,6 +8,7 @@ import pandas as pd
 import pathlib
 import os
 
+
 def write_data(df, output_data):
     """
         Write the dataframe to csv file
@@ -33,6 +34,7 @@ def read_excel(file_path):
     """
     df = pd.read_excel(file_path)  # read excel file
     return df
+
 
 def find_output_dir(file_path):
     """

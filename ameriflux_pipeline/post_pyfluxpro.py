@@ -14,7 +14,6 @@ import utils.data_util as data_util
 from pyfluxpro.outputformat import OutputFormat
 
 
-
 def pyfluxpro_output_ameriflux_processing(l2_run_output, file_meta_data_file, erroring_variable_flag,
                                           erroring_variable_key):
     """
