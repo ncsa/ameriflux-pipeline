@@ -1246,7 +1246,7 @@ class EnvEditor():
         filepath = filedialog.asksaveasfilename(
             initialdir=initialdir, title="select a file", filetypes=[("xlsx files", "*.xlsx")])
         if filepath != "":
-            filepath = self.check_extension_and_add(filepath, ".txt")
+            filepath = self.check_extension_and_add(filepath, ".xlsx")
             self.path_pyfluxpro_input_ameriflux.config(text=filepath)
             self.PYFLUXPRO_INPUT_AMERIFLUX = filepath
 
