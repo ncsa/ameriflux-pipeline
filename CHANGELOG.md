@@ -40,6 +40,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Reading precip data more robust. [#137](https://github.com/ncsa/ameriflux-pipeline/issues/137)
 - Merging to various raw met data files to csv format for a specified time period. [#134](https://github.com/ncsa/ameriflux-pipeline/issues/134)
 - Tested and updated pipeline for MaizeBasalt site [#154](https://github.com/ncsa/ameriflux-pipeline/issues/154)
+- Correction of fill values and filename of final Ameriflux csv file [#162](https://github.com/ncsa/ameriflux-pipeline/issues/162)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
