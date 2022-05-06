@@ -56,7 +56,7 @@ def get_site_name(file_site_name):
     elif re.match('^CPU:Sorghum_*', file_site_name):
         return 'Sorghum'
 
-      
+
 def get_directory(file_path):
     """
         find output directory
@@ -70,4 +70,3 @@ def get_directory(file_path):
     dir = os.path.dirname(path)
 
     return dir
-  
