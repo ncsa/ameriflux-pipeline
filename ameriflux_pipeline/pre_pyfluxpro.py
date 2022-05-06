@@ -75,7 +75,7 @@ def eddypro_preprocessing(file_meta_data_file):
     # filename is selected to be master_met_eddypro
     output_filename = os.path.basename(cfg.MASTER_MET)
     eddypro_formatted_met_name = os.path.splitext(output_filename)[0] + '_eddypro.csv'
-    eddypro_formatted_met_file = os.path.join(data_util.find_output_dir(cfg.MASTER_MET), eddypro_formatted_met_name)
+    eddypro_formatted_met_file = os.path.join(data_util.get_directory(cfg.MASTER_MET), eddypro_formatted_met_name)
     # start formatting data
     df = EddyProFormat.data_formatting(cfg.MASTER_MET, cfg.INPUT_SOIL_KEY, file_meta, eddypro_formatted_met_file)
     # write formatted df to output path
@@ -323,7 +323,7 @@ if __name__ == '__main__':
     input_filename = os.path.basename(cfg.INPUT_MET)
     file_meta_data_filename = os.path.splitext(input_filename)[0] + '_file_meta.csv'
     # write file_df_meta to this path
-    file_meta_data_file = os.path.join(data_util.find_output_dir(cfg.MASTER_MET), file_meta_data_filename)
+    file_meta_data_file = os.path.join(data_util.get_directory(cfg.MASTER_MET), file_meta_data_filename)
 
     # check if L1 erroring variable names need to be replaced or not
     ameriflux_variable_user_confirmation = cfg.AMERIFLUX_VARIABLE_USER_CONFIRMATION.lower()

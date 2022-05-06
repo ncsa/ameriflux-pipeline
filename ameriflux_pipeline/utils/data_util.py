@@ -36,7 +36,7 @@ def read_excel(file_path):
     return df
 
 
-def find_output_dir(file_path):
+def get_directory(file_path):
     """
         find output directory
 

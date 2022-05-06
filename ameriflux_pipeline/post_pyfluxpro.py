@@ -48,7 +48,7 @@ if __name__ == '__main__':
     input_filename = os.path.basename(cfg.INPUT_MET)
     file_meta_data_filename = os.path.splitext(input_filename)[0] + '_file_meta.csv'
     # write file_df_meta to this path
-    file_meta_data_file = os.path.join(data_util.find_output_dir(cfg.MASTER_MET), file_meta_data_filename)
+    file_meta_data_file = os.path.join(data_util.get_directory(cfg.MASTER_MET), file_meta_data_filename)
 
     # check if L1 erroring variable names need to be replaced or not
     ameriflux_variable_user_confirmation = cfg.AMERIFLUX_VARIABLE_USER_CONFIRMATION.lower()
