@@ -14,7 +14,8 @@ from config import Config as cfg
 import utils.data_util as data_util
 from utils.syncdata import SyncData as syncdata
 
-from data_validation import Validation
+from data_validation import DataValidation
+from input_validation import InputValidation
 from master_met.mastermetprocessor import MasterMetProcessor
 from eddypro.eddyproformat import EddyProFormat
 from eddypro.runeddypro import RunEddypro
@@ -39,9 +40,24 @@ def validation(data, type):
         (bool): True if input data and type matches, False if not
     """
     if type == 'int':
-        return Validation.integer_validation(data)
+        return DataValidation.integer_validation(data)
     elif type == 'float':
-        return Validation.float_validation(data)
+        return DataValidation.float_validation(data)
+
+
+def input_validation():
+    """
+    Method to check user input validation from config file
+    Args: None
+    Returns :
+        (bool): True if input data is valid, False if not
+    """
+    server_sync = InputValidation.server_sync()
+    master_met = InputValidation.master_met()
+    master_met_eddypro = InputValidation.master_met_eddypro()
+    eddypro_run = InputValidation.eddypro_headless()
+
+    return server_sync and master_met and master_met_eddypro and eddypro_run
 
 
 def eddypro_preprocessing(file_meta_data_file):
@@ -336,6 +352,10 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     # Main function
+    is_valid_config = input_validation()
+    if not is_valid_config:
+        print("Check .env file and correct configurations. Aborting")
+        return
 
     # Some preprocessing
     # Filename to write file meta data
