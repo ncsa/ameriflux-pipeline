@@ -13,8 +13,6 @@ from config import Config as cfg
 import utils.data_util as data_util
 from pyfluxpro.outputformat import OutputFormat
 
-GENERATED_DIR = 'generated'
-
 
 def pyfluxpro_output_ameriflux_processing(l2_run_output, file_meta_data_file, erroring_variable_flag,
                                           erroring_variable_key):
@@ -48,10 +46,9 @@ if __name__ == '__main__':
     # Some preprocessing
     # Filename to write file meta data
     input_filename = os.path.basename(cfg.INPUT_MET)
-    directory_name = os.path.dirname(os.path.dirname(cfg.INPUT_MET))
     file_meta_data_filename = os.path.splitext(input_filename)[0] + '_file_meta.csv'
     # write file_df_meta to this path
-    file_meta_data_file = os.path.join(directory_name, GENERATED_DIR, file_meta_data_filename)
+    file_meta_data_file = os.path.join(data_util.get_directory(cfg.MASTER_MET), file_meta_data_filename)
 
     # check if L1 erroring variable names need to be replaced or not
     ameriflux_variable_user_confirmation = cfg.AMERIFLUX_VARIABLE_USER_CONFIRMATION.lower()
