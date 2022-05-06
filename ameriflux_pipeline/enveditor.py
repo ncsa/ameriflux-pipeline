@@ -144,12 +144,16 @@ class EnvEditor():
         self.INFO_EDDYPRO_FILE_PROTOTYPE = "Eddypro can generate this automatically"
         self.BROWSE_EDDYPRO_PROJ_FILE = " EddyPro Metadata File from GHG File"
         self.DESC_EDDYPRO_PROJ_FILE = " IRGA (‘alternate’) metadata file [ANCILLARY FILE]"
-        self.INFO_EDDYPRO_PROJ_FILE = "This is a file with extension… Delete the other unzipped file " \
+        self.INFO_EDDYPRO_PROJ_FILE = "This is a file with extension .metadata, extracted from a ghg file. To get " \
+                                      "this, unzip any ghg file included in this run. The result will be two files, " \
+                                      "one of which has a .metadata extension. Delete the other unzipped file " \
                                       "and move the .metadata file somewhere away from the ghg files, " \
                                       "preferably data/eddypro/input. Select it here. "
         self.BROWSE_EDDYPRO_DYN_METADATA = " EddyPro Dynamic Metadata"
         self.DESC_EDDYPRO_DYN_METADATA = " dynamic metadata file[ANCILLARY FILE]"
-        self.INFO_EDDYPRO_DYN_METADATA = "This is a .csv containing…for instructions to make one. " \
+        self.INFO_EDDYPRO_DYN_METADATA = "This is a .csv containing instrument and canopy height changes. If you " \
+                                         "don’t already have one for the time period included in this run, consult " \
+                                         "the guide [guide location] for instructions to make one. " \
                                          "Once you have one, put it in data/eddypro/input and select it here. "
         self.BROWSE_EDDYPRO_OUTPUT_PATH = " EddyPro Output Path"
         self.DESC_EDDYPRO_OUTPUT_PATH = " output directory for eddypro data output [DIRECTORY]"
