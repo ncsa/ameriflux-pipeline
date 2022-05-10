@@ -80,7 +80,7 @@ class EnvEditor():
                                                    "timestamps are bigger than missing timestamps thresholds"
 
         # eddypro fomatting variables
-        self.EDDYPRO_FORMAT_VARIABLE = " Variables for EddyPro formatting"
+        self.EDDYPRO_FORMAT_VARIABLE = " Variables for master met and eddypro formatting"
         self.BROWSE_INPUT_MET = " Input Meteorology Data"
         self.DESC_INPUT_MET = " input meteorology data [DATA FILE]"
         self.INFO_INPUT_MET = "Raw meteorological data from the met tower datalogger. This will usually have a " \
@@ -104,7 +104,7 @@ class EnvEditor():
         self.INFO_MASTER_MET = "The directory where you want the automatically formatted \'master\' " \
                                "meteorological data to go"
         self.BROWSE_INPUT_SOIL_KEY = " Input Soil Key"
-        self.DESC_INPUT_SOIL_KEY = " input soil key file [ANCILLARY FILE]"
+        self.DESC_INPUT_SOIL_KEY = " input soils key [KEY]"
         self.INFO_INPUT_SOIL_KEY = "This is an excel or sheets document with column names referencing site, " \
                                    "instrument, and “Datalogger”, “EddyPro” and “PyFluxPro” variable names. " \
                                    "It can be found at [bernacchi lab server address] or [sheets document URL]. " \
@@ -112,23 +112,28 @@ class EnvEditor():
                                    "proceeding. "
 
         # eddypro running variables
-        self.EDDYPRO_RUNNING_VARIABLE = " Variables for EddyPro running"
+        self.EDDYPRO_RUNNING_VARIABLE = " Variables for Running EddyPro"
         self.BROWSE_EDDYPRO_BIN = " EddyPro Bin Folder"
         self.DESC_EDDYPRO_BIN = " location of eddypro bin directory [DIRECTORY]"
         self.INFO_EDDYPRO_BIN = "Location of the code that comes with (and runs) eddypro. Look for an actual " \
                                 "directory named “bin”. This will usually be somewhere like " \
                                 "C:\\Program Files\\LI-COR\\EddyPro-7.0.6\\bin"
-        self.BROWSE_EDDYPRO_PROJ_TEMPLATE = " EddyPro Project Template File"
+        self.BROWSE_EDDYPRO_PROJ_TEMPLATE = " EddyPro Project Template File [TEMPLATE]"
         self.DESC_EDDYPRO_PROJ_TEMPLATE = " file path for the eddypro project file template"
-        self.INFO_EDDYPRO_PROJ_TEMPLATE = "This is a template EddyPro project file that will be used for creating " \
-                                          "the EddyPro project file that saves the settings of an eddypro run. " \
-                                          "Choose the eddypro template file. "
-        self.BROWSE_EDDYPRO_PROJ_FILE_NAME = " EddyPro Project File"
+        self.INFO_EDDYPRO_PROJ_TEMPLATE = "An EddyPro Project file saves the settings of an EddyPro Run. " \
+                                          "This is a template specifying the settings you want for this run. " \
+                                          "It has our ‘standard’ settings by default. " \
+                                          "If you want to change eddypro settings OTHER THAN data inputs and outputs " \
+                                          "(e.g. wind filtering, statistical tests; " \
+                                          "data inputs and outputs will be set automatically by this .env file) " \
+                                          "you will need to make a copy of this file, open it in EddyPro, " \
+                                          "edit it manually, and save it in data/eddypro/templates " \
+                                          "with a different name. Choose the file you ultimately want to use here."
+        self.BROWSE_EDDYPRO_PROJ_FILE_NAME = " EddyPro Project File [DIRECTORY]"
         self.DESC_EDDYPRO_PROJ_FILE_NAME = " file path for the eddypro project file"
-        self.INFO_EDDYPRO_PROJ_FILE_NAME = "The EddyPro project file saves the settings of an eddypro run. These are " \
-                                           "useful if you ever want to go back and see what you did, " \
-                                           "or share your processing specifications with someone else. " \
-                                           "Choose where to save that here. "
+        self.INFO_EDDYPRO_PROJ_FILE_NAME = "An EddyPro Project file saves the settings of an EddyPro Run. " \
+                                           "This project file will save your EddyPro settings INCLUDING the data " \
+                                           "inputs and outputs set by this pipeline. These are useful… "
         self.BROWSE_EDDYPRO_PROJ_TITLE = " EddyPro Project Title"
         self.DESC_EDDYPRO_PROJ_TITLE = " name of your eddypro project file [NAME]"
         self.INFO_EDDYPRO_PROJ_TITLE = "This will be the name of the eddypro project file (described in " \
@@ -147,13 +152,14 @@ class EnvEditor():
         self.INFO_EDDYPRO_PROJ_FILE = "This is a file with extension .metadata, extracted from a ghg file. To get " \
                                       "this, unzip any ghg file included in this run. The result will be two files, " \
                                       "one of which has a .metadata extension. Delete the other unzipped file " \
-                                      "(with extension ‘.data’) and move the .metadata file somewhere away from the " \
-                                      "ghg files. Select it here. "
+                                      "and move the .metadata file somewhere away from the ghg files, " \
+                                      "preferably data/eddypro/input. Select it here. "
         self.BROWSE_EDDYPRO_DYN_METADATA = " EddyPro Dynamic Metadata"
         self.DESC_EDDYPRO_DYN_METADATA = " dynamic metadata file[ANCILLARY FILE]"
         self.INFO_EDDYPRO_DYN_METADATA = "This is a .csv containing instrument and canopy height changes. If you " \
                                          "don’t already have one for the time period included in this run, consult " \
-                                         "the guide [guide location] for instructions to make one."
+                                         "the guide [guide location] for instructions to make one. " \
+                                         "Once you have one, put it in data/eddypro/input and select it here. "
         self.BROWSE_EDDYPRO_OUTPUT_PATH = " EddyPro Output Path"
         self.DESC_EDDYPRO_OUTPUT_PATH = " output directory for eddypro data output [DIRECTORY]"
         self.INFO_EDDYPRO_OUTPUT_PATH = "The directory where you want your eddypro data output to go."
@@ -1243,10 +1249,10 @@ class EnvEditor():
     def browse_pyfluxpro_input_ameriflux(self):
         filepath = self.PYFLUXPRO_INPUT_AMERIFLUX
         initialdir = os.getcwd() if filepath == "" else filepath
-        filepath = filedialog.askopenfilename(
+        filepath = filedialog.asksaveasfilename(
             initialdir=initialdir, title="select a file", filetypes=[("xlsx files", "*.xlsx")])
         if filepath != "":
-            filepath = self.check_extension_and_add(filepath, ".txt")
+            filepath = self.check_extension_and_add(filepath, ".xlsx")
             self.path_pyfluxpro_input_ameriflux.config(text=filepath)
             self.PYFLUXPRO_INPUT_AMERIFLUX = filepath
 

@@ -27,8 +27,6 @@ from pyfluxpro.l2format import L2Format
 import pandas.io.formats.excel
 pandas.io.formats.excel.header_style = None
 
-GENERATED_DIR = 'generated'
-
 
 def validation(data, type):
     """
@@ -93,9 +91,8 @@ def eddypro_preprocessing(file_meta_data_file):
     # create file for master met formatted for eddypro
     # filename is selected to be master_met_eddypro
     output_filename = os.path.basename(cfg.MASTER_MET)
-    directory_name = os.path.dirname(os.path.dirname(cfg.MASTER_MET))
     eddypro_formatted_met_name = os.path.splitext(output_filename)[0] + '_eddypro.csv'
-    eddypro_formatted_met_file = os.path.join(directory_name, GENERATED_DIR, eddypro_formatted_met_name)
+    eddypro_formatted_met_file = os.path.join(data_util.get_directory(cfg.MASTER_MET), eddypro_formatted_met_name)
     # start formatting data
     df = EddyProFormat.data_formatting(cfg.MASTER_MET, cfg.INPUT_SOIL_KEY, file_meta, eddypro_formatted_met_file)
     # write formatted df to output path
@@ -318,6 +315,7 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
         print("EddyPro full output not present")
         # return failure
         return False
+
     # run ameriflux formatting of pyfluxpro input
     if os.path.exists(cfg.PYFLUXPRO_INPUT_SHEET):
         pyfluxpro_ameriflux_processing(cfg.PYFLUXPRO_INPUT_SHEET, cfg.PYFLUXPRO_INPUT_AMERIFLUX)
@@ -360,10 +358,9 @@ if __name__ == '__main__':
     # Some preprocessing
     # Filename to write file meta data
     input_filename = os.path.basename(cfg.INPUT_MET)
-    directory_name = os.path.dirname(os.path.dirname(cfg.INPUT_MET))
     file_meta_data_filename = os.path.splitext(input_filename)[0] + '_file_meta.csv'
     # write file_df_meta to this path
-    file_meta_data_file = os.path.join(directory_name, GENERATED_DIR, file_meta_data_filename)
+    file_meta_data_file = os.path.join(data_util.get_directory(cfg.MASTER_MET), file_meta_data_filename)
 
     # check if L1 erroring variable names need to be replaced or not
     ameriflux_variable_user_confirmation = cfg.AMERIFLUX_VARIABLE_USER_CONFIRMATION.lower()

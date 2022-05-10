@@ -6,6 +6,8 @@
 
 import pandas as pd
 import re
+import pathlib
+import os
 
 
 def write_data(df, output_data):
@@ -53,3 +55,19 @@ def get_site_name(file_site_name):
         return 'Miscanthus-Basalt'
     elif re.match('^CPU:Sorghum_*', file_site_name):
         return 'Sorghum'
+
+
+def get_directory(file_path):
+    """
+        find output directory
+
+        Args:
+            file_path (str): File path to read data
+        Returns:
+            dir (str): output directory name
+    """
+    path = pathlib.Path(file_path)
+    dir = os.path.dirname(path)
+
+    return dir
+

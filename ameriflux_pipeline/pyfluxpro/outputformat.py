@@ -101,7 +101,8 @@ class OutputFormat:
         df.drop(columns=['time'], inplace=True)
         # fill all empty cells with -9999
         df.replace(np.nan, '-9999', inplace=True)
-        # create the filename
+        df.replace('-9999.0', '-9999', inplace=True)
+        # create the filename used for Ameriflux submission
         # read file_meta
         file_meta = pd.read_csv(file_meta_data_file)
         # get the site name
@@ -110,7 +111,7 @@ class OutputFormat:
         ameriflux_site_name = OutputFormat.get_ameriflux_site_name(site_name)
         start_time = df['TIMESTAMP_START'].iloc[0]
         end_time = df['TIMESTAMP_END'].iloc[-1]
-        ameriflux_file_name = 'US-Ui' + str(ameriflux_site_name) + '_HH_' + str(start_time) + str(end_time)
+        ameriflux_file_name = 'US-Ui' + str(ameriflux_site_name) + '_HH_' + str(start_time) + '_' + str(end_time)
 
         # return processed dataframe and ameriflux filename
         return df, ameriflux_file_name
@@ -128,20 +129,32 @@ class OutputFormat:
         start_year, start_month, start_day, start_hour, start_minute = \
             start.year, start.month, start.day, start.hour, start.minute
         end_year, end_month, end_day, end_hour, end_minute = end.year, end.month, end.day, end.hour, end.minute
-        if start_year != end_year-1:
+        if start_year != end_year:
             print("Year in timestamp_start and timestamp_end does not match")
             return False
-        elif start_month != end_month != 1:
-            print("Starting or ending month not January")
+        elif start_month != 1:
+            print("Starting month not January")
             return False
-        elif start_day != end_day != 1:
-            print("Start or end day not 1")
+        elif end_month != 12:
+            print("Ending month not December")
             return False
-        elif start_hour != end_hour != 0:
-            print("Starting or ending hour not 00")
+        elif start_day != 1:
+            print("Start day not 1")
             return False
-        elif start_minute != end_minute != 0:
-            print("Starting or ending minute not 00")
+        elif end_day != 31:
+            print("End day is not 31")
+            return False
+        elif start_hour != 0:
+            print("Starting hour not 00")
+            return False
+        elif end_hour != 23:
+            print("Ending hour not 23")
+            return False
+        elif start_minute != 0:
+            print("Starting minute not 00")
+            return False
+        elif end_minute != 30:
+            print("ending minute not 30")
             return False
         else:
             return True
