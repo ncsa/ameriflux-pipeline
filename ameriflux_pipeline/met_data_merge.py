@@ -10,6 +10,7 @@ import numpy as np
 import os
 import shutil
 import csv
+from datetime import timedelta
 import utils.data_util as data_util
 from pandas.errors import ParserError
 
@@ -106,6 +107,7 @@ def data_processing(files, start_date, end_date):
     dfs = []  # list of dataframes for each file
     meta_dfs = []  # list of meta data from each file
     site_names = []
+
     for file in files:
         root = os.getcwd()
         basename = os.path.basename(file)
@@ -138,12 +140,13 @@ def data_processing(files, start_date, end_date):
     # get met data between start date and end date
     met_data['TIMESTAMP_datetime'] = pd.to_datetime(met_data['TIMESTAMP'])
     met_data = met_data.sort_values(by='TIMESTAMP_datetime')
-    met_data['date'] = met_data['TIMESTAMP_datetime'].dt.date
-    start_date = pd.to_datetime(start_date).date()
-    end_date = pd.to_datetime(end_date).date()
-    met_data = met_data[(met_data['date'] >= start_date) & (met_data['date'] <= end_date)]
-    met_data.drop(columns=['TIMESTAMP_datetime', 'date'], inplace=True)
-
+    start_date = pd.to_datetime(start_date)
+    end_date = pd.to_datetime(end_date)
+    # NOTES 19
+    end_date += timedelta(days=1)
+    met_data = met_data[(met_data['TIMESTAMP_datetime'] >= start_date) & (met_data['TIMESTAMP_datetime'] <= end_date)]
+    met_data.drop(columns=['TIMESTAMP_datetime'], inplace=True)
+    # check if number of columns in met data and meta data are same
     if meta_df.shape[1] == met_data.shape[1]:
         df = pd.concat([meta_df, met_data], ignore_index=True)
         return df, file_meta
