@@ -5,6 +5,7 @@
 # and is available at https://www.mozilla.org/en-US/MPL/2.0/
 
 import pandas as pd
+import re
 import pathlib
 import os
 
@@ -34,6 +35,26 @@ def read_excel(file_path):
     """
     df = pd.read_excel(file_path)  # read excel file
     return df
+
+
+def get_site_name(file_site_name):
+    """
+    From the input file site name, return the site name
+    Args:
+        file_site_name (str): file site name from file meta data, first row of input met file
+    Returns:
+        (str): matching site name
+    """
+    if re.match('^CPU:Maize_Control_*', file_site_name):
+        return 'Maize-Control'
+    elif re.match('^CPU:Maize_*', file_site_name):
+        return 'Maize-Basalt'
+    elif re.match('^CPU:Miscanthus_Control_*', file_site_name):
+        return 'Miscanthus-Control'
+    elif re.match('^CPU:Miscanthus_*', file_site_name):
+        return 'Miscanthus-Basalt'
+    elif re.match('^CPU:Sorghum_*', file_site_name):
+        return 'Sorghum'
 
 
 def get_directory(file_path):

@@ -5,8 +5,8 @@
 # and is available at https://www.mozilla.org/en-US/MPL/2.0/
 
 import argparse
-import re
 import pandas as pd
+import numpy as np
 import os
 import shutil
 import csv
@@ -58,10 +58,37 @@ def read_met_data(data_path):
     df = df.applymap(lambda x: str(x).replace('"', ''))
     df = df.applymap(lambda x: str(x).replace('*', ''))
     df.columns = df.iloc[0]  # set column names
+    # NOTES 20
+    col_labels = {'CM3Up_Avg': 'SWDn_Avg', 'CM3Dn_Avg': 'SWUp_Avg', 'CG3Up_Avg': 'LWDn_Avg', 'CG3Dn_Avg': 'LWUp_Avg',
+                  'CG3UpCo_Avg': 'LWDnCo_Avg', 'CG3DnCo_Avg': 'LWUpCo_Avg', 'NetTot_Avg': 'Rn_Avg',
+                  'cnr1_T_C_Avg': 'CNR1TC_Avg', 'cnr1_T_K_Avg': 'CNR1TK_Avg',
+                  'Rs_net_Avg': 'NetRs_Avg', 'Rl_net_Avg': 'NetRl_Avg', 'albedo_Avg': 'Albedo_Avg'
+                  }
+    df.rename(columns=col_labels, inplace=True)
+    df_meta.rename(columns=col_labels, inplace=True)
+    # change VWC to VWC1
+    vwc_col = [col for col in df if col.startswith('VWC_')]
+    vwc_labels = {}
+    for col in vwc_col:
+        vwc_labels[col] = 'VWC1_' + col.split('_')[1] + '_Avg'
+    df.rename(columns=vwc_labels, inplace=True)
+    df_meta.rename(columns=vwc_labels, inplace=True)
+    # change TC to TC1
+    tc_col = [col for col in df if col.startswith('TC_')]
+    tc_labels = {}
+    for col in tc_col:
+        tc_labels[col] = 'TC1_' + col.split('_')[1] + '_Avg'
+    df.rename(columns=tc_labels, inplace=True)
+    df_meta.rename(columns=tc_labels, inplace=True)
+
     df = df.iloc[3:, :]  # drop first and second row as it is the units and min / avg
     df.reset_index(drop=True, inplace=True)  # reset index after dropping rows
 
-    return df, file_meta, df_meta
+    # get the site name from file_meta
+    file_site_name = file_meta[5]
+    site_name = data_util.get_site_name(file_site_name)
+
+    return df, file_meta, df_meta, site_name
 
 
 def data_processing(files, start_date, end_date):
@@ -78,7 +105,9 @@ def data_processing(files, start_date, end_date):
            (str): First line of file - meta data of file
     """
     dfs = []  # list of dataframes for each file
-    meta_dfs = []  # list of meta data from each file, column name and units
+    meta_dfs = []  # list of meta data from each file
+    site_names = []
+
     for file in files:
         root = os.getcwd()
         basename = os.path.basename(file)
@@ -89,15 +118,25 @@ def data_processing(files, start_date, end_date):
         input_file = os.path.join(root, directory_name, basename)
         # copy and rename
         shutil.copyfile(input_file, output_file)
-        # get the df, first row of file meta data and df meta data of column names and units
-        # TODO check if file_meta for each file is the same. Check if the site name is the same for all merging files
-        df, file_meta, df_meta = read_met_data(output_file)
+        df, file_meta, df_meta, site_name = read_met_data(output_file)
+
+        # check if the sites are the same for all metdata
+        site_names.append(site_name)
+        if len(set(site_names)) != 1:
+            print("Data merge for different sites not recommended.")
+            return None, None
+        # all site names are the same. Append df to list
         dfs.append(df)
         meta_dfs.append(df_meta)
+
     # concat all dataframes in list
-    met_data = pd.concat(dfs)
-    meta_df = pd.concat(meta_dfs)
+    met_data = pd.concat(dfs, axis=0, ignore_index=True)
+    # replace empty string and string with only spaces with NAN
+    met_data.replace(r'^\s*$', np.nan, regex=True, inplace=True)
+    meta_df = pd.concat(meta_dfs, axis=0, ignore_index=True)
+    meta_df.replace(r'^\s*$', np.nan, regex=True, inplace=True)
     meta_df = meta_df.head(2)  # first 2 rows will give units and min/avg
+
     # get met data between start date and end date
     met_data['TIMESTAMP_datetime'] = pd.to_datetime(met_data['TIMESTAMP'])
     met_data = met_data.sort_values(by='TIMESTAMP_datetime')
@@ -112,7 +151,7 @@ def data_processing(files, start_date, end_date):
         df = pd.concat([meta_df, met_data], ignore_index=True)
         return df, file_meta
     else:
-        print("Meta and data file columns not matching")
+        print("Meta and data file columns not matching", meta_df.shape[1], met_data.shape[1])
         return None, None
 
 
@@ -128,18 +167,21 @@ def main(files, start_date, end_date, output_file):
            None
     """
     df, file_meta = data_processing(files, start_date, end_date)
-    # make file_meta and df the same length to read as proper csv
-    num_columns = df.shape[1]
-    for _ in range(len(file_meta), num_columns):
-        file_meta.append(' ')
-    file_meta_line = ','.join(file_meta)
-    # write processed df to output path
-    data_util.write_data(df, output_file)
-    # Prepend the file_meta to the met data csv
-    with open(output_file, 'r+') as f:
-        content = f.read()
-        f.seek(0, 0)
-        f.write(file_meta_line.rstrip('\r\n') + '\n' + content)
+    if df is not None:
+        # make file_meta and df the same length to read as proper csv
+        num_columns = df.shape[1]
+        for _ in range(len(file_meta), num_columns):
+            file_meta.append(' ')
+        file_meta_line = ','.join(file_meta)
+        # write processed df to output path
+        data_util.write_data(df, output_file)
+        # Prepend the file_meta to the met data csv
+        with open(output_file, 'r+') as f:
+            content = f.read()
+            f.seek(0, 0)
+            f.write(file_meta_line.rstrip('\r\n') + '\n' + content)
+    else:
+        print("Data merge failed. Aborting")
 
 
 # Press the green button in the gutter to run the script.
