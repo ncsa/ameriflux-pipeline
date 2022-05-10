@@ -54,6 +54,7 @@ def input_validation():
     master_met = InputValidation.master_met()
     master_met_eddypro = InputValidation.master_met_eddypro()
     eddypro_run = InputValidation.eddypro_headless()
+    pyfluxpro = InputValidation.pyfluxpro()
 
     return server_sync and master_met and master_met_eddypro and eddypro_run
 
@@ -346,13 +347,16 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
     # return success
     return True
 
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
+def main():
+    """
+    Main function to run. Calls other function
+    Args : None
+    Returns : None
+    """
     # Main function
     is_valid_config = input_validation()
     if not is_valid_config:
-        print("Check .env file and correct configurations. Aborting")
+        print("Check .env file and fix configurations. Aborting")
         return
 
     # Some preprocessing
@@ -377,10 +381,19 @@ if __name__ == '__main__':
     # run pre-processing steps of PyFluxPro L1 an L2
     start = time.time()
     print("Pre-processing of PyFluxPro run output has been started")
+    '''
     is_success = pre_processing(file_meta_data_file, erroring_variable_flag)
     if is_success:
         print("Successfully completed pre-processing of PyFluxPro L1 and L2")
+    '''
     end = time.time()
     hours, rem = divmod(end - start, 3600)
     minutes, seconds = divmod(rem, 60)
     print("Total elapsed time is : {:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
+
+
+# Press the green button in the gutter to run the script.
+if __name__ == '__main__':
+    # Call main function
+    main()
+

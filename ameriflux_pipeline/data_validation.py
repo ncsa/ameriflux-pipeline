@@ -162,14 +162,14 @@ class DataValidation:
     @staticmethod
     def is_empty_dir(data):
         """
-        Method to check if both the directory contains files
-        Returns False if empty, else returns True
+        Method to check if the directory contains files
+        Returns True if empty, else returns False
         Args:
             data (str): Input data path
         Returns:
-            (bool): True if directory is not empty, else False
+            (bool): True if directory is empty, else False
         """
-        if not os.listdir(data):
+        if os.listdir(data):
             return False
         else:
             return True

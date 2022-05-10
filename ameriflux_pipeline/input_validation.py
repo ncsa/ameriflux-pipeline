@@ -9,8 +9,9 @@ Python module to check for user input validation
 This module is the first to be called from pre_pyfluxpro
 '''
 
-from data_validation import DataValidation
 from config import Config as cfg
+from data_validation import DataValidation
+import utils.data_util as data_util
 
 class InputValidation:
     '''
@@ -46,7 +47,13 @@ class InputValidation:
             print("Incorrect EddyPro Run configurations")
             return False
 
+        pyfluxpro = InputValidation.pyfluxpro()
+        if not pyfluxpro:
+            print("Incorrect PyFluxpro input sheets configurations")
+            return False
 
+        # all validations passed
+        return True
 
 
     @staticmethod
@@ -68,7 +75,7 @@ class InputValidation:
             print("Error in SFTP_CONFIRMATION")
             return False
         elif DataValidation.equality_validation(sftp_confirmation.lower(), 'y'):
-            # sftp_confirmation is valid. Check for other sync related variables
+            # sftp_confirmation is valid. Server sync is required. Check for other sync related variables
             sftp_server = cfg.SFTP_SERVER
             sftp_ghg_local_path = cfg.SFTP_GHG_LOCAL_PATH
             sftp_met_local_path = cfg.SFTP_MET_LOCAL_PATH
@@ -79,6 +86,10 @@ class InputValidation:
             sftp_ghg_local_path_success = DataValidation.path_validation(sftp_ghg_local_path, 'dir')
             sftp_met_local_path_success = DataValidation.path_validation(sftp_met_local_path, 'dir')
             return sftp_server_success and sftp_ghg_local_path_success and sftp_met_local_path_success
+
+        else:
+            # Server sync not required. sftp_confirmation is n
+            return True
 
 
     @staticmethod
@@ -105,7 +116,9 @@ class InputValidation:
             return False
 
         master_met_path = cfg.MASTER_MET
-        master_met_path_success = DataValidation.filetype_validation(master_met_path, '.csv')
+        master_met_dir = data_util.get_directory(master_met_path)
+        master_met_path_success = DataValidation.path_validation(master_met_dir, 'dir') and \
+                                  DataValidation.filetype_validation(master_met_path, '.csv')
         if not master_met_path_success:
             print("Error in MASTER_MET")
             return False
@@ -146,6 +159,8 @@ class InputValidation:
         if not input_soil_key_path_success:
             print("Error in INPUT_SOIL_KEY")
             return False
+        else:
+            return True
 
 
     @staticmethod
@@ -159,7 +174,7 @@ class InputValidation:
         """
         eddypro_bin_loc = cfg.EDDYPRO_BIN_LOC
         eddypro_bin_loc_success = DataValidation.path_validation(eddypro_bin_loc, 'dir') and \
-                                  DataValidation.is_empty_dir(eddypro_bin_loc)
+                                  not DataValidation.is_empty_dir(eddypro_bin_loc)
         if not eddypro_bin_loc_success:
             print("Error in EDDYPRO_BIN_LOC")
             return False
@@ -200,7 +215,7 @@ class InputValidation:
 
         eddypro_input_ghg_path = cfg.EDDYPRO_INPUT_GHG_PATH
         eddypro_input_ghg_path_success = DataValidation.path_validation(eddypro_input_ghg_path, 'dir') and \
-                                         DataValidation.is_empty_dir(eddypro_input_ghg_path)
+                                         not DataValidation.is_empty_dir(eddypro_input_ghg_path)
         if not eddypro_input_ghg_path_success:
             print("Error in EDDYPRO_INPUT_GHG_PATH")
             return False
@@ -213,5 +228,22 @@ class InputValidation:
 
         # all validations true
         return True
+
+    @staticmethod
+    def pyfluxpro():
+        """
+        Checks if all env variables related to creation of pyfluxpro input sheets is valid
+        Return True if valid and False if not.
+        Args: None
+        Returns:
+            (bool): True if valid, False if not
+        """
+        # TODO
+        full_output_pyfluxpro = cfg.FULL_OUTPUT_PYFLUXPRO
+        full_output_pyfluxpro_dir = data_util.get_directory(full_output_pyfluxpro)
+        full_output_pyfluxpro_success = DataValidation.path_validation(full_output_pyfluxpro_dir, 'dir') and \
+                                        DataValidation.filetype_validation(full_output_pyfluxpro, '.csv')
+        if not full_output_pyfluxpro_success:
+            print("Error in FULL_OUTPUT_PYFLUXPRO")
 
 

@@ -82,7 +82,6 @@ class L1Format:
         site_name = L1Format.get_site_name(file_site_name)
         df_soil_key = data_util.read_excel(soil_key)
         soil_moisture_labels, soil_temp_labels = L1Format.get_moisture_labels(site_name, df_soil_key)
-
         ameriflux_key = pd.read_excel(ameriflux_mainstem_key)  # read AmeriFlux-Mainstem variable name matching file
 
         if erroring_variable_flag.lower() in ['n', 'no']:
@@ -131,7 +130,6 @@ class L1Format:
         mainstem_var_df['Text'] = mainstem_var_df['Text'].apply(lambda x: x.strip())
         # get df with only variables and a list of variable start and end indexes
         mainstem_variables, mainstem_var_start_end = L1Format.get_variables_index(mainstem_var_df['Text'])
-
         # get the mainstem variable lines to be written and variable name mapping
         variable_lines_out, mainstem_variables_mapping = L1Format.format_variables(mainstem_var_df,
                                                                                    mainstem_var_start_end,
