@@ -101,7 +101,8 @@ class OutputFormat:
         df.drop(columns=['time'], inplace=True)
         # fill all empty cells with -9999
         df.replace(np.nan, '-9999', inplace=True)
-        # create the filename
+        df.replace('-9999.0', '-9999', inplace=True)
+        # create the filename used for Ameriflux submission
         # read file_meta
         file_meta = pd.read_csv(file_meta_data_file)
         # get the site name
@@ -110,7 +111,7 @@ class OutputFormat:
         ameriflux_site_name = OutputFormat.get_ameriflux_site_name(site_name)
         start_time = df['TIMESTAMP_START'].iloc[0]
         end_time = df['TIMESTAMP_END'].iloc[-1]
-        ameriflux_file_name = 'US-Ui' + str(ameriflux_site_name) + '_HH_' + str(start_time) + str(end_time)
+        ameriflux_file_name = 'US-Ui' + str(ameriflux_site_name) + '_HH_' + str(start_time) + '_' + str(end_time)
 
         # return processed dataframe and ameriflux filename
         return df, ameriflux_file_name

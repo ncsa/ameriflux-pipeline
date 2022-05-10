@@ -10,6 +10,7 @@ import pandas as pd
 import os
 import shutil
 import csv
+from datetime import timedelta
 import utils.data_util as data_util
 from pandas.errors import ParserError
 
@@ -77,7 +78,7 @@ def data_processing(files, start_date, end_date):
            (str): First line of file - meta data of file
     """
     dfs = []  # list of dataframes for each file
-    meta_dfs = []  # list of meta data from each file
+    meta_dfs = []  # list of meta data from each file, column name and units
     for file in files:
         root = os.getcwd()
         basename = os.path.basename(file)
@@ -88,6 +89,8 @@ def data_processing(files, start_date, end_date):
         input_file = os.path.join(root, directory_name, basename)
         # copy and rename
         shutil.copyfile(input_file, output_file)
+        # get the df, first row of file meta data and df meta data of column names and units
+        # TODO check if file_meta for each file is the same. Check if the site name is the same for all merging files
         df, file_meta, df_meta = read_met_data(output_file)
         dfs.append(df)
         meta_dfs.append(df_meta)
@@ -98,12 +101,13 @@ def data_processing(files, start_date, end_date):
     # get met data between start date and end date
     met_data['TIMESTAMP_datetime'] = pd.to_datetime(met_data['TIMESTAMP'])
     met_data = met_data.sort_values(by='TIMESTAMP_datetime')
-    met_data['date'] = met_data['TIMESTAMP_datetime'].dt.date
-    start_date = pd.to_datetime(start_date).date()
-    end_date = pd.to_datetime(end_date).date()
-    met_data = met_data[(met_data['date'] >= start_date) & (met_data['date'] <= end_date)]
-    met_data.drop(columns=['TIMESTAMP_datetime', 'date'], inplace=True)
-
+    start_date = pd.to_datetime(start_date)
+    end_date = pd.to_datetime(end_date)
+    # NOTES 19
+    end_date += timedelta(days=1)
+    met_data = met_data[(met_data['TIMESTAMP_datetime'] >= start_date) & (met_data['TIMESTAMP_datetime'] <= end_date)]
+    met_data.drop(columns=['TIMESTAMP_datetime'], inplace=True)
+    # check if number of columns in met data and meta data are same
     if meta_df.shape[1] == met_data.shape[1]:
         df = pd.concat([meta_df, met_data], ignore_index=True)
         return df, file_meta
