@@ -63,8 +63,8 @@ class DataValidation:
         This method checks equality of value as well as data type and can be used with common data types.
         Returns True if equal, else returns False
         Args:
-            data1: Input data 1
-            data2: Input data 2
+            data1: Input data 1 to check for equality
+            data2: Input data 2 to check for equality
         Returns:
             (bool): True if equal, else False
         """
@@ -76,7 +76,7 @@ class DataValidation:
         Method to check if data is a url
         Returns True if valid url, else returns False
         Args:
-            data (string): Input data
+            data (string): Input data to check for valid url
         Returns:
             (bool): True if url, else False
         """
@@ -92,7 +92,7 @@ class DataValidation:
         Method to check if data is a domain or hostname
         Returns True if valid, else returns False
         Args:
-            data (string): Input data
+            data (string): Input data to check for valid domain
         Returns:
             (bool): True if valid, else False
         """
@@ -108,7 +108,7 @@ class DataValidation:
         Method to check if data is a valid ip address
         Returns True if valid, else returns False
         Args:
-            data (string): Input data
+            data (string): Input data to check for valid ip
         Returns:
             (bool): True if valid, else False
         """
@@ -125,7 +125,7 @@ class DataValidation:
         Method to check if both the data path is same as type
         Returns True if same, else returns False
         Args:
-            data (str): Input path
+            data (str): Input path to check if directory or file
             type (str): Directory or file type
         Returns:
             (bool): True if path is same as type, else False
@@ -141,7 +141,7 @@ class DataValidation:
         Method to check if both the data path is same as type
         Returns True if same, else returns False
         Args:
-            data (str): Input file path with file extension
+            data (str): Input file path with file extension to check if extension matches
             ext (str): Expected file extension
         Returns:
             (bool): True if file extension is same as expected, else False
@@ -160,7 +160,7 @@ class DataValidation:
         Method to check if the directory contains files
         Returns True if empty, else returns False
         Args:
-            data (str): Input path
+            data (str): Input path to check if directory is empty
         Returns:
             (bool): True if directory is empty, else False
         """
