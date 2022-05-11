@@ -15,7 +15,7 @@ import utils.data_util as data_util
 from utils.syncdata import SyncData as syncdata
 
 from ameriflux_pipeline.utils.data_validation import DataValidation
-from input_validation import InputValidation
+from ameriflux_pipeline.utils.input_validation import InputValidation
 from master_met.mastermetprocessor import MasterMetProcessor
 from eddypro.eddyproformat import EddyProFormat
 from eddypro.runeddypro import RunEddypro
@@ -55,8 +55,9 @@ def input_validation():
     master_met_eddypro = InputValidation.master_met_eddypro()
     eddypro_run = InputValidation.eddypro_headless()
     pyfluxpro = InputValidation.pyfluxpro()
+    l1format = InputValidation.l1format()
 
-    return server_sync and master_met and master_met_eddypro and eddypro_run
+    return server_sync and master_met and master_met_eddypro and eddypro_run and pyfluxpro and l1format
 
 
 def eddypro_preprocessing(file_meta_data_file):
@@ -381,11 +382,11 @@ def main():
     # run pre-processing steps of PyFluxPro L1 an L2
     start = time.time()
     print("Pre-processing of PyFluxPro run output has been started")
-    '''
+
     is_success = pre_processing(file_meta_data_file, erroring_variable_flag)
     if is_success:
         print("Successfully completed pre-processing of PyFluxPro L1 and L2")
-    '''
+
     end = time.time()
     hours, rem = divmod(end - start, 3600)
     minutes, seconds = divmod(rem, 60)
