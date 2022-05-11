@@ -29,12 +29,12 @@ class InputValidation:
         """
         server_sync = InputValidation.server_sync()
         if not server_sync:
-            print("Incorrect Server Sync configurations")
+            print("Please check Server Sync input variables")
             return False
 
         master_met = InputValidation.master_met()
         if not master_met:
-            print("Incorrect Master met configurations")
+            print("Please check Master met input variables")
             return False
 
         master_met_eddypro = InputValidation.master_met_eddypro()
@@ -44,12 +44,12 @@ class InputValidation:
 
         eddypro_headless = InputValidation.eddypro_headless()
         if not eddypro_headless:
-            print("Incorrect EddyPro Run configurations")
+            print("Please check EddyPro Run input variables")
             return False
 
         pyfluxpro = InputValidation.pyfluxpro()
         if not pyfluxpro:
-            print("Incorrect PyFluxpro input sheets configurations")
+            print("Please check PyFluxpro input sheets input variables")
             return False
 
         # all validations passed
