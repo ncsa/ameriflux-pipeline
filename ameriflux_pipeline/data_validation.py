@@ -59,16 +59,16 @@ class DataValidation:
     @staticmethod
     def equality_validation(data1, data2):
         """
-        Method to check if both inputs are equal
+        Method to check if both inputs are equal.
+        This method checks equality of value as well as data type and can be used with common data types.
         Returns True if equal, else returns False
         Args:
             data1: Input data 1
             data2: Input data 2
         Returns:
-            (bool): True if float, else False
+            (bool): True if equal, else False
         """
         return data1 == data2
-
 
     @staticmethod
     def url_validation(data):
@@ -86,7 +86,6 @@ class DataValidation:
             return False
         return True
 
-
     @staticmethod
     def domain_validation(data):
         """
@@ -102,7 +101,6 @@ class DataValidation:
             print(data, "not valid domain")
             return False
         return True
-
 
     @staticmethod
     def ip_validation(data):
@@ -121,14 +119,13 @@ class DataValidation:
             return False
         return True
 
-
     @staticmethod
     def path_validation(data, type):
         """
         Method to check if both the data path is same as type
         Returns True if same, else returns False
         Args:
-            data (str): Input data path
+            data (str): Input path
             type (str): Directory or file type
         Returns:
             (bool): True if path is same as type, else False
@@ -137,7 +134,6 @@ class DataValidation:
             return os.path.isdir(data)
         elif type == 'file':
             return os.path.isfile(data)
-
 
     @staticmethod
     def filetype_validation(data, ext):
@@ -158,14 +154,13 @@ class DataValidation:
             print(data, "not valid extension")
             return False
 
-
     @staticmethod
     def is_empty_dir(data):
         """
         Method to check if the directory contains files
         Returns True if empty, else returns False
         Args:
-            data (str): Input data path
+            data (str): Input path
         Returns:
             (bool): True if directory is empty, else False
         """
