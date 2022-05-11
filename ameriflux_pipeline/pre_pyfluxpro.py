@@ -28,21 +28,6 @@ import pandas.io.formats.excel
 pandas.io.formats.excel.header_style = None
 
 
-def validation(data, type):
-    """
-    Method to check data validation
-    Args:
-        data (str): Input data to validate
-        type (str): Type of data expected
-    Returns :
-        (bool): True if input data and type matches, False if not
-    """
-    if type == 'int':
-        return DataValidation.integer_validation(data)
-    elif type == 'float':
-        return DataValidation.float_validation(data)
-
-
 def input_validation():
     """
     Method to check user input validation from config file
@@ -56,8 +41,9 @@ def input_validation():
     eddypro_run = InputValidation.eddypro_headless()
     pyfluxpro = InputValidation.pyfluxpro()
     l1format = InputValidation.l1format()
+    l2format = InputValidation.l2format()
 
-    return server_sync and master_met and master_met_eddypro and eddypro_run and pyfluxpro and l1format
+    return server_sync and master_met and master_met_eddypro and eddypro_run and pyfluxpro and l1format and l2format
 
 
 def eddypro_preprocessing(file_meta_data_file):
@@ -73,12 +59,6 @@ def eddypro_preprocessing(file_meta_data_file):
     missing_time = cfg.MISSING_TIME
     qc_precip_lower = cfg.QC_PRECIP_LOWER
     qc_precip_upper = cfg.QC_PRECIP_UPPER
-    validation_flag = \
-        validation(missing_time, 'int') and validation(qc_precip_upper, 'float') and \
-        validation(qc_precip_lower, 'float')
-    if not validation_flag:
-        print("Data not valid")
-        return ''
 
     df, file_meta = \
         MasterMetProcessor.data_preprocess(cfg.INPUT_MET, cfg.INPUT_PRECIP, float(qc_precip_lower),

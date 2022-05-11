@@ -57,6 +57,11 @@ class InputValidation:
             print("Please check Pyfluxpro L1 variables")
             return False
 
+        l2format = InputValidation.l2format()
+        if not l2format:
+            print("Please check Pyfluxpro L2 variables")
+            return False
+
         # all validations passed
         return True
 
@@ -147,6 +152,17 @@ class InputValidation:
         missing_time_success = DataValidation.integer_validation(missing_time)
         if not missing_time_success:
             print("Expected integer for MISSING_TIME")
+            return False
+
+        qc_precip_lower = cfg.QC_PRECIP_LOWER
+        qc_precip_lower_success = DataValidation.float_validation(qc_precip_lower)
+        if not qc_precip_lower_success:
+            print("Expected floating point for QC_PRECIP_LOWER")
+            return False
+        qc_precip_upper = cfg.QC_PRECIP_UPPER
+        qc_precip_upper_success = DataValidation.float_validation(qc_precip_upper)
+        if not qc_precip_upper_success:
+            print("Expected floating point for QC_PRECIP_UPPER")
             return False
 
         # all validations true
@@ -303,14 +319,16 @@ class InputValidation:
             print("Expected a txt file for L1_MAINSTEM_INPUT")
 
         l1_ameriflux_only_input = cfg.L1_AMERIFLUX_ONLY_INPUT
-        l1_ameriflux_only_input_success = DataValidation.path_validation(l1_ameriflux_only_input, 'file') and \
-                                    DataValidation.filetype_validation(l1_ameriflux_only_input, '.txt')
+        l1_ameriflux_only_input_success = \
+            DataValidation.path_validation(l1_ameriflux_only_input, 'file') and \
+            DataValidation.filetype_validation(l1_ameriflux_only_input, '.txt')
         if not l1_ameriflux_only_input_success:
             print("Expected a txt file for L1_AMERIFLUX_ONLY_INPUT")
 
         l1_ameriflux_mainstem_key = cfg.L1_AMERIFLUX_MAINSTEM_KEY
-        l1_ameriflux_mainstem_key_success = DataValidation.path_validation(l1_ameriflux_mainstem_key, 'file') and \
-                                          DataValidation.filetype_validation(l1_ameriflux_mainstem_key, '.xlsx')
+        l1_ameriflux_mainstem_key_success = \
+            DataValidation.path_validation(l1_ameriflux_mainstem_key, 'file') and \
+            DataValidation.filetype_validation(l1_ameriflux_mainstem_key, '.xlsx')
         if not l1_ameriflux_mainstem_key_success:
             print("Expected an excel file for L1_AMERIFLUX_MAINSTEM_KEY")
 
@@ -350,6 +368,46 @@ class InputValidation:
             if not l1_ameriflux_erroring_variables_key_success:
                 print("Expected an excel file for L1_AMERIFLUX_ERRORING_VARIABLES_KEY")
                 return False
+
+        # all validations true
+        return True
+
+    @staticmethod
+    def l2format():
+        """
+        Checks if all env variables related to creation of pyfluxpro L2 is valid
+        Return True if valid and False if not.
+        Args: None
+        Returns:
+            (bool): True if valid, False if not
+        """
+        l2_mainstem_input = cfg.L2_MAINSTEM_INPUT
+        l2_mainstem_input_success = \
+            DataValidation.path_validation(l2_mainstem_input, 'file') and \
+            DataValidation.filetype_validation(l2_mainstem_input, '.txt')
+        if not l2_mainstem_input_success:
+            print("Expected a txt file for L2_MAINSTEM_INPUT")
+
+        l2_ameriflux_only_input = cfg.L2_AMERIFLUX_ONLY_INPUT
+        l2_ameriflux_only_input_success = \
+            DataValidation.path_validation(l2_ameriflux_only_input, 'file') and \
+            DataValidation.filetype_validation(l2_ameriflux_only_input, '.txt')
+        if not l2_ameriflux_only_input_success:
+            print("Expected a txt file for L2_AMERIFLUX_ONLY_INPUT")
+
+        l2_ameriflux_run_output = cfg.L2_AMERIFLUX_RUN_OUTPUT
+        l2_ameriflux_run_output_success = \
+            DataValidation.path_validation(data_util.get_directory(l2_ameriflux_run_output), 'dir') and \
+            DataValidation.filetype_validation(l2_ameriflux_run_output, '.nc')
+        if not l2_ameriflux_run_output_success:
+            print("Expected a netCDF .nc file for L2_AMERIFLUX_RUN_OUTPUT")
+
+        l2_ameriflux = cfg.L2_AMERIFLUX
+        l2_ameriflux_success = \
+            DataValidation.path_validation(data_util.get_directory(l2_ameriflux), 'dir') and \
+            DataValidation.filetype_validation(l2_ameriflux, '.txt')
+        if not l2_ameriflux_success:
+            print("Expected a txt file for L2_AMERIFLUX")
 
         # all validations true
         return True
