@@ -69,6 +69,3 @@ def get_directory(file_path):
     path = pathlib.Path(file_path)
     dir = os.path.dirname(path)
     return dir
-
-
-

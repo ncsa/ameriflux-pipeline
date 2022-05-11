@@ -168,4 +168,3 @@ class DataValidation:
             return False
         else:
             return True
-

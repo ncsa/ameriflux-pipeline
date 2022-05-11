@@ -328,6 +328,7 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
     # return success
     return True
 
+
 def main():
     """
     Main function to run. Calls other function
@@ -376,4 +377,3 @@ def main():
 if __name__ == '__main__':
     # Call main function
     main()
-

@@ -13,6 +13,7 @@ from config import Config as cfg
 from ameriflux_pipeline.utils.data_validation import DataValidation
 import utils.data_util as data_util
 
+
 class InputValidation:
     '''
     Class to implement input validation
@@ -65,7 +66,6 @@ class InputValidation:
         # all validations passed
         return True
 
-
     @staticmethod
     def server_sync():
         """
@@ -100,7 +100,6 @@ class InputValidation:
         else:
             # Server sync not required. sftp_confirmation is n
             return True
-
 
     @staticmethod
     def master_met():
@@ -168,7 +167,6 @@ class InputValidation:
         # all validations true
         return True
 
-
     @staticmethod
     def master_met_eddypro():
         """
@@ -187,7 +185,6 @@ class InputValidation:
             return False
         else:
             return True
-
 
     @staticmethod
     def eddypro_headless():
@@ -363,8 +360,8 @@ class InputValidation:
             # erroring variables key contains which variables should not be replaced.
             l1_ameriflux_erroring_variables_key = cfg.L1_AMERIFLUX_ERRORING_VARIABLES_KEY
             l1_ameriflux_erroring_variables_key_success = \
-                DataValidation.path_validation(data_util.get_directory(l1_ameriflux_erroring_variables_key), 'dir') and \
-                DataValidation.filetype_validation(l1_ameriflux_erroring_variables_key, '.xlsx')
+                DataValidation.path_validation(data_util.get_directory(l1_ameriflux_erroring_variables_key), 'dir') \
+                and DataValidation.filetype_validation(l1_ameriflux_erroring_variables_key, '.xlsx')
             if not l1_ameriflux_erroring_variables_key_success:
                 print("Expected an excel file for L1_AMERIFLUX_ERRORING_VARIABLES_KEY")
                 return False
@@ -411,6 +408,3 @@ class InputValidation:
 
         # all validations true
         return True
-
-
-
