@@ -184,7 +184,6 @@ def main(files, start_date, end_date, output_file):
         print("Data merge failed. Aborting")
 
 
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print("Automatic merging of met files started")
     # get arguments

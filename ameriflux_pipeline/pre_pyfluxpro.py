@@ -392,7 +392,6 @@ def main():
     print("Total elapsed time is : {:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
 
 
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     # Call main function
     main()
