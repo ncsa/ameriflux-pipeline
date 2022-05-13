@@ -14,7 +14,7 @@ from config import Config as cfg
 import utils.data_util as data_util
 from utils.syncdata import SyncData as syncdata
 
-from data_validation import Validation
+from utils.input_validation import InputValidation
 from master_met.mastermetprocessor import MasterMetProcessor
 from eddypro.eddyproformat import EddyProFormat
 from eddypro.runeddypro import RunEddypro
@@ -27,19 +27,30 @@ import pandas.io.formats.excel
 pandas.io.formats.excel.header_style = None
 
 
-def validation(data, type):
+def input_validation():
     """
-    Method to check data validation
-    Args:
-        data (str): Input data to validate
-        type (str): Type of data expected
+    Method to check user input validation from config file
+    Args: None
     Returns :
-        (bool): True if input data and type matches, False if not
+        (bool): True if input data is valid, False if not
     """
-    if type == 'int':
-        return Validation.integer_validation(data)
-    elif type == 'float':
-        return Validation.float_validation(data)
+    if not InputValidation.server_sync():
+        return False
+    if not InputValidation.master_met():
+        return False
+    if not InputValidation.master_met_eddypro():
+        return False
+    if not InputValidation.eddypro_headless():
+        return False
+    if not InputValidation.pyfluxpro():
+        return False
+    if not InputValidation.l1format():
+        return False
+    if not InputValidation.l2format():
+        return False
+
+    print("Validations complete")
+    return True
 
 
 def eddypro_preprocessing(file_meta_data_file):
@@ -55,12 +66,6 @@ def eddypro_preprocessing(file_meta_data_file):
     missing_time = cfg.MISSING_TIME
     qc_precip_lower = cfg.QC_PRECIP_LOWER
     qc_precip_upper = cfg.QC_PRECIP_UPPER
-    validation_flag = \
-        validation(missing_time, 'int') and validation(qc_precip_upper, 'float') and \
-        validation(qc_precip_lower, 'float')
-    if not validation_flag:
-        print("Data not valid")
-        return ''
 
     df, file_meta = \
         MasterMetProcessor.data_preprocess(cfg.INPUT_MET, cfg.INPUT_PRECIP, float(qc_precip_lower),
@@ -331,9 +336,18 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
     return True
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
+def main():
+    """
+    Main function to run. Calls other function
+    Args : None
+    Returns : None
+    """
     # Main function
+    is_valid_config = input_validation()
+    if not is_valid_config:
+        print("Check .env file and fix configurations. Aborting")
+        return
+
     # Some preprocessing
     # Filename to write file meta data
     input_filename = os.path.basename(cfg.INPUT_MET)
@@ -356,10 +370,17 @@ if __name__ == '__main__':
     # run pre-processing steps of PyFluxPro L1 an L2
     start = time.time()
     print("Pre-processing of PyFluxPro run output has been started")
+
     is_success = pre_processing(file_meta_data_file, erroring_variable_flag)
     if is_success:
         print("Successfully completed pre-processing of PyFluxPro L1 and L2")
+
     end = time.time()
     hours, rem = divmod(end - start, 3600)
     minutes, seconds = divmod(rem, 60)
     print("Total elapsed time is : {:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
+
+
+if __name__ == '__main__':
+    # Call main function
+    main()
