@@ -34,15 +34,23 @@ def input_validation():
     Returns :
         (bool): True if input data is valid, False if not
     """
-    server_sync = InputValidation.server_sync()
-    master_met = InputValidation.master_met()
-    master_met_eddypro = InputValidation.master_met_eddypro()
-    eddypro_run = InputValidation.eddypro_headless()
-    pyfluxpro = InputValidation.pyfluxpro()
-    l1format = InputValidation.l1format()
-    l2format = InputValidation.l2format()
+    if not InputValidation.server_sync():
+        return False
+    if not InputValidation.master_met():
+        return False
+    if not InputValidation.master_met_eddypro():
+        return False
+    if not InputValidation.eddypro_headless():
+        return False
+    if not InputValidation.pyfluxpro():
+        return False
+    if not InputValidation.l1format():
+        return False
+    if not InputValidation.l2format():
+        return False
 
-    return server_sync and master_met and master_met_eddypro and eddypro_run and pyfluxpro and l1format and l2format
+    print("Validations complete")
+    return True
 
 
 def eddypro_preprocessing(file_meta_data_file):
