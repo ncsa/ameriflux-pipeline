@@ -14,8 +14,7 @@ from config import Config as cfg
 import utils.data_util as data_util
 from utils.syncdata import SyncData as syncdata
 
-from ameriflux_pipeline.utils.data_validation import DataValidation
-from ameriflux_pipeline.utils.input_validation import InputValidation
+from utils.input_validation import InputValidation
 from master_met.mastermetprocessor import MasterMetProcessor
 from eddypro.eddyproformat import EddyProFormat
 from eddypro.runeddypro import RunEddypro
