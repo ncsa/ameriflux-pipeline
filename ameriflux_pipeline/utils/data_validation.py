@@ -41,7 +41,7 @@ class DataValidation:
             float(data)
             return True
         except ValueError:
-            print(data, "not floating point")
+            print(data, "not valid. Floating point expected")
             return False
 
     @staticmethod
@@ -82,7 +82,7 @@ class DataValidation:
         """
         is_url = validators.url(data)
         if isinstance(is_url, ValidationFailure):
-            print(data, "not valid url")
+            print(data, "not valid. URL expected")
             return False
         return True
 
@@ -98,7 +98,7 @@ class DataValidation:
         """
         is_domain = validators.domain(data)
         if isinstance(is_domain, ValidationFailure):
-            print(data, "not valid domain")
+            print(data, "not valid. Domain input expected")
             return False
         return True
 
@@ -115,7 +115,7 @@ class DataValidation:
         try:
             is_ip = ipaddress.ip_address(data)
         except ValueError:
-            print(data, "not valid ip")
+            print(data, "not valid. IP address expected")
             return False
         return True
 
@@ -151,7 +151,7 @@ class DataValidation:
         if extension.lower() == ext.lower():
             return True
         else:
-            print(data, "not valid extension")
+            print(data, "not valid." + ext + "extension expected")
             return False
 
     @staticmethod
