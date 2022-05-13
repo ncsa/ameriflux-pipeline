@@ -42,6 +42,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Tested and updated pipeline for MaizeBasalt site [#154](https://github.com/ncsa/ameriflux-pipeline/issues/154)
 - Correction of fill values and filename of final Ameriflux csv file [#162](https://github.com/ncsa/ameriflux-pipeline/issues/162)
 - User input validation [#159](https://github.com/ncsa/ameriflux-pipeline/issues/159)
+- Updated NOTES [#166](https://github.com/ncsa/ameriflux-pipeline/issues/166)
+- Added reading xls formating functionality [#164](https://github.com/ncsa/ameriflux-pipeline/issues/164)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
@@ -57,6 +59,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Env editor set values empty when the cancel is selected. [#142](https://github.com/ncsa/ameriflux-pipeline/issues/142)
 - Generate correct warnings if pyfluxpro L2 run output does not span an entire year [#145](https://github.com/ncsa/ameriflux-pipeline/issues/145)
 - Archive non-empty EddyPro Run output directory. [#143](https://github.com/ncsa/ameriflux-pipeline/issues/143)
+- Fixed Ameriflux_Variable_User_Confirmation in input_validation. [#165](https://github.com/ncsa/ameriflux-pipeline/issues/165)
 
 ### Changed
 - AmeriFlux L1 formatting variable names in env editor [#118](https://github.com/ncsa/ameriflux-pipeline/issues/118)
