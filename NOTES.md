@@ -48,14 +48,15 @@
 ### 13
 - For Ameriflux-friendly L1 and L2, we only write Ameriflux friendly variables which are listed out in the Ameriflux-Mainstem-Key.xlsx.
 ### 14
-- For Ameriflux-friendly L2, H2O_SIGMA is used as DependecyCheck source instead of H2O_IRGA_Vr
+- For Ameriflux-friendly L2, H2O_SIGMA is used as DependencyCheck source instead of H2O_IRGA_Vr
 ### 15
 - For Soil water content variables in Ameriflux-friendly L2, range checks should be multiplied by 100 as these are in percentages.
 ### 16
 - TIMESTAMP_START and TIMESTAMP_END column is created from time column from netCDF PyFluxPro output and inserted at indexes 0 and 1 respectively.
 ### 17 
 - Pipeline is split into two phases, one to be run before PyFluxPro(pre_pyfluxpro) and one after PyFluxPro(post_pyfluxpro).
-- The first phase generates L1 and L2 control files that meet Ameriflux standards
+- The first phase generates L1 and L2 control files that meet Ameriflux standards.
+- User then runs the PyFluxPro 3.3.2 manually and use the generated L1 and L2 control files. Once user has the netCDF output for L2 run, user proceeds to second stage of the pipeline.
 - The second phase generates the csv file named US-Ui<site_name>\_HH\_<timestamp_start>_<timestamp_end>.csv that meets Ameriflux standards.
 ### 18
 - netCDF4 python library is supported only in Python version 3.8. This pipeline has a strict requirement of Python 3.8
@@ -63,6 +64,6 @@
 - During merge of dat files / raw met files from the server, the end date is taken as the next day midnight so that after timestamp shift of 30min the Flux data file contains data for the whole year
 ### 20
 - From July 14, 2021, the datalogger met variables names were changed. Hence when merging the met data, certain old variables names are to be changed to newer standardized variable names.
-- {'CM3Up_Avg': 'SWDn_Avg', 'CM3Dn_Avg': 'SWUp_Avg', 'CG3UpCo_Avg': 'LWDnCo_Avg', 'CG3DnCo_Avg': 'LWUpCo_Avg', 'NetTot_Avg': 'Rn_Avg', 'cnr1_T_C_Avg': 'CNR1TC_Avg', 'cnr1_T_K_Avg': 'CNR1TK_Avg', 'Rs_net_Avg': 'NetRs_Avg', 'Rl_net_Avg': 'NetRl_Avg' , 'VWC_': 'VWC1_}
+- {'CM3Up_Avg': 'SWDn_Avg', 'CM3Dn_Avg': 'SWUp_Avg', 'CG3UpCo_Avg': 'LWDnCo_Avg', 'CG3DnCo_Avg': 'LWUpCo_Avg', 'NetTot_Avg': 'Rn_Avg', 'cnr1_T_C_Avg': 'CNR1TC_Avg', 'cnr1_T_K_Avg': 'CNR1TK_Avg', 'Rs_net_Avg': 'NetRs_Avg', 'Rl_net_Avg': 'NetRl_Avg' , 'VWC_': 'VWC1_', 'TC_':'TC1_'}
 
 
