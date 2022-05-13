@@ -121,7 +121,8 @@ class InputValidation:
         input_precip_path = cfg.INPUT_PRECIP
         input_precip_path_success = \
             DataValidation.path_validation(input_precip_path, 'file') and \
-            DataValidation.filetype_validation(input_precip_path, '.xlsx')
+            (DataValidation.filetype_validation(input_precip_path, '.xlsx') or
+             DataValidation.filetype_validation(input_precip_path, '.xls'))
         if not input_precip_path_success:
             print("Expected excel file for INPUT_PRECIP")
             return False
@@ -179,7 +180,8 @@ class InputValidation:
         input_soil_key_path = cfg.INPUT_SOIL_KEY
         input_soil_key_path_success = \
             DataValidation.path_validation(input_soil_key_path, 'file') and \
-            DataValidation.filetype_validation(input_soil_key_path, '.xlsx')
+            (DataValidation.filetype_validation(input_soil_key_path, '.xlsx') or
+             DataValidation.filetype_validation(input_soil_key_path, '.xls'))
         if not input_soil_key_path_success:
             print("Expected excel file for INPUT_SOIL_KEY")
             return False
@@ -325,7 +327,8 @@ class InputValidation:
         l1_ameriflux_mainstem_key = cfg.L1_AMERIFLUX_MAINSTEM_KEY
         l1_ameriflux_mainstem_key_success = \
             DataValidation.path_validation(l1_ameriflux_mainstem_key, 'file') and \
-            DataValidation.filetype_validation(l1_ameriflux_mainstem_key, '.xlsx')
+            (DataValidation.filetype_validation(l1_ameriflux_mainstem_key, '.xlsx') or
+             DataValidation.filetype_validation(l1_ameriflux_mainstem_key, '.xls'))
         if not l1_ameriflux_mainstem_key_success:
             print("Expected an excel file for L1_AMERIFLUX_MAINSTEM_KEY")
 
@@ -350,9 +353,10 @@ class InputValidation:
             # user_confirmation is a string. Check for valid values
             ameriflux_variable_user_confirmation_success = \
                 DataValidation.equality_validation(ameriflux_variable_user_confirmation.lower(), 'y') or \
-                DataValidation.equality_validation(ameriflux_variable_user_confirmation.lower(), 'n')
+                DataValidation.equality_validation(ameriflux_variable_user_confirmation.lower(), 'n') or \
+                DataValidation.equality_validation(ameriflux_variable_user_confirmation.lower(), 'a')
         if not ameriflux_variable_user_confirmation_success:
-            print("Expected Y / N for AMERIFLUX_VARIABLE_USER_CONFIRMATION")
+            print("Expected Y / N / A for AMERIFLUX_VARIABLE_USER_CONFIRMATION")
             return False
 
         if DataValidation.equality_validation(ameriflux_variable_user_confirmation.lower(), 'n'):
@@ -361,7 +365,8 @@ class InputValidation:
             l1_ameriflux_erroring_variables_key = cfg.L1_AMERIFLUX_ERRORING_VARIABLES_KEY
             l1_ameriflux_erroring_variables_key_success = \
                 DataValidation.path_validation(data_util.get_directory(l1_ameriflux_erroring_variables_key), 'dir') \
-                and DataValidation.filetype_validation(l1_ameriflux_erroring_variables_key, '.xlsx')
+                and (DataValidation.filetype_validation(l1_ameriflux_erroring_variables_key, '.xlsx') or
+                     DataValidation.filetype_validation(l1_ameriflux_erroring_variables_key, '.xls'))
             if not l1_ameriflux_erroring_variables_key_success:
                 print("Expected an excel file for L1_AMERIFLUX_ERRORING_VARIABLES_KEY")
                 return False
