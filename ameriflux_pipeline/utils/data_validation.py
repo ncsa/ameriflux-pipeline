@@ -3,7 +3,9 @@
 # This program and the accompanying materials are made available under the
 # terms of the Mozilla Public License v2.0 which accompanies this distribution,
 # and is available at https://www.mozilla.org/en-US/MPL/2.0/
+import datetime
 
+import pandas as pd
 import validators
 from validators import ValidationFailure
 import ipaddress
@@ -168,3 +170,45 @@ class DataValidation:
             return False
         else:
             return True
+
+    @staticmethod
+    def is_valid_datetime(data):
+        """
+        Method to check if the input date is in valid format recognizable by datetime
+        Returns True if valid string, else returns False
+        Args:
+            data (str): Input date to check for validity
+        Returns:
+            (bool): True if date is valid, else False
+        """
+        try:
+            pd.to_datetime(data)
+        except ValueError:
+            print(data, "Incorrect date format")
+
+    @staticmethod
+    def is_valid_meta_data(df):
+        """
+        Method to check if the input dataframe containing meta data of met tower variables is in valid format.
+        Checks for expected meta data like TIMESTAMP and RECORD columns, TS and RN units and Min/Avg
+        Returns True if valid, else returns False
+        Args:
+            df (obj): Pandas dataframe object to check for valid format
+        Returns:
+            (bool): True if df is valid, else False
+        """
+        # check for TIMESTAMP and RECORD columns in the first row
+        column_names = df.iloc[0].to_list()
+        if 'TIMESTAMP' not in column_names:
+            print("TIMESTAMP not in met data.")
+            return False
+        unit_names = df.iloc[1].to_list()
+        if 'TS' not in unit_names:
+            print("TIMESTAMP expected unit TS not found in data")
+            return False
+        min_avg = df.iloc[2].to_list()
+        if not ('Min' in min_avg or 'Avg' in min_avg):
+            print("'Min' or 'Avg' keywords expected in third row of met data")
+            return False
+        # all validations done
+        return True
