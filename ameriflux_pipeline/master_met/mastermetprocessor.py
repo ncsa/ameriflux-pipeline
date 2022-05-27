@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 from datetime import timedelta
 from utils.data_validation import DataValidation
+import utils.data_util as data_util
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -49,7 +50,7 @@ class MasterMetProcessor:
         # NOTE 2
         df_meta, file_meta = MasterMetProcessor.get_meta_data(file_df_meta)
         if df_meta is None:
-            print("Met data not as expected. Aborting")
+            print("Please check met data file. Aborting")
             return None, None
         # NOTE 4
         df_meta = MasterMetProcessor.add_U_V_units(df_meta)
@@ -58,7 +59,8 @@ class MasterMetProcessor:
         user_confirmation = user_confirmation.lower()
         df_precip = MasterMetProcessor.read_precip_data(input_precip_path, precip_lower, precip_upper,
                                                         missing_time_threshold, user_confirmation)
-
+        if df_precip is None:
+            print("Merging of precipitation data is not possible.")
         # change column data types
         df = MasterMetProcessor.change_datatype(df)
 
@@ -103,17 +105,17 @@ class MasterMetProcessor:
         # delete newly created temp variables
         df = MasterMetProcessor.delete_new_variables(df, new_variables)
 
-        # step 8 in guide - add precip data. join df and df_precip
-        # keep all met data and have NaN for precip values that are missing - left join with met data
-        # throw a warning if there are extra timestamps in met data
-        if (df.shape[0] > df_precip.shape[0]):
-            # there are more records in met data
-            print("Extra timestamps in met data. Joining precip with NaN value in extra timestamps")
-        # NOTE 8
-        df = pd.merge(df, df_precip, on='TIMESTAMP', how='left')
-
-        # add precipitation unit mm to df_meta
-        df_meta['Precip_IWS'] = 'mm'
+        if df_precip is not None:
+            # step 8 in guide - add precip data. join df and df_precip
+            # keep all met data and have NaN for precip values that are missing - left join with met data
+            # throw a warning if there are extra timestamps in met data
+            if (df.shape[0] > df_precip.shape[0]):
+                # there are more records in met data
+                print("Extra timestamps in met data. Joining precip with NaN value in extra timestamps")
+            # NOTE 8
+            df = pd.merge(df, df_precip, on='TIMESTAMP', how='left')
+            # add precipitation unit mm to df_meta
+            df_meta['Precip_IWS'] = 'mm'
 
         # step 7 in guide - calculation of shortwave radiation
         SW_unit = 'W/m^2'  # unit for shortwave radiation
@@ -235,10 +237,19 @@ class MasterMetProcessor:
             obj: Pandas DataFrame object
         """
         df = pd.read_excel(data_path)  # read excel file
-        station_col = str(df.filter(regex=("Station|station")).columns[0])
+        if not DataValidation.is_valid_precip_data(df):
+            print("Precipitation data not valid.")
+            return None
+        # TODO
+        df = data_util.get_precip_df(df)
+        station_col = df.filter(regex="Station|station").columns.to_list()
         if station_col:
             df.drop([station_col], axis=1, inplace=True)  # drop unwanted columns
         # TODO: Ask Bethany - if missing time threshold for precip data is ok to be same as met data
+        # get the precipitation column.
+        precip_col = df.filter(regex='Precipitation|precipitation|Precip|precip').columns.to_list()
+        # check if the precipitation column is in inches or mm
+        precip_col_in = [col for col in precip_col if '(in)' in col or 'inches' in col]
         # NOTE 5
         # perform qa qc checks for precip data
         df = MasterMetProcessor.precip_qaqc(df, precip_lower, precip_upper, missing_time_threshold, user_confirmation)

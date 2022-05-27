@@ -34,10 +34,10 @@ def validate_inputs(files, start_date, end_date, output_file):
         if not DataValidation.path_validation(file, 'file'):
             print(file, "path does not exist")
             return False
-    if not DataValidation.is_valid_datetime(start_date):
+    if not DataValidation.is_valid_datetime_string(start_date):
         print(start_date, "not valid date format")
         return False
-    if not DataValidation.is_valid_datetime(end_date):
+    if not DataValidation.is_valid_datetime_string(end_date):
         print(end_date, "not valid date format")
         return False
     if not DataValidation.path_validation(data_util.get_directory(output_file), 'dir'):
@@ -87,7 +87,7 @@ def read_met_data(data_path):
     df_meta = df_meta.applymap(lambda x: str(x).replace('"', ''))  # strip off quotes from all values
     df_meta = df_meta.applymap(lambda x: str(x).replace('*', ''))
     if not DataValidation.is_valid_meta_data(df_meta):
-        print("Meta data not in valid format")
+        print("Met data not in valid format")
         return None, None, None, None
     df_meta.columns = df_meta.iloc[0]  # set column names
     df_meta = df_meta.iloc[1:, :]

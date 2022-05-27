@@ -69,3 +69,16 @@ def get_directory(file_path):
     path = pathlib.Path(file_path)
     dir = os.path.dirname(path)
     return dir
+
+
+def get_valid_precip_data(df):
+    """
+    Method to check if the input dataframe containing precipitation data is in valid format.
+    Checks for expected meta data like TIMESTAMP and RECORD columns, TS and RN units and Min/Avg
+    Returns True if valid, else returns False
+    Args:
+        df (obj): Pandas dataframe object to check for valid format
+    Returns:
+        (bool): True if df is valid, else False
+    """
+    # check for timestamp and precip column
