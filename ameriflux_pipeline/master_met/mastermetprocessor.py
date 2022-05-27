@@ -7,6 +7,7 @@
 import pandas as pd
 import numpy as np
 from datetime import timedelta
+from utils.data_validation import DataValidation
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -47,6 +48,9 @@ class MasterMetProcessor:
         # get meta data
         # NOTE 2
         df_meta, file_meta = MasterMetProcessor.get_meta_data(file_df_meta)
+        if df_meta is None:
+            print("Met data not as expected. Aborting")
+            return None, None
         # NOTE 4
         df_meta = MasterMetProcessor.add_U_V_units(df_meta)
 
@@ -189,6 +193,9 @@ class MasterMetProcessor:
         # the first row contains meta data of file. Used to match the filename to soil key.
         # returned with the processed df
         df_meta = file_df_meta.iloc[1:, :]
+        if not DataValidation.is_valid_meta_data(df_meta):
+            print("Meta data not in valid format")
+            return None, None
         # second and third row contains meta data of met tower variables (column names and units)
         df_meta.columns = df_meta.iloc[0]
         df_meta.drop(df_meta.index[0], inplace=True)
@@ -229,14 +236,15 @@ class MasterMetProcessor:
         """
         df = pd.read_excel(data_path)  # read excel file
         station_col = str(df.filter(regex=("Station|station")).columns[0])
-        df.drop([station_col], axis=1, inplace=True)  # drop unwanted columns
+        if station_col:
+            df.drop([station_col], axis=1, inplace=True)  # drop unwanted columns
         # TODO: Ask Bethany - if missing time threshold for precip data is ok to be same as met data
         # NOTE 5
         # perform qa qc checks for precip data
         df = MasterMetProcessor.precip_qaqc(df, precip_lower, precip_upper, missing_time_threshold, user_confirmation)
         # convert precipitation from in to mm
         # TODO : import cf_units and use to convert units. / udunits
-        precip_col = str(df.filter(regex=("Precipitation|precipitation")).columns[0])
+        precip_col = str(df.filter(regex=("Precipitation|precipitation|Precip|precip")).columns[0])
         df['Precipitation (mm)'] = df[precip_col] * 25.4  # convert inches to millimeter
         df.drop([precip_col], axis=1, inplace=True)  # drop unwanted columns
         # convert 5min samples to 30min samples by taking the sum

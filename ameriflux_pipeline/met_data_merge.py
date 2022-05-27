@@ -81,7 +81,8 @@ def read_met_data(data_path):
                 return None, None, None, None
 
     # process df to get meta data - column names and units
-    # the first row contains the meta data of file. second and third row contains met variables and their units
+    # the first row contains the meta data of file, which is skipped in read_csv.
+    # second and third row contains met variables and their units
     df_meta = df.head(3)
     df_meta = df_meta.applymap(lambda x: str(x).replace('"', ''))  # strip off quotes from all values
     df_meta = df_meta.applymap(lambda x: str(x).replace('*', ''))
