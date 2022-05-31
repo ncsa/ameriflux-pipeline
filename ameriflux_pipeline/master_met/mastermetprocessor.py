@@ -193,6 +193,8 @@ class MasterMetProcessor:
             df_meta (obj) : meta data of met data. Consists of column names and units.
             file_meta (obj) : meta data of file. Consists of file name, field site, and crop.
         """
+        # TODO : Check meta_data format. At present the code checks for first 4 lines.
+        # But even if the last line is not present, it is ok. Need to check at which row the timestamp/ numerical data is starting.
         file_meta = file_df_meta.head(1)
         # the first row contains meta data of file. Used to match the filename to soil key.
         # returned with the processed df
