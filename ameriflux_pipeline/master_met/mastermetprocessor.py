@@ -92,13 +92,21 @@ class MasterMetProcessor:
         # step 5 in guide. Calculation of soil heat flux
         # TODO : test with old data (non-critical)
         if MasterMetProcessor.soil_heat_flux_check(df):
-            df['shf_1_Avg'] = MasterMetProcessor.soil_heat_flux_calculation(df['shf_mV_Avg(1)'], df['shf_cal_Avg(1)'])
+            try:
+                shf_mV, shf_cal = df['shf_mV_Avg(1)'], df['shf_cal_Avg(1)']
+                df['shf_1_Avg'] = MasterMetProcessor.soil_heat_flux_calculation(shf_mV, shf_cal)
+            except:
+                print("Soil heat flux calculation failed. Check if columns shf_mV_Avg(1) and shf_cal_Avg(1) exists.")
 
         # Step 6 in guide. Absolute humidity check
-        df['Ah_fromRH'] = MasterMetProcessor.AhFromRH(df['AirTC_Avg'], df['RH_Avg'])
-        # add Ah_fromRH column and unit to df_meta
-        Ah_fromRH_unit = 'g/m^3'
-        df_meta['Ah_fromRH'] = Ah_fromRH_unit
+        try:
+            T, RH = df['AirTC_Avg'], df['RH_Avg']
+            df['Ah_fromRH'] = MasterMetProcessor.AhFromRH(T, RH)
+            # add Ah_fromRH column and unit to df_meta
+            Ah_fromRH_unit = 'g/m^3'
+            df_meta['Ah_fromRH'] = Ah_fromRH_unit
+        except:
+            print("AhFromRH calculation failed. Check if columns 'AirTC_Avg' and 'RH_Avg' exists.")
 
         # Step 4 in guide
         df = MasterMetProcessor.replace_empty(df)
@@ -166,6 +174,7 @@ class MasterMetProcessor:
         df = pd.read_csv(data_path, header=None)  # read file without headers.
 
         # process df to get meta data
+        # TODO : Check with Bethany if Min/Avg is to be checked for.
         file_df_meta = df.head(4)  # first four lines of file contains meta data
         # the first row contains the meta data of file. second and third row contains met variables and their units
         file_df_meta.fillna('', inplace=True)  # fill NaNs with empty string for ease of replace

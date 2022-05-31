@@ -192,6 +192,7 @@ class DataValidation:
         if 'TS' not in unit_names:
             print("TIMESTAMP expected unit TS not found in data")
             return False
+        # TODO : Ask Bethany if this needs to be checked
         min_avg = df.iloc[2].to_list()
         if not ('Min' in min_avg or 'Avg' in min_avg):
             print("'Min' or 'Avg' keywords expected in third row of met data")
