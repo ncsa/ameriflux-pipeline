@@ -8,11 +8,9 @@ import datetime
 import pandas as pd
 import validators
 from validators import ValidationFailure
-from dateutil.parser import parse
 from pandas.api.types import is_datetime64_any_dtype as is_datetime64
 import ipaddress
 import os.path
-
 
 class DataValidation:
     '''
@@ -173,23 +171,6 @@ class DataValidation:
         else:
             return True
 
-    @staticmethod
-    def is_valid_datetime_string(data):
-        """
-        Method to check if the string input date is in valid format recognizable by datetime
-        Returns True if valid string, else returns False
-        Args:
-            data (str): Input date to check for validity
-        Returns:
-            (bool): True if date is valid, else False
-        """
-        # TODO:
-        try:
-            parse(data)
-            return True
-        except ValueError:
-            print(data, "Incorrect date format")
-            return False
 
     @staticmethod
     def is_valid_meta_data(df):
@@ -218,38 +199,5 @@ class DataValidation:
         # all validations done
         return True
 
-    @staticmethod
-    def is_valid_precip_data(df):
-        """
-        Method to check if the input dataframe containing precipitation data is in valid format.
-        Checks for expected columns like Time and Precip columns, and expected datatypes for the columns
-        Returns True if valid, else returns False
-        Args:
-            df (obj): Pandas dataframe object to check for valid format
-        Returns:
-            (bool): True if df is valid, else False
-        """
-        time_flag , precip_flag = False, False
-        # check for timestamp and precip column
-        precip_col = df.filter(regex='Precipitation|precipitation|Precip|precip').columns.to_list()
-        time_col = df.filter(regex='Time|time|CST').columns.to_list()
-        if not time_col:
-            print("Timestamp column not present in Precipitation data.")
-            return False
-        if not precip_col:
-            print("Precipitation column not present in Precipitation data.")
-            return False
-        # TODO
-        if len(time_col) > 1:
-            # there are more than 1 column that matches timestamp
-            for col in time_col:
-                if is_datetime64(df[col]):
-                    df['TIMESTAMP'] = df[col]
-                    break
-                else:
-                    df[col].apply(DataValidation.is_valid_datetime_string())
 
-
-                # all validations done
-        return True
 

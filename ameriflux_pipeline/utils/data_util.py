@@ -8,6 +8,7 @@ import pandas as pd
 import re
 import pathlib
 import os
+from dateutil.parser import parse
 
 
 def write_data(df, output_data):
@@ -71,14 +72,18 @@ def get_directory(file_path):
     return dir
 
 
-def get_valid_precip_data(df):
+def get_valid_datetime(data):
     """
-    Method to check if the input dataframe containing precipitation data is in valid format.
-    Checks for expected meta data like TIMESTAMP and RECORD columns, TS and RN units and Min/Avg
-    Returns True if valid, else returns False
+    Method to check if the string input date is in valid format recognizable by datetime
+    Returns a valid datetime if valid string input, else returns None
     Args:
-        df (obj): Pandas dataframe object to check for valid format
+        data (str): Input date to check for validity. The date can be in any format
     Returns:
-        (bool): True if df is valid, else False
+        parse (str): Parsed datetime converted to string. None if data is not valid.
     """
-    # check for timestamp and precip column
+    try:
+        return parse(data)
+    except ValueError:
+        print(data, "Incorrect date format")
+        return None
+

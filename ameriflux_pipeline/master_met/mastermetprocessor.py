@@ -7,6 +7,8 @@
 import pandas as pd
 import numpy as np
 from datetime import timedelta
+from pandas.api.types import is_datetime64_any_dtype as is_datetime64
+
 from utils.data_validation import DataValidation
 import utils.data_util as data_util
 
@@ -164,7 +166,7 @@ class MasterMetProcessor:
         df = pd.read_csv(data_path, header=None)  # read file without headers.
 
         # process df to get meta data
-        file_df_meta = df.head(3)
+        file_df_meta = df.head(4)  # first four lines of file contains meta data
         # the first row contains the meta data of file. second and third row contains met variables and their units
         file_df_meta.fillna('', inplace=True)  # fill NaNs with empty string for ease of replace
         file_df_meta = file_df_meta.applymap(lambda x: str(x).replace('"', ''))  # strip off quotes from all values
@@ -231,37 +233,28 @@ class MasterMetProcessor:
             data_path (str): input data file path
             precip_lower (int) : Lower threshold value for precipitation in inches
             precip_upper (int) : Upper threshold value for precipitation in inches
-            missing_timeslot_threshold (int): Value for missing timeslot threshold. used for insert_missing_time method
+            missing_time_threshold (int): Value for missing timeslot threshold. used for insert_missing_time method
             user_confirmation (str) : Option to either insert or ignore missing timestamps
         Returns:
             obj: Pandas DataFrame object
         """
         df = pd.read_excel(data_path)  # read excel file
-        if not DataValidation.is_valid_precip_data(df):
+        df = MasterMetProcessor.get_valid_precip_data(df)
+        if df is None:
             print("Precipitation data not valid.")
             return None
-        # TODO
-        df = data_util.get_precip_df(df)
-        station_col = df.filter(regex="Station|station").columns.to_list()
-        if station_col:
-            df.drop([station_col], axis=1, inplace=True)  # drop unwanted columns
+
         # TODO: Ask Bethany - if missing time threshold for precip data is ok to be same as met data
-        # get the precipitation column.
-        precip_col = df.filter(regex='Precipitation|precipitation|Precip|precip').columns.to_list()
-        # check if the precipitation column is in inches or mm
-        precip_col_in = [col for col in precip_col if '(in)' in col or 'inches' in col]
         # NOTE 5
         # perform qa qc checks for precip data
         df = MasterMetProcessor.precip_qaqc(df, precip_lower, precip_upper, missing_time_threshold, user_confirmation)
         # convert precipitation from in to mm
         # TODO : import cf_units and use to convert units. / udunits
-        precip_col = str(df.filter(regex=("Precipitation|precipitation|Precip|precip")).columns[0])
-        df['Precipitation (mm)'] = df[precip_col] * 25.4  # convert inches to millimeter
-        df.drop([precip_col], axis=1, inplace=True)  # drop unwanted columns
+        df['Precipitation_mm'] = df['Precipitation_in'] * 25.4  # convert inches to millimeter
+        df.drop(['Precipitation_in'], axis=1, inplace=True)  # drop unwanted columns
         # convert 5min samples to 30min samples by taking the sum
-        time_col = str(df.filter(regex=("Time|time|CST")).columns[0])
-        df = df.set_index(time_col)
-        precip_series = pd.Series(df['Precipitation (mm)'], index=df.index)
+        df = df.set_index('Timestamp')
+        precip_series = pd.Series(df['Precipitation_mm'], index=df.index)
         # resampling to 30min timeslots. 00-30 is summed and stored in 00min. (beginning of timestamp)
         # skipna False accounts for NaN in values. If NaN present, the 30min resample has value of NaN.
         precip_30 = precip_series.resample('30min').agg(pd.Series.sum, skipna=False)
@@ -272,6 +265,67 @@ class MasterMetProcessor:
         # replace / with - to match timestamp format of met data
         df['TIMESTAMP'] = df['TIMESTAMP'].map(lambda t: t.replace('-', '/'))
         return df
+
+    @staticmethod
+    def get_valid_precip_data(df):
+        """
+        Method to check if the input dataframe containing precipitation data is in valid format.
+        Checks for expected columns like Time and Precip columns, and expected datatypes for the columns
+        Returns the processed df
+        Args:
+            df (obj): Pandas dataframe object to check for valid format
+        Returns:
+            df (object): Pandas dataframe object which is the valid precip data with required columns.
+        """
+        time_flag, precip_flag = False, False
+        # check for timestamp and precip column
+        precip_col = df.filter(regex='Precipitation|precipitation|Precip|precip|Rain|rain|IWS').columns.to_list()
+        time_col = df.filter(regex='Date|Time|time|CST|timestamp|TIMESTAMP|Timestamp').columns.to_list()
+        if not time_col:
+            print("Timestamp column not present in Precipitation data.")
+            return None
+        if not precip_col:
+            print("Precipitation column not present in Precipitation data.")
+            return None
+
+        # there are more than 1 column that matches timestamp.
+        # Process the first column that matches the criteria and break
+        for col in time_col:
+            if is_datetime64(df[col]):
+                # col is of type datetime
+                df['Timestamp'] = df[col]
+                time_flag = True
+                break
+            elif DataValidation.string_validation(df[col].iloc[df[col].first_valid_index()]):
+                # parse only accepts str input. Check if the column type is string.
+                df['Timestamp'] = df[col].apply(lambda x: data_util.get_valid_datetime(x))
+                time_flag = True
+                break
+
+        # there are more than 1 column that matches precipitation. There could be precip in inches and mm.
+        for col in precip_col:
+            if DataValidation.float_validation(df[col].iloc[df[col].first_valid_index()]):
+                if any(inch_unit in col for inch_unit in ['(in)', 'inches', '(inches)']):
+                    df['Precipitation_in'] = df[col]
+                    precip_flag = True
+                    break
+                elif any(mm_unit in col for mm_unit in ['(mm)', 'mm', 'millimeter', 'millimeters',
+                                                        '(millimeter)', '(millimeters)']):
+                    df['Precipitation_in'] = df[col] / 25.4  # convert mm to inches
+                    precip_flag = True
+                    break
+
+        # all validations done
+        if time_flag and precip_flag:
+            return df[['Timestamp', 'Precipitation_in']]
+        elif not time_flag:
+            print("Precipitation timestamp not in correct format")
+            return None
+        elif not precip_flag:
+            print("Precipitation values not in correct format")
+            return None
+        else:
+            return None
 
     @staticmethod
     def precip_qaqc(df, precip_lower, precip_upper, missing_time_threshold, user_confirmation):
@@ -285,16 +339,15 @@ class MasterMetProcessor:
             df (obj): input precip dataframe
             precip_lower (float) : Lower threshold value for precipitation in inches
             precip_upper (float) : Upper threshold value for precipitation in inches
-            missing_timeslot_threshold (int): Value for missing timeslot threshold. used for insert_missing_time method
+            missing_time_threshold (int): Value for missing timeslot threshold. used for insert_missing_time method
             user_confirmation (str) : Option to either insert or ignore missing timestamps
         Returns:
             obj (Pandas DataFrame object): processed and cleaned precip dataframe
         """
         # check timestamps, if present for every 5 min
-        time_col = str(df.filter(regex=("Time|time|CST")).columns[0])
-        df['timedelta'] = MasterMetProcessor.get_timedelta(df[time_col])
+        df['timedelta'] = MasterMetProcessor.get_timedelta(df['Timestamp'])
         df, insert_flag = \
-            MasterMetProcessor.insert_missing_timestamp(df, time_col, 5.0,
+            MasterMetProcessor.insert_missing_timestamp(df, 'Timestamp', 5.0,
                                                         missing_time_threshold, user_confirmation)
         if insert_flag == 'N':
             # user confirmed not to insert missing timestamps.
@@ -303,12 +356,11 @@ class MasterMetProcessor:
         df.drop(['timedelta'], axis=1, inplace=True)
         # check precip values in between 0 and 0.2 in
         # get indexes where precip is greater than 0.2 or less than 0.
-        precip_col = str(df.filter(regex=("Precipitation|precipitation")).columns[0])
-        invalid_indexes = df.index[(df[precip_col] > precip_upper)].to_list()
-        invalid_indexes.extend(df.index[(df[precip_col] < precip_lower)].to_list())
+        invalid_indexes = df.index[(df['Precipitation_in'] > precip_upper)].to_list()
+        invalid_indexes.extend(df.index[(df['Precipitation_in'] < precip_lower)].to_list())
         # replace precip value with NaN at invalid indexes
         for index in invalid_indexes:
-            df[precip_col].iloc[index] = np.nan
+            df['Precipitation_in'].iloc[index] = np.nan
         # return cleaned df
         return df
 
