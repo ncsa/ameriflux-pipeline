@@ -218,7 +218,7 @@ class DataValidation:
         # check if required columns are present
         req_cols = ['Datalogger/met water variable name', 'Datalogger/met temperature variable name',
                     'EddyPro temperature variable name', 'EddyPro water variable name']
-        if set(req_cols) <= set(df.columns()):
+        if set(req_cols) <= set(df.columns):
             # required columns is a subset of all column list
             return True
         else:
@@ -226,5 +226,4 @@ class DataValidation:
             print("Datalogger/met water variable name, Datalogger/met temperature variable name , "
                   "EddyPro temperature variable name, EddyPro water variable name")
             return False
-        # all validations done
-        return True
+
