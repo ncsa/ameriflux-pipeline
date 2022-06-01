@@ -9,6 +9,9 @@ import pandas as pd
 import shutil
 import re
 
+from utils.data_validation import DataValidation
+import utils.data_util as data_util
+
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -41,10 +44,10 @@ class EddyProFormat:
         # NOTE 3
         file_site_name = file_meta.iloc[0][5]
         # match file site name to site names in soil key file. this is used as lookup in soil key table
-        site_name = EddyProFormat.get_site_name(file_site_name)
+        site_name = data_util.get_site_name(file_site_name)
 
         # read soil key file
-        df_soil_key = EddyProFormat.read_soil_key(input_soil_key)
+        df_soil_key = data_util.read_excel(input_soil_key)
         # get the soil temp and moisture keys for the site
         eddypro_soil_moisture_labels, eddypro_soil_temp_labels = EddyProFormat.get_soil_keys(df_soil_key, site_name)
 
@@ -90,6 +93,7 @@ class EddyProFormat:
         # return formatted df
         return df
 
+    # not currently used
     @staticmethod
     def get_site_name(file_site_name):
         """
@@ -163,6 +167,7 @@ class EddyProFormat:
         df = pd.read_csv(output_path)
         return df
 
+    # not currently used
     @staticmethod
     def read_soil_key(input_soil_key):
         """

@@ -21,7 +21,7 @@ def write_data(df, output_data):
         Returns:
             None
     """
-    print("Write data to file ", output_data)
+    print("Write data to csv file ", output_data)
     df.to_csv(output_data, index=False)
 
 
@@ -34,6 +34,7 @@ def read_excel(file_path):
         Returns:
             df (object): Pandas DataFrame object
     """
+    print("Read excel file ", file_path)
     df = pd.read_excel(file_path)  # read excel file
     return df
 
