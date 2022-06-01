@@ -81,6 +81,8 @@ original/
 *.tmp
 *.ghg
 *.txt
+*.dat
+*.backup
 
 # related to test file
 *test.py
