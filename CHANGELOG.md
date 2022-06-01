@@ -43,7 +43,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Correction of fill values and filename of final Ameriflux csv file [#162](https://github.com/ncsa/ameriflux-pipeline/issues/162)
 - User input validation [#159](https://github.com/ncsa/ameriflux-pipeline/issues/159)
 - Updated NOTES [#166](https://github.com/ncsa/ameriflux-pipeline/issues/166)
-- Added reading xls formating functionality [#164](https://github.com/ncsa/ameriflux-pipeline/issues/164)
+- Added reading xls formatting functionality [#164](https://github.com/ncsa/ameriflux-pipeline/issues/164)
 - Data validation for met data merge [#168](https://github.com/ncsa/ameriflux-pipeline/issues/168)
 - Data validation for creation of master met data [#172](https://github.com/ncsa/ameriflux-pipeline/issues/172)
 
