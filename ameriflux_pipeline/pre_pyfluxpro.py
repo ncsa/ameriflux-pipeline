@@ -72,6 +72,7 @@ def eddypro_preprocessing(file_meta_data_file):
                                            float(qc_precip_upper), int(missing_time),
                                            cfg.MISSING_TIME_USER_CONFIRMATION)
     if df is None:
+        print("Creation of master met data has failed.")
         return None
     # write processed df to output path
     data_util.write_data(df, cfg.MASTER_MET)
