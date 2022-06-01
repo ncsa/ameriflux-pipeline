@@ -48,6 +48,9 @@ class EddyProFormat:
 
         # read soil key file
         df_soil_key = data_util.read_excel(input_soil_key)
+        if not DataValidation.is_valid_soils_key(df_soil_key):
+            print("Soils_key.xlsx file invalid format. Aborting")
+            return None
         # get the soil temp and moisture keys for the site
         eddypro_soil_moisture_labels, eddypro_soil_temp_labels = EddyProFormat.get_soil_keys(df_soil_key, site_name)
 
@@ -59,7 +62,7 @@ class EddyProFormat:
         df.replace('NAN', np.nan, inplace=True)
 
         # step 3 of guide. change timestamp format
-        df = EddyProFormat.timestamp_format(df)  # / to -
+        df = EddyProFormat.timestamp_format(df)  # change / to -
 
         # rename air temp column names
         eddypro_air_temp_labels = EddyProFormat.air_temp_colnames(df)
@@ -82,7 +85,7 @@ class EddyProFormat:
         # step 6 in guide. convert temperature measurements from celsius to kelvin
         df = EddyProFormat.convert_temp_unit(df)
 
-        # step 7 in guide. Change all NaN or non-numeric values to -9999.0
+        # step 7 in guide. Change all NaN or non-numeric values to -9999
         df = EddyProFormat.replace_nonnumeric(df)
         # get units for EddyPro labels
         df = EddyProFormat.replace_units(df)
@@ -129,7 +132,8 @@ class EddyProFormat:
             eddypro_soil_moisture_labels(dict): Dictionary for soil moisture mapping from met variable to eddypro label
             eddypro_soil_temp_labels(dict): Dictionary for soil temperature mapping from met variable to eddypro label
         """
-        site_soil_key = df_soil_key[df_soil_key['Site name'] == site_name]  # get all variables for the site
+        site_name_col = df_soil_key.filter(regex='Site name|site name|Site Name|Site|site').columns.to_list()[0]
+        site_soil_key = df_soil_key[df_soil_key[site_name_col] == site_name]  # get all variables for the site
         # get soil temp and moisture variables
         site_soil_moisture = site_soil_key[['Datalogger/met water variable name',
                                             'EddyPro water variable name']]
@@ -263,7 +267,7 @@ class EddyProFormat:
             df (object): Processed Pandas DataFrame object
         """
         # get all temp variables : get all variables where the unit(2nd row) is 'Deg C' or 'degC'
-        temp_cols = [c for c in df.columns if df.iloc[0][c] in ['Deg C', 'degC', 'deg_C']]
+        temp_cols = [c for c in df.columns if df.iloc[0][c] in ['Deg C', 'Deg_C', 'degC', 'deg_C', 'deg C']]
         df_temp = df[temp_cols]
         df_temp = df_temp.iloc[1:, :]  # make sure not to reset index here as we need to insert unit row at index 0
         df_temp = df_temp.apply(pd.to_numeric, errors='coerce')  # convert string to numerical
@@ -279,14 +283,13 @@ class EddyProFormat:
     @staticmethod
     def replace_nonnumeric(df):
         """
-        Method to convert all NaNs to -9999.0 inplace. Step 7 in guide.
+        Method to convert all NaNs to -9999 inplace. Step 7 in guide.
 
         Args:
             df (object): Pandas DataFrame object
         Returns:
             df (object): Processed Pandas DataFrame object
         """
-        df.fillna(value=-9999.0, inplace=True)
         df.fillna(value=-9999, inplace=True)
         return df
 

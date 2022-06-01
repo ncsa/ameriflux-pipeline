@@ -87,6 +87,9 @@ def eddypro_preprocessing(file_meta_data_file):
     eddypro_formatted_met_file = os.path.join(data_util.get_directory(cfg.MASTER_MET), eddypro_formatted_met_name)
     # start formatting data
     df = EddyProFormat.data_formatting(cfg.MASTER_MET, cfg.INPUT_SOIL_KEY, file_meta, eddypro_formatted_met_file)
+    if df is None:
+        print("Eddypro formatting of master met data failed.")
+        return None
     # write formatted df to output path
     data_util.write_data(df, eddypro_formatted_met_file)
 

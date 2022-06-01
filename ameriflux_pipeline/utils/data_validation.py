@@ -199,3 +199,32 @@ class DataValidation:
             return False
         # all validations done
         return True
+
+    @staticmethod
+    def is_valid_soils_key(df):
+        """
+        Method to check if the input soils key dataframe contains data as expected
+        Checks for site name col, Datalogger/ met tower column, EddyPro and PyFluxPro columns
+        Returns True if valid, else returns False
+        Args:
+            df (obj): Pandas dataframe object to check for valid soils key format
+        Returns:
+            (bool): True if df is valid, else False
+        """
+        site_name_col = df.filter(regex='Site name|site name|Site Name|Site|site').columns.to_list()[0]
+        if not site_name_col:
+            print("Site name not in Soils key")
+            return False
+        # check if required columns are present
+        req_cols = ['Datalogger/met water variable name', 'Datalogger/met temperature variable name',
+                    'EddyPro temperature variable name', 'EddyPro water variable name']
+        if set(req_cols) <= set(df.columns()):
+            # required columns is a subset of all column list
+            return True
+        else:
+            print("Check for required columns in soils key: ", end='')
+            print("Datalogger/met water variable name, Datalogger/met temperature variable name , "
+                  "EddyPro temperature variable name, EddyPro water variable name")
+            return False
+        # all validations done
+        return True
