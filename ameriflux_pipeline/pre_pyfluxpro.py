@@ -55,8 +55,8 @@ def input_validation():
 
 def eddypro_preprocessing(file_meta_data_file):
     """
-    Main function to run EddyPro processing. Calls other functions
-
+    Main function to run EddyPro processing. Calls other functions.
+    This creates the master met data and formats the same for EddyPro
     Args:
         file_meta_data_file (str) : Filepath to write the meta data, typically the first line of Met data
     Returns :
