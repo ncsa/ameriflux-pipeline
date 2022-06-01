@@ -12,6 +12,7 @@ from pandas.api.types import is_datetime64_any_dtype as is_datetime64
 import ipaddress
 import os.path
 
+
 class DataValidation:
     '''
     Class to implement data validation
@@ -171,12 +172,12 @@ class DataValidation:
         else:
             return True
 
-
     @staticmethod
     def is_valid_meta_data(df):
         """
         Method to check if the input dataframe containing meta data of met tower variables is in valid format.
-        Checks for expected meta data like TIMESTAMP and RECORD columns, TS and RN units and Min/Avg
+        Checks for expected meta data like TIMESTAMP and RECORD columns, TS and RN units and Min/Avg.
+        These are standard if using Campbell datalogger.
         Returns True if valid, else returns False
         Args:
             df (obj): Pandas dataframe object to check for valid format
@@ -192,13 +193,9 @@ class DataValidation:
         if 'TS' not in unit_names:
             print("TIMESTAMP expected unit TS not found in data")
             return False
-        # TODO : Ask Bethany if this needs to be checked
         min_avg = df.iloc[2].to_list()
         if not ('Min' in min_avg or 'Avg' in min_avg):
             print("'Min' or 'Avg' keywords expected in third row of met data")
             return False
         # all validations done
         return True
-
-
-
