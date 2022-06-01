@@ -151,7 +151,7 @@ class AmeriFluxFormat:
             full_output_df['VPD'] = full_output_df['VPD'] / 100
             full_output_df_meta['VPD'].iloc[0] = '[hPa]'
         if 'Tau' in full_output_df:
-            full_output_df['Tau'] = full_output_df['Tau'].abs()
+            full_output_df['Tau'] = full_output_df['Tau'] * -1
             full_output_df_meta['Tau'].iloc[0] = '[kg+1m-1s-2]'
 
         # convert soil moisture variables into percentage values
