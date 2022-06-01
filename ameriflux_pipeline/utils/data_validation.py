@@ -12,6 +12,7 @@ from pandas.api.types import is_datetime64_any_dtype as is_datetime64
 import ipaddress
 import os.path
 
+
 class DataValidation:
     '''
     Class to implement data validation
@@ -171,7 +172,6 @@ class DataValidation:
         else:
             return True
 
-
     @staticmethod
     def is_valid_meta_data(df):
         """
@@ -199,6 +199,3 @@ class DataValidation:
             return False
         # all validations done
         return True
-
-
-

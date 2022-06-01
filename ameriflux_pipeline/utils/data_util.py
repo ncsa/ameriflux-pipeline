@@ -86,4 +86,3 @@ def get_valid_datetime(data):
     except ValueError:
         print(data, "Incorrect date format")
         return None
-

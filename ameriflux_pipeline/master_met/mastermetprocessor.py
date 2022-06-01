@@ -95,7 +95,7 @@ class MasterMetProcessor:
             try:
                 shf_mV, shf_cal = df['shf_mV_Avg(1)'], df['shf_cal_Avg(1)']
                 df['shf_1_Avg'] = MasterMetProcessor.soil_heat_flux_calculation(shf_mV, shf_cal)
-            except:
+            except KeyError:
                 print("Soil heat flux calculation failed. Check if columns shf_mV_Avg(1) and shf_cal_Avg(1) exists.")
 
         # Step 6 in guide. Absolute humidity check
@@ -105,7 +105,7 @@ class MasterMetProcessor:
             # add Ah_fromRH column and unit to df_meta
             Ah_fromRH_unit = 'g/m^3'
             df_meta['Ah_fromRH'] = Ah_fromRH_unit
-        except:
+        except KeyError:
             print("AhFromRH calculation failed. Check if columns 'AirTC_Avg' and 'RH_Avg' exists.")
 
         # Step 4 in guide
@@ -211,7 +211,8 @@ class MasterMetProcessor:
             file_meta (obj) : meta data of file. Consists of file name, field site, and crop.
         """
         # TODO : Check meta_data format. At present the code checks for first 4 lines.
-        # But even if the last line is not present, it is ok. Need to check at which row the timestamp/ numerical data is starting.
+        # But even if the last line is not present, it is ok.
+        # Need to check at which row the timestamp/ numerical data is starting.
         file_meta = file_df_meta.head(1)
         # the first row contains meta data of file. Used to match the filename to soil key.
         # returned with the processed df
