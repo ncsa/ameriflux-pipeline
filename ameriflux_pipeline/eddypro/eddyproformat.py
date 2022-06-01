@@ -46,7 +46,7 @@ class EddyProFormat:
         # match file site name to site names in soil key file. this is used as lookup in soil key table
         site_name = data_util.get_site_name(file_site_name)
 
-        # read soil key file
+        # read soil key file. File contains the mapping for met variables and eddypro labels for soil temp and moisture
         df_soil_key = data_util.read_excel(input_soil_key)
         if not DataValidation.is_valid_soils_key(df_soil_key):
             print("Soils_key.xlsx file invalid format. Aborting")
@@ -95,30 +95,6 @@ class EddyProFormat:
 
         # return formatted df
         return df
-
-    # not currently used
-    @staticmethod
-    def get_site_name(file_site_name):
-        """
-        Match the file site name to site names in soil key data.
-        From the input file site name, return the matching site name
-        Site name is used as lookup in soil key table
-
-        Args:
-            file_site_name (str): file site name from file meta data, first row of input met file
-        Returns:
-            (str): matching site name
-        """
-        if re.match('^CPU:Maize_Control_*', file_site_name):
-            return 'Maize-Control'
-        elif re.match('^CPU:Maize_*', file_site_name):
-            return 'Maize-Basalt'
-        elif re.match('^CPU:Miscanthus_Control_*', file_site_name):
-            return 'Miscanthus-Control'
-        elif re.match('^CPU:Miscanthus_*', file_site_name):
-            return 'Miscanthus-Basalt'
-        elif re.match('^CPU:Sorghum_*', file_site_name):
-            return 'Sorghum'
 
     @staticmethod
     def get_soil_keys(df_soil_key, site_name):
@@ -171,21 +147,6 @@ class EddyProFormat:
         df = pd.read_csv(output_path)
         return df
 
-    # not currently used
-    @staticmethod
-    def read_soil_key(input_soil_key):
-        """
-        Method to read soil key excel file.
-        Soil key file contains the mapping for met variables and eddypro labels for soil temp and moisture
-        Returns the df
-
-        Args :
-            input_soil_key (str): soil key file path
-        Returns :
-            obj : pandas dataframe object of the soil keys
-        """
-        soil_key_df = pd.read_excel(input_soil_key)  # read excel file
-        return soil_key_df
 
     @staticmethod
     def timestamp_format(df):
