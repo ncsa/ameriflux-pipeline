@@ -227,3 +227,30 @@ class DataValidation:
                   "EddyPro temperature variable name, EddyPro water variable name")
             return False
 
+    @staticmethod
+    def is_valid_full_output(df):
+        """
+        Method to check if the eddypro full output dataframe contains data as expected
+        Checks for date, time, sonic_temperature and air_pressure columns
+        Returns True if valid, else returns False
+        Args:
+            df (obj): Pandas dataframe object to check for valid eddypro full output sheet
+        Returns:
+            (bool): True if df is valid, else False
+        """
+        date_col = df.filter(regex="date|Date").columns.to_list()
+        time_col = df.filter(regex="time|Time").columns.to_list()
+        if not date_col:
+            print("Date column not present in EddyPro full output sheet")
+            return False
+        if not time_col:
+            print("Time column not present in EddyPro full output sheet")
+            return False
+        sonic_temperature_col = df.filter(regex="sonic_temperature").columns.to_list()
+        if not sonic_temperature_col:
+            print("Sonic temperature column not present in EddyPro full output sheet")
+            return False
+        air_pressure_col = df.filter(regex="air_pressure").columns.to_list()
+        if not air_pressure_col:
+            print("Air pressure column not present in EddyPro full output sheet")
+            return False

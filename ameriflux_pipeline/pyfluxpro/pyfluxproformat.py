@@ -7,6 +7,8 @@
 import pandas as pd
 import numpy as np
 
+from utils.data_validation import DataValidation
+
 
 class PyFluxProFormat:
     '''
@@ -25,6 +27,11 @@ class PyFluxProFormat:
             obj: Pandas DataFrame object.
         """
         df, df_meta = PyFluxProFormat.read_data(input_path)  # reads file and returns data and meta data
+        # check for required columns in eddypro full output sheet
+        is_valid = DataValidation.is_valid_full_output(df)
+        if not is_valid:
+            print("EddyPro full output not in valid format")
+            return None
         # add columns and units to meta data if neccessary
         df, df_meta = PyFluxProFormat.add_timestamp(df, df_meta)  # step 3b in guide
         # convert -9999.0 to NaN. To make numerical conversions easier.
@@ -37,6 +44,8 @@ class PyFluxProFormat:
         df, df_meta = PyFluxProFormat.convert_airpressure_unit(df, df_meta)
         # step 3e is skipped with time-gap filling settings in eddypro. so is step3.e.a
         df = PyFluxProFormat.concat_df(df, df_meta)  # concatenate df and df meta
+        if df is None:
+            return None
         # convert NaNs back
         df.replace(np.nan, 'NAN', inplace=True)
         # return formatted df
@@ -76,7 +85,9 @@ class PyFluxProFormat:
             df (object): Processed Pandas DataFrame object
             df_meta (object): Processed Pandas DataFrame object
         """
-        df['TIMESTAMP'] = df['date'] + ' ' + df['time']
+        date_col = df.filter(regex="date|Date").columns.to_list()[0]
+        time_col = df.filter(regex="time|Time").columns.to_list()[0]
+        df['TIMESTAMP'] = df[date_col] + ' ' + df[time_col]
         df_meta['TIMESTAMP'] = 'yyyy/mm/dd HH:MM'  # add new variable and unit to meta df
         df['TIMESTAMP'] = df['TIMESTAMP'].map(lambda t: t.replace('-', '/'))
         # move TIMESTAMP column to first index
@@ -134,5 +145,11 @@ class PyFluxProFormat:
         Returns:
             df (obj): Merged Pandas DataFrame object
         """
-        df = pd.concat([df_meta, df], ignore_index=True)
-        return df
+        # concat the meta df and df if number of columns is the same
+        if df_meta.shape[1] == df.shape[1]:
+            df = pd.concat([df_meta, df], ignore_index=True)
+            return df
+        else:
+            print("Number of columns in met data {} not the same as number of columns in meta data {}".
+                  format(df.shape[1], df_meta.shape[1]))
+            return None
