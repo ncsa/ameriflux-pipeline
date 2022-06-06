@@ -343,7 +343,8 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
     # run ameriflux formatting of pyfluxpro input
     is_pyfluxpro_ameriflux_processing_success = False
     if os.path.exists(cfg.PYFLUXPRO_INPUT_SHEET):
-        is_pyfluxpro_ameriflux_processing_success = pyfluxpro_ameriflux_processing(cfg.PYFLUXPRO_INPUT_SHEET, cfg.PYFLUXPRO_INPUT_AMERIFLUX)
+        is_pyfluxpro_ameriflux_processing_success = \
+            pyfluxpro_ameriflux_processing(cfg.PYFLUXPRO_INPUT_SHEET, cfg.PYFLUXPRO_INPUT_AMERIFLUX)
     else:
         print(cfg.PYFLUXPRO_INPUT_SHEET, "path does not exist")
         # return failure
