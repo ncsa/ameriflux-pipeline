@@ -153,7 +153,10 @@ class MasterMetProcessor:
 
                 df_meta[albedo_col] = SW_unit  # add shortwave radiation units
         except NameError:
-            print("Shortwave calculation failed. Check SW or CD3 columns in met data.")
+            if albedo_col[0] not in df.columns:
+                print("Albedo present in met data. Shortwave not calculated")
+            else:
+                print("Shortwave calculation failed. Check SW or CD3 columns in met data.")
 
         # NOTE 2
         # concat the meta df and df if number of columns is the same
@@ -224,6 +227,7 @@ class MasterMetProcessor:
         df_meta.columns = df_meta.iloc[0]
         df_meta.drop(df_meta.index[0], inplace=True)
         df_meta.reset_index(drop=True, inplace=True)  # reset index after dropping first row
+        df_meta = df_meta.head(1)  # dropping the last row of Min / Avg
         return df_meta, file_meta
 
     @staticmethod

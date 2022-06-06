@@ -144,6 +144,7 @@ class AmeriFluxFormat:
             print("Albedo column not present")
             albedo_col = None
         if albedo_col:
+            met_df = met_df.astype({albedo_col: float})
             met_df['ALB'] = met_df[albedo_col].apply(lambda x: 1 if float(x) > 1 else float(x) * 100)
             met_df_meta['ALB'] = '%'
 
