@@ -147,7 +147,6 @@ class EddyProFormat:
         df = pd.read_csv(output_path)
         return df
 
-
     @staticmethod
     def timestamp_format(df):
         """
@@ -158,6 +157,7 @@ class EddyProFormat:
         Returns:
             df (object): Pandas DataFrame object
         """
+        df = df.astype({'TIMESTAMP': str})
         df['TIMESTAMP'] = df['TIMESTAMP'].map(lambda t: t.replace('/', '-'))
         df['TIMESTAMP'][0] = 'yyyy-mm-dd HH:MM'  # Change unit TS to yyyy-mm-dd HH:MM to match eddypro format
         return df

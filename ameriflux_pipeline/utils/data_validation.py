@@ -254,3 +254,5 @@ class DataValidation:
         if not air_pressure_col:
             print("Air pressure column not present in EddyPro full output sheet")
             return False
+        # all validations done
+        return True
