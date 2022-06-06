@@ -170,7 +170,7 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
     writer.save()
     writer.close()
     print("PyFluxPro input excel sheet saved in ", cfg.PYFLUXPRO_INPUT_SHEET)
-    # eddypro full output sheet formatting success
+    # eddypro full output sheet formatting and pyfluxpro input sheet creation is successful
     return True
 
 
