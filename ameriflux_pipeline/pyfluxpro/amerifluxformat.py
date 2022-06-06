@@ -52,11 +52,15 @@ class AmeriFluxFormat:
         if full_output_df_meta.shape[1] == full_output_df.shape[1]:
             full_output_df = pd.concat([full_output_df_meta, full_output_df], ignore_index=True)
         else:
-            print("Full_output meta and data file columns not matching")
+            print("Number of columns in Full_output meta data {} not the same as number of columns in data {}".
+                  format(full_output_df_meta.shape[1], full_output_df.shape[1]))
+            full_output_df = None
         if met_df_meta.shape[1] == met_df.shape[1]:
             met_df = pd.concat([met_df_meta, met_df], ignore_index=True)
         else:
-            print("Met_data_30 meta and data file columns not matching")
+            print("Number of columns in Met_data_30 meta data {} not the same as number of columns in data {}".
+                  format(met_df_meta.shape[1], met_df.shape[1]))
+            met_df = None
 
         return full_output_df, met_df
 
@@ -149,23 +153,27 @@ class AmeriFluxFormat:
             met_df = met_df.astype({albedo_col: float})
             met_df['ALB'] = met_df[albedo_col].apply(lambda x: 1 if float(x) > 1 else float(x) * 100)
             met_df_meta['ALB'] = '%'
-
-        if 'VPD' in full_output_df:
-            full_output_df['VPD'] = full_output_df['VPD'] / 100
+        vpd_col = full_output_df.filter(regex="VPD|vpd|Vpd").columns.to_list()[0]
+        if vpd_col:
+            full_output_df['VPD'] = full_output_df[vpd_col] / 100
             full_output_df_meta['VPD'].iloc[0] = '[hPa]'
-        if 'Tau' in full_output_df:
-            full_output_df['Tau'] = full_output_df['Tau'].abs()
+        else:
+            print("VPD column not present in full_output")
+        tau_col = full_output_df.filter(regex="Tau|tau|TAU").columns.to_list()[0]
+        if tau_col:
+            full_output_df['Tau'] = full_output_df[tau_col] * -1.0
             full_output_df_meta['Tau'].iloc[0] = '[kg+1m-1s-2]'
-
+        else:
+            print("Tau column not present in full_output")
         # convert soil moisture variables into percentage values
-        soil_moisture_col = [col for col in met_df if col.startswith('Moisture')]
+        soil_moisture_col = [col for col in met_df if col.startswith('Moisture|moisture')]
         soil_moisture_col.extend(col for col in met_df if col.startswith('VWC'))
         for col in soil_moisture_col:
             met_df[col] = met_df[col] * 100
             met_df_meta[col].iloc[0] = '%'
 
         # convert variances to std deviations in full_output
-        variance_vars = [col for col in full_output_df if col.endswith('_var')]
+        variance_vars = [col for col in full_output_df if col.endswith('_var|_Var')]
         for col in variance_vars:
             col_sd = col.split('_')[0] + '_sd'
             full_output_df[col_sd] = np.sqrt(full_output_df[col].astype(float))
