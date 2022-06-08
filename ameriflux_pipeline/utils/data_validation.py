@@ -369,7 +369,10 @@ class L1Validation:
             if file_path_flag and out_filename_flag:
                 # test is completed, break out of for loop
                 break
-        return True
+        if file_path_flag and out_filename_flag:
+            return True
+        else:
+            return False
 
     @staticmethod
     def check_global_line(lines):
@@ -389,7 +392,10 @@ class L1Validation:
             if acknowledgement_flag:
                 # test is complete, break out of for loop
                 break
-        return True
+        if acknowledgement_flag:
+            return True
+        else:
+            return False
 
     @staticmethod
     def check_variables_line(lines, var_pattern=VAR_PATTERN, xl_pattern=XL_PATTERN, attr_pattern=ATTR_PATTERN,
