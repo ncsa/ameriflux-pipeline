@@ -44,6 +44,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - User input validation [#159](https://github.com/ncsa/ameriflux-pipeline/issues/159)
 - Updated NOTES [#166](https://github.com/ncsa/ameriflux-pipeline/issues/166)
 - Added reading xls formating functionality [#164](https://github.com/ncsa/ameriflux-pipeline/issues/164)
+- Data validation for met data merge [#168](https://github.com/ncsa/ameriflux-pipeline/issues/168)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
