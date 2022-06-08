@@ -417,6 +417,7 @@ class L1Validation:
         long_name_flag = False
         name_flag = False
         sheet_flag = False
+        flags = [var_flag, xl_flag, attr_flag, units_flag, long_name_flag, name_flag, sheet_flag]
         for line in lines:
             if re.match(var_pattern, line.strip()):
                 var_flag = True
@@ -447,9 +448,12 @@ class L1Validation:
                 if L1Validation.check_space(line.split('=')[0].rstrip()) != 4 * 3:
                     return False
             # test if all flag values are true
-            flags = [var_flag, xl_flag, attr_flag, units_flag, long_name_flag, name_flag, sheet_flag]
             if all(flags):
                 # all flag values are true, then break out of for loop
-                break
+                return True
         # end of for loop, format is as expected
-        return True
+        if all(flags):
+            # all flag values are true, then break out of for loop
+            return True
+        else:
+            return False
