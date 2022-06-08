@@ -102,7 +102,7 @@ class MasterMetProcessor:
         # step 8 in guide - add precip data. join df and df_precip
         # keep all met data and have NaN for precip values that are missing - left join with met data
         # throw a warning if there are extra timestamps in met data
-        if (df.shape[0] > df_precip.shape[0]):
+        if df.shape[0] > df_precip.shape[0]:
             # there are more records in met data
             print("Extra timestamps in met data. Joining precip with NaN value in extra timestamps")
         # NOTE 8
@@ -113,25 +113,26 @@ class MasterMetProcessor:
 
         # step 7 in guide - calculation of shortwave radiation
         SW_unit = 'W/m^2'  # unit for shortwave radiation
-        # NOTE 10
         if 'SWUp_Avg' in df.columns:
             shortwave_out = 'SWUp_Avg'
         elif 'CM3Dn_Avg' in df.columns:
             shortwave_out = 'CM3Dn_Avg'
         df['SW_out_Avg'] = df[shortwave_out]
         df_meta['SW_out_Avg'] = SW_unit  # add shortwave radiation units
-        albedo_col = str(df.filter(regex=("Albedo|albedo|ALB")).columns[0])
-        if albedo_col not in df.columns:
+        # NOTE 10
+        albedo_col = df.filter(regex="Albedo|albedo|ALB").columns.to_list()
+        if (not albedo_col) or (albedo_col[0] not in df.columns):
             # calculate albedo_avg from shortwave out and shortwave in
             if 'SWDn_Avg' in df.columns:
                 shortwave_in = 'SWDn_Avg'
             elif 'CM3Up_Avg' in df.columns:
                 shortwave_in = 'CM3Up_Avg'
             # avoid zero division error
-            df[albedo_col] = df.apply(lambda x: float(x[shortwave_out]) / float(x[shortwave_in])
-                                      if float(x[shortwave_in]) != 0 else np.nan, axis=1)
-
-        df_meta[albedo_col] = SW_unit  # add shortwave radiation units
+            df[albedo_col[0]] = df.apply(lambda x: float(x[shortwave_out]) / float(x[shortwave_in])
+                                         if float(x[shortwave_in]) != 0 else np.nan, axis=1)
+        else:
+            # albedo is present in the dataset. Add the corresponding unit.
+            df_meta[albedo_col[0]] = SW_unit  # add shortwave radiation units
 
         # NOTE 2
         # concat the meta df and df if number of columns is the same
@@ -222,7 +223,7 @@ class MasterMetProcessor:
             data_path (str): input data file path
             precip_lower (int) : Lower threshold value for precipitation in inches
             precip_upper (int) : Upper threshold value for precipitation in inches
-            missing_timeslot_threshold (int): Value for missing timeslot threshold. used for insert_missing_time method
+            missing_time_threshold (int): Value for missing timeslot threshold. used for insert_missing_time method
             user_confirmation (str) : Option to either insert or ignore missing timestamps
         Returns:
             obj: Pandas DataFrame object
@@ -266,7 +267,7 @@ class MasterMetProcessor:
             df (obj): input precip dataframe
             precip_lower (float) : Lower threshold value for precipitation in inches
             precip_upper (float) : Upper threshold value for precipitation in inches
-            missing_timeslot_threshold (int): Value for missing timeslot threshold. used for insert_missing_time method
+            missing_time_threshold (int): Value for missing timeslot threshold. used for insert_missing_time method
             user_confirmation (str) : Option to either insert or ignore missing timestamps
         Returns:
             obj (Pandas DataFrame object): processed and cleaned precip dataframe
