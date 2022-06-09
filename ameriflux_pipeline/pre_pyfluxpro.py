@@ -13,8 +13,9 @@ from datetime import datetime
 from config import Config as cfg
 import utils.data_util as data_util
 from utils.syncdata import SyncData as syncdata
-
+from utils.data_validation import DataValidation
 from utils.input_validation import InputValidation
+
 from master_met.mastermetprocessor import MasterMetProcessor
 from eddypro.eddyproformat import EddyProFormat
 from eddypro.runeddypro import RunEddypro
@@ -49,14 +50,14 @@ def input_validation():
     if not InputValidation.l2format():
         return False
 
-    print("Validations complete")
+    print("User input validations complete")
     return True
 
 
 def eddypro_preprocessing(file_meta_data_file):
     """
-    Main function to run EddyPro processing. Calls other functions
-
+    Main function to run EddyPro processing. Calls other functions.
+    This creates the master met data and formats the same for EddyPro
     Args:
         file_meta_data_file (str) : Filepath to write the meta data, typically the first line of Met data
     Returns :
@@ -71,6 +72,9 @@ def eddypro_preprocessing(file_meta_data_file):
         MasterMetProcessor.data_preprocess(cfg.INPUT_MET, cfg.INPUT_PRECIP, float(qc_precip_lower),
                                            float(qc_precip_upper), int(missing_time),
                                            cfg.MISSING_TIME_USER_CONFIRMATION)
+    if df is None:
+        print("Creation of master met data has failed.")
+        return None
     # write processed df to output path
     data_util.write_data(df, cfg.MASTER_MET)
 
@@ -84,6 +88,9 @@ def eddypro_preprocessing(file_meta_data_file):
     eddypro_formatted_met_file = os.path.join(data_util.get_directory(cfg.MASTER_MET), eddypro_formatted_met_name)
     # start formatting data
     df = EddyProFormat.data_formatting(cfg.MASTER_MET, cfg.INPUT_SOIL_KEY, file_meta, eddypro_formatted_met_file)
+    if df is None:
+        print("Eddypro formatting of master met data failed.")
+        return None
     # write formatted df to output path
     data_util.write_data(df, eddypro_formatted_met_file)
 
@@ -114,9 +121,13 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
         full_output_pyfluxpro (str): Filename to write the full_output formatted for PyFluxPro
         met_data_30_input (str): Input meteorological file path
         met_data_30_pyfluxpro (str): Meteorological file used as input for PyFluxPro.
-    Returns : None
+    Returns :
+        (bool) : True if pyfluxpro input sheet is successfully created, else False
     """
     full_output_df = PyFluxProFormat.data_formatting(eddypro_full_output)
+    if full_output_df is None:
+        print("Formatting of eddypro full output sheet failed.")
+        return False
     # met_data has data from row index 1. EddyPro full_output will be formatted to have data from row index 1 also.
     # This is step 3a in guide.
 
@@ -159,6 +170,8 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
     writer.save()
     writer.close()
     print("PyFluxPro input excel sheet saved in ", cfg.PYFLUXPRO_INPUT_SHEET)
+    # eddypro full output sheet formatting and pyfluxpro input sheet creation is successful
+    return True
 
 
 def pyfluxpro_ameriflux_processing(input_file, output_file):
@@ -267,6 +280,7 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
 
     # run eddypro preprocessing and formatting
     eddypro_formatted_met_file = eddypro_preprocessing(file_meta_data_file)
+
     if not os.path.exists(eddypro_formatted_met_file):
         # return failure
         print("EddyPro Processing failed")
@@ -292,17 +306,29 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
     # grab eddypro full output
     outfile_list = os.listdir(cfg.EDDYPRO_OUTPUT_PATH)
     eddypro_full_outfile = None
+    is_pyfluxpro_processing_success = False
     for outfile in outfile_list:
         if 'full_output' in outfile:
             eddypro_full_outfile = os.path.join(cfg.EDDYPRO_OUTPUT_PATH, outfile)
+            # filetype validation for eddypro_full_outfile
+            if not DataValidation.filetype_validation(eddypro_full_outfile, '.csv'):
+                print(eddypro_full_outfile, ".csv extension expected")
+                # get the next full_output sheet if exists
+                continue
             # run pyfluxpro formatting
-            pyfluxpro_processing(eddypro_full_outfile, cfg.FULL_OUTPUT_PYFLUXPRO, cfg.MASTER_MET,
-                                 cfg.MET_DATA_30_PYFLUXPRO)
-            break
+            is_pyfluxpro_processing_success = pyfluxpro_processing(eddypro_full_outfile, cfg.FULL_OUTPUT_PYFLUXPRO,
+                                                                   cfg.MASTER_MET, cfg.MET_DATA_30_PYFLUXPRO)
+            if is_pyfluxpro_processing_success:
+                # pyfluxpro formatting is success, break out of loop.
+                break
+
     # if eddypro full output file not present
     if not eddypro_full_outfile:
-        print("EddyPro full output not present")
+        print("EddyPro full output not present. Aborting")
         # return failure
+        return False
+    if not is_pyfluxpro_processing_success:
+        print("PyFluxpro processing failed. Aborting")
         return False
 
     # run ameriflux formatting of pyfluxpro input
@@ -374,6 +400,8 @@ def main():
     is_success = pre_processing(file_meta_data_file, erroring_variable_flag)
     if is_success:
         print("Successfully completed pre-processing of PyFluxPro L1 and L2")
+    else:
+        print("Pre-processing resulted in an error.")
 
     end = time.time()
     hours, rem = divmod(end - start, 3600)

@@ -3,9 +3,12 @@
 # This program and the accompanying materials are made available under the
 # terms of the Mozilla Public License v2.0 which accompanies this distribution,
 # and is available at https://www.mozilla.org/en-US/MPL/2.0/
+import datetime
 
+import pandas as pd
 import validators
 from validators import ValidationFailure
+from pandas.api.types import is_datetime64_any_dtype as is_datetime64
 import ipaddress
 import os.path
 
@@ -168,3 +171,88 @@ class DataValidation:
             return False
         else:
             return True
+
+    @staticmethod
+    def is_valid_meta_data(df):
+        """
+        Method to check if the input dataframe containing meta data of met tower variables is in valid format.
+        Checks for expected meta data like TIMESTAMP and RECORD columns, TS and RN units and Min/Avg.
+        These are standard if using Campbell datalogger.
+        Returns True if valid, else returns False
+        Args:
+            df (obj): Pandas dataframe object to check for valid format
+        Returns:
+            (bool): True if df is valid, else False
+        """
+        # check for TIMESTAMP and RECORD columns in the first row
+        column_names = df.iloc[0].to_list()
+        if 'TIMESTAMP' not in column_names:
+            print("TIMESTAMP not in met data.")
+            return False
+        unit_names = df.iloc[1].to_list()
+        if 'TS' not in unit_names:
+            print("TIMESTAMP expected unit TS not found in data")
+            return False
+        min_avg = df.iloc[2].to_list()
+        if not ('Min' in min_avg or 'Avg' in min_avg):
+            print("'Min' or 'Avg' keywords expected in third row of met data")
+            return False
+        # all validations done
+        return True
+
+    @staticmethod
+    def is_valid_soils_key(df):
+        """
+        Method to check if the input soils key dataframe contains data as expected
+        Checks for site name col, Datalogger/ met tower column, EddyPro and PyFluxPro columns
+        Returns True if valid, else returns False
+        Args:
+            df (obj): Pandas dataframe object to check for valid soils key format
+        Returns:
+            (bool): True if df is valid, else False
+        """
+        site_name_col = df.filter(regex='Site name|site name|Site Name|Site|site').columns.to_list()[0]
+        if not site_name_col:
+            print("Site name not in Soils key")
+            return False
+        # check if required columns are present
+        req_cols = ['Datalogger/met water variable name', 'Datalogger/met temperature variable name',
+                    'EddyPro temperature variable name', 'EddyPro water variable name']
+        if set(req_cols) <= set(df.columns):
+            # required columns is a subset of all column list
+            return True
+        else:
+            print("Check for required columns in soils key: ", end='')
+            print("Datalogger/met water variable name, Datalogger/met temperature variable name, "
+                  "EddyPro temperature variable name, EddyPro water variable name")
+            return False
+
+    @staticmethod
+    def is_valid_full_output(df):
+        """
+        Method to check if the eddypro full output dataframe contains data as expected
+        Checks for date, time, sonic_temperature and air_pressure columns
+        Returns True if valid, else returns False
+        Args:
+            df (obj): Pandas dataframe object to check for valid eddypro full output sheet
+        Returns:
+            (bool): True if df is valid, else False
+        """
+        date_col = df.filter(regex="date|Date").columns.to_list()
+        time_col = df.filter(regex="time|Time").columns.to_list()
+        if not date_col:
+            print("Date column not present in EddyPro full output sheet")
+            return False
+        if not time_col:
+            print("Time column not present in EddyPro full output sheet")
+            return False
+        sonic_temperature_col = df.filter(regex="sonic_temperature").columns.to_list()
+        if not sonic_temperature_col:
+            print("Sonic temperature column not present in EddyPro full output sheet")
+            return False
+        air_pressure_col = df.filter(regex="air_pressure").columns.to_list()
+        if not air_pressure_col:
+            print("Air pressure column not present in EddyPro full output sheet")
+            return False
+        # all validations done
+        return True

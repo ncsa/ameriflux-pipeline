@@ -1,6 +1,6 @@
 # Notes
 - All notable decisions and code structure is documented in this file.
-- Each decision made will be tagged and the tag will be present in the corresponding code section.
+- Each decision made will be numbered and the tag will be present in the corresponding code section.
 
 ## Notes on data and decisions made
 ### 1 
@@ -27,7 +27,7 @@
 - EddyPro does not handle missing timestamps. If there are missing timestamps in the met data, insert missing timestamps with fill value.
 - If there is a large gap in the timestamps in met data, user can choose whether or not to insert missing timestamps.
 ### 8
-- The met data and precip data are merged on the timestamp column. 
+- The met data and precip data are merged on the timestamp column. Merging is done on the time delayed timestamp column of met data.
 - If there are extra timestamps in met data, keep them in the final dataframe while filling the precip data as NANs.
 - If there are extra timestamps in precip data, ignore that.
 ### 9
@@ -65,7 +65,7 @@
 ### 19
 - During merge of dat files / raw met files from the server, the end date is taken as the next day midnight so that after timestamp shift of 30min the Flux data file contains data for the whole year
 ### 20
-- From July 14, 2021, the datalogger met variables names were changed. Hence when merging the met data, certain old variables names are to be changed to newer standardized variable names.
+- In 2021 there has been a program change resulting in the change of some datalogger met variables names. Hence when merging the met data, certain old variables names are to be changed to newer standardized variable names.
 - {'CM3Up_Avg': 'SWDn_Avg', 'CM3Dn_Avg': 'SWUp_Avg', 'CG3UpCo_Avg': 'LWDnCo_Avg', 'CG3DnCo_Avg': 'LWUpCo_Avg', 'NetTot_Avg': 'Rn_Avg', 'cnr1_T_C_Avg': 'CNR1TC_Avg', 'cnr1_T_K_Avg': 'CNR1TK_Avg', 'Rs_net_Avg': 'NetRs_Avg', 'Rl_net_Avg': 'NetRl_Avg' , 'VWC_': 'VWC1_', 'TC_':'TC1_'}
 
 

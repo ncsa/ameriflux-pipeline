@@ -44,6 +44,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - User input validation [#159](https://github.com/ncsa/ameriflux-pipeline/issues/159)
 - Updated NOTES [#166](https://github.com/ncsa/ameriflux-pipeline/issues/166)
 - Added reading xls formating functionality [#164](https://github.com/ncsa/ameriflux-pipeline/issues/164)
+- Added details on met_data_merge in README [#178](https://github.com/ncsa/ameriflux-pipeline/issues/178)
+- Data validation for met data merge [#168](https://github.com/ncsa/ameriflux-pipeline/issues/168)
+- Data validation for creation of master met data [#172](https://github.com/ncsa/ameriflux-pipeline/issues/172)
+- Data validation for formatting master met data for EddyPro [#173](https://github.com/ncsa/ameriflux-pipeline/issues/173)
+- Data validation for creating pyfluxpro input excel sheet [#183](https://github.com/ncsa/ameriflux-pipeline/issues/183)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
@@ -67,4 +72,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Updated README file with detailed set up and run information. [#120](https://github.com/ncsa/ameriflux-pipeline/issues/120)
 - Automatically add proper file extension when there is none in env editor. [#122](https://github.com/ncsa/ameriflux-pipeline/issues/122)
 - Description and info in env editor updated. [#150](https://github.com/ncsa/ameriflux-pipeline/issues/150)
+- TAU sign change in pyfluxpro input sheet for ameriflux. [#180](https://github.com/ncsa/ameriflux-pipeline/issues/180)
+- Removed date from NOTES 20. [#174](https://github.com/ncsa/ameriflux-pipeline/issues/174)
 - Calculation of albedo. [#191](https://github.com/ncsa/ameriflux-pipeline/issues/191)

@@ -11,8 +11,41 @@ import os
 import shutil
 import csv
 from datetime import timedelta
-import utils.data_util as data_util
 from pandas.errors import ParserError
+
+import utils.data_util as data_util
+from utils.data_validation import DataValidation
+
+
+def validate_inputs(files, start_date, end_date, output_file):
+    """
+    Method to check if inputs are valid
+
+    Args:
+        files(list): input data files to merge
+        start_date (str): start date for merger
+        end_date (str): end date for merger
+        output_file (str): output file path to write merged csv
+    Returns:
+        (bool): True if inputs are valid, False if not
+    """
+    # check if input files exists
+    for file in files:
+        if not DataValidation.path_validation(file, 'file'):
+            print(file, "path does not exist")
+            return False
+    if not data_util.get_valid_datetime(start_date):
+        return False
+    if not data_util.get_valid_datetime(end_date):
+        return False
+    if not DataValidation.path_validation(data_util.get_directory(output_file), 'dir'):
+        print(data_util.get_directory(output_file), "path does not exists")
+        return False
+    if not DataValidation.filetype_validation(output_file, '.csv'):
+        print(output_file, ".csv extension expected")
+        return False
+    # all validations done
+    return True
 
 
 def read_met_data(data_path):
@@ -25,6 +58,7 @@ def read_met_data(data_path):
         df (obj): Pandas DataFrame object - dataframe with met data
         file_meta (str): The first line of met file
         df_meta (obj) : Pandas DataFrame object
+        site_name (str): Site name extracted from first line of met file
     """
     # read data using csv
     with open(data_path, newline='') as f:
@@ -43,13 +77,17 @@ def read_met_data(data_path):
                                  low_memory=False)
             except ParserError as e:
                 print("Exception in reading ", data_path)
-                return None, None, None
+                return None, None, None, None
 
     # process df to get meta data - column names and units
-    # the first row contains the meta data of file. second and third row contains met variables and their units
+    # the first row contains the meta data of file, which is skipped in read_csv.
+    # second and third row contains met variables and their units
     df_meta = df.head(3)
     df_meta = df_meta.applymap(lambda x: str(x).replace('"', ''))  # strip off quotes from all values
     df_meta = df_meta.applymap(lambda x: str(x).replace('*', ''))
+    if not DataValidation.is_valid_meta_data(df_meta):
+        print("Met data not in valid format")
+        return None, None, None, None
     df_meta.columns = df_meta.iloc[0]  # set column names
     df_meta = df_meta.iloc[1:, :]
     df_meta.reset_index(drop=True, inplace=True)  # reset index after dropping rows
@@ -113,13 +151,15 @@ def data_processing(files, start_date, end_date):
         basename = os.path.basename(file)
         filename = os.path.splitext(basename)[0]
         directory_name = os.path.dirname(file)
-
+        # input files in .dat extension. Change to .csv extension
         output_file = os.path.join(root, directory_name, filename + '.csv')
         input_file = os.path.join(root, directory_name, basename)
         # copy and rename
         shutil.copyfile(input_file, output_file)
         df, file_meta, df_meta, site_name = read_met_data(output_file)
-
+        if df is None:
+            print(output_file, "not readable")
+            return None, None
         # check if the sites are the same for all metdata
         site_names.append(site_name)
         if len(set(site_names)) != 1:
@@ -216,5 +256,9 @@ if __name__ == '__main__':
     start_date = str(args.start)
     end_date = str(args.end)
     output_file = str(args.output)
-    # TODO : check if file exists. Check data validity of dates
-    main(files, start_date, end_date, output_file)
+    # check if file exists
+    is_valid = validate_inputs(files, start_date, end_date, output_file)
+    if is_valid:
+        main(files, start_date, end_date, output_file)
+    else:
+        print("Inputs not valid. Data merge failed. Aborting")
