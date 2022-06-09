@@ -70,8 +70,12 @@ conda install --file requirements.txt
 ```
 5. If multiple dat files needs to be merged, run ```python met_data_merge.py```. 
 - To request all command line parameters, please run ```python met_data_merge.py --help``` 
+- data parameter takes in comma separated file paths. This is a mandatory field. If not specified, the code will ask for user inputs at run time.
+- start parameter takes in the start date for merger, given in yyyy-mm-dd format. This will later be expanded to support any plausible date formats. If not given, by default it takes in 2021-01-01
+- end parameter takes in the end date for merger, given in yyyy-mm-dd format. This will later be expanded to support any plausible date formats. If not given, by default it takes in 2021-12-31
+- output parameter takes in the full output path of a csv file which will write the merged output to. By default it will write to master_met/input/Flux.csv
 - To run the python module with default parameters run ```python met_data_merge.py```
-- Run command example with all arguments:
+- Run command example with all arguments:  
 ``` python met_data_merge.py --data /Users/xx/data/master_met/input/FluxSB_EC.dat,/Users/xx/data/master_met/input/FluxSB_EC.dat.9.backup,/Users/xx/data/master_met/input/FluxSB_EC.dat.10.backup --start 2021-01-01 --end 2021-12-31 --output /Users/xx/data/master_met/input/Flux.csv ```
 
 8. Set necessary parameters for pre and post processing of PyFluxPro and EddyPro
