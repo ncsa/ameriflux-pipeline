@@ -9,14 +9,17 @@ import pandas as pd
 import shutil
 import re
 
+from utils.data_validation import DataValidation
+import utils.data_util as data_util
+
 import warnings
 warnings.filterwarnings("ignore")
 
 
 class EddyProFormat:
-    '''
+    """
     Class to implement formatting meteorological data for EddyPro as per guide
-    '''
+    """
 
     # main method which calls other functions
     @staticmethod
@@ -41,10 +44,13 @@ class EddyProFormat:
         # NOTE 3
         file_site_name = file_meta.iloc[0][5]
         # match file site name to site names in soil key file. this is used as lookup in soil key table
-        site_name = EddyProFormat.get_site_name(file_site_name)
+        site_name = data_util.get_site_name(file_site_name)
 
-        # read soil key file
-        df_soil_key = EddyProFormat.read_soil_key(input_soil_key)
+        # read soil key file. File contains the mapping for met variables and eddypro labels for soil temp and moisture
+        df_soil_key = data_util.read_excel(input_soil_key)
+        if not DataValidation.is_valid_soils_key(df_soil_key):
+            print("Soils_key.xlsx file invalid format. Aborting")
+            return None
         # get the soil temp and moisture keys for the site
         eddypro_soil_moisture_labels, eddypro_soil_temp_labels = EddyProFormat.get_soil_keys(df_soil_key, site_name)
 
@@ -56,7 +62,7 @@ class EddyProFormat:
         df.replace('NAN', np.nan, inplace=True)
 
         # step 3 of guide. change timestamp format
-        df = EddyProFormat.timestamp_format(df)  # / to -
+        df = EddyProFormat.timestamp_format(df)  # change / to -
 
         # rename air temp column names
         eddypro_air_temp_labels = EddyProFormat.air_temp_colnames(df)
@@ -79,7 +85,7 @@ class EddyProFormat:
         # step 6 in guide. convert temperature measurements from celsius to kelvin
         df = EddyProFormat.convert_temp_unit(df)
 
-        # step 7 in guide. Change all NaN or non-numeric values to -9999.0
+        # step 7 in guide. Change all NaN or non-numeric values to -9999
         df = EddyProFormat.replace_nonnumeric(df)
         # get units for EddyPro labels
         df = EddyProFormat.replace_units(df)
@@ -89,29 +95,6 @@ class EddyProFormat:
 
         # return formatted df
         return df
-
-    @staticmethod
-    def get_site_name(file_site_name):
-        """
-        Match the file site name to site names in soil key data.
-        From the input file site name, return the matching site name
-        Site name is used as lookup in soil key table
-
-        Args:
-            file_site_name (str): file site name from file meta data, first row of input met file
-        Returns:
-            (str): matching site name
-        """
-        if re.match('^CPU:Maize_Control_*', file_site_name):
-            return 'Maize-Control'
-        elif re.match('^CPU:Maize_*', file_site_name):
-            return 'Maize-Basalt'
-        elif re.match('^CPU:Miscanthus_Control_*', file_site_name):
-            return 'Miscanthus-Control'
-        elif re.match('^CPU:Miscanthus_*', file_site_name):
-            return 'Miscanthus-Basalt'
-        elif re.match('^CPU:Sorghum_*', file_site_name):
-            return 'Sorghum'
 
     @staticmethod
     def get_soil_keys(df_soil_key, site_name):
@@ -125,7 +108,8 @@ class EddyProFormat:
             eddypro_soil_moisture_labels(dict): Dictionary for soil moisture mapping from met variable to eddypro label
             eddypro_soil_temp_labels(dict): Dictionary for soil temperature mapping from met variable to eddypro label
         """
-        site_soil_key = df_soil_key[df_soil_key['Site name'] == site_name]  # get all variables for the site
+        site_name_col = df_soil_key.filter(regex='Site name|site name|Site Name|Site|site').columns.to_list()[0]
+        site_soil_key = df_soil_key[df_soil_key[site_name_col] == site_name]  # get all variables for the site
         # get soil temp and moisture variables
         site_soil_moisture = site_soil_key[['Datalogger/met water variable name',
                                             'EddyPro water variable name']]
@@ -162,21 +146,6 @@ class EddyProFormat:
         shutil.copyfile(input_path, output_path)
         df = pd.read_csv(output_path)
         return df
-
-    @staticmethod
-    def read_soil_key(input_soil_key):
-        """
-        Method to read soil key excel file.
-        Soil key file contains the mapping for met variables and eddypro labels for soil temp and moisture
-        Returns the df
-
-        Args :
-            input_soil_key (str): soil key file path
-        Returns :
-            obj : pandas dataframe object of the soil keys
-        """
-        soil_key_df = pd.read_excel(input_soil_key)  # read excel file
-        return soil_key_df
 
     @staticmethod
     def timestamp_format(df):
@@ -259,7 +228,7 @@ class EddyProFormat:
             df (object): Processed Pandas DataFrame object
         """
         # get all temp variables : get all variables where the unit(2nd row) is 'Deg C' or 'degC'
-        temp_cols = [c for c in df.columns if df.iloc[0][c] in ['Deg C', 'degC', 'deg_C']]
+        temp_cols = [c for c in df.columns if df.iloc[0][c].lower() in ['deg c', 'degc', 'deg_c']]
         df_temp = df[temp_cols]
         df_temp = df_temp.iloc[1:, :]  # make sure not to reset index here as we need to insert unit row at index 0
         df_temp = df_temp.apply(pd.to_numeric, errors='coerce')  # convert string to numerical
@@ -275,14 +244,13 @@ class EddyProFormat:
     @staticmethod
     def replace_nonnumeric(df):
         """
-        Method to convert all NaNs to -9999.0 inplace. Step 7 in guide.
+        Method to convert all NaNs to -9999 inplace. Step 7 in guide.
 
         Args:
             df (object): Pandas DataFrame object
         Returns:
             df (object): Processed Pandas DataFrame object
         """
-        df.fillna(value=-9999.0, inplace=True)
         df.fillna(value=-9999, inplace=True)
         return df
 

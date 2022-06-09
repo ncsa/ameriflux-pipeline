@@ -27,7 +27,7 @@
 - EddyPro does not handle missing timestamps. If there are missing timestamps in the met data, insert missing timestamps with fill value.
 - If there is a large gap in the timestamps in met data, user can choose whether or not to insert missing timestamps.
 ### 8
-- The met data and precip data are merged on the timestamp column. 
+- The met data and precip data are merged on the timestamp column. Merging is done on the time delayed timestamp column of met data.
 - If there are extra timestamps in met data, keep them in the final dataframe while filling the precip data as NANs.
 - If there are extra timestamps in precip data, ignore that.
 ### 9

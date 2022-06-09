@@ -268,7 +268,6 @@ class MasterMetProcessor:
             print("Precipitation data not valid.")
             return None
 
-        # TODO: Ask Bethany - if missing time threshold for precip data is ok to be same as met data
         # NOTE 5
         # perform qa qc checks for precip data
         df = MasterMetProcessor.precip_qaqc(df, precip_lower, precip_upper, missing_time_threshold, user_confirmation)

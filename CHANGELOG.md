@@ -47,6 +47,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Added details on met_data_merge in README [#178](https://github.com/ncsa/ameriflux-pipeline/issues/178)
 - Data validation for met data merge [#168](https://github.com/ncsa/ameriflux-pipeline/issues/168)
 - Data validation for creation of master met data [#172](https://github.com/ncsa/ameriflux-pipeline/issues/172)
+- Data validation for formatting master met data for EddyPro [#173](https://github.com/ncsa/ameriflux-pipeline/issues/173)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
