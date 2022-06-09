@@ -48,6 +48,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Data validation for met data merge [#168](https://github.com/ncsa/ameriflux-pipeline/issues/168)
 - Data validation for creation of master met data [#172](https://github.com/ncsa/ameriflux-pipeline/issues/172)
 - Data validation for formatting master met data for EddyPro [#173](https://github.com/ncsa/ameriflux-pipeline/issues/173)
+- Data validation for creating pyfluxpro input excel sheet [#183](https://github.com/ncsa/ameriflux-pipeline/issues/183)
 - Data validation for formatting pyfluxpro input excel sheet for ameriflux [#186](https://github.com/ncsa/ameriflux-pipeline/issues/186)
 
 ### Fixed
