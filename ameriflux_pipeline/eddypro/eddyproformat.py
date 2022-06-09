@@ -17,9 +17,9 @@ warnings.filterwarnings("ignore")
 
 
 class EddyProFormat:
-    '''
+    """
     Class to implement formatting meteorological data for EddyPro as per guide
-    '''
+    """
 
     # main method which calls other functions
     @staticmethod
