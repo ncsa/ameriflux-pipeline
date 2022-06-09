@@ -226,4 +226,3 @@ class DataValidation:
             print("Datalogger/met water variable name, Datalogger/met temperature variable name, "
                   "EddyPro temperature variable name, EddyPro water variable name")
             return False
-

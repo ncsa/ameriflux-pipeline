@@ -147,7 +147,6 @@ class EddyProFormat:
         df = pd.read_csv(output_path)
         return df
 
-
     @staticmethod
     def timestamp_format(df):
         """
