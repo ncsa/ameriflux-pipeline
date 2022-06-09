@@ -70,4 +70,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Updated README file with detailed set up and run information. [#120](https://github.com/ncsa/ameriflux-pipeline/issues/120)
 - Automatically add proper file extension when there is none in env editor. [#122](https://github.com/ncsa/ameriflux-pipeline/issues/122)
 - Description and info in env editor updated. [#150](https://github.com/ncsa/ameriflux-pipeline/issues/150)
+- TAU sign change in pyfluxpro input sheet for ameriflux. [#180](https://github.com/ncsa/ameriflux-pipeline/issues/180)
 - Removed date from NOTES 20. [#174](https://github.com/ncsa/ameriflux-pipeline/issues/174)
