@@ -38,6 +38,8 @@ class AmeriFluxFormat:
         # remove meta data from dataframe
         full_output_df = full_output_df.iloc[1:, :]
         met_df = met_df.iloc[1:, :]
+        full_output_df.reset_index(drop=True, inplace=True)  # reset index after dropping rows
+        met_df.reset_index(drop=True, inplace=True)  # reset index after dropping rows
 
         # Step 1 of guide
         full_output_df = AmeriFluxFormat.replace_empty(full_output_df)
