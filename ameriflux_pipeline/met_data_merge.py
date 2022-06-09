@@ -43,6 +43,7 @@ def validate_inputs(files, start_date, end_date, output_file):
         return False
     if not DataValidation.filetype_validation(output_file, '.csv'):
         print(output_file, ".csv extension expected")
+        return False
     # all validations done
     return True
 
