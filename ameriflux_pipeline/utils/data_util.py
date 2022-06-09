@@ -8,6 +8,7 @@ import pandas as pd
 import re
 import pathlib
 import os
+from dateutil.parser import parse
 
 
 def write_data(df, output_data):
@@ -69,3 +70,19 @@ def get_directory(file_path):
     path = pathlib.Path(file_path)
     dir = os.path.dirname(path)
     return dir
+
+
+def get_valid_datetime(data):
+    """
+    Method to check if the string input date is in valid format recognizable by datetime
+    Returns a valid datetime if valid string input, else returns None
+    Args:
+        data (str): Input date to check for validity. The date can be in any format
+    Returns:
+        parse (str): Parsed datetime converted to string. None if data is not valid.
+    """
+    try:
+        return parse(data)
+    except ValueError:
+        print(data, "Incorrect date format")
+        return None

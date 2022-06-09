@@ -34,11 +34,9 @@ def validate_inputs(files, start_date, end_date, output_file):
         if not DataValidation.path_validation(file, 'file'):
             print(file, "path does not exist")
             return False
-    if not DataValidation.is_valid_datetime(start_date):
-        print(start_date, "not valid date format")
+    if not data_util.get_valid_datetime(start_date):
         return False
-    if not DataValidation.is_valid_datetime(end_date):
-        print(end_date, "not valid date format")
+    if not data_util.get_valid_datetime(end_date):
         return False
     if not DataValidation.path_validation(data_util.get_directory(output_file), 'dir'):
         print(data_util.get_directory(output_file), "path does not exists")
@@ -82,12 +80,13 @@ def read_met_data(data_path):
                 return None, None, None, None
 
     # process df to get meta data - column names and units
-    # the first row contains the meta data of file. second and third row contains met variables and their units
+    # the first row contains the meta data of file, which is skipped in read_csv.
+    # second and third row contains met variables and their units
     df_meta = df.head(3)
     df_meta = df_meta.applymap(lambda x: str(x).replace('"', ''))  # strip off quotes from all values
     df_meta = df_meta.applymap(lambda x: str(x).replace('*', ''))
     if not DataValidation.is_valid_meta_data(df_meta):
-        print("Meta data not in valid format")
+        print("Met data not in valid format")
         return None, None, None, None
     df_meta.columns = df_meta.iloc[0]  # set column names
     df_meta = df_meta.iloc[1:, :]

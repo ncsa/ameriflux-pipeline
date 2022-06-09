@@ -8,6 +8,7 @@ import datetime
 import pandas as pd
 import validators
 from validators import ValidationFailure
+from pandas.api.types import is_datetime64_any_dtype as is_datetime64
 import ipaddress
 import os.path
 
@@ -172,25 +173,11 @@ class DataValidation:
             return True
 
     @staticmethod
-    def is_valid_datetime(data):
-        """
-        Method to check if the input date is in valid format recognizable by datetime
-        Returns True if valid string, else returns False
-        Args:
-            data (str): Input date to check for validity
-        Returns:
-            (bool): True if date is valid, else False
-        """
-        try:
-            pd.to_datetime(data)
-        except ValueError:
-            print(data, "Incorrect date format")
-
-    @staticmethod
     def is_valid_meta_data(df):
         """
         Method to check if the input dataframe containing meta data of met tower variables is in valid format.
-        Checks for expected meta data like TIMESTAMP and RECORD columns, TS and RN units and Min/Avg
+        Checks for expected meta data like TIMESTAMP and RECORD columns, TS and RN units and Min/Avg.
+        These are standard if using Campbell datalogger.
         Returns True if valid, else returns False
         Args:
             df (obj): Pandas dataframe object to check for valid format

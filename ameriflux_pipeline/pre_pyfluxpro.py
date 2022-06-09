@@ -49,14 +49,14 @@ def input_validation():
     if not InputValidation.l2format():
         return False
 
-    print("Validations complete")
+    print("User input validations complete")
     return True
 
 
 def eddypro_preprocessing(file_meta_data_file):
     """
-    Main function to run EddyPro processing. Calls other functions
-
+    Main function to run EddyPro processing. Calls other functions.
+    This creates the master met data and formats the same for EddyPro
     Args:
         file_meta_data_file (str) : Filepath to write the meta data, typically the first line of Met data
     Returns :
@@ -71,6 +71,9 @@ def eddypro_preprocessing(file_meta_data_file):
         MasterMetProcessor.data_preprocess(cfg.INPUT_MET, cfg.INPUT_PRECIP, float(qc_precip_lower),
                                            float(qc_precip_upper), int(missing_time),
                                            cfg.MISSING_TIME_USER_CONFIRMATION)
+    if df is None:
+        print("Creation of master met data has failed.")
+        return None
     # write processed df to output path
     data_util.write_data(df, cfg.MASTER_MET)
 
@@ -267,6 +270,7 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
 
     # run eddypro preprocessing and formatting
     eddypro_formatted_met_file = eddypro_preprocessing(file_meta_data_file)
+
     if not os.path.exists(eddypro_formatted_met_file):
         # return failure
         print("EddyPro Processing failed")
@@ -374,6 +378,8 @@ def main():
     is_success = pre_processing(file_meta_data_file, erroring_variable_flag)
     if is_success:
         print("Successfully completed pre-processing of PyFluxPro L1 and L2")
+    else:
+        print("Pre-processing resulted in an error.")
 
     end = time.time()
     hours, rem = divmod(end - start, 3600)

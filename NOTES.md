@@ -1,6 +1,6 @@
 # Notes
 - All notable decisions and code structure is documented in this file.
-- Each decision made will be tagged and the tag will be present in the corresponding code section.
+- Each decision made will be numbered and the tag will be present in the corresponding code section.
 
 ## Notes on data and decisions made
 ### 1 
