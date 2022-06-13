@@ -9,7 +9,7 @@ import numpy as np
 from datetime import timedelta
 from pandas.api.types import is_datetime64_any_dtype as is_datetime64
 
-from utils.data_validation import DataValidation
+from utils.validation import DataValidation
 import utils.data_util as data_util
 
 import warnings

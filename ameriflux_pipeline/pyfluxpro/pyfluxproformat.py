@@ -7,7 +7,7 @@
 import pandas as pd
 import numpy as np
 
-from utils.data_validation import DataValidation
+from utils.validation import DataValidation
 
 
 class PyFluxProFormat:
