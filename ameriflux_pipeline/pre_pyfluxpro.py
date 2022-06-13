@@ -13,7 +13,7 @@ from datetime import datetime
 from config import Config as cfg
 import utils.data_util as data_util
 from utils.syncdata import SyncData as syncdata
-from utils.data_validation import DataValidation
+from utils.validation import DataValidation
 from utils.input_validation import InputValidation
 
 from master_met.mastermetprocessor import MasterMetProcessor

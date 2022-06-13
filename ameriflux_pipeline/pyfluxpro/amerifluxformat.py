@@ -153,27 +153,27 @@ class AmeriFluxFormat:
             met_df = met_df.astype({albedo_col: float})
             met_df['ALB'] = met_df[albedo_col].apply(lambda x: 1 if float(x) > 1 else float(x) * 100)
             met_df_meta['ALB'] = '%'
-        vpd_col = full_output_df.filter(regex="VPD|vpd|Vpd").columns.to_list()[0]
+        vpd_col = full_output_df.filter(regex="VPD|vpd|Vpd").columns.to_list()
         if vpd_col:
-            full_output_df['VPD'] = full_output_df[vpd_col] / 100
+            full_output_df['VPD'] = full_output_df[vpd_col[0]] / 100
             full_output_df_meta['VPD'].iloc[0] = '[hPa]'
         else:
             print("VPD column not present in full_output")
-        tau_col = full_output_df.filter(regex="Tau|tau|TAU").columns.to_list()[0]
+        tau_col = full_output_df.filter(regex="Tau|tau|TAU").columns.to_list()
         if tau_col:
-            full_output_df['Tau'] = full_output_df[tau_col] * -1.0
+            full_output_df['Tau'] = full_output_df[tau_col[0]] * -1.0
             full_output_df_meta['Tau'].iloc[0] = '[kg+1m-1s-2]'
         else:
             print("Tau column not present in full_output")
         # convert soil moisture variables into percentage values
-        soil_moisture_col = [col for col in met_df if col.startswith('Moisture|moisture')]
+        soil_moisture_col = [col for col in met_df if col.lower().startswith('moisture')]
         soil_moisture_col.extend(col for col in met_df if col.startswith('VWC'))
         for col in soil_moisture_col:
             met_df[col] = met_df[col] * 100
             met_df_meta[col].iloc[0] = '%'
 
         # convert variances to std deviations in full_output
-        variance_vars = [col for col in full_output_df if col.endswith('_var|_Var')]
+        variance_vars = [col for col in full_output_df if col.lower().endswith('_var')]
         for col in variance_vars:
             col_sd = col.split('_')[0] + '_sd'
             full_output_df[col_sd] = np.sqrt(full_output_df[col].astype(float))

@@ -218,8 +218,12 @@ class DataValidation:
             return False
         # check if required columns are present
         req_cols = ['Datalogger/met water variable name', 'Datalogger/met temperature variable name',
+<<<<<<< HEAD:ameriflux_pipeline/utils/data_validation.py
                     'EddyPro temperature variable name', 'EddyPro water variable name',
                     'PyFluxPro water variable name', 'PyFluxPro temperature variable name']
+=======
+                    'EddyPro temperature variable name', 'EddyPro water variable name']
+>>>>>>> b83454dc5ce92e1522b55b1d81b60473a36fa7d3:ameriflux_pipeline/utils/validation.py
         if set(req_cols) <= set(df.columns):
             # required columns is a subset of all column list
             return True
@@ -258,6 +262,7 @@ class DataValidation:
             return False
         # all validations done
         return True
+<<<<<<< HEAD:ameriflux_pipeline/utils/data_validation.py
 
 class L1Validation:
     '''
@@ -463,3 +468,5 @@ class L1Validation:
             return True
         else:
             return False
+=======
+>>>>>>> b83454dc5ce92e1522b55b1d81b60473a36fa7d3:ameriflux_pipeline/utils/validation.py

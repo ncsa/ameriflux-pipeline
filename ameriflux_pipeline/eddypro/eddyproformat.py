@@ -9,7 +9,7 @@ import pandas as pd
 import shutil
 import re
 
-from utils.data_validation import DataValidation
+from utils.validation import DataValidation
 import utils.data_util as data_util
 
 import warnings
@@ -17,9 +17,9 @@ warnings.filterwarnings("ignore")
 
 
 class EddyProFormat:
-    '''
+    """
     Class to implement formatting meteorological data for EddyPro as per guide
-    '''
+    """
 
     # main method which calls other functions
     @staticmethod
@@ -228,7 +228,11 @@ class EddyProFormat:
             df (object): Processed Pandas DataFrame object
         """
         # get all temp variables : get all variables where the unit(2nd row) is 'Deg C' or 'degC'
+<<<<<<< HEAD
         temp_cols = [c for c in df.columns if df.iloc[0][c] in ['Deg C', 'Deg_C', 'degC', 'deg_C', 'deg C']]
+=======
+        temp_cols = [c for c in df.columns if str(df.iloc[0][c]).lower() in ['deg c', 'degc', 'deg_c']]
+>>>>>>> b83454dc5ce92e1522b55b1d81b60473a36fa7d3
         df_temp = df[temp_cols]
         df_temp = df_temp.iloc[1:, :]  # make sure not to reset index here as we need to insert unit row at index 0
         df_temp = df_temp.apply(pd.to_numeric, errors='coerce')  # convert string to numerical

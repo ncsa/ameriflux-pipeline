@@ -63,7 +63,7 @@
 ### 19
 - During merge of dat files / raw met files from the server, the end date is taken as the next day midnight so that after timestamp shift of 30min the Flux data file contains data for the whole year
 ### 20
-- From July 14, 2021, the datalogger met variables names were changed. Hence when merging the met data, certain old variables names are to be changed to newer standardized variable names.
+- In 2021 there has been a program change resulting in the change of some datalogger met variables names. Hence when merging the met data, certain old variables names are to be changed to newer standardized variable names.
 - {'CM3Up_Avg': 'SWDn_Avg', 'CM3Dn_Avg': 'SWUp_Avg', 'CG3UpCo_Avg': 'LWDnCo_Avg', 'CG3DnCo_Avg': 'LWUpCo_Avg', 'NetTot_Avg': 'Rn_Avg', 'cnr1_T_C_Avg': 'CNR1TC_Avg', 'cnr1_T_K_Avg': 'CNR1TK_Avg', 'Rs_net_Avg': 'NetRs_Avg', 'Rl_net_Avg': 'NetRl_Avg' , 'VWC_': 'VWC1_', 'TC_':'TC1_'}
 
 
