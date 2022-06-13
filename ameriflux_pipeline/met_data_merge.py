@@ -14,7 +14,7 @@ from datetime import timedelta
 from pandas.errors import ParserError
 
 import utils.data_util as data_util
-from utils.data_validation import DataValidation
+from utils.validation import DataValidation
 
 
 def validate_inputs(files, start_date, end_date, output_file):
