@@ -50,6 +50,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Data validation for formatting master met data for EddyPro [#173](https://github.com/ncsa/ameriflux-pipeline/issues/173)
 - Data validation for creating pyfluxpro input excel sheet [#183](https://github.com/ncsa/ameriflux-pipeline/issues/183)
 - Data validation for formatting pyfluxpro input excel sheet for ameriflux [#186](https://github.com/ncsa/ameriflux-pipeline/issues/186)
+- Data validation for formatting L1 control file for pyfluxpro. [#187](https://github.com/ncsa/ameriflux-pipeline/issues/187)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
