@@ -9,6 +9,9 @@ import numpy as np
 from datetime import timedelta
 from pandas.api.types import is_datetime64_any_dtype as is_datetime64
 
+import warnings
+warnings.filterwarnings("ignore")
+
 from utils.validation import DataValidation
 import utils.data_util as data_util
 
@@ -127,32 +130,36 @@ class MasterMetProcessor:
         # step 7 in guide - calculation of shortwave radiation
         SW_unit = 'W/m^2'  # unit for shortwave radiation
         # NOTE 10
-        if 'SWUp_Avg' in df.columns:
+        # get shortwave in and shortwave out columns from two instrument data
+        df_sw_columns = df.filter(regex="SW").columns.to_list()
+        df_cm3_columns = df.filter(regex="CM3").columns.to_list()
+        df_sw_columns = [c.lower() for c in df_sw_columns]
+        df_cm3_columns = [c.lower() for c in df_cm3_columns]
+        # set shortwave out
+        if 'swup_avg' in df_sw_columns:
             shortwave_out = 'SWUp_Avg'
             df['SW_out_Avg'] = df[shortwave_out]
             df_meta['SW_out_Avg'] = SW_unit  # add shortwave radiation units
-        elif 'CM3Dn_Avg' in df.columns:
+        elif 'cm3dn_Avg' in df_cm3_columns:
             shortwave_out = 'CM3Dn_Avg'
             df['SW_out_Avg'] = df[shortwave_out]
             df_meta['SW_out_Avg'] = SW_unit  # add shortwave radiation units
+
         albedo_col = df.filter(regex="Albedo|albedo|ALB").columns.to_list()
         if not albedo_col or albedo_col[0] not in df.columns:
             # calculate albedo_avg from shortwave out and shortwave in
-            if 'SWDn_Avg' in df.columns:
+            if 'swdn_Avg' in df_sw_columns:
                 shortwave_in = 'SWDn_Avg'
-            elif 'CM3Up_Avg' in df.columns:
+            elif 'cm3up_Avg' in df_cm3_columns:
                 shortwave_in = 'CM3Up_Avg'
-        try:
-            if shortwave_in and shortwave_out:
-                # avoid zero division error
-                df[albedo_col] = df.apply(lambda x: float(x[shortwave_out]) / float(x[shortwave_in])
-                                          if float(x[shortwave_in]) != 0 else np.nan, axis=1)
+            try:
+                if shortwave_in and shortwave_out:
+                    # avoid zero division error
+                    df[albedo_col] = df.apply(lambda x: float(x[shortwave_out]) / float(x[shortwave_in])
+                                              if float(x[shortwave_in]) != 0 else np.nan, axis=1)
 
-                df_meta[albedo_col] = SW_unit  # add shortwave radiation units
-        except NameError:
-            if albedo_col[0] not in df.columns:
-                print("Albedo present in met data. Shortwave not calculated")
-            else:
+                    df_meta[albedo_col] = SW_unit  # add shortwave radiation units
+            except NameError:
                 print("Shortwave calculation failed. Check SW or CD3 columns in met data.")
 
         # NOTE 2

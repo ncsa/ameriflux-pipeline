@@ -9,7 +9,7 @@ import os
 import re
 
 import utils.data_util as data_util
-from utils.data_validation import DataValidation, L1Validation
+from utils.validation import DataValidation, L1Validation
 
 
 class L1Format:
@@ -72,8 +72,8 @@ class L1Format:
         # check if input L1 have the same format as expected
         if not L1Validation.check_l1_format(l1_mainstem_lines) or not L1Validation.check_l1_format(l1_ameriflux_lines):
             print("Check L1.txt format")
-            l1_mainstem_lines.close()
-            l1_ameriflux_lines.close()
+            l1_mainstem.close()
+            l1_ameriflux.close()
             return None
 
         # read file_meta
@@ -87,11 +87,25 @@ class L1Format:
             return None
         soil_moisture_labels, soil_temp_labels = L1Format.get_soil_labels(site_name, df_soil_key)
         ameriflux_key = pd.read_excel(ameriflux_mainstem_key)  # read AmeriFlux-Mainstem variable name matching file
+        if not DataValidation.is_valid_ameriflux_mainstem_key(ameriflux_key):
+            print("Ameriflux-Mainstem-Key.xlsx file invalid format. Aborting")
+            return None
 
         if erroring_variable_flag.lower() in ['n', 'no']:
             # if user chose not to replace the variable name, read the name mapping
             # if this file is read, the instance becomes a dataframe, if not the variable type is a string
             erroring_variable_key = pd.read_excel(erroring_variable_key)  # read L1 erroring variable name matching file
+            if DataValidation.is_valid_erroring_variables_key(erroring_variable_key):
+                # strip column names of extra spaces and convert to lowercase
+                erroring_variable_key.columns = erroring_variable_key.columns.str.strip().str.lower()
+                ameriflux_col = erroring_variable_key.filter(regex="ameriflux").columns.to_list()
+                pyfluxpro_col = erroring_variable_key.filter(regex="pyfluxpro").columns.to_list()
+                erroring_variable_key['Ameriflux label'] = erroring_variable_key[ameriflux_col]
+                erroring_variable_key['PyFluxPro label'] = erroring_variable_key[pyfluxpro_col]
+            else:
+                print("L1 Erroring Variables.xlsx file invalid format. Proceeding without replacing label")
+                # make erroring_variable_key a string to proceed with pipeline.
+                erroring_variable_key = ''
 
         # writing to output file
 

@@ -209,25 +209,22 @@ class DataValidation:
         Returns:
             (bool): True if df is valid, else False
         """
-        site_name_col = df.filter(regex='Site name|site name|Site Name|Site|site').columns.to_list()[0]
+        site_name_col = df.filter(regex='Site name|site name|Site Name|Site|site').columns.to_list()
         if not site_name_col:
             print("Site name not in Soils key")
             return False
         # check if required columns are present
         req_cols = ['Datalogger/met water variable name', 'Datalogger/met temperature variable name',
-<<<<<<< HEAD:ameriflux_pipeline/utils/data_validation.py
                     'EddyPro temperature variable name', 'EddyPro water variable name',
                     'PyFluxPro water variable name', 'PyFluxPro temperature variable name']
-=======
-                    'EddyPro temperature variable name', 'EddyPro water variable name']
->>>>>>> b83454dc5ce92e1522b55b1d81b60473a36fa7d3:ameriflux_pipeline/utils/validation.py
         if set(req_cols) <= set(df.columns):
             # required columns is a subset of all column list
             return True
         else:
             print("Check for required columns in soils key: ", end='')
             print("Datalogger/met water variable name, Datalogger/met temperature variable name, "
-                  "EddyPro temperature variable name, EddyPro water variable name")
+                  "EddyPro temperature variable name, EddyPro water variable name, "
+                  "PyFluxPro water variable name, PyFluxPro temperature variable name")
             return False
 
     @staticmethod
@@ -259,7 +256,52 @@ class DataValidation:
             return False
         # all validations done
         return True
-<<<<<<< HEAD:ameriflux_pipeline/utils/data_validation.py
+
+    @staticmethod
+    def is_valid_ameriflux_mainstem_key(df):
+        """
+        Method to check if the Ameriflux-Mainstem key for PyFluxPro L1 formatting is as expected.
+        Checks for columns : 'Original variable name', 'Ameriflux variable name', 'Units after formatting'
+        Returns True if valid, else returns False
+        Args:
+            df (obj): Pandas dataframe object to check for valid erroring varaibles input sheet
+        Returns:
+            (bool): True if df is valid, else False
+        """
+        # check if required columns are present
+        req_cols = ['Original variable name', 'Ameriflux variable name', 'Units after formatting']
+        if set(req_cols) <= set(df.columns):
+            # required columns is a subset of all column list
+            return True
+        else:
+            print("Check for required columns in Amerilfux-Mainstem-Key: ", end='')
+            print("Original variable name, Ameriflux variable name, Units after formatting")
+            return False
+
+    @staticmethod
+    def is_valid_erroring_variables_key(df):
+        """
+        Method to check if the erroring variables key for PyFluxPro L1 formatting is as expected.
+        Checks for Ameriflux label and PyFluxPro label columns
+        Returns True if valid, else returns False
+        Args:
+            df (obj): Pandas dataframe object to check for valid erroring varaibles input sheet
+        Returns:
+            (bool): True if df is valid, else False
+        """
+        df.columns = df.columns.str.strip().str.lower()  # strip column names of extra spaces and convert to lowercase
+        ameriflux_col = df.filter(regex="ameriflux").columns.to_list()
+        pyfluxpro_col = df.filter(regex="pyfluxpro").columns.to_list()
+        if not ameriflux_col:
+            print("Ameriflux label column not present in L1 Erroring variables sheet")
+            return False
+        if not pyfluxpro_col:
+            print("Pyfluxpro label column not present in L1 Erroring variables sheet")
+            return False
+        # all validations done
+        return True
+
+
 
 class L1Validation:
     '''
@@ -425,9 +467,10 @@ class L1Validation:
         long_name_flag = False
         name_flag = False
         sheet_flag = False
-        flags = [var_flag, xl_flag, attr_flag, units_flag, long_name_flag, name_flag, sheet_flag]
+        var_count = 0  # counter for variables (var_pattern)
         for line in lines:
             if re.match(var_pattern, line.strip()):
+                var_count += 1
                 var_flag = True
                 if L1Validation.check_space(line.rstrip()) != 4:
                     return False
@@ -456,14 +499,18 @@ class L1Validation:
                 if L1Validation.check_space(line.split('=')[0].rstrip()) != 4 * 3:
                     return False
             # test if all flag values are true
-            if all(flags):
+            flags = [var_flag, xl_flag, attr_flag, units_flag, long_name_flag, name_flag, sheet_flag]
+            if all(flags) and var_count == 1:
                 # all flag values are true, then break out of for loop
                 return True
+            elif var_count > 1:
+                print("Check first variable in Variables section")
+                return False
         # end of for loop, format is as expected
+        flags = [var_flag, xl_flag, attr_flag, units_flag, long_name_flag, name_flag, sheet_flag]
         if all(flags):
             # all flag values are true, then break out of for loop
             return True
         else:
             return False
-=======
->>>>>>> b83454dc5ce92e1522b55b1d81b60473a36fa7d3:ameriflux_pipeline/utils/validation.py
+
