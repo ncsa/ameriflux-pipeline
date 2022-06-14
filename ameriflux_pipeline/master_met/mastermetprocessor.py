@@ -148,6 +148,7 @@ class MasterMetProcessor:
             # avoid zero division error
             df[albedo_col[0]] = df.apply(lambda x: float(x[shortwave_out]) / float(x[shortwave_in])
                                          if float(x[shortwave_in]) != 0 else np.nan, axis=1)
+            df_meta[albedo_col[0]] = SW_unit  # add shortwave radiation units
         else:
             # albedo is present in the dataset. Add the corresponding unit.
             df_meta[albedo_col[0]] = SW_unit  # add shortwave radiation units
