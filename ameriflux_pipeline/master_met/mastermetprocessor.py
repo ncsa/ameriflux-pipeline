@@ -155,12 +155,15 @@ class MasterMetProcessor:
             try:
                 if shortwave_in and shortwave_out:
                     # avoid zero division error
-                    df[albedo_col] = df.apply(lambda x: float(x[shortwave_out]) / float(x[shortwave_in])
+                    df[albedo_col[0]] = df.apply(lambda x: float(x[shortwave_out]) / float(x[shortwave_in])
                                               if float(x[shortwave_in]) != 0 else np.nan, axis=1)
 
-                    df_meta[albedo_col] = SW_unit  # add shortwave radiation units
+                    df_meta[albedo_col[0]] = SW_unit  # add shortwave radiation units
             except NameError:
                 print("Shortwave calculation failed. Check SW or CD3 columns in met data.")
+        else:
+            # albedo column is present in metdata. Add SWunit
+            df_meta[albedo_col[0]] = SW_unit  # add shortwave radiation units
 
         # NOTE 2
         # concat the meta df and df if number of columns is the same
