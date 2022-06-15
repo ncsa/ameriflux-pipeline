@@ -66,6 +66,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Generate correct warnings if pyfluxpro L2 run output does not span an entire year [#145](https://github.com/ncsa/ameriflux-pipeline/issues/145)
 - Archive non-empty EddyPro Run output directory. [#143](https://github.com/ncsa/ameriflux-pipeline/issues/143)
 - Fixed Ameriflux_Variable_User_Confirmation in input_validation. [#165](https://github.com/ncsa/ameriflux-pipeline/issues/165)
+- Fixed timestamp misalignment in csv file for ameriflux submission. [#198](https://github.com/ncsa/ameriflux-pipeline/issues/198)
 
 ### Changed
 - AmeriFlux L1 formatting variable names in env editor [#118](https://github.com/ncsa/ameriflux-pipeline/issues/118)
