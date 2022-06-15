@@ -202,8 +202,8 @@ class EddyProFormat:
             dictionary: mapping from met variable to eddypro label
         """
         df_cols = [col.lower() for col in df_cols]
-        shf1_pattern = re.compile('shf_avg\(1\)|shf_avg1|shf_avg_1|shfavg\(1\)|shfavg_1')
-        shf2_pattern = re.compile('shf_avg\(2\)|shf_avg2|shf_avg_2|shfavg\(2\)|shfavg_2')
+        shf1_pattern = re.compile('shf_avg\\(1\\)|shf_avg1|shf_avg_1|shfavg\\(1\\)|shfavg_1')
+        shf2_pattern = re.compile('shf_avg\\(2\\)|shf_avg2|shf_avg_2|shfavg\\(2\\)|shfavg_2')
         shf1_col = list(filter(shf1_pattern.match, df_cols))
         shf2_col = list(filter(shf2_pattern.match, df_cols))
         shf_cols = None
