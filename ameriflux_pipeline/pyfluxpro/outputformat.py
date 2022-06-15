@@ -59,7 +59,7 @@ class OutputFormat:
 
         # create a dataframe
         df = pd.DataFrame({'TIMESTAMP': [t.isoformat() for t in time_data]})
-
+        # NOTES 16
         # insert TIMESTAMP_START and TIMESTAMP_END
         df['TIMESTAMP'] = pd.to_datetime(df['TIMESTAMP'])
         # set timestamp as timestamp_start
