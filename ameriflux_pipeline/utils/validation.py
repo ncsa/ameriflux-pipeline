@@ -4,11 +4,13 @@
 # terms of the Mozilla Public License v2.0 which accompanies this distribution,
 # and is available at https://www.mozilla.org/en-US/MPL/2.0/
 
+import pandas as pd
 import re
 import validators
 from validators import ValidationFailure
 import ipaddress
 import os.path
+import utils.data_util as data_util
 
 
 class DataValidation:
@@ -315,8 +317,6 @@ class L1Validation:
     # define patterns to match
     # variable names have alphanumeric characters and underscores with two square brackets
     VAR_PATTERN = '^\\[\\[[a-zA-Z0-9_]+\\]\\]$'
-    # variable name lines starts with 4 spaces and ends with new line
-    VAR_PATTERN_WITH_SPACE = '^ {4}\\[\\[[a-zA-Z0-9_]+\\]\\]\n$'
     XL_PATTERN = '^\\[\\[\\[xl\\]\\]\\]$'  # to match [[xl]] line
     ATTR_PATTERN = '^\\[\\[\\[Attr\\]\\]\\]$|^\\[\\[\\[attr\\]\\]\\]$'  # to match [[Attr]] or [[attr]] line
     UNITS_PATTERN = 'units'
@@ -605,3 +605,13 @@ class L2Validation:
             Returns:
                 (bool) : Returns True if the format is as expected, else return False
         """
+        # write the variables section to dataframe. this is used to get the indexes easily
+        var_df = pd.DataFrame(lines, columns=['Text'])
+        # remove newline and extra spaces from each line
+        var_df['Text'] = var_df['Text'].apply(lambda x: x.strip())
+        # get df with only variables and a list of variable start and end indexes
+        variables, var_start_end = data_util.get_variables_index(var_df['Text'], var_pattern)
+        # check if excludedates, rangecheck and dependencycheck follow the expected format
+        # check if rangecheck has lower and upper. check if the number of comma seperated items are same for both
+        # check if source line exists for DependencyCheck
+        # check if excludedates has from and to dates that are comma separated and if the dates are valid

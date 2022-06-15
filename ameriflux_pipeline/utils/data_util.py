@@ -87,3 +87,24 @@ def get_valid_datetime(data):
     except ValueError:
         print(data, "Incorrect date format")
         return None
+
+def get_variables_index(text, var_pattern):
+    """
+        Get all variables and start and end index for each variable from the pyfluxpro control file
+
+        Args:
+            text (obj): Pandas series with all variable lines from L1.txt or L2.txt
+            var_pattern (str): Regex pattern to find the starting line for [Variables] section
+        Returns:
+            variables (obj) : Pandas series. This is a subset of the input dataframe with only variable names
+            var_start_end (list): List of tuple, the starting and ending index for each variable
+    """
+    variables = text[text.str.contains(var_pattern)]
+    var_start_end = []
+    for i in range(len(variables.index) - 1):
+        start_ind = variables.index[i]
+        end_ind = variables.index[i + 1]
+        var_start_end.append((start_ind, end_ind))
+    # append the start and end index of the last variable
+    var_start_end.append((end_ind, text.last_valid_index()+1))
+    return variables, var_start_end
