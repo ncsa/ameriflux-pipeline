@@ -180,13 +180,20 @@ def pyfluxpro_ameriflux_processing(input_file, output_file):
     Args:
         input_file (str): PyFluxPro input excel sheet file path
         output_file (str): Filename to write the PyFluxPro formatted for AmeriFlux
-    Returns : None
+    Returns :
+        (bool) : True if pyfluxpro input sheet is successfully created, else False
     """
     full_output_sheet_name = os.path.splitext(os.path.basename(cfg.FULL_OUTPUT_PYFLUXPRO))[0]
     met_data_sheet_name = os.path.splitext(os.path.basename(cfg.MET_DATA_30_PYFLUXPRO))[0]
 
     ameriflux_full_output_df, ameriflux_met_df = AmeriFluxFormat.data_formatting(input_file, full_output_sheet_name,
                                                                                  met_data_sheet_name)
+    if ameriflux_full_output_df is None:
+        print("Processing of full_output for Ameriflux failed")
+        return False
+    if ameriflux_met_df is None:
+        print("Processing of Met_data_30 for Ameriflux failed")
+        return False
     ameriflux_full_output_df_col_list = ameriflux_full_output_df.columns
     ameriflux_met_df_col_list = ameriflux_met_df.columns
 
@@ -208,6 +215,8 @@ def pyfluxpro_ameriflux_processing(input_file, output_file):
     writer.save()
     writer.close()
     print("AmeriFlux PyFluxPro excel sheet saved in ", output_file)
+    # all processing successful
+    return True
 
 
 def pyfluxpro_l1_ameriflux_processing(pyfluxpro_input, l1_mainstem, l1_ameriflux_only, ameriflux_mainstem_key,
@@ -332,11 +341,16 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
         return False
 
     # run ameriflux formatting of pyfluxpro input
+    is_pyfluxpro_ameriflux_processing_success = False
     if os.path.exists(cfg.PYFLUXPRO_INPUT_SHEET):
-        pyfluxpro_ameriflux_processing(cfg.PYFLUXPRO_INPUT_SHEET, cfg.PYFLUXPRO_INPUT_AMERIFLUX)
+        is_pyfluxpro_ameriflux_processing_success = \
+            pyfluxpro_ameriflux_processing(cfg.PYFLUXPRO_INPUT_SHEET, cfg.PYFLUXPRO_INPUT_AMERIFLUX)
     else:
         print(cfg.PYFLUXPRO_INPUT_SHEET, "path does not exist")
         # return failure
+        return False
+    if not is_pyfluxpro_ameriflux_processing_success:
+        print("PyFluxpro input sheet formatting for Ameriflux failed. Aborting")
         return False
 
     # run ameriflux formatting of pyfluxpro L1 control file
