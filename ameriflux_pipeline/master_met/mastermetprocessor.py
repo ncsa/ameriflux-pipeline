@@ -129,34 +129,29 @@ class MasterMetProcessor:
 
         # step 7 in guide - calculation of shortwave radiation
         SW_unit = 'W/m^2'  # unit for shortwave radiation
-        # NOTE 10
         if 'SWUp_Avg' in df.columns:
             shortwave_out = 'SWUp_Avg'
             df['SW_out_Avg'] = df[shortwave_out]
             df_meta['SW_out_Avg'] = SW_unit  # add shortwave radiation units
         elif 'CM3Dn_Avg' in df.columns:
             shortwave_out = 'CM3Dn_Avg'
-            df['SW_out_Avg'] = df[shortwave_out]
-            df_meta['SW_out_Avg'] = SW_unit  # add shortwave radiation units
+        df['SW_out_Avg'] = df[shortwave_out]
+        df_meta['SW_out_Avg'] = SW_unit  # add shortwave radiation units
+        # NOTE 10
         albedo_col = df.filter(regex="Albedo|albedo|ALB").columns.to_list()
-        if not albedo_col or albedo_col[0] not in df.columns:
+        if (not albedo_col) or (albedo_col[0] not in df.columns):
             # calculate albedo_avg from shortwave out and shortwave in
             if 'SWDn_Avg' in df.columns:
                 shortwave_in = 'SWDn_Avg'
             elif 'CM3Up_Avg' in df.columns:
                 shortwave_in = 'CM3Up_Avg'
-        try:
-            if shortwave_in and shortwave_out:
-                # avoid zero division error
-                df[albedo_col] = df.apply(lambda x: float(x[shortwave_out]) / float(x[shortwave_in])
-                                          if float(x[shortwave_in]) != 0 else np.nan, axis=1)
-
-                df_meta[albedo_col] = SW_unit  # add shortwave radiation units
-        except NameError:
-            if albedo_col[0] not in df.columns:
-                print("Albedo present in met data. Shortwave not calculated")
-            else:
-                print("Shortwave calculation failed. Check SW or CD3 columns in met data.")
+            # avoid zero division error
+            df[albedo_col[0]] = df.apply(lambda x: float(x[shortwave_out]) / float(x[shortwave_in])
+                                         if float(x[shortwave_in]) != 0 else np.nan, axis=1)
+            df_meta[albedo_col[0]] = SW_unit  # add shortwave radiation units
+        else:
+            # albedo is present in the dataset. Add the corresponding unit.
+            df_meta[albedo_col[0]] = SW_unit  # add shortwave radiation units
 
         # NOTE 2
         # concat the meta df and df if number of columns is the same
