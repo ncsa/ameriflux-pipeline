@@ -350,16 +350,16 @@ class L1Validation:
                     if L1Validation.check_variables_line(lines[variables_line_index + 1:]):
                         return True
                     else:
-                        print("Incorrect format in Variables section")
+                        print("Incorrect format in L1 Variables section")
                         return False
                 else:
-                    print("Incorrect format in Global section")
+                    print("Incorrect format in L1 Global section")
                     return False
             else:
-                print("Incorrect format in Files section")
+                print("Incorrect format in L1 Files section")
                 return False
         else:
-            print("Undefined Files and Global section")
+            print("Undefined L1 Files and Global section")
             return False
 
     @staticmethod
@@ -514,3 +514,94 @@ class L1Validation:
         else:
             return False
 
+
+class L2Validation:
+    '''
+    Class to implement validation for L2 files
+    '''
+    # define global variables
+    SPACES = "    "  # set 4 spaces as default for a section in L2
+    LEVEL_LINE = "level = L2"  # set the level
+    VAR_PATTERN = '^\\[\\[[a-zA-Z0-9_]+\\]\\]$'  # variable name pattern
+    VAR_PATTERN_WITH_SPACE = '^ {4}\\[\\[[a-zA-Z0-9_]+\\]\\]\n$'
+    DEPENDENCYCHECK_PATTERN = '^\\[\\[\\[DependencyCheck\\]\\]\\]$'
+    EXCLUDEDATES_PATTERN = '^\\[\\[\\[ExcludeDates\\]\\]\\]$'
+    RANGECHECK_PATTERN = '^\\[\\[\\[RangeCheck\\]\\]\\]$'
+    SOURCE_PATTERN = 'source'  # to match the source in DependencyCheck
+    LOWER_PATTERN = 'lower'  # to match the lower in RangeCheck
+    UPPER_PATTERN = 'upper'  # to match the lower in RangeCheck
+
+    @staticmethod
+    def check_l2_format(lines):
+        """
+            Check if the formatting for L1 is as expected
+            Args:
+                lines (list): List of strings. Lines in L1.txt
+            Returns:
+                (bool) : Returns True if the format is as expected, else return False
+        """
+        # check Level section
+        line0 = lines[0].rstrip('\n')
+        if not L2Validation.check_level_line(line0):
+            print("Incorrect format in Level section")
+            return False
+        # check Variables section
+        variables_line_index = lines.index('[Variables]\n')
+        plots_line_index = lines.index('[Plots]\n')
+        if variables_line_index and plots_line_index:
+            if L2Validation.check_variables_line(lines[variables_line_index + 1:plots_line_index]):
+                if L2Validation.check_plot_lines(lines[plots_line_index + 1:]):
+                    return True
+                else:
+                    print("Incorrect format in L2 Plots section")
+            else:
+                print("Incorrect format in L2 Variables section")
+                return False
+        else:
+            print("Undefined L2 Variables and Plots sections")
+            return False
+
+    @staticmethod
+    def check_level_line(line):
+        """
+            Check if the formatting for L1 Level section is as expected
+            Args:
+                line (str): Level line from input L1.txt
+            Returns:
+                (bool) : Returns True if the format is as expected, else return False
+        """
+        if line:
+            line_split = line.split('=')
+            if line_split[0].startswith('level') and line_split[1].strip() == 'L2':
+                return True
+        return False
+
+    @staticmethod
+    def check_space(test_string):
+        """
+            Count number of spaces in the string
+            Args:
+                test_string (str): Input string
+            Returns:
+                (int) : Returns the count of empty spaces in the string
+        """
+        return test_string.count(" ")
+
+    @staticmethod
+    def check_variables_line(lines, var_pattern=VAR_PATTERN, dependencycheck_pattern=DEPENDENCYCHECK_PATTERN,
+                             excludedates_pattern=EXCLUDEDATES_PATTERN, rangecheck_pattern=RANGECHECK_PATTERN,
+                             source_pattern=SOURCE_PATTERN, lower_pattern=LOWER_PATTERN, upper_pattern=UPPER_PATTERN):
+        """
+            Check if the formatting for L2 Variables section is as expected
+            Args:
+                lines (list): List of strings. Lines in L1.txt
+                var_pattern (str): Regex pattern to find the starting line for [Variables] section
+                dependencycheck_pattern (str): Regex pattern to find the [[[DependencyCheck]]] section
+                excludedates_pattern (str): Regex pattern to find the [[[ExcludeDates]]] section in Variables section
+                rangecheck_pattern (str): Regex pattern to find the [[[RangeCheck]]] section in Variables
+                source_pattern (str): Regex pattern to find the source line within DependencyCheck
+                lower_pattern (str): Regex pattern to find the lower line within RangeCheck
+                upper_pattern (str): Regex pattern to find the upper line within RangeCheck
+            Returns:
+                (bool) : Returns True if the format is as expected, else return False
+        """
