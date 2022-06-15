@@ -77,3 +77,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - TAU sign change in pyfluxpro input sheet for ameriflux. [#180](https://github.com/ncsa/ameriflux-pipeline/issues/180)
 - Removed date from NOTES 20. [#174](https://github.com/ncsa/ameriflux-pipeline/issues/174)
 - Calculation of albedo. [#191](https://github.com/ncsa/ameriflux-pipeline/issues/191)
+- Updated column name comparison for eddypro formatting of master met data [#193](https://github.com/ncsa/ameriflux-pipeline/issues/193)
