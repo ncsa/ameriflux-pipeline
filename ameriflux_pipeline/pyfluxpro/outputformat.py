@@ -59,12 +59,13 @@ class OutputFormat:
 
         # create a dataframe
         df = pd.DataFrame({'TIMESTAMP': [t.isoformat() for t in time_data]})
-
+        # NOTES 16
         # insert TIMESTAMP_START and TIMESTAMP_END
         df['TIMESTAMP'] = pd.to_datetime(df['TIMESTAMP'])
-        # shift timestamp 30min behind and store in timestamp_start. step 1 in guide
-        df.insert(1, 'TIMESTAMP_START', df['TIMESTAMP'] - timedelta(minutes=30))
-        df.insert(2, 'TIMESTAMP_END', df['TIMESTAMP'])
+        # set timestamp as timestamp_start
+        # shift timestamp 30min ahead and store in timestamp_end. step 1 in guide
+        df.insert(1, 'TIMESTAMP_START', df['TIMESTAMP'])
+        df.insert(2, 'TIMESTAMP_END', df['TIMESTAMP'] + timedelta(minutes=30))
         # check if timestamp spans an entire year. Else throw a warning. Step 6 in guide
         start_timestamp = df['TIMESTAMP_START'].iloc[0]
         end_timestamp = df['TIMESTAMP_END'].iloc[-1]
