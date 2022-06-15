@@ -31,7 +31,7 @@ class MasterMetProcessor:
         Returns processed df and file meta df which is used in eddyproformat.py
 
         Args:
-            input_path (str): A file path for the input data.
+            input_met_path (str): A file path for the input data.
             input_precip_path(str): A file path for the input precipitation data.
             precip_lower (int) : Lower threshold value for precipitation in inches
             precip_upper (int) : Upper threshold value for precipitation in inches
