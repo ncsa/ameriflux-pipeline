@@ -615,3 +615,49 @@ class L2Validation:
         # check if rangecheck has lower and upper. check if the number of comma seperated items are same for both
         # check if source line exists for DependencyCheck
         # check if excludedates has from and to dates that are comma separated and if the dates are valid
+        for start, end in var_start_end:
+            is_success = L2Validation.check_var_sections(lines[start:end])
+            if not is_success:
+                print("Formatting issues in L2.txt between lines {} and {}".format(start, end))
+                return False
+        # all validations done
+        return True
+
+    @staticmethod
+    def check_var_sections(lines):
+        depcheck_line_index = lines.index('[[[DependencyCheck]]]\n')
+        rangecheck_line_index = lines.index('[[[RangeCheck]]]\n')
+        excludedates_line_index = lines.index('[[[ExcludeDates]]]\n')
+        section_index = {'excludedates': excludedates_line_index, 'rangecheck': rangecheck_line_index, 'depcheck': depcheck_line_index}
+        section_index.sort(key=lambda x: x[1])
+        excludedates_section_index = section_index.keys().index('excludedates')
+        if excludedates_section_index == 2:
+            excludedates_end_index = len(lines) - 1
+        else:
+            excludedates_end_index = list(section_index.values())[excludedates_section_index + 1]
+
+        depcheck_flag, rangecheck_flag, excludedates_flag = False, False, False
+        if lines[depcheck_line_index+1].startswith('source'):
+            depcheck_flag = True
+        if lines[rangecheck_line_index+1].startswith('lower') and lines[rangecheck_line_index+2].startswith('upper'):
+            lower_line = lines[rangecheck_line_index+1]
+            upper_line = lines[rangecheck_line_index+2]
+            lower_items = lower_line.split(',')
+            upper_items = upper_line.split(',')
+            rangecheck_flag = len(lower_items) == len(upper_items)
+        for line in lines[excludedates_line_index:excludedates_end_index]:
+            # TODO
+            pass
+        if not depcheck_flag:
+            print("Check DependencyCheck section at line {}".format(depcheck_line_index))
+            return False
+        elif not rangecheck_flag:
+            print("Check RangeCheck section at line {}".format(rangecheck_line_index))
+            return False
+        elif not excludedates_flag:
+            print("Check ExcludeDates section at line {}".format(excludedates_line_index))
+            return False
+        else:
+            # all validations done
+            return True
+
