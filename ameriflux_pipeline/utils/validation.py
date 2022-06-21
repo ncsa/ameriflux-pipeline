@@ -3,6 +3,7 @@
 # This program and the accompanying materials are made available under the
 # terms of the Mozilla Public License v2.0 which accompanies this distribution,
 # and is available at https://www.mozilla.org/en-US/MPL/2.0/
+import datetime
 
 import pandas as pd
 import re
@@ -155,6 +156,22 @@ class DataValidation:
             return True
         else:
             print(data, "not valid." + ext + "extension expected")
+            return False
+
+    @staticmethod
+    def datetime_validation(data):
+        """
+        Method to check if the the string is in valid datetime format YYYY-mm-dd HH:MM
+        Returns True if valid, else returns False
+        Args:
+            data (str): Input string to check for valid datetime format
+        Returns:
+            (bool): True if valid, else False
+        """
+        try:
+            datetime.datetime.strptime(data, "%Y-%m-%d HH:MM")
+        except ValueError:
+            print(data, "not in valid format of YYYY-mm-dd HH:MM")
             return False
 
     @staticmethod
@@ -646,7 +663,11 @@ class L2Validation:
             upper_items = upper_line.split(',')
             rangecheck_flag = len(lower_items) == len(upper_items)
         for line in lines[excludedates_line_index:excludedates_end_index]:
-            # TODO
+            date_line = line.split('=')[1]
+            dates = date_line.strip().split(',')
+            start_date, end_date = dates[0], dates[1]
+
+
             pass
         if not depcheck_flag:
             print("Check DependencyCheck section at line {}".format(depcheck_line_index))
