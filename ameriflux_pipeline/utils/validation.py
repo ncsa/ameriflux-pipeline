@@ -169,7 +169,8 @@ class DataValidation:
             (bool): True if valid, else False
         """
         try:
-            datetime.datetime.strptime(data, "%Y-%m-%d HH:MM")
+            datetime.datetime.strptime(data, "%Y-%m-%d %H:%M")
+            return True
         except ValueError:
             print(data, "not in valid format of YYYY-mm-dd HH:MM")
             return False
@@ -539,14 +540,13 @@ class L2Validation:
     # define global variables
     SPACES = "    "  # set 4 spaces as default for a section in L2
     LEVEL_LINE = "level = L2"  # set the level
-    VAR_PATTERN = '^\\[\\[[a-zA-Z0-9_]+\\]\\]$'  # variable name pattern
-    VAR_PATTERN_WITH_SPACE = '^ {4}\\[\\[[a-zA-Z0-9_]+\\]\\]\n$'
+    VAR_PATTERN = '^ {4}\\[\\[[a-zA-Z0-9_]+\\]\\]\n$'  # variable name pattern
     DEPENDENCYCHECK_PATTERN = '^ {8}\\[\\[\\[DependencyCheck\\]\\]\\]\n$'
     EXCLUDEDATES_PATTERN = '^ {8}\\[\\[\\[ExcludeDates\\]\\]\\]\n$'
     RANGECHECK_PATTERN = '^ {8}\\[\\[\\[RangeCheck\\]\\]\\]\n$'
-    SOURCE_PATTERN = 'source'  # to match the source in DependencyCheck
-    LOWER_PATTERN = 'lower'  # to match the lower in RangeCheck
-    UPPER_PATTERN = 'upper'  # to match the lower in RangeCheck
+    SOURCE_PATTERN = '^ {12}source'  # to match the source in DependencyCheck
+    LOWER_PATTERN = '^ {12}lower'  # to match the lower in RangeCheck
+    UPPER_PATTERN = '^ {12}upper'  # to match the lower in RangeCheck
 
     @staticmethod
     def check_l2_format(lines):
@@ -622,77 +622,139 @@ class L2Validation:
             Returns:
                 (bool) : Returns True if the format is as expected, else return False
         """
-        # write the variables section to dataframe. this is used to get the indexes easily
-        var_df = pd.DataFrame(lines, columns=['Text'])
-        # remove newline and extra spaces from each line
-        var_df['Text'] = var_df['Text'].apply(lambda x: x.strip())
-        # get df with only variables and a list of variable start and end indexes
-        variables, var_start_end = data_util.get_variables_index(var_df['Text'], var_pattern)
+        var_start_end = L2Validation.get_variables_index(lines, var_pattern)
         # check if excludedates, rangecheck and dependencycheck follow the expected format
         # check if rangecheck has lower and upper. check if the number of comma seperated items are same for both
         # check if source line exists for DependencyCheck
         # check if excludedates has from and to dates that are comma separated and if the dates are valid
         for start, end in var_start_end:
             is_success = L2Validation.check_var_sections(lines[start:end], dependencycheck_pattern, rangecheck_pattern,
-                                                         excludedates_pattern)
+                                                         excludedates_pattern, source_pattern,
+                                                         lower_pattern, upper_pattern)
             if not is_success:
-                print("Formatting issues in L2.txt between lines {} and {}".format(start, end))
                 return False
         # all validations done
         return True
 
     @staticmethod
-    def check_var_sections(lines, dependencycheck_pattern, rangecheck_pattern, excludedates_pattern):
-        try:
-            depcheck_line_index = lines.index(dependencycheck_pattern)
-        except ValueError:
+    def get_variables_index(text, var_pattern):
+        """
+            Get all variables and start and end index for each variable from the pyfluxpro control file
+
+            Args:
+                text (list): List with all variable lines from L2.txt
+                var_pattern (str): Regex pattern of variable names
+            Returns:
+                var_start_end (list): List of tuple, the starting and ending index for each variable
+        """
+        var_indexes = [i for i, item in enumerate(text) if re.match(var_pattern, item)]
+        var_start_end = []
+        for i in range(len(var_indexes)-1):
+            start_ind = var_indexes[i]
+            end_ind = var_indexes[i+1]
+            var_start_end.append((start_ind, end_ind))
+        return var_start_end
+
+    @staticmethod
+    def check_var_sections(lines, dependencycheck_pattern, rangecheck_pattern, excludedates_pattern, source_pattern,
+                           lower_pattern, upper_pattern):
+        """
+        Method to validate each sections of a Variable.
+        Method checks if excludedates, rangecheck and dependencycheck follow the expected format
+        Check if rangecheck has lower and upper lines. Check if source line exists for DependencyCheck
+        Check if excludedates has from and to dates that are comma separated and if the dates are valid
+        Args:
+            lines (list): Lines of a variable from L2.txt
+            dependencycheck_pattern (str): Regex pattern of dependency check section
+            rangecheck_pattern (str): Regex pattern of range check section
+            excludedates_pattern (str): Regex pattern of exclude dates section
+            source_pattern (str): Regex pattern for source line in Dependency check section
+            lower_pattern (str): Regex pattern for lower line in Range check section
+            upper_pattern (str): Regex pattern for upper line in Range check section
+        Returns:
+            (bool): Returns True if all section validations are complete, else returns False
+        """
+        depcheck_line_index = [i for i, item in enumerate(lines) if re.match(dependencycheck_pattern, item)]
+        rangecheck_line_index = [i for i, item in enumerate(lines) if re.match(rangecheck_pattern, item)]
+        excludedates_line_index = [i for i, item in enumerate(lines) if re.match(excludedates_pattern, item)]
+        if depcheck_line_index:
+            depcheck_line_index = depcheck_line_index[0]
+        else:
             depcheck_line_index = None
-        try:
-            rangecheck_line_index = lines.index(rangecheck_pattern)
-        except ValueError:
+        if rangecheck_line_index:
+            rangecheck_line_index = rangecheck_line_index[0]
+        else:
             rangecheck_line_index = None
-        try:
-            excludedates_line_index = lines.index(excludedates_pattern)
-        except ValueError:
+        if excludedates_line_index:
+            excludedates_line_index = excludedates_line_index[0]
+        else:
             excludedates_line_index = None
         section_index = {'excludedates': excludedates_line_index, 'rangecheck': rangecheck_line_index,
                          'depcheck': depcheck_line_index}
+        # exclude dates section can have arbitary number of lines.
+        # get the ending line index for exclude dates section by sorting other section indexes
         section_index = dict(sorted(section_index.items(), key=lambda item: (item[1] is None, item[1])))
         excludedates_section_index = list(section_index.keys()).index('excludedates')
         if excludedates_section_index == 2:
+            # exclude dates section is the last section. the end index will be the ending index of the variable section
             excludedates_end_index = len(lines) - 1
         else:
+            # exclude dates section is not the last. end index will be the starting index of the next section.
             excludedates_end_index = list(section_index.values())[excludedates_section_index + 1]
 
         depcheck_flag, rangecheck_flag, excludedates_flag = False, False, False
-        if depcheck_line_index and lines[depcheck_line_index+1].startswith('source'):
+
+        # validate dependency check section
+        if depcheck_line_index and re.match(source_pattern, lines[depcheck_line_index+1]):
             depcheck_flag = True
-        if rangecheck_line_index and lines[rangecheck_line_index+1].startswith('lower') and lines[rangecheck_line_index+2].startswith('upper'):
-            lower_line = lines[rangecheck_line_index+1]
-            upper_line = lines[rangecheck_line_index+2]
-            lower_items = lower_line.split(',')
-            upper_items = upper_line.split(',')
-            rangecheck_flag = len(lower_items) == len(upper_items)
+        else:
+            print("Check Dependency Check format in line", lines[depcheck_line_index+1])
+            depcheck_flag = False
+
+        # validate rangecheck section
+        if rangecheck_line_index:
+            if re.match(lower_pattern, lines[rangecheck_line_index+1]):
+                lower_line = lines[rangecheck_line_index + 1]
+            elif re.match(lower_pattern, lines[rangecheck_line_index+2]):
+                lower_line = lines[rangecheck_line_index + 2]
+            if re.match(upper_pattern, lines[rangecheck_line_index+2]):
+                upper_line = lines[rangecheck_line_index + 2]
+            elif re.match(upper_pattern, lines[rangecheck_line_index+1]):
+                upper_line = lines[rangecheck_line_index + 1]
+            lower_items = lower_line.strip().split('=')[1].split(',')
+            upper_items = upper_line.strip().split('=')[1].split(',')
+            # TODO : Check with Bethany if an equal number of lower and upper items are neccessary
+            # rangecheck_flag = len(lower_items) == len(upper_items)
+            if lower_items and upper_items:
+                rangecheck_flag = True
+            else:
+                print("Check Range Check format in line", lines[rangecheck_line_index])
+                rangecheck_flag = False
+
+        # validate exclude dates section
         if excludedates_line_index:
-            for line in lines[excludedates_line_index:excludedates_end_index]:
+            # if ExcludeDates section is present, check if the dates are valid
+            # first line is ExcludeDates. start iteration from the next line onwards
+            for line in lines[excludedates_line_index+1:excludedates_end_index]:
                 date_line = line.split('=')[1]
                 dates = date_line.strip().split(',')
-                start_date, end_date = dates[0], dates[1]
-                print("Start end date", start_date, end_date)
-                if DataValidation.datetime_validation(start_date) and DataValidation.datetime_validation(end_date):
+                start_date, end_date = dates[0].strip(), dates[1].strip()
+                if DataValidation.datetime_validation(start_date) and DataValidation.datetime_validation(end_date) and \
+                        pd.to_datetime(end_date) > pd.to_datetime(start_date):
                     excludedates_flag = True
                 else:
                     excludedates_flag = False
                     print("Check dateformat in line", line)
                     break
+
         if depcheck_line_index and (not depcheck_flag):
-            print("Check DependencyCheck section for variable".format(lines[0].strip()))
+            print("Check DependencyCheck section for variable {}".format(lines[0].strip()))
             return False
         elif rangecheck_line_index and (not rangecheck_flag):
-            print("Check RangeCheck section for variable".format(lines[0].strip()))
+            print("Check RangeCheck section for variable {}".format(lines[0].strip()))
             return False
         elif excludedates_line_index and (not excludedates_flag):
-            print("Check ExcludeDates section for variable".format(lines[0].strip()))
+            print("Check ExcludeDates section for variable {}".format(lines[0].strip()))
             return False
         else:
             # all validations done
