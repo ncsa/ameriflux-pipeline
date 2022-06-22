@@ -12,6 +12,8 @@ import os.path
 # NOTES 18
 from netCDF4 import Dataset, num2date
 
+from utils.validation import DataValidation
+
 
 class OutputFormat:
     """
@@ -26,20 +28,25 @@ class OutputFormat:
 
         Args:
             input_file (str): A file path for the input data. This is the PyFluxPro input excel sheet
-            file_meta_data_file (str) : File containing the meta data, typically the first line of Met data
+            file_meta_data_file (str) : Path for the file containing the meta data, typically the first line of Met data
             erroring_variable_flag (str): A flag denoting whether some PyFluxPro variables (erroring variables) have
                                         been renamed to Ameriflux labels. Y is renamed, N if not. By default it is N.
             erroring_variable_key (str): Variable name key used to match the original variable names to Ameriflux names
-                                    for variables throwing an error in PyFluxPro L1.
-                                    This is an excel file named L1_erroring_variables.xlsx
+                                        for variables throwing an error in PyFluxPro L1.
+                                        This is an excel file named L1_erroring_variables.xlsx
         Returns:
             obj: Pandas DataFrame object formatted for Ameriflux
             filename (str): Filename for writing the dataframe to csv
         """
         if os.path.splitext(input_file)[1] != '.nc':
-            print("Run output file not in netCDF format. No .nc extension")
+            print("Run output file not in netCDF format. .nc extension expected")
             return None, None
-        l2 = Dataset(input_file, mode='r')  # read netCDF file
+        try:
+            l2 = Dataset(input_file, mode='r')  # read netCDF file
+        except:
+            print("Unable to read netCDF file ", input_file)
+            return None, None
+
         l2_keys = list(l2.variables.keys())
         # list of unwanted variables to be removed
         unwanted_variables = ['latitude', 'longitude', 'crs', 'station_name']
@@ -56,15 +63,19 @@ class OutputFormat:
         time = time_var[:]
         time = num2date(time, units=time_units, calendar='gregorian')  # calendar can be 365_day / gregorian
         time_data = time.data
+        if not time_data or len(time_data) < 1:
+            print("Check timestamp column in file", input_file)
+            return None, None
 
         # create a dataframe
         df = pd.DataFrame({'TIMESTAMP': [t.isoformat() for t in time_data]})
-
+        # NOTES 16
         # insert TIMESTAMP_START and TIMESTAMP_END
         df['TIMESTAMP'] = pd.to_datetime(df['TIMESTAMP'])
-        # shift timestamp 30min behind and store in timestamp_start. step 1 in guide
-        df.insert(1, 'TIMESTAMP_START', df['TIMESTAMP'] - timedelta(minutes=30))
-        df.insert(2, 'TIMESTAMP_END', df['TIMESTAMP'])
+        # set timestamp as timestamp_start
+        # shift timestamp 30min ahead and store in timestamp_end. step 1 in guide
+        df.insert(1, 'TIMESTAMP_START', df['TIMESTAMP'])
+        df.insert(2, 'TIMESTAMP_END', df['TIMESTAMP'] + timedelta(minutes=30))
         # check if timestamp spans an entire year. Else throw a warning. Step 6 in guide
         start_timestamp = df['TIMESTAMP_START'].iloc[0]
         end_timestamp = df['TIMESTAMP_END'].iloc[-1]
@@ -91,9 +102,21 @@ class OutputFormat:
 
         # rename the erroring variables back to Ameriflux-friendly variables
         # convert erroring variables as a dictionary
+        # TODO
         if erroring_variable_flag.lower() in ['n', 'no']:
             # if user chose not to replace the variable name, read the name mapping
             erroring_variable_key = pd.read_excel(erroring_variable_key)  # read L1 erroring variable name matching file
+            if DataValidation.is_valid_erroring_variables_key(erroring_variable_key):
+                # strip column names of extra spaces and convert to lowercase
+                erroring_variable_key.columns = erroring_variable_key.columns.str.strip().str.lower()
+                ameriflux_col = erroring_variable_key.filter(regex="ameriflux").columns.to_list()
+                pyfluxpro_col = erroring_variable_key.filter(regex="pyfluxpro").columns.to_list()
+                erroring_variable_key['Ameriflux label'] = erroring_variable_key[ameriflux_col]
+                erroring_variable_key['PyFluxPro label'] = erroring_variable_key[pyfluxpro_col]
+            else:
+                print("L1 Erroring Variables.xlsx file invalid format. Proceeding without replacing label")
+                # make erroring_variable_key a string to proceed with pipeline.
+                erroring_variable_key = ''
             column_labels = dict(zip(erroring_variable_key['PyFluxPro label'],
                                      erroring_variable_key['Ameriflux label']))
             df.rename(columns=column_labels, inplace=True)
