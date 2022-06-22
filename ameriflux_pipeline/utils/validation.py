@@ -564,6 +564,7 @@ class L2Validation:
             return False
         # check Variables section
         variables_line_index = lines.index('[Variables]\n')
+        # TODO: Check with Bethany if PyFluxPro accepts L2 without Plots section?
         plots_line_index = lines.index('[Plots]\n')
         if variables_line_index and plots_line_index:
             if L2Validation.check_variables_line(lines[variables_line_index + 1:plots_line_index]):
@@ -624,9 +625,6 @@ class L2Validation:
         """
         var_start_end = L2Validation.get_variables_index(lines, var_pattern)
         # check if excludedates, rangecheck and dependencycheck follow the expected format
-        # check if rangecheck has lower and upper. check if the number of comma seperated items are same for both
-        # check if source line exists for DependencyCheck
-        # check if excludedates has from and to dates that are comma separated and if the dates are valid
         for start, end in var_start_end:
             is_success = L2Validation.check_var_sections(lines[start:end], dependencycheck_pattern, rangecheck_pattern,
                                                          excludedates_pattern, source_pattern,
@@ -677,6 +675,7 @@ class L2Validation:
         depcheck_line_index = [i for i, item in enumerate(lines) if re.match(dependencycheck_pattern, item)]
         rangecheck_line_index = [i for i, item in enumerate(lines) if re.match(rangecheck_pattern, item)]
         excludedates_line_index = [i for i, item in enumerate(lines) if re.match(excludedates_pattern, item)]
+        # get value from list
         if depcheck_line_index:
             depcheck_line_index = depcheck_line_index[0]
         else:
@@ -713,17 +712,19 @@ class L2Validation:
 
         # validate rangecheck section
         if rangecheck_line_index:
+            # check if the first line or second line matches the lower pattern
             if re.match(lower_pattern, lines[rangecheck_line_index+1]):
                 lower_line = lines[rangecheck_line_index + 1]
             elif re.match(lower_pattern, lines[rangecheck_line_index+2]):
                 lower_line = lines[rangecheck_line_index + 2]
+            # check if the first line or second line matches the upper pattern
             if re.match(upper_pattern, lines[rangecheck_line_index+2]):
                 upper_line = lines[rangecheck_line_index + 2]
             elif re.match(upper_pattern, lines[rangecheck_line_index+1]):
                 upper_line = lines[rangecheck_line_index + 1]
             lower_items = lower_line.strip().split('=')[1].split(',')
             upper_items = upper_line.strip().split('=')[1].split(',')
-            # TODO : Check with Bethany if an equal number of lower and upper items are neccessary
+            # TODO : Check with Bethany if an equal number of lower and upper items are necessary
             # rangecheck_flag = len(lower_items) == len(upper_items)
             if lower_items and upper_items:
                 rangecheck_flag = True
@@ -762,6 +763,14 @@ class L2Validation:
 
     @staticmethod
     def check_plot_lines(lines):
+        """
+        Method to check if plots section is in valid format
+        Args:
+            lines (list): List of lines from the Plots section
+        Returns:
+            (bool): True if valid, False if not.
+        """
+        # TODO: If L2 can be without a Plots section, delete this.
         return True
 
 
