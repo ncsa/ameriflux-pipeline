@@ -185,7 +185,6 @@ class L1Format:
         # return pyfluxpro to ameriflux label mapping
         return variable_mapping
 
-
     @staticmethod
     def get_soil_labels(site_name, df_soil_key):
         """

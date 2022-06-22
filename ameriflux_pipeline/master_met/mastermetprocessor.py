@@ -9,11 +9,11 @@ import numpy as np
 from datetime import timedelta
 from pandas.api.types import is_datetime64_any_dtype as is_datetime64
 
-import warnings
-warnings.filterwarnings("ignore")
-
 from utils.validation import DataValidation
 import utils.data_util as data_util
+
+import warnings
+warnings.filterwarnings("ignore")
 
 
 class MasterMetProcessor:
@@ -156,7 +156,7 @@ class MasterMetProcessor:
                 if shortwave_in and shortwave_out:
                     # avoid zero division error
                     df[albedo_col[0]] = df.apply(lambda x: float(x[shortwave_out]) / float(x[shortwave_in])
-                                              if float(x[shortwave_in]) != 0 else np.nan, axis=1)
+                                                 if float(x[shortwave_in]) != 0 else np.nan, axis=1)
 
                     df_meta[albedo_col[0]] = SW_unit  # add shortwave radiation units
             except NameError:

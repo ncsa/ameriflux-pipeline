@@ -10,6 +10,7 @@ import re
 
 from utils.validation import DataValidation, L2Validation
 
+
 class L2Format:
     """
     Class to implement formatting of PyFluxPro L2 control file as per AmeriFlux standards

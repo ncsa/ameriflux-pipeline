@@ -3,15 +3,14 @@
 # This program and the accompanying materials are made available under the
 # terms of the Mozilla Public License v2.0 which accompanies this distribution,
 # and is available at https://www.mozilla.org/en-US/MPL/2.0/
-import datetime
 
+import datetime
 import pandas as pd
 import re
 import validators
 from validators import ValidationFailure
 import ipaddress
 import os.path
-import utils.data_util as data_util
 
 
 class DataValidation:
@@ -320,7 +319,6 @@ class DataValidation:
             return False
         # all validations done
         return True
-
 
 
 class L1Validation:
@@ -772,5 +770,3 @@ class L2Validation:
         """
         # TODO: If L2 can be without a Plots section, delete this.
         return True
-
-
