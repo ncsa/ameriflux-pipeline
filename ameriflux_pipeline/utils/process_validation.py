@@ -529,7 +529,6 @@ class L1Validation:
             return True
         else:
             return False
-<<<<<<< HEAD
 
 
 class L2Validation:
