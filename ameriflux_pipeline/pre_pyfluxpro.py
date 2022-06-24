@@ -13,7 +13,7 @@ from datetime import datetime
 from config import Config as cfg
 import utils.data_util as data_util
 from utils.syncdata import SyncData as syncdata
-from utils.data_validation import DataValidation
+from utils.process_validation import DataValidation
 from utils.input_validation import InputValidation
 
 from master_met.mastermetprocessor import MasterMetProcessor
@@ -139,7 +139,7 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
     # copy and rename the met data file
     shutil.copyfile(met_data_30_input, met_data_30_pyfluxpro)
 
-    met_data_df = pd.read_csv(met_data_30_pyfluxpro)
+    met_data_df = pd.read_csv(met_data_30_pyfluxpro, low_memory=False)
     # convert timestamp to datetime format so that pyfluxpro can read without error
     met_data_df['TIMESTAMP'][1:] = pd.to_datetime(met_data_df['TIMESTAMP'][1:])
 
@@ -168,8 +168,7 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
         met_data_worksheet.write(0, idx, val)
 
     writer.save()
-    writer.close()
-    print("PyFluxPro input excel sheet saved in ", cfg.PYFLUXPRO_INPUT_SHEET)
+    print("PyFluxPro input excel sheet saved in", cfg.PYFLUXPRO_INPUT_SHEET)
     # eddypro full output sheet formatting and pyfluxpro input sheet creation is successful
     return True
 
@@ -213,7 +212,6 @@ def pyfluxpro_ameriflux_processing(input_file, output_file):
         met_data_worksheet.write(0, idx, val)
 
     writer.save()
-    writer.close()
     print("AmeriFlux PyFluxPro excel sheet saved in ", output_file)
     # all processing successful
     return True

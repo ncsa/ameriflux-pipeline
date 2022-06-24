@@ -9,11 +9,8 @@ import pandas as pd
 import shutil
 import re
 
-from utils.data_validation import DataValidation
+from utils.process_validation import DataValidation
 import utils.data_util as data_util
-
-import warnings
-warnings.filterwarnings("ignore")
 
 
 class EddyProFormat:
@@ -144,7 +141,7 @@ class EddyProFormat:
             df(obj): Pandas DataFrame object
         """
         shutil.copyfile(input_path, output_path)
-        df = pd.read_csv(output_path)
+        df = pd.read_csv(output_path, low_memory=False)
         return df
 
     @staticmethod

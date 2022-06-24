@@ -10,7 +10,7 @@ This module is the first to be called from pre_pyfluxpro
 '''
 
 from config import Config as cfg
-from utils.data_validation import DataValidation
+from utils.process_validation import DataValidation
 import utils.data_util as data_util
 
 

@@ -78,3 +78,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Removed date from NOTES 20. [#174](https://github.com/ncsa/ameriflux-pipeline/issues/174)
 - Calculation of albedo. [#191](https://github.com/ncsa/ameriflux-pipeline/issues/191)
 - Updated column name comparison for eddypro formatting of master met data [#193](https://github.com/ncsa/ameriflux-pipeline/issues/193)
+- Renamed data_validation to process_validation [#195](https://github.com/ncsa/ameriflux-pipeline/issues/195)

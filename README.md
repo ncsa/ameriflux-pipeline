@@ -21,6 +21,8 @@ This automated code creates master met data, runs EddyPro automatically and crea
 - pyfluxpro / outputformat.py creates csv file with data formatted for Ameriflux submission from the L2 run output
 - utils / data_util.py performs various data operations
 - utils / syncdata.py performs syncing of GHG data with server and local
+- utils / input_validation.py performs validations on user inputs from the env file
+- utils / process_validation.py performs validations on data
 - templates/ folder keeps the eddypro project files needed to run EddyPro headless
 - enveditor.py is the GUI for helping the users to set the input and output data
 - config.py lists all configurations
