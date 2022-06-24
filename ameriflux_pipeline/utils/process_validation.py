@@ -302,7 +302,6 @@ class DataValidation:
         return True
 
 
-
 class L1Validation:
     '''
     Class to implement validation for L1 files
@@ -513,4 +512,3 @@ class L1Validation:
             return True
         else:
             return False
-
