@@ -561,21 +561,28 @@ class L2Validation:
             print("Incorrect format in Level section")
             return False
         # check Variables section
-        variables_line_index = lines.index('[Variables]\n')
-        # TODO: Check with Bethany if PyFluxPro accepts L2 without Plots section?
-        plots_line_index = lines.index('[Plots]\n')
+        try:
+            variables_line_index = lines.index('[Variables]\n')
+        except ValueError:
+            print("ERROR : No [Variables] present in L2.txt.")
+            return False
+        try:
+            plots_line_index = lines.index('[Plots]\n')
+        except ValueError:
+            print("WARNING: no [Plots] present in L2.txt")
+            plots_line_index = None
         if variables_line_index and plots_line_index:
             if L2Validation.check_variables_line(lines[variables_line_index + 1:plots_line_index]):
-                if L2Validation.check_plot_lines(lines[plots_line_index + 1:]):
-                    return True
-                else:
-                    print("Incorrect format in L2 Plots section")
+                return True
             else:
                 print("Incorrect format in L2 Variables section")
                 return False
-        else:
-            print("Undefined L2 Variables and Plots sections")
-            return False
+        elif variables_line_index:
+            if L2Validation.check_variables_line(lines[variables_line_index + 1:]):
+                return True
+            else:
+                print("Undefined L2 Variables and Plots sections")
+                return False
 
     @staticmethod
     def check_level_line(line):
@@ -591,17 +598,6 @@ class L2Validation:
             if line_split[0].startswith('level') and line_split[1].strip() == 'L2':
                 return True
         return False
-
-    @staticmethod
-    def check_space(test_string):
-        """
-            Count number of spaces in the string
-            Args:
-                test_string (str): Input string
-            Returns:
-                (int) : Returns the count of empty spaces in the string
-        """
-        return test_string.count(" ")
 
     @staticmethod
     def check_variables_line(lines, var_pattern=VAR_PATTERN, dependencycheck_pattern=DEPENDENCYCHECK_PATTERN,
@@ -758,15 +754,3 @@ class L2Validation:
         else:
             # all validations done
             return True
-
-    @staticmethod
-    def check_plot_lines(lines):
-        """
-        Method to check if plots section is in valid format
-        Args:
-            lines (list): List of lines from the Plots section
-        Returns:
-            (bool): True if valid, False if not.
-        """
-        # TODO: If L2 can be without a Plots section, delete this.
-        return True
