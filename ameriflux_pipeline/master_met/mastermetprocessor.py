@@ -193,7 +193,7 @@ class MasterMetProcessor:
         # TODO : Check with Bethany if Min/Avg is to be checked for.
         file_df_meta = df.head(4)  # first four lines of file contains meta data
         # the first row contains the meta data of file. second and third row contains met variables and their units
-        file_df_meta = file_df_meta.fillna('')  # fill NaNs with empty string for ease of replace
+        file_df_meta.fillna(value='', inplace=True)  # fill NaNs with empty string for ease of replace
         file_df_meta = file_df_meta.applymap(lambda x: str(x).replace('"', ''))  # strip off quotes from all values
 
         # process df to get met data
