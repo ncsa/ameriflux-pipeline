@@ -35,7 +35,9 @@
 ### 10
 - Calculation of shortwave out and albedo is as follows :
 - SW_out_Avg = Shortwave In - Net Shortwave = CM3Dn_Avg = SWUp_Avg
-- Albedo_Avg = Shortwave Out / Shortwave In = CM3Dn_Avg / CM3Up_Avg = SWUp_Avg / SWDn_Avg = albedo_avg (already in dataset)
+- Albedo_Avg = Shortwave Out / Shortwave In = CM3Dn_Avg / CM3Up_Avg = SWUp_Avg / SWDn_Avg = albedo_avg
+- If albedo is already in the dataset, the calculation is not done in the code.
+- The dataset will contain either the SWUp/Dn measurements of the CM3UP/Dn measurements, and never both.
 ### 11
 - In Soils key, the EddyPro labels are the same as those used for PyFluxPro L1 and L2 control file variables to meet AmeriFlux standards.
 - PyFluxPro formatting to AmeriFlux standards uses two L1.txt files. 
@@ -52,7 +54,8 @@
 ### 15
 - For Soil water content variables in Ameriflux-friendly L2, range checks should be multiplied by 100 as these are in percentages.
 ### 16
-- TIMESTAMP_START and TIMESTAMP_END column is created from time column from netCDF PyFluxPro output and inserted at indexes 0 and 1 respectively.
+- TIMESTAMP_START and TIMESTAMP_END column is created from time column from netCDF PyFluxPro output and inserted at indexes 0 and 1 respectively. 
+- The TIMESTAMP_START column corresponds with TIMESTAMP column from PyFluxPro L2 output file.
 ### 17 
 - Pipeline is split into two phases, one to be run before PyFluxPro(pre_pyfluxpro) and one after PyFluxPro(post_pyfluxpro).
 - The first phase generates L1 and L2 control files that meet Ameriflux standards.
