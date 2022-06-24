@@ -8,7 +8,7 @@ import pandas as pd
 import os
 import re
 
-from utils.validation import DataValidation, L2Validation
+from utils.process_validation import DataValidation, L2Validation
 
 
 class L2Format:

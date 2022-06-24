@@ -12,7 +12,7 @@ import os.path
 # NOTES 18
 from netCDF4 import Dataset, num2date
 
-from utils.validation import DataValidation
+from utils.process_validation import DataValidation
 import utils.data_util as data_util
 
 
@@ -44,7 +44,7 @@ class OutputFormat:
             return None, None
         try:
             l2 = Dataset(input_file, mode='r')  # read netCDF file
-        except:
+        except KeyError or IOError:
             print("Unable to read netCDF file ", input_file)
             return None, None
 
@@ -64,7 +64,7 @@ class OutputFormat:
         time = time_var[:]
         time = num2date(time, units=time_units, calendar='gregorian')  # calendar can be 365_day / gregorian
         time_data = time.data
-        if not time_data or len(time_data) < 1:
+        if len(time_data) < 1:
             print("Check timestamp column in file", input_file)
             return None, None
 
