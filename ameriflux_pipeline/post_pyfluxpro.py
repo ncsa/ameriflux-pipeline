@@ -28,17 +28,18 @@ def pyfluxpro_output_ameriflux_processing(l2_run_output, file_meta_data_file, er
                                 for variables throwing an error in PyFluxPro L1.
                                 This is an excel file named L1_erroring_variables.xlsx
     Returns:
-        None
+        (bool): True if processing is successful, False if not
     """
     ameriflux_df, ameriflux_file_name = OutputFormat.data_formatting(l2_run_output, file_meta_data_file,
                                                                      erroring_variable_flag, erroring_variable_key)
     if ameriflux_file_name is None:
         print("PyFluxPro run output not formatted for Ameriflux")
-        return
+        return False
     ameriflux_file_name = ameriflux_file_name + '.csv'
     directory_name = os.path.dirname(l2_run_output)
     output_file = os.path.join(directory_name, ameriflux_file_name)
     data_util.write_data(ameriflux_df, output_file)
+    return True
 
 
 if __name__ == '__main__':
@@ -65,8 +66,12 @@ if __name__ == '__main__':
     # run ameriflux formatting of pyfluxpro run output
     start = time.time()
     print("Post-processing of PyFluxPro run output has been started")
-    pyfluxpro_output_ameriflux_processing(cfg.L2_AMERIFLUX_RUN_OUTPUT, file_meta_data_file, erroring_variable_flag,
+    is_success = pyfluxpro_output_ameriflux_processing(cfg.L2_AMERIFLUX_RUN_OUTPUT, file_meta_data_file, erroring_variable_flag,
                                           cfg.L1_AMERIFLUX_ERRORING_VARIABLES_KEY)
+    if is_success:
+        print("Post-processing of PyFluxPro L2 run output is successful")
+    else:
+        print("Post-processing of PyFluxPro L2 run output has failed. Aborting")
     end = time.time()
     hours, rem = divmod(end - start, 3600)
     minutes, seconds = divmod(rem, 60)
