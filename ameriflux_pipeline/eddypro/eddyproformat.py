@@ -7,8 +7,9 @@
 import numpy as np
 import pandas as pd
 import shutil
+import re
 
-from utils.validation import DataValidation
+from utils.process_validation import DataValidation
 import utils.data_util as data_util
 
 
@@ -61,9 +62,9 @@ class EddyProFormat:
         df = EddyProFormat.timestamp_format(df)  # change / to -
 
         # rename air temp column names
-        eddypro_air_temp_labels = EddyProFormat.air_temp_colnames(df)
+        eddypro_air_temp_labels = EddyProFormat.air_temp_colnames(df.columns)
         # rename shf measurement
-        eddypro_shf_labels = EddyProFormat.shf_colnames(df)
+        eddypro_shf_labels = EddyProFormat.shf_colnames(df.columns)
         # rename met variables to eddypro labels
         eddypro_col_labels = {'TIMESTAMP': 'TIMESTAMP', 'RH_Avg': 'RH', 'TargTempK_Avg': 'Tc', 'albedo_Avg': 'Rr',
                               'Rn_Avg': 'Rn', 'LWDnCo_Avg': 'LWin', 'LWUpCo_Avg': 'LWout', 'SWDn_Avg': 'SWin',
@@ -140,7 +141,7 @@ class EddyProFormat:
             df(obj): Pandas DataFrame object
         """
         shutil.copyfile(input_path, output_path)
-        df = pd.read_csv(output_path)
+        df = pd.read_csv(output_path, low_memory=False)
         return df
 
     @staticmethod
@@ -159,42 +160,60 @@ class EddyProFormat:
         return df
 
     @staticmethod
-    def air_temp_colnames(df):
+    def air_temp_colnames(df_cols):
         """
         Function to rename air temperature measurements.
         Rename AirTC_Avg, RTD_C_Avg to Ta_1_1_1 and Ta_1_1_2, where Ta_1_1_1 must be present.
         RTD being more accurate measurement, rename RTD_C_Avg to Ta_1_1_1 for eddypro. If not present, rename AirTC_Avg
 
         Args:
-            df (object): Pandas DataFrame object
+            df_cols (object): Pandas DataFrame object columns
         Returns:
             dictionary: met column name and eddypro label mapping
         """
-        air_temp_cols = ['RTD_C_Avg', 'AirTC_Avg']
-        if set(air_temp_cols).issubset(set(df.columns)):
-            return {'RTD_C_Avg': 'Ta_1_1_1', 'AirTC_Avg': 'Ta_1_1_2'}
-        elif 'RTD_C_Avg' in df.columns:
-            return {'RTD_C_Avg': 'Ta_1_1_1'}
+        df_cols = [col.lower() for col in df_cols]
+        rtd_pattern = re.compile('rtd_c_avg|rtdcavg')
+        airtc_pattern = re.compile('airtc_avg|airtcavg|air_tc_avg')
+        rtd_col = list(filter(rtd_pattern.match, df_cols))
+        airtc_col = list(filter(airtc_pattern.match, df_cols))
+        air_temp_cols = None
+        if rtd_col and airtc_col:
+            air_temp_cols = [rtd_col[0], airtc_col[0]]
+        if air_temp_cols and (set(air_temp_cols).issubset(set(df_cols))):
+            return {rtd_col[0]: 'Ta_1_1_1', airtc_col[0]: 'Ta_1_1_2'}
+        elif rtd_col and rtd_col[0] in df_cols:
+            return {rtd_col[0]: 'Ta_1_1_1'}
+        elif airtc_col and airtc_col[0] in df_cols:
+            return {airtc_col[0]: 'Ta_1_1_1'}
         else:
-            return {'AirTC_Avg': 'Ta_1_1_1'}
+            return {}
 
     @staticmethod
-    def shf_colnames(df):
+    def shf_colnames(df_cols):
         """
         Function to rename soil heat flux measurements. shf_Avg(1), shf_Avg(2) to be renamed as SHF_1_1_1 and SHF_2_1_1.
 
         Args:
-            df (object): Pandas DataFrame object
+            df_cols (object): Pandas DataFrame object columns
         Returns:
             dictionary: mapping from met variable to eddypro label
         """
-        shf_cols = ['shf_Avg(1)', 'shf_Avg(2)']
-        if set(shf_cols).issubset(set(df.columns)):
-            return {'shf_Avg(1)': 'SHF_1_1_1', 'shf_Avg(2)': 'SHF_2_1_1'}
-        elif 'shf_Avg(1)' in df.columns:
-            return {'shf_Avg(1)': 'SHF_1_1_1'}
+        df_cols = [col.lower() for col in df_cols]
+        shf1_pattern = re.compile('shf_avg\\(1\\)|shf_avg1|shf_avg_1|shfavg\\(1\\)|shfavg_1')
+        shf2_pattern = re.compile('shf_avg\\(2\\)|shf_avg2|shf_avg_2|shfavg\\(2\\)|shfavg_2')
+        shf1_col = list(filter(shf1_pattern.match, df_cols))
+        shf2_col = list(filter(shf2_pattern.match, df_cols))
+        shf_cols = None
+        if shf1_col and shf2_col:
+            shf_cols = [shf1_col[0], shf2_col[0]]
+        if shf_cols and (set(shf_cols).issubset(set(df_cols))):
+            return {shf1_col[0]: 'SHF_1_1_1', shf2_col[0]: 'SHF_2_1_1'}
+        elif shf1_col and [0] in df_cols:
+            return {shf1_col[0]: 'SHF_1_1_1'}
+        elif shf2_col and shf2_col[0] in df_cols:
+            return {shf2_col[0]: 'SHF_2_1_1'}
         else:
-            return {'shf_Avg(2)': 'SHF_2_1_1'}
+            return {}
 
     @staticmethod
     def merge_dicts(*dict_args):
@@ -262,6 +281,8 @@ class EddyProFormat:
         """
         df.replace({'W/m^2': 'W+1m-2', '√Ç¬µmols/m√Ç¬≤/s': 'umol+1m-2s-1', '¬µmols/m¬≤/s': 'umol+1m-2s-1',
                     'Kelvin': 'K', 'm/s': 'm+1s-1', 'Deg': 'degrees', 'vwc': 'm+3m-3'}, inplace=True)
+        # replace the text which has word µmols/m
+        df = df.replace(to_replace=r".*mols/m.*", value='umol+1m-2s-1', regex=True)
         return df
 
     @staticmethod
