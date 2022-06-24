@@ -754,4 +754,3 @@ class L2Validation:
         else:
             # all validations done
             return True
-
