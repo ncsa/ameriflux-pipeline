@@ -9,7 +9,7 @@ import os
 import re
 
 import utils.data_util as data_util
-from utils.validation import DataValidation, L1Validation
+from utils.process_validation import DataValidation, L1Validation
 
 
 class L1Format:
