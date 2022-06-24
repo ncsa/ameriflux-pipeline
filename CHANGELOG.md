@@ -67,6 +67,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Generate correct warnings if pyfluxpro L2 run output does not span an entire year [#145](https://github.com/ncsa/ameriflux-pipeline/issues/145)
 - Archive non-empty EddyPro Run output directory. [#143](https://github.com/ncsa/ameriflux-pipeline/issues/143)
 - Fixed Ameriflux_Variable_User_Confirmation in input_validation. [#165](https://github.com/ncsa/ameriflux-pipeline/issues/165)
+- Fixed timestamp misalignment in csv file for ameriflux submission. [#198](https://github.com/ncsa/ameriflux-pipeline/issues/198)
 
 ### Changed
 - AmeriFlux L1 formatting variable names in env editor [#118](https://github.com/ncsa/ameriflux-pipeline/issues/118)
@@ -76,4 +77,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Description and info in env editor updated. [#150](https://github.com/ncsa/ameriflux-pipeline/issues/150)
 - TAU sign change in pyfluxpro input sheet for ameriflux. [#180](https://github.com/ncsa/ameriflux-pipeline/issues/180)
 - Removed date from NOTES 20. [#174](https://github.com/ncsa/ameriflux-pipeline/issues/174)
-- Renamed data_validation to validation [#195](https://github.com/ncsa/ameriflux-pipeline/issues/195)
+- Calculation of albedo. [#191](https://github.com/ncsa/ameriflux-pipeline/issues/191)
+- Updated column name comparison for eddypro formatting of master met data [#193](https://github.com/ncsa/ameriflux-pipeline/issues/193)
+- Renamed data_validation to process_validation [#195](https://github.com/ncsa/ameriflux-pipeline/issues/195)

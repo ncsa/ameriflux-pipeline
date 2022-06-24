@@ -6,7 +6,7 @@
 
 from ameriflux_pipeline.config import Config
 import ameriflux_pipeline.enveditor
-from ameriflux_pipeline.utils.validation import DataValidation
+from ameriflux_pipeline.utils.process_validation import DataValidation
 from ameriflux_pipeline.utils.input_validation import InputValidation
 import ameriflux_pipeline.met_data_merge
 import ameriflux_pipeline.pre_pyfluxpro
