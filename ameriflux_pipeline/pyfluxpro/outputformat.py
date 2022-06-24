@@ -118,7 +118,7 @@ class OutputFormat:
                                              erroring_variable_key['Ameriflux label']))
                     df.rename(columns=column_labels, inplace=True)
             else:
-                print("L1 Erroring Variables.xlsx file invalid format. Proceeding without replacing label")
+                print("WARNING: L1 Erroring Variables.xlsx file invalid format. Proceeding without replacing label")
 
         # drop additional time columns
         df.drop(columns=['time'], inplace=True)
