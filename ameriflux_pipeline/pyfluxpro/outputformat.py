@@ -13,6 +13,7 @@ import os.path
 from netCDF4 import Dataset, num2date
 
 from utils.validation import DataValidation
+import utils.data_util as data_util
 
 
 class OutputFormat:
@@ -102,7 +103,6 @@ class OutputFormat:
 
         # rename the erroring variables back to Ameriflux-friendly variables
         # convert erroring variables as a dictionary
-        # TODO
         if erroring_variable_flag.lower() in ['n', 'no']:
             # if user chose not to replace the variable name, read the name mapping
             erroring_variable_key = pd.read_excel(erroring_variable_key)  # read L1 erroring variable name matching file
@@ -111,15 +111,15 @@ class OutputFormat:
                 erroring_variable_key.columns = erroring_variable_key.columns.str.strip().str.lower()
                 ameriflux_col = erroring_variable_key.filter(regex="ameriflux").columns.to_list()
                 pyfluxpro_col = erroring_variable_key.filter(regex="pyfluxpro").columns.to_list()
-                erroring_variable_key['Ameriflux label'] = erroring_variable_key[ameriflux_col]
-                erroring_variable_key['PyFluxPro label'] = erroring_variable_key[pyfluxpro_col]
+                if ameriflux_col and pyfluxpro_col:
+                    erroring_variable_key['Ameriflux label'] = erroring_variable_key[ameriflux_col[0]]
+                    erroring_variable_key['PyFluxPro label'] = erroring_variable_key[pyfluxpro_col[0]]
+                    column_labels = dict(zip(erroring_variable_key['PyFluxPro label'],
+                                             erroring_variable_key['Ameriflux label']))
+                    df.rename(columns=column_labels, inplace=True)
             else:
                 print("L1 Erroring Variables.xlsx file invalid format. Proceeding without replacing label")
-                # make erroring_variable_key a string to proceed with pipeline.
-                erroring_variable_key = ''
-            column_labels = dict(zip(erroring_variable_key['PyFluxPro label'],
-                                     erroring_variable_key['Ameriflux label']))
-            df.rename(columns=column_labels, inplace=True)
+
         # drop additional time columns
         df.drop(columns=['time'], inplace=True)
         # fill all empty cells with -9999
@@ -130,7 +130,7 @@ class OutputFormat:
         file_meta = pd.read_csv(file_meta_data_file)
         # get the site name
         file_site_name = file_meta.iloc[0][5]
-        site_name = OutputFormat.get_site_name(file_site_name)
+        site_name = data_util.get_site_name(file_site_name)
         ameriflux_site_name = OutputFormat.get_ameriflux_site_name(site_name)
         start_time = df['TIMESTAMP_START'].iloc[0]
         end_time = df['TIMESTAMP_END'].iloc[-1]
@@ -181,31 +181,6 @@ class OutputFormat:
             return False
         else:
             return True
-
-    # TODO : This method has been used in 3 files (L1Format and EddyProFormat).
-    # Maybe place this in main or pass in just the site name as arguments
-    @staticmethod
-    def get_site_name(file_site_name):
-        """
-        Match the file site name to site names in soil key data.
-        From the input file site name, return the matching site name
-        Site name is used as lookup in soil key table
-
-        Args:
-            file_site_name (str): file site name from file meta data, first row of input met file
-        Returns:
-            (str): matching site name
-        """
-        if re.match('^CPU:Maize_Control_*', file_site_name):
-            return 'Maize-Control'
-        elif re.match('^CPU:Maize_*', file_site_name):
-            return 'Maize-Basalt'
-        elif re.match('^CPU:Miscanthus_Control_*', file_site_name):
-            return 'Miscanthus-Control'
-        elif re.match('^CPU:Miscanthus_*', file_site_name):
-            return 'Miscanthus-Basalt'
-        elif re.match('^CPU:Sorghum_*', file_site_name):
-            return 'Sorghum'
 
     @staticmethod
     def get_ameriflux_site_name(site_name):
