@@ -4,6 +4,7 @@
 # terms of the Mozilla Public License v2.0 which accompanies this distribution,
 # and is available at https://www.mozilla.org/en-US/MPL/2.0/
 
+import re
 import validators
 from validators import ValidationFailure
 import ipaddress
@@ -208,20 +209,22 @@ class DataValidation:
         Returns:
             (bool): True if df is valid, else False
         """
-        site_name_col = df.filter(regex='Site name|site name|Site Name|Site|site').columns.to_list()[0]
+        site_name_col = df.filter(regex='Site name|site name|Site Name|Site|site').columns.to_list()
         if not site_name_col:
             print("Site name not in Soils key")
             return False
         # check if required columns are present
         req_cols = ['Datalogger/met water variable name', 'Datalogger/met temperature variable name',
-                    'EddyPro temperature variable name', 'EddyPro water variable name']
+                    'EddyPro temperature variable name', 'EddyPro water variable name',
+                    'PyFluxPro water variable name', 'PyFluxPro temperature variable name']
         if set(req_cols) <= set(df.columns):
             # required columns is a subset of all column list
             return True
         else:
             print("Check for required columns in soils key: ", end='')
             print("Datalogger/met water variable name, Datalogger/met temperature variable name, "
-                  "EddyPro temperature variable name, EddyPro water variable name")
+                  "EddyPro temperature variable name, EddyPro water variable name, "
+                  "PyFluxPro water variable name, PyFluxPro temperature variable name")
             return False
 
     @staticmethod
@@ -253,3 +256,261 @@ class DataValidation:
             return False
         # all validations done
         return True
+
+    @staticmethod
+    def is_valid_ameriflux_mainstem_key(df):
+        """
+        Method to check if the Ameriflux-Mainstem key for PyFluxPro L1 formatting is as expected.
+        Checks for columns : 'Original variable name', 'Ameriflux variable name', 'Units after formatting'
+        Returns True if valid, else returns False
+        Args:
+            df (obj): Pandas dataframe object to check for valid erroring varaibles input sheet
+        Returns:
+            (bool): True if df is valid, else False
+        """
+        # check if required columns are present
+        req_cols = ['Original variable name', 'Ameriflux variable name', 'Units after formatting']
+        if set(req_cols) <= set(df.columns):
+            # required columns is a subset of all column list
+            return True
+        else:
+            print("Check for required columns in Amerilfux-Mainstem-Key: ", end='')
+            print("Original variable name, Ameriflux variable name, Units after formatting")
+            return False
+
+    @staticmethod
+    def is_valid_erroring_variables_key(df):
+        """
+        Method to check if the erroring variables key for PyFluxPro L1 formatting is as expected.
+        Checks for Ameriflux label and PyFluxPro label columns
+        Returns True if valid, else returns False
+        Args:
+            df (obj): Pandas dataframe object to check for valid erroring varaibles input sheet
+        Returns:
+            (bool): True if df is valid, else False
+        """
+        df.columns = df.columns.str.strip().str.lower()  # strip column names of extra spaces and convert to lowercase
+        ameriflux_col = df.filter(regex="ameriflux").columns.to_list()
+        pyfluxpro_col = df.filter(regex="pyfluxpro").columns.to_list()
+        if not ameriflux_col:
+            print("Ameriflux label column not present in L1 Erroring variables sheet")
+            return False
+        if not pyfluxpro_col:
+            print("Pyfluxpro label column not present in L1 Erroring variables sheet")
+            return False
+        # all validations done
+        return True
+
+
+
+class L1Validation:
+    '''
+    Class to implement validation for L1 files
+    '''
+
+    # define global variables
+    SPACES = "    "  # set 4 spaces as default for a section in L1
+    LEVEL_LINE = "level = L1"  # set the level
+
+    # define patterns to match
+    # variable names have alphanumeric characters and underscores with two square brackets
+    VAR_PATTERN = '^\\[\\[[a-zA-Z0-9_]+\\]\\]$'
+    # variable name lines starts with 4 spaces and ends with new line
+    VAR_PATTERN_WITH_SPACE = '^ {4}\\[\\[[a-zA-Z0-9_]+\\]\\]\n$'
+    XL_PATTERN = '^\\[\\[\\[xl\\]\\]\\]$'  # to match [[xl]] line
+    ATTR_PATTERN = '^\\[\\[\\[Attr\\]\\]\\]$|^\\[\\[\\[attr\\]\\]\\]$'  # to match [[Attr]] or [[attr]] line
+    UNITS_PATTERN = 'units'
+    LONG_NAME_PATTERN = 'long_name'
+    NAME_PATTERN = 'name'
+    SHEET_PATTERN = 'sheet'
+
+    @staticmethod
+    def check_l1_format(lines):
+        """
+            Check if the formatting for L1 is as expected
+            Args:
+                lines (list): List of strings. Lines in L1.txt
+            Returns:
+                (bool) : Returns True if the format is as expected, else return False
+        """
+        # check Level section
+        line0 = lines[0].rstrip('\n')
+        if not L1Validation.check_level_line(line0):
+            print("Incorrect format in Level section")
+            return False
+        # check Files section
+        files_line_index = lines.index('[Files]\n')
+        # check Global section
+        global_line_index = lines.index('[Global]\n')
+        # check Variables section
+        variables_line_index = lines.index('[Variables]\n')
+        if files_line_index and global_line_index:
+            if L1Validation.check_files_line(lines[files_line_index + 1:global_line_index]):
+                if L1Validation.check_global_line(lines[global_line_index + 1:variables_line_index]):
+                    if L1Validation.check_variables_line(lines[variables_line_index + 1:]):
+                        return True
+                    else:
+                        print("Incorrect format in Variables section")
+                        return False
+                else:
+                    print("Incorrect format in Global section")
+                    return False
+            else:
+                print("Incorrect format in Files section")
+                return False
+        else:
+            print("Undefined Files and Global section")
+            return False
+
+    @staticmethod
+    def check_level_line(line):
+        """
+            Check if the formatting for L1 Level section is as expected
+            Args:
+                line (str): Level line from input L1.txt
+            Returns:
+                (bool) : Returns True if the format is as expected, else return False
+        """
+        if line:
+            line_split = line.split('=')
+            if line_split[0].startswith('level') and line_split[1].strip() == 'L1':
+                return True
+        return False
+
+    @staticmethod
+    def check_space(test_string):
+        """
+            Count number of spaces in the string
+            Args:
+                test_string (str): Input string
+            Returns:
+                (int) : Returns the count of empty spaces in the string
+        """
+        return test_string.count(" ")
+
+    @staticmethod
+    def check_files_line(lines):
+        """
+            Check if the formatting for L1 Files section is as expected
+            Args:
+                lines (list): List of strings. Lines in L1.txt
+            Returns:
+                (bool) : Returns True if the format is as expected, else return False
+        """
+        file_path_flag = False  # flag for file_path line
+        out_filename_flag = False  # flag for out_filename line
+        for line in lines:
+            if (line.strip().startswith('file_path')):
+                file_path_flag = True  # found file_path line
+                if L1Validation.check_space(line.split('=')[0].rstrip()) != 4:
+                    # number of spaces is not as expected
+                    return False
+            if (line.strip().startswith('out_filename')):
+                out_filename_flag = True  # found out_filename line
+                if L1Validation.check_space(line.split('=')[0].rstrip()) != 4:
+                    # number of spaces is not as expected
+                    return False
+            if file_path_flag and out_filename_flag:
+                # test is completed, break out of for loop
+                break
+        if file_path_flag and out_filename_flag:
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def check_global_line(lines):
+        """
+            Check if the formatting for L1 Global section is as expected
+            Args:
+                lines (list): List of strings. Lines in L1.txt
+            Returns:
+                (bool) : Returns True if the format is as expected, else return False
+        """
+        acknowledgement_flag = False  # flag for acknowledgement line
+        for line in lines:
+            if (line.strip().startswith('acknowledgement')):
+                acknowledgement_flag = True  # found acknowledgment line
+                if L1Validation.check_space(line.split('=')[0].rstrip()) != 4:
+                    return False
+            if acknowledgement_flag:
+                # test is complete, break out of for loop
+                break
+        if acknowledgement_flag:
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def check_variables_line(lines, var_pattern=VAR_PATTERN, xl_pattern=XL_PATTERN, attr_pattern=ATTR_PATTERN,
+                             units_pattern=UNITS_PATTERN, long_name_pattern=LONG_NAME_PATTERN,
+                             name_pattern=NAME_PATTERN, sheet_pattern=SHEET_PATTERN):
+        """
+            Check if the formatting for L1 Variables section is as expected
+            Args:
+                lines (list): List of strings. Lines in L1.txt
+                var_pattern (str): Regex pattern to find the starting line for [Variables] section
+                xl_pattern (str): Regex pattern to find the [[[xl]]] section within Variables section
+                attr_pattern (str): Regex pattern to find the [[[Attr]]] section within Variables section
+                units_pattern (str): Regex pattern to find the units line within Attr section
+                long_name_pattern (str): Regex pattern to find the long_name line within Attr section
+                name_pattern (str): Regex pattern to find the name line within Attr section
+                sheet_pattern (str): Regex pattern to find the sheet line within xl section
+            Returns:
+                (bool) : Returns True if the format is as expected, else return False
+        """
+        # define flags for pattern matching line
+        var_flag = False
+        xl_flag = False
+        attr_flag = False
+        units_flag = False
+        long_name_flag = False
+        name_flag = False
+        sheet_flag = False
+        var_count = 0  # counter for variables (var_pattern)
+        for line in lines:
+            if re.match(var_pattern, line.strip()):
+                var_count += 1
+                var_flag = True
+                if L1Validation.check_space(line.rstrip()) != 4:
+                    return False
+            if re.match(xl_pattern, line.strip()):
+                xl_flag = True
+                if L1Validation.check_space(line.rstrip()) != 4 * 2:
+                    return False
+            if re.match(attr_pattern, line.strip()):
+                attr_flag = True
+                if L1Validation.check_space(line.rstrip()) != 4 * 2:
+                    return False
+            if (line.strip().startswith(units_pattern)):
+                units_flag = True
+                if L1Validation.check_space(line.split('=')[0].rstrip()) != 4 * 3:
+                    return False
+            if (line.strip().startswith(long_name_pattern)):
+                long_name_flag = True
+                if L1Validation.check_space(line.split('=')[0].rstrip()) != 4 * 3:
+                    return False
+            if (line.strip().startswith(name_pattern)):
+                name_flag = True
+                if L1Validation.check_space(line.split('=')[0].rstrip()) != 4 * 3:
+                    return False
+            if (line.strip().startswith(sheet_pattern)):
+                sheet_flag = True
+                if L1Validation.check_space(line.split('=')[0].rstrip()) != 4 * 3:
+                    return False
+            # test if all flag values are true
+            flags = [var_flag, xl_flag, attr_flag, units_flag, long_name_flag, name_flag, sheet_flag]
+            if all(flags) and var_count == 1:
+                # all flag values are true, then break out of for loop
+                return True
+            elif var_count > 1:
+                print("Check first variable in Variables section")
+                return False
+        # end of for loop, format is as expected
+        flags = [var_flag, xl_flag, attr_flag, units_flag, long_name_flag, name_flag, sheet_flag]
+        if all(flags):
+            # all flag values are true, then break out of for loop
+            return True
+        else:
+            return False
+
