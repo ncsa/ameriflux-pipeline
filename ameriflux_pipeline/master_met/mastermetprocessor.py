@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 from datetime import timedelta
 from pandas.api.types import is_datetime64_any_dtype as is_datetime64
+pd.options.mode.chained_assignment = None
 
 from utils.process_validation import DataValidation
 import utils.data_util as data_util
@@ -43,7 +44,7 @@ class MasterMetProcessor:
         # read input meteorological data file
         # NOTE 1
         df, file_df_meta = MasterMetProcessor.read_met_data(input_met_path)
-        print("Met Data contains ", df.shape[0], "rows ", df.shape[1], "columns")
+        print("Input meteorological data contains {} rows and {} columns".format(df.shape[0], df.shape[1]))
 
         # get meta data
         # NOTE 2
@@ -174,13 +175,13 @@ class MasterMetProcessor:
             file_df_meta (obj) : Pandas DataFrame object
         """
         print("Read file", data_path)
-        df = pd.read_csv(data_path, header=None)  # read file without headers.
+        df = pd.read_csv(data_path, header=None, low_memory=False)  # read file without headers.
 
         # process df to get meta data
         # TODO : Check with Bethany if Min/Avg is to be checked for.
         file_df_meta = df.head(4)  # first four lines of file contains meta data
         # the first row contains the meta data of file. second and third row contains met variables and their units
-        file_df_meta.fillna('', inplace=True)  # fill NaNs with empty string for ease of replace
+        file_df_meta = file_df_meta.fillna('')  # fill NaNs with empty string for ease of replace
         file_df_meta = file_df_meta.applymap(lambda x: str(x).replace('"', ''))  # strip off quotes from all values
 
         # process df to get met data
@@ -217,7 +218,7 @@ class MasterMetProcessor:
             return None, None
         # second and third row contains meta data of met tower variables (column names and units)
         df_meta.columns = df_meta.iloc[0]
-        df_meta.drop(df_meta.index[0], inplace=True)
+        df_meta.drop(index=df_meta.index[0], axis=0, inplace=True)
         df_meta.reset_index(drop=True, inplace=True)  # reset index after dropping first row
         df_meta = df_meta.head(1)  # dropping the last row of Min / Avg
         return df_meta, file_meta

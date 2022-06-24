@@ -141,7 +141,7 @@ class EddyProFormat:
             df(obj): Pandas DataFrame object
         """
         shutil.copyfile(input_path, output_path)
-        df = pd.read_csv(output_path)
+        df = pd.read_csv(output_path, low_memory=False)
         return df
 
     @staticmethod
