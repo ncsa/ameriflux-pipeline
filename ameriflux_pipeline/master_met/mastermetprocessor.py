@@ -150,9 +150,9 @@ class MasterMetProcessor:
         albedo_col = df.filter(regex="Albedo|albedo|ALB").columns.to_list()
         if (not albedo_col) or (albedo_col[0] not in df.columns):
             # calculate albedo_avg from shortwave out and shortwave in
-            if 'swdn_Avg' in df_sw_columns:
+            if 'swdn_avg' in df_sw_columns:
                 shortwave_in = 'SWDn_Avg'
-            elif 'cm3up_Avg' in df_cm3_columns:
+            elif 'cm3up_avg' in df_cm3_columns:
                 shortwave_in = 'CM3Up_Avg'
             try:
                 if shortwave_in and shortwave_out:

@@ -214,9 +214,6 @@ class DataValidation:
             print("Site name not in Soils key")
             return False
         # check if required columns are present
-        req_cols = ['Datalogger/met water variable name', 'Datalogger/met temperature variable name',
-                    'EddyPro temperature variable name', 'EddyPro water variable name',
-                    'PyFluxPro water variable name', 'PyFluxPro temperature variable name']
         # get column names matching datalogger / met tower
         met_cols = df.filter(regex=re.compile("datalogger|met tower", re.IGNORECASE)).columns.to_list()
         # get column names matching eddypro
