@@ -213,7 +213,9 @@ class DataValidation:
         if not site_name_col:
             print("Site name not in Soils key")
             return False
-        # check if required columns are present
+        # check if required columns are present. the required cols are given below
+        req_cols = ['Datalogger/met water variable name', 'Datalogger/met temperature variable name',
+                    'EddyPro temperature variable name', 'EddyPro water variable name']
         # get column names matching datalogger / met tower
         met_cols = df.filter(regex=re.compile("datalogger|met tower", re.IGNORECASE)).columns.to_list()
         # get column names matching eddypro
@@ -298,10 +300,17 @@ class DataValidation:
         Returns:
             (bool): True if df is valid, else False
         """
-        # check if required columns are present
+        # check if required columns are present. required columns are given below
         req_cols = ['Original variable name', 'Ameriflux variable name', 'Units after formatting']
-        if set(req_cols) <= set(df.columns):
-            # required columns is a subset of all column list
+        df_cols = df.columns.to_list()
+        original_pattern = re.compile(r'^original', re.IGNORECASE)
+        ameriflux_pattern = re.compile(r'^ameriflux', re.IGNORECASE)
+        units_pattern = re.compile(r'^units', re.IGNORECASE)
+        original_col = list(filter(original_pattern.search, df_cols))
+        ameriflux_col = list(filter(ameriflux_pattern.search, df_cols))
+        units_col = list(filter(units_pattern.search, df_cols))
+        if original_col and ameriflux_col and units_col:
+            # all required columns are present
             return True
         else:
             print("Check for required columns in Amerilfux-Mainstem-Key: ", end='')
@@ -458,7 +467,7 @@ class L1Validation:
         """
         acknowledgement_flag = False  # flag for acknowledgement line
         for line in lines:
-            if (line.strip().startswith('acknowledgement')):
+            if (line.strip().startswith('acknowledgement|Acknowledgement')):
                 acknowledgement_flag = True  # found acknowledgment line
                 if L1Validation.check_space(line.split('=')[0].rstrip()) != 4:
                     return False
