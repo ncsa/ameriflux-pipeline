@@ -217,15 +217,50 @@ class DataValidation:
         req_cols = ['Datalogger/met water variable name', 'Datalogger/met temperature variable name',
                     'EddyPro temperature variable name', 'EddyPro water variable name',
                     'PyFluxPro water variable name', 'PyFluxPro temperature variable name']
-        if set(req_cols) <= set(df.columns):
-            # required columns is a subset of all column list
-            return True
-        else:
+        # get column names matching datalogger / met tower
+        met_cols = df.filter(regex=re.compile("datalogger|met tower", re.IGNORECASE)).columns.to_list()
+        # get column names matching eddypro
+        eddypro_cols = df.filter(regex=re.compile("^eddypro", re.IGNORECASE)).columns.to_list()
+        # get column names matching pyfluxpro
+        pyfluxpro_cols = df.filter(regex=re.compile("^pyfluxpro", re.IGNORECASE)).columns.to_list()
+        print(met_cols, eddypro_cols, pyfluxpro_cols)
+        if not met_cols or not eddypro_cols or not pyfluxpro_cols:
             print("Check for required columns in soils key: ", end='')
             print("Datalogger/met water variable name, Datalogger/met temperature variable name, "
                   "EddyPro temperature variable name, EddyPro water variable name, "
                   "PyFluxPro water variable name, PyFluxPro temperature variable name")
             return False
+
+        # remove variable columns that have 'old' in the name
+        old_pattern = re.compile(r'old', re.IGNORECASE)
+        met_cols = list(filter(lambda x: not old_pattern.search(x), met_cols))
+        eddypro_cols = list(filter(lambda x: not old_pattern.search(x), eddypro_cols))
+        pyfluxpro_cols = list(filter(lambda x: not old_pattern.search(x), pyfluxpro_cols))
+
+        # get temp and water variable columns from the above column list
+        temp_pattern = re.compile(r'temperature|temp', re.IGNORECASE)
+        water_pattern = re.compile(r"water|moisture", re.IGNORECASE)
+        met_temp_col = list(filter(temp_pattern.search, met_cols))
+        met_water_col = list(filter(water_pattern.search, met_cols))
+        if not met_water_col or not met_temp_col:
+            print("Check for required columns in soils key: ", end='')
+            print("Datalogger/met water variable name, Datalogger/met temperature variable name")
+            return False
+        eddypro_temp_col = list(filter(temp_pattern.search, eddypro_cols))
+        eddypro_water_col = list(filter(water_pattern.search, eddypro_cols))
+        if not eddypro_water_col or not eddypro_temp_col:
+            print("Check for required columns in soils key: ", end='')
+            print("EddyPro temperature variable name, EddyPro water variable name")
+            return False
+        pyfluxpro_temp_col = list(filter(temp_pattern.search, pyfluxpro_cols))
+        pyfluxpro_water_col = list(filter(water_pattern.search, pyfluxpro_cols))
+        if not pyfluxpro_water_col or not pyfluxpro_temp_col:
+            print("Check for required columns in soils key: ", end='')
+            print("PyFluxPro water variable name, PyFluxPro temperature variable name")
+            return False
+        print(met_temp_col, met_water_col, eddypro_water_col, eddypro_temp_col, pyfluxpro_water_col, pyfluxpro_temp_col)
+        # all validations done
+        return True
 
     @staticmethod
     def is_valid_full_output(df):
