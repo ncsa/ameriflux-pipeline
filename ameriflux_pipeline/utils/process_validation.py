@@ -718,10 +718,15 @@ class L2Validation:
                 upper_line = lines[rangecheck_line_index + 1]
             lower_items = lower_line.strip().split('=')[1].split(',')
             upper_items = upper_line.strip().split('=')[1].split(',')
-            # TODO : Check with Bethany if an equal number of lower and upper items are necessary
-            # rangecheck_flag = len(lower_items) == len(upper_items)
             if lower_items and upper_items:
-                rangecheck_flag = True
+                # NOTES 21
+                lower_items_num = len(lower_items)
+                upper_items_num = len(upper_items)
+                if (lower_items_num == 1 or lower_items_num == 12) and (upper_items_num == 1 or upper_items_num == 12):
+                    rangecheck_flag = True
+                else:
+                    print("Check number of items in lower and upper ranges in line", lines[rangecheck_line_index])
+                    rangecheck_flag = False
             else:
                 print("Check Range Check format in line", lines[rangecheck_line_index])
                 rangecheck_flag = False
