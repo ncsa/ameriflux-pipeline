@@ -10,6 +10,7 @@ import pandas as pd
 import time
 from datetime import datetime
 import logging
+import sys
 
 from config import Config as cfg
 import utils.data_util as data_util
@@ -29,8 +30,9 @@ import pandas.io.formats.excel
 pandas.io.formats.excel.header_style = None
 
 # create and configure logger
-logging.basicConfig(filename="pre_pyfluxpro.log", filemode='w', level=logging.INFO, datefmt='%Y-%m-%dT%H:%M:%S',
-                    format='%(asctime)-15s.%(msecs)03dZ %(levelname)-7s [%(threadName)-10s] : %(name)s - %(message)s')
+logging.basicConfig(level=logging.INFO, datefmt='%Y-%m-%dT%H:%M:%S',
+                    format='%(asctime)-15s.%(msecs)03dZ %(levelname)-7s [%(threadName)-10s] : %(name)s - %(message)s',
+                    handlers=[logging.FileHandler("pre_pyfluxpro.log"), logging.StreamHandler(sys.stdout)])
 # create log object with current module name
 log = logging.getLogger(__name__)
 
