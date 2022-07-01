@@ -8,11 +8,14 @@ import pandas as pd
 import numpy as np
 from datetime import timedelta
 from pandas.api.types import is_datetime64_any_dtype as is_datetime64
+import logging
 
 import utils.data_util as data_util
 from utils.process_validation import DataValidation
 pd.options.mode.chained_assignment = None
 
+# create log object with current module name
+log = logging.getLogger(__name__)
 
 class MasterMetProcessor:
     '''
@@ -44,13 +47,13 @@ class MasterMetProcessor:
         # read input meteorological data file
         # NOTE 1
         df, file_df_meta = MasterMetProcessor.read_met_data(input_met_path)
-        print("Input meteorological data contains {} rows and {} columns".format(df.shape[0], df.shape[1]))
+        log.info("Input meteorological data contains {} rows and {} columns".format(df.shape[0], df.shape[1]))
 
         # get meta data
         # NOTE 2
         df_meta, file_meta = MasterMetProcessor.get_meta_data(file_df_meta)
         if df_meta is None:
-            print("Please check met data file. Aborting")
+            log.error("Please check met data file. Aborting")
             return None, None
         # NOTE 4
         df_meta = MasterMetProcessor.add_U_V_units(df_meta)
@@ -60,7 +63,7 @@ class MasterMetProcessor:
         df_precip = MasterMetProcessor.read_precip_data(input_precip_path, precip_lower, precip_upper,
                                                         missing_time_threshold, user_confirmation)
         if df_precip is None:
-            print("Merging of precipitation data is not possible.")
+            log.warning("Merging of precipitation data is not possible.")
         # change column data types
         df = MasterMetProcessor.change_datatype(df)
 
@@ -81,7 +84,7 @@ class MasterMetProcessor:
                                                                       missing_time_threshold, user_confirmation)
         if insert_flag == 'N':
             # user confirmed not to insert missing timestamps. Return to main program
-            print("Ignoring missing timestamps in met data. Return to main")
+            log.warning("Ignoring missing timestamps in met data. Return to main")
             return df
 
         # correct timestamp string format - step 1 in guide
@@ -94,7 +97,8 @@ class MasterMetProcessor:
                 shf_mV, shf_cal = df['shf_mV_Avg(1)'], df['shf_cal_Avg(1)']
                 df['shf_1_Avg'] = MasterMetProcessor.soil_heat_flux_calculation(shf_mV, shf_cal)
             except KeyError:
-                print("Soil heat flux calculation failed. Check if columns shf_mV_Avg(1) and shf_cal_Avg(1) exists.")
+                log.warning("Soil heat flux calculation failed. "
+                            "Check if columns shf_mV_Avg(1) and shf_cal_Avg(1) exists.")
 
         # Step 6 in guide. Absolute humidity check
         try:
@@ -104,7 +108,7 @@ class MasterMetProcessor:
             Ah_fromRH_unit = 'g/m^3'
             df_meta['Ah_fromRH'] = Ah_fromRH_unit
         except KeyError:
-            print("AhFromRH calculation failed. Check if columns 'AirTC_Avg' and 'RH_Avg' exists.")
+            log.warning("AhFromRH calculation failed. Check if columns 'AirTC_Avg' and 'RH_Avg' exists.")
 
         # Step 4 in guide
         df = MasterMetProcessor.replace_empty(df)
@@ -119,7 +123,7 @@ class MasterMetProcessor:
             # throw a warning if there are extra timestamps in met data
             if (df.shape[0] > df_precip.shape[0]):
                 # there are more records in met data
-                print("Extra timestamps in met data. Joining precip with NaN value in extra timestamps")
+                log.warning("Extra timestamps in met data. Joining precip with NaN value in extra timestamps")
             # NOTE 8
             df = pd.merge(df, df_precip, on='TIMESTAMP', how='left')
             # add precipitation unit mm to df_meta
@@ -158,7 +162,7 @@ class MasterMetProcessor:
 
                     df_meta[albedo_col[0]] = SW_unit  # add shortwave radiation units
             except NameError:
-                print("Shortwave calculation failed. Check SW or CD3 columns in met data.")
+                log.warning("Shortwave calculation failed. Check SW or CD3 columns in met data.")
         else:
             # albedo column is present in metdata. Add SWunit
             df_meta[albedo_col[0]] = SW_unit  # add shortwave radiation units
@@ -168,8 +172,8 @@ class MasterMetProcessor:
         if df_meta.shape[1] == df.shape[1]:
             df = pd.concat([df_meta, df], ignore_index=True)
         else:
-            print("Number of columns in met data {} not the same as number of columns in meta data {}".
-                  format(df.shape[1], df_meta.shape[1]))
+            log.error("Number of columns in met data {} not the same as number of columns in meta data {}".
+                      format(df.shape[1], df_meta.shape[1]))
             return None, None
 
         # return processed and merged df. should contain 81 columns
@@ -186,7 +190,7 @@ class MasterMetProcessor:
             df (obj): Pandas DataFrame object
             file_df_meta (obj) : Pandas DataFrame object
         """
-        print("Read file", data_path)
+        log.info("Read file %s", data_path)
         df = pd.read_csv(data_path, header=None, low_memory=False)  # read file without headers.
 
         # process df to get meta data
@@ -226,7 +230,7 @@ class MasterMetProcessor:
         # returned with the processed df
         df_meta = file_df_meta.iloc[1:, :]
         if not DataValidation.is_valid_meta_data(df_meta):
-            print("Meta data not in valid format")
+            log.error("Meta data not in valid format")
             return None, None
         # second and third row contains meta data of met tower variables (column names and units)
         df_meta.columns = df_meta.iloc[0]
@@ -270,7 +274,7 @@ class MasterMetProcessor:
         df = pd.read_excel(data_path)  # read excel file
         df = MasterMetProcessor.get_valid_precip_data(df)
         if df is None:
-            print("Precipitation data not valid.")
+            log.error("Precipitation data not valid.")
             return None
 
         # NOTE 5
@@ -310,10 +314,10 @@ class MasterMetProcessor:
         precip_col = df.filter(regex='Precipitation|precipitation|Precip|precip|Rain|rain|IWS').columns.to_list()
         time_col = df.filter(regex='Date|Time|time|CST|timestamp|TIMESTAMP|Timestamp').columns.to_list()
         if not time_col:
-            print("Timestamp column not present in Precipitation data.")
+            log.error("Timestamp column not present in Precipitation data.")
             return None
         if not precip_col:
-            print("Precipitation column not present in Precipitation data.")
+            log.error("Precipitation column not present in Precipitation data.")
             return None
 
         # there are more than 1 column that matches timestamp.
@@ -347,10 +351,10 @@ class MasterMetProcessor:
         if time_flag and precip_flag:
             return df[['Timestamp', 'Precipitation_in']]
         elif not time_flag:
-            print("Precipitation timestamp not in correct format")
+            log.error("Precipitation timestamp not in correct format")
             return None
         elif not precip_flag:
-            print("Precipitation values not in correct format")
+            log.error("Precipitation values not in correct format")
             return None
         else:
             return None
@@ -379,7 +383,7 @@ class MasterMetProcessor:
                                                         missing_time_threshold, user_confirmation)
         if insert_flag == 'N':
             # user confirmed not to insert missing timestamps.
-            print("Ignoring missing timestamps in precip data")
+            log.warning("Ignoring missing timestamps in precip data")
 
         df.drop(['timedelta'], axis=1, inplace=True)
         # check precip values in between 0 and 0.2 in
@@ -484,7 +488,8 @@ class MasterMetProcessor:
                     # is there are duplicate timestamps, missing_num_rows is either negative or 0.
                     end_timestamp = df2[time_col].iloc[0]
                     start_timestamp = df1[time_col].iloc[-1]
-                    print(missing_num_rows, "missing timeslot(s) found between", start_timestamp, "and", end_timestamp)
+                    log.info("%d missing timeslot(s) found between %s and %s",
+                             missing_num_rows, str(start_timestamp), str(end_timestamp))
                     insert_flag = 'y'  # insert timestamps by default. This is changed by user_confirmation
                     # 48 slots in 24hrs(one day)
                     # ask for user confirmation if more than 96 timeslots (2 days) are missing
@@ -499,7 +504,8 @@ class MasterMetProcessor:
 
                     if insert_flag.lower() in ['y', 'yes']:
                         # insert missing timestamps
-                        print("inserting", missing_num_rows, "row(s) between", start_timestamp, "and", end_timestamp)
+                        log.info("inserting %d row(s) between %s and %s",
+                                 missing_num_rows, str(start_timestamp), str(end_timestamp))
                         # create a series of time_interval timestamps
                         if time_interval == 5.0:
                             freq = '5T'

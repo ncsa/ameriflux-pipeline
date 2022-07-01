@@ -56,6 +56,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Created logging for met_data_merge. [#15](https://github.com/ncsa/ameriflux-pipeline/issues/15)
 - Added logging for pre_pyfluxpro. [#207](https://github.com/ncsa/ameriflux-pipeline/issues/207)
 - Added logging for utils. [#209](https://github.com/ncsa/ameriflux-pipeline/issues/209)
+- Added logging for mastermet. [#211](https://github.com/ncsa/ameriflux-pipeline/issues/211)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
