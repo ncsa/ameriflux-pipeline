@@ -55,6 +55,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Data validation for formatting pyfluxpro output for Ameriflux submission. [#203](https://github.com/ncsa/ameriflux-pipeline/issues/203)
 - Created logging for met_data_merge. [#15](https://github.com/ncsa/ameriflux-pipeline/issues/15)
 - Added logging for pre_pyfluxpro. [#207](https://github.com/ncsa/ameriflux-pipeline/issues/207)
+- Added logging for utils. [#209](https://github.com/ncsa/ameriflux-pipeline/issues/209)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
