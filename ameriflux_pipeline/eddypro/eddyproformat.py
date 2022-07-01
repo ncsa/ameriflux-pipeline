@@ -289,8 +289,9 @@ class EddyProFormat:
         Returns:
             df (object): Processed Pandas DataFrame object
         """
-        df.replace({'W/m^2': 'W+1m-2', '√Ç¬µmols/m√Ç¬≤/s': 'umol+1m-2s-1', '¬µmols/m¬≤/s': 'umol+1m-2s-1',
-                    'Kelvin': 'K', 'm/s': 'm+1s-1', 'Deg': 'degrees', 'vwc': 'm+3m-3'}, inplace=True)
+        df.replace({'(?i)W/m^2': 'W+1m-2', '√Ç¬µmols/m√Ç¬≤/s': 'umol+1m-2s-1', '¬µmols/m¬≤/s': 'umol+1m-2s-1',
+                    '(?i)Kelvin': 'K', 'm/s': 'm+1s-1', '(?i)Deg': 'degrees', '(?i)vwc': 'm+3m-3'},
+                   regex=True, inplace=True)  # replace units using regex. (?i) is for case-insensitive
         # replace the text which has word µmols/m
         df = df.replace(to_replace=r".*mols/m.*", value='umol+1m-2s-1', regex=True)
         return df
