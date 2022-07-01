@@ -9,6 +9,10 @@ import re
 import pathlib
 import os
 from dateutil.parser import parse
+import logging
+
+# create log object with current module name
+log = logging.getLogger(__name__)
 
 
 def write_data(df, output_data):
@@ -21,7 +25,7 @@ def write_data(df, output_data):
         Returns:
             None
     """
-    print("Write data to csv file ", output_data)
+    log.info("Write data to csv file %s", output_data)
     df.to_csv(output_data, index=False)
 
 
@@ -34,7 +38,7 @@ def read_excel(file_path):
         Returns:
             df (object): Pandas DataFrame object
     """
-    print("Read excel file ", file_path)
+    log.info("Read excel file %s", file_path)
     df = pd.read_excel(file_path)  # read excel file
     return df
 
@@ -85,5 +89,5 @@ def get_valid_datetime(data):
     try:
         return parse(data)
     except ValueError:
-        print(data, "Incorrect date format")
+        log.error("%s Incorrect date format", data)
         return None

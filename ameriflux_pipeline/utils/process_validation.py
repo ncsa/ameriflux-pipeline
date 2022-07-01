@@ -11,6 +11,10 @@ import validators
 from validators import ValidationFailure
 import ipaddress
 import os.path
+import logging
+
+# create log object with current module name
+log = logging.getLogger(__name__)
 
 
 class DataValidation:
@@ -44,7 +48,7 @@ class DataValidation:
             float(data)
             return True
         except ValueError:
-            print(data, "not valid. Floating point expected")
+            log.error("%s not valid. Floating point expected", data)
             return False
 
     @staticmethod
@@ -85,7 +89,7 @@ class DataValidation:
         """
         is_url = validators.url(data)
         if isinstance(is_url, ValidationFailure):
-            print(data, "not valid. URL expected")
+            log.error("%s not valid. URL expected", data)
             return False
         return True
 
@@ -101,7 +105,7 @@ class DataValidation:
         """
         is_domain = validators.domain(data)
         if isinstance(is_domain, ValidationFailure):
-            print(data, "not valid. Domain input expected")
+            log.error("%s not valid. Domain input expected", data)
             return False
         return True
 
@@ -118,24 +122,24 @@ class DataValidation:
         try:
             is_ip = ipaddress.ip_address(data)
         except ValueError:
-            print(data, "not valid. IP address expected")
+            log.error("%s not valid. IP address expected", data)
             return False
         return True
 
     @staticmethod
-    def path_validation(data, type):
+    def path_validation(data, data_type):
         """
         Method to check if both the data path is same as type
         Returns True if same, else returns False
         Args:
             data (str): Input path to check if directory or file
-            type (str): Directory or file type
+            data_type (str): Directory or file type
         Returns:
             (bool): True if path is same as type, else False
         """
-        if type == 'dir':
+        if data_type == 'dir':
             return os.path.isdir(data)
-        elif type == 'file':
+        elif data_type == 'file':
             return os.path.isfile(data)
 
     @staticmethod
@@ -154,7 +158,7 @@ class DataValidation:
         if extension.lower() == ext.lower():
             return True
         else:
-            print(data, "not valid." + ext + "extension expected")
+            log.error("{} not valid. {} extension expected".format(data, ext))
             return False
 
     @staticmethod
@@ -171,7 +175,7 @@ class DataValidation:
             datetime.datetime.strptime(data, "%Y-%m-%d %H:%M")
             return True
         except ValueError:
-            print(data, "not in valid format of YYYY-mm-dd HH:MM")
+            log.error("%s not in valid format of YYYY-mm-dd HH:MM", data)
             return False
 
     @staticmethod
@@ -204,15 +208,15 @@ class DataValidation:
         # check for TIMESTAMP and RECORD columns in the first row
         column_names = df.iloc[0].to_list()
         if 'TIMESTAMP' not in column_names:
-            print("TIMESTAMP not in met data.")
+            log.error("TIMESTAMP not in met data.")
             return False
         unit_names = df.iloc[1].to_list()
         if 'TS' not in unit_names:
-            print("TIMESTAMP expected unit TS not found in data")
+            log.error("TIMESTAMP expected unit TS not found in data")
             return False
         min_avg = df.iloc[2].to_list()
         if not ('Min' in min_avg or 'Avg' in min_avg):
-            print("'Min' or 'Avg' keywords expected in third row of met data")
+            log.error("'Min' or 'Avg' keywords expected in third row of met data")
             return False
         # all validations done
         return True
@@ -230,7 +234,7 @@ class DataValidation:
         """
         site_name_col = df.filter(regex='Site name|site name|Site Name|Site|site').columns.to_list()
         if not site_name_col:
-            print("Site name not in Soils key")
+            log.error("Site name not in Soils key")
             return False
         # check if required columns are present
         req_cols = ['Datalogger/met water variable name', 'Datalogger/met temperature variable name',
@@ -240,10 +244,10 @@ class DataValidation:
             # required columns is a subset of all column list
             return True
         else:
-            print("Check for required columns in soils key: ", end='')
-            print("Datalogger/met water variable name, Datalogger/met temperature variable name, "
-                  "EddyPro temperature variable name, EddyPro water variable name, "
-                  "PyFluxPro water variable name, PyFluxPro temperature variable name")
+            log.error("Check for required columns in soils key: ", end='')
+            log.error("Datalogger/met water variable name, Datalogger/met temperature variable name, "
+                      "EddyPro temperature variable name, EddyPro water variable name, "
+                      "PyFluxPro water variable name, PyFluxPro temperature variable name")
             return False
 
     @staticmethod
@@ -260,18 +264,18 @@ class DataValidation:
         date_col = df.filter(regex="date|Date").columns.to_list()
         time_col = df.filter(regex="time|Time").columns.to_list()
         if not date_col:
-            print("Date column not present in EddyPro full output sheet")
+            log.error("Date column not present in EddyPro full output sheet")
             return False
         if not time_col:
-            print("Time column not present in EddyPro full output sheet")
+            log.error("Time column not present in EddyPro full output sheet")
             return False
         sonic_temperature_col = df.filter(regex="sonic_temperature").columns.to_list()
         if not sonic_temperature_col:
-            print("Sonic temperature column not present in EddyPro full output sheet")
+            log.error("Sonic temperature column not present in EddyPro full output sheet")
             return False
         air_pressure_col = df.filter(regex="air_pressure").columns.to_list()
         if not air_pressure_col:
-            print("Air pressure column not present in EddyPro full output sheet")
+            log.error("Air pressure column not present in EddyPro full output sheet")
             return False
         # all validations done
         return True
@@ -293,8 +297,8 @@ class DataValidation:
             # required columns is a subset of all column list
             return True
         else:
-            print("Check for required columns in Amerilfux-Mainstem-Key: ", end='')
-            print("Original variable name, Ameriflux variable name, Units after formatting")
+            log.error("Check for required columns in Amerilfux-Mainstem-Key: ", end='')
+            log.error("Original variable name, Ameriflux variable name, Units after formatting")
             return False
 
     @staticmethod
@@ -312,10 +316,10 @@ class DataValidation:
         ameriflux_col = df.filter(regex="ameriflux").columns.to_list()
         pyfluxpro_col = df.filter(regex="pyfluxpro").columns.to_list()
         if not ameriflux_col:
-            print("Ameriflux label column not present in L1 Erroring variables sheet")
+            log.error("Ameriflux label column not present in L1 Erroring variables sheet")
             return False
         if not pyfluxpro_col:
-            print("Pyfluxpro label column not present in L1 Erroring variables sheet")
+            log.error("Pyfluxpro label column not present in L1 Erroring variables sheet")
             return False
         # all validations done
         return True
@@ -352,7 +356,7 @@ class L1Validation:
         # check Level section
         line0 = lines[0].rstrip('\n')
         if not L1Validation.check_level_line(line0):
-            print("Incorrect format in Level section")
+            log.error("Incorrect format in Level section")
             return False
         # check Files section
         files_line_index = lines.index('[Files]\n')
@@ -366,16 +370,16 @@ class L1Validation:
                     if L1Validation.check_variables_line(lines[variables_line_index + 1:]):
                         return True
                     else:
-                        print("Incorrect format in L1 Variables section")
+                        log.error("Incorrect format in L1 Variables section")
                         return False
                 else:
-                    print("Incorrect format in L1 Global section")
+                    log.error("Incorrect format in L1 Global section")
                     return False
             else:
-                print("Incorrect format in L1 Files section")
+                log.error("Incorrect format in L1 Files section")
                 return False
         else:
-            print("Undefined L1 Files and Global section")
+            log.error("Undefined L1 Files and Global section")
             return False
 
     @staticmethod
@@ -520,7 +524,7 @@ class L1Validation:
                 # all flag values are true, then break out of for loop
                 return True
             elif var_count > 1:
-                print("Check first variable in Variables section")
+                log.error("Check first variable in Variables section")
                 return False
         # end of for loop, format is as expected
         flags = [var_flag, xl_flag, attr_flag, units_flag, long_name_flag, name_flag, sheet_flag]
@@ -558,30 +562,30 @@ class L2Validation:
         # check Level section
         line0 = lines[0].rstrip('\n')
         if not L2Validation.check_level_line(line0):
-            print("Incorrect format in Level section")
+            log.error("Incorrect format in Level section")
             return False
         # check Variables section
         try:
             variables_line_index = lines.index('[Variables]\n')
         except ValueError:
-            print("ERROR : No [Variables] present in L2.txt.")
+            log.error("ERROR : No [Variables] present in L2.txt.")
             return False
         try:
             plots_line_index = lines.index('[Plots]\n')
         except ValueError:
-            print("WARNING: no [Plots] present in L2.txt")
+            log.error("WARNING: no [Plots] present in L2.txt")
             plots_line_index = None
         if variables_line_index and plots_line_index:
             if L2Validation.check_variables_line(lines[variables_line_index + 1:plots_line_index]):
                 return True
             else:
-                print("Incorrect format in L2 Variables section")
+                log.error("Incorrect format in L2 Variables section")
                 return False
         elif variables_line_index:
             if L2Validation.check_variables_line(lines[variables_line_index + 1:]):
                 return True
             else:
-                print("Undefined L2 Variables and Plots sections")
+                log.error("Undefined L2 Variables and Plots sections")
                 return False
 
     @staticmethod
@@ -698,11 +702,13 @@ class L2Validation:
         depcheck_flag, rangecheck_flag, excludedates_flag = False, False, False
 
         # validate dependency check section
-        if depcheck_line_index and re.match(source_pattern, lines[depcheck_line_index+1]):
-            depcheck_flag = True
-        else:
-            print("Check Dependency Check format in line", lines[depcheck_line_index+1])
-            depcheck_flag = False
+        if depcheck_line_index:
+            # dependency section exists
+            if re.match(source_pattern, lines[depcheck_line_index+1]):
+                depcheck_flag = True
+            else:
+                log.error("Check Dependency Check format in line %s", str(lines[depcheck_line_index+1]).rstrip())
+                depcheck_flag = False
 
         # validate rangecheck section
         if rangecheck_line_index:
@@ -723,7 +729,7 @@ class L2Validation:
             if lower_items and upper_items:
                 rangecheck_flag = True
             else:
-                print("Check Range Check format in line", lines[rangecheck_line_index])
+                log.error("Check Range Check format in line %s", str(lines[rangecheck_line_index]).rstrip())
                 rangecheck_flag = False
 
         # validate exclude dates section
@@ -739,17 +745,17 @@ class L2Validation:
                     excludedates_flag = True
                 else:
                     excludedates_flag = False
-                    print("Check dateformat in line", line)
+                    log.error("Check dateformat in line %s", line.strip())
                     break
 
         if depcheck_line_index and (not depcheck_flag):
-            print("Check DependencyCheck section for variable {}".format(lines[0].strip()))
+            log.error("Check DependencyCheck section for variable {}".format(lines[0].strip()))
             return False
         elif rangecheck_line_index and (not rangecheck_flag):
-            print("Check RangeCheck section for variable {}".format(lines[0].strip()))
+            log.error("Check RangeCheck section for variable {}".format(lines[0].strip()))
             return False
         elif excludedates_line_index and (not excludedates_flag):
-            print("Check ExcludeDates section for variable {}".format(lines[0].strip()))
+            log.error("Check ExcludeDates section for variable {}".format(lines[0].strip()))
             return False
         else:
             # all validations done

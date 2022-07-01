@@ -36,6 +36,7 @@ logging.basicConfig(level=logging.INFO, datefmt='%Y-%m-%dT%H:%M:%S',
 # create log object with current module name
 log = logging.getLogger(__name__)
 
+
 def input_validation():
     """
     Method to check user input validation from config file
@@ -176,7 +177,7 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
         met_data_worksheet.write(0, idx, val)
 
     writer.save()
-    log.info("PyFluxPro input excel sheet saved in", cfg.PYFLUXPRO_INPUT_SHEET)
+    log.info("PyFluxPro input excel sheet saved in %s", cfg.PYFLUXPRO_INPUT_SHEET)
     # eddypro full output sheet formatting and pyfluxpro input sheet creation is successful
     return True
 
@@ -275,8 +276,9 @@ def pyfluxpro_l2_ameriflux_processing(pyfluxpro_ameriflux_label, l2_mainstem, l2
         Returns:
             None
     """
-    L2Format.data_formatting(pyfluxpro_ameriflux_label, l2_mainstem, l2_ameriflux_only, l1_run_output, l2_run_output,
-                             l2_ameriflux_output)
+    is_success = L2Format.data_formatting(pyfluxpro_ameriflux_label, l2_mainstem, l2_ameriflux_only, l1_run_output,
+                                          l2_run_output, l2_ameriflux_output)
+    return is_success
 
 
 def pre_processing(file_meta_data_file, erroring_variable_flag):
@@ -372,14 +374,18 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
         return False
 
     # run ameriflux formatting of pyfluxpro L2 control file
-    pyfluxpro_l2_ameriflux_processing(pyfluxpro_ameriflux_labels, cfg.L2_MAINSTEM_INPUT,
-                                      cfg.L2_AMERIFLUX_ONLY_INPUT, cfg.L1_AMERIFLUX_RUN_OUTPUT,
-                                      cfg.L2_AMERIFLUX_RUN_OUTPUT, cfg.L2_AMERIFLUX)
-    log.info("Run PyFluxPro V3.3.2 with the generated L1 and L2 control files")
-    log.info("Generated control files in %s %s", cfg.L1_AMERIFLUX, cfg.L2_AMERIFLUX)
-
-    # return success
-    return True
+    is_success = pyfluxpro_l2_ameriflux_processing(pyfluxpro_ameriflux_labels, cfg.L2_MAINSTEM_INPUT,
+                                                   cfg.L2_AMERIFLUX_ONLY_INPUT, cfg.L1_AMERIFLUX_RUN_OUTPUT,
+                                                   cfg.L2_AMERIFLUX_RUN_OUTPUT, cfg.L2_AMERIFLUX)
+    if is_success:
+        log.info("Run PyFluxPro V3.3.2 with the generated L1 and L2 control files")
+        log.info("Generated control files in %s %s", cfg.L1_AMERIFLUX, cfg.L2_AMERIFLUX)
+        # all processing done return success
+        return True
+    else:
+        log.error("PyFluxPro L2 processing failed. Aborting")
+        # return failure
+        return False
 
 
 def main():
@@ -416,7 +422,6 @@ def main():
     # run pre-processing steps of PyFluxPro L1 an L2
     start = time.time()
     log.info("Pre-processing of PyFluxPro run output has been started")
-    print("Pre-processing of PyFluxPro run output has been started")
 
     is_success = pre_processing(file_meta_data_file, erroring_variable_flag)
     if is_success:
