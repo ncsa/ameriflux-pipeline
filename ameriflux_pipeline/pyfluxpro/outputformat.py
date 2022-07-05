@@ -156,31 +156,31 @@ class OutputFormat:
             start.year, start.month, start.day, start.hour, start.minute
         end_year, end_month, end_day, end_hour, end_minute = end.year, end.month, end.day, end.hour, end.minute
         if start_year != end_year:
-            log.error("Year in timestamp_start and timestamp_end does not match")
+            log.warning("Year in timestamp_start and timestamp_end does not match")
             return False
         elif start_month != 1:
-            log.error("Starting month not January")
+            log.warning("Starting month not January")
             return False
         elif end_month != 12:
-            log.error("Ending month not December")
+            log.warning("Ending month not December")
             return False
         elif start_day != 1:
-            log.error("Start day not 1")
+            log.warning("Start day not 1")
             return False
         elif end_day != 31:
-            log.error("End day is not 31")
+            log.warning("End day is not 31")
             return False
         elif start_hour != 0:
-            log.error("Starting hour not 00")
+            log.warning("Starting hour not 00")
             return False
         elif end_hour != 23:
-            log.error("Ending hour not 23")
+            log.warning("Ending hour not 23")
             return False
         elif start_minute != 0:
-            log.error("Starting minute not 00")
+            log.warning("Starting minute not 00")
             return False
         elif end_minute != 30:
-            log.error("ending minute not 30")
+            log.warning("ending minute not 30")
             return False
         else:
             return True

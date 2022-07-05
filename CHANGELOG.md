@@ -59,6 +59,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Added logging for mastermet. [#211](https://github.com/ncsa/ameriflux-pipeline/issues/211)
 - Added logging for eddypro. [#212](https://github.com/ncsa/ameriflux-pipeline/issues/212)
 - Added logging for pyfluxpro. [#215](https://github.com/ncsa/ameriflux-pipeline/issues/215)
+- Added logging for post_pyfluxpro. [#217](https://github.com/ncsa/ameriflux-pipeline/issues/217)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
