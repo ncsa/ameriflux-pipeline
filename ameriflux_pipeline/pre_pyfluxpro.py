@@ -433,7 +433,6 @@ def main():
     hours, rem = divmod(end - start, 3600)
     minutes, seconds = divmod(rem, 60)
     log.info("Total elapsed time is : {:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
-    print("Total elapsed time is : {:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
 
 
 if __name__ == '__main__':

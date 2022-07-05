@@ -3,10 +3,15 @@
 # This program and the accompanying materials are made available under the
 # terms of the Mozilla Public License v2.0 which accompanies this distribution,
 # and is available at https://www.mozilla.org/en-US/MPL/2.0/
+
 import subprocess
+from subprocess import PIPE
 import os
 import sys
-import shutil
+import logging
+
+# create log object with current module name
+log = logging.getLogger(__name__)
 
 
 class RunEddypro():
@@ -44,28 +49,33 @@ class RunEddypro():
 
         # save temporary project file
         RunEddypro.save_string_list_to_file(tmp_proj_list, proj_file_name)
-        print("temporary project file created")
+        log.info("Temporary project file created")
 
         os_platform = RunEddypro.get_platform()
+        logfile = open("pre_pyfluxpro.log", 'a')
 
         try:
             # if you don't want to print out eddypro process,
             # use subprocess.check_output
             if os_platform.lower() == "windows":
+                log.info("Running EddyPro in windows")
                 subprocess.run(["eddypro_rp.exe", "-s", "win", "-e", out_path, proj_file_name], shell=True,
-                               cwd=eddypro_bin_loc)
+                               cwd=eddypro_bin_loc, stdout=logfile, stderr=logfile, universal_newlines=True)
+
             elif os_platform.lower() == "os x":
                 # when it is Mac OS, it must have tmp folder under output directory
                 tmp_dir = os.path.join(out_path, "tmp")
                 if not os.path.exists(tmp_dir):
                     os.makedirs(tmp_dir)
-
+                log.info("Running EddyPro in MacOS")
                 subprocess.run(["./eddypro_rp", "-s", "mac", "-e", out_path, proj_file_name], shell=False,
-                               cwd=eddypro_bin_loc)
+                               cwd=eddypro_bin_loc, stdout=logfile, stderr=logfile, universal_newlines=True)
             else:
-                raise Exception("The current platform is currently not being supported.")
-        except Exception:
-            raise Exception("Running EddyPro failed.")
+                log.error("The current platform is currently not being supported by EddyPro.")
+                return
+        except Exception as e:
+            log.error("Running EddyPro failed. %s", e)
+            return
 
     @staticmethod
     def create_tmp_proj_file(file_name, project_title,
@@ -89,10 +99,10 @@ class RunEddypro():
                 biom_file (str): A file path for master biomet data
                 outfile (str): A file path for output temporary eddypro project file
             Returns:
-                None
+                (list): List of lines to be written
         """
         # read the template file
-        print("to open ", file_name)
+        log.info("Open %s", file_name)
         temp_proj_file = open(file_name, mode='r', encoding='utf-8')
         lines = temp_proj_file.readlines()
         temp_proj_file.close()
@@ -150,8 +160,9 @@ class RunEddypro():
 
                 out_proj_file_line_list.append(line.strip())
 
-        except Exception:
-            raise Exception("Manipulating template project file failed.")
+        except Exception as e:
+            log.error("Manipulating template project file failed in EddyPro. %s", e)
+            return []
 
         return out_proj_file_line_list
 
@@ -168,6 +179,7 @@ class RunEddypro():
 
         return platforms[sys.platform]
 
+    @staticmethod
     def save_string_list_to_file(in_list, outfile):
         """
             Save list with string to a file
@@ -179,9 +191,9 @@ class RunEddypro():
             Returns:
                 None
         """
-        print(outfile)
+        log.info("Writing to file %s", outfile)
         try:
             with open(outfile, 'w') as f:
                 f.write('\n'.join(in_list))
-        except Exception:
-            raise Exception("Failed to create temporary project file")
+        except Exception as e:
+            log.error("Failed to create temporary project file %s. %s", outfile, e)
