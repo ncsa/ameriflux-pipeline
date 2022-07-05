@@ -7,13 +7,16 @@
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
-import re
 import os.path
 # NOTES 18
 from netCDF4 import Dataset, num2date
+import logging
 
 from utils.process_validation import DataValidation
 import utils.data_util as data_util
+
+# create log object with current module name
+log = logging.getLogger(__name__)
 
 
 class OutputFormat:
@@ -40,12 +43,12 @@ class OutputFormat:
             filename (str): Filename for writing the dataframe to csv
         """
         if os.path.splitext(input_file)[1] != '.nc':
-            print("Run output file not in netCDF format. .nc extension expected")
+            log.error("Run output file not in netCDF format. .nc extension expected")
             return None, None
         try:
             l2 = Dataset(input_file, mode='r')  # read netCDF file
         except KeyError or IOError:
-            print("Unable to read netCDF file ", input_file)
+            log.error("Unable to read netCDF file %s", input_file)
             return None, None
 
         l2_keys = list(l2.variables.keys())
@@ -57,7 +60,7 @@ class OutputFormat:
 
         # NOTES 16. Get time data
         if 'time' not in l2_keys:
-            print("time variable not in L2 output")
+            log.error("time variable not in L2 output")
             return None, None
         time_var = l2.variables['time']
         time_units = time_var.units
@@ -65,7 +68,7 @@ class OutputFormat:
         time = num2date(time, units=time_units, calendar='gregorian')  # calendar can be 365_day / gregorian
         time_data = time.data
         if len(time_data) < 1:
-            print("Check timestamp column in file", input_file)
+            log.error("Check timestamp column in file %s", input_file)
             return None, None
 
         # create a dataframe
@@ -81,7 +84,7 @@ class OutputFormat:
         start_timestamp = df['TIMESTAMP_START'].iloc[0]
         end_timestamp = df['TIMESTAMP_END'].iloc[-1]
         if not OutputFormat.check_timestamp_span(start_timestamp, end_timestamp):
-            print("WARNING: Timestamp start and Timestamp end does not span the whole year")
+            log.warning("Timestamp start and Timestamp end does not span the whole year")
 
         # format timestamp columns as per ameriflux standards. step 5 in guide
         timestamp_cols = ['TIMESTAMP_START', 'TIMESTAMP_END']
@@ -118,7 +121,7 @@ class OutputFormat:
                                              erroring_variable_key['Ameriflux label']))
                     df.rename(columns=column_labels, inplace=True)
             else:
-                print("WARNING: L1 Erroring Variables.xlsx file invalid format. Proceeding without replacing label")
+                log.warning("L1 Erroring Variables.xlsx file invalid format. Proceeding without replacing label")
 
         # drop additional time columns
         df.drop(columns=['time'], inplace=True)
@@ -153,31 +156,31 @@ class OutputFormat:
             start.year, start.month, start.day, start.hour, start.minute
         end_year, end_month, end_day, end_hour, end_minute = end.year, end.month, end.day, end.hour, end.minute
         if start_year != end_year:
-            print("Year in timestamp_start and timestamp_end does not match")
+            log.error("Year in timestamp_start and timestamp_end does not match")
             return False
         elif start_month != 1:
-            print("Starting month not January")
+            log.error("Starting month not January")
             return False
         elif end_month != 12:
-            print("Ending month not December")
+            log.error("Ending month not December")
             return False
         elif start_day != 1:
-            print("Start day not 1")
+            log.error("Start day not 1")
             return False
         elif end_day != 31:
-            print("End day is not 31")
+            log.error("End day is not 31")
             return False
         elif start_hour != 0:
-            print("Starting hour not 00")
+            log.error("Starting hour not 00")
             return False
         elif end_hour != 23:
-            print("Ending hour not 23")
+            log.error("Ending hour not 23")
             return False
         elif start_minute != 0:
-            print("Starting minute not 00")
+            log.error("Starting minute not 00")
             return False
         elif end_minute != 30:
-            print("ending minute not 30")
+            log.error("ending minute not 30")
             return False
         else:
             return True
