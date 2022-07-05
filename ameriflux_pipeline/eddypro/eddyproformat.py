@@ -105,7 +105,7 @@ class EddyProFormat:
             eddypro_soil_moisture_labels(dict): Dictionary for soil moisture mapping from met variable to eddypro label
             eddypro_soil_temp_labels(dict): Dictionary for soil temperature mapping from met variable to eddypro label
         """
-        site_name_col = df_soil_key.filter(regex='Site name|site name|Site Name|Site|site').columns.to_list()[0]
+        site_name_col = df_soil_key.filter(regex=re.compile("^name|^site", re.IGNORECASE)).columns.to_list()[0]
         site_soil_key = df_soil_key[df_soil_key[site_name_col] == site_name]  # get all variables for the site
         # get column names matching datalogger / met tower
         met_cols = site_soil_key.filter(regex=re.compile("datalogger|met tower", re.IGNORECASE)).columns.to_list()
@@ -307,6 +307,9 @@ class EddyProFormat:
             None
         """
         req_cols = ['SWin', 'RH', 'LWin', 'PPFD']
+        df_cols = df.columns.to_list()
+        req_cols = [col.lower() for col in req_cols]
+        df_cols = [col.lower() for col in df_cols]
         if not set(req_cols).issubset(set(df.columns)):
             print("WARNING")
             print(' and '.join(set(req_cols).difference(df.columns)), end='')
