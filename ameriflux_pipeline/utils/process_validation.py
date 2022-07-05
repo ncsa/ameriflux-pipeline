@@ -595,7 +595,7 @@ class L2Validation:
         """
         if line:
             line_split = line.split('=')
-            if line_split[0].startswith('level') and line_split[1].strip() == 'L2':
+            if line_split[0].lower().strip() == 'level' and line_split[1].strip() == 'L2':
                 return True
         return False
 
