@@ -5,7 +5,6 @@
 # and is available at https://www.mozilla.org/en-US/MPL/2.0/
 
 import subprocess
-from subprocess import PIPE
 import os
 import sys
 import logging
@@ -168,6 +167,13 @@ class RunEddypro():
 
     @staticmethod
     def get_platform():
+        """
+            Method to get the system platform
+            Args:
+                None
+            Returns:
+                (str): System platform
+        """
         platforms = {
             'linux1': 'Linux',
             'linux2': 'Linux',
