@@ -4,6 +4,8 @@
 # terms of the Mozilla Public License v2.0 which accompanies this distribution,
 # and is available at https://www.mozilla.org/en-US/MPL/2.0/
 
+import datetime
+import pandas as pd
 import re
 import validators
 from validators import ValidationFailure
@@ -156,6 +158,23 @@ class DataValidation:
             return False
 
     @staticmethod
+    def datetime_validation(data):
+        """
+        Method to check if the the string is in valid datetime format YYYY-mm-dd HH:MM
+        Returns True if valid, else returns False
+        Args:
+            data (str): Input string to check for valid datetime format
+        Returns:
+            (bool): True if valid, else False
+        """
+        try:
+            datetime.datetime.strptime(data, "%Y-%m-%d %H:%M")
+            return True
+        except ValueError:
+            print(data, "not in valid format of YYYY-mm-dd HH:MM")
+            return False
+
+    @staticmethod
     def is_empty_dir(data):
         """
         Method to check if the directory contains files
@@ -209,7 +228,7 @@ class DataValidation:
         Returns:
             (bool): True if df is valid, else False
         """
-        site_name_col = df.filter(regex='Site name|site name|Site Name|Site|site').columns.to_list()
+        site_name_col = df.filter(regex=re.compile('^name|site name', re.IGNORECASE)).columns.to_list()
         if not site_name_col:
             print("Site name not in Soils key")
             return False
@@ -270,19 +289,19 @@ class DataValidation:
         Returns:
             (bool): True if df is valid, else False
         """
-        date_col = df.filter(regex="date|Date").columns.to_list()
-        time_col = df.filter(regex="time|Time").columns.to_list()
+        date_col = df.filter(regex=re.compile("^date", re.IGNORECASE)).columns.to_list()
+        time_col = df.filter(regex=re.compile("^time", re.IGNORECASE)).columns.to_list()
         if not date_col:
             print("Date column not present in EddyPro full output sheet")
             return False
         if not time_col:
             print("Time column not present in EddyPro full output sheet")
             return False
-        sonic_temperature_col = df.filter(regex="sonic_temperature").columns.to_list()
+        sonic_temperature_col = df.filter(regex=re.compile("^sonic_temperature", re.IGNORECASE)).columns.to_list()
         if not sonic_temperature_col:
             print("Sonic temperature column not present in EddyPro full output sheet")
             return False
-        air_pressure_col = df.filter(regex="air_pressure").columns.to_list()
+        air_pressure_col = df.filter(regex=re.compile("^air_pressure", re.IGNORECASE)).columns.to_list()
         if not air_pressure_col:
             print("Air pressure column not present in EddyPro full output sheet")
             return False
@@ -388,16 +407,16 @@ class L1Validation:
                     if L1Validation.check_variables_line(lines[variables_line_index + 1:]):
                         return True
                     else:
-                        print("Incorrect format in Variables section")
+                        print("Incorrect format in L1 Variables section")
                         return False
                 else:
-                    print("Incorrect format in Global section")
+                    print("Incorrect format in L1 Global section")
                     return False
             else:
-                print("Incorrect format in Files section")
+                print("Incorrect format in L1 Files section")
                 return False
         else:
-            print("Undefined Files and Global section")
+            print("Undefined L1 Files and Global section")
             return False
 
     @staticmethod
@@ -411,7 +430,7 @@ class L1Validation:
         """
         if line:
             line_split = line.split('=')
-            if line_split[0].startswith('level') and line_split[1].strip() == 'L1':
+            if line_split[0].lower().strip() == 'level' and line_split[1].strip() == 'L1':
                 return True
         return False
 
@@ -438,12 +457,12 @@ class L1Validation:
         file_path_flag = False  # flag for file_path line
         out_filename_flag = False  # flag for out_filename line
         for line in lines:
-            if (line.strip().startswith('file_path')):
+            if line.strip().lower().startswith('file_path'):
                 file_path_flag = True  # found file_path line
                 if L1Validation.check_space(line.split('=')[0].rstrip()) != 4:
                     # number of spaces is not as expected
                     return False
-            if (line.strip().startswith('out_filename')):
+            if line.strip().lower().startswith('out_filename'):
                 out_filename_flag = True  # found out_filename line
                 if L1Validation.check_space(line.split('=')[0].rstrip()) != 4:
                     # number of spaces is not as expected
@@ -467,7 +486,7 @@ class L1Validation:
         """
         acknowledgement_flag = False  # flag for acknowledgement line
         for line in lines:
-            if (line.strip().startswith('acknowledgement|Acknowledgement')):
+            if line.strip().lower().startswith('acknowledgement'):
                 acknowledgement_flag = True  # found acknowledgment line
                 if L1Validation.check_space(line.split('=')[0].rstrip()) != 4:
                     return False
@@ -520,19 +539,19 @@ class L1Validation:
                 attr_flag = True
                 if L1Validation.check_space(line.rstrip()) != 4 * 2:
                     return False
-            if (line.strip().startswith(units_pattern)):
+            if line.strip().lower().startswith(units_pattern):
                 units_flag = True
                 if L1Validation.check_space(line.split('=')[0].rstrip()) != 4 * 3:
                     return False
-            if (line.strip().startswith(long_name_pattern)):
+            if line.strip().lower().startswith(long_name_pattern):
                 long_name_flag = True
                 if L1Validation.check_space(line.split('=')[0].rstrip()) != 4 * 3:
                     return False
-            if (line.strip().startswith(name_pattern)):
+            if line.strip().lower().startswith(name_pattern):
                 name_flag = True
                 if L1Validation.check_space(line.split('=')[0].rstrip()) != 4 * 3:
                     return False
-            if (line.strip().startswith(sheet_pattern)):
+            if line.strip().lower().startswith(sheet_pattern):
                 sheet_flag = True
                 if L1Validation.check_space(line.split('=')[0].rstrip()) != 4 * 3:
                     return False
@@ -551,3 +570,234 @@ class L1Validation:
             return True
         else:
             return False
+
+
+class L2Validation:
+    '''
+    Class to implement validation for L2 files
+    '''
+    # define global variables
+    SPACES = "    "  # set 4 spaces as default for a section in L2
+    LEVEL_LINE = "level = L2"  # set the level
+    VAR_PATTERN = '^ {4}\\[\\[[a-zA-Z0-9_]+\\]\\]\n$'  # variable name pattern
+    DEPENDENCYCHECK_PATTERN = '^ {8}\\[\\[\\[DependencyCheck\\]\\]\\]\n$'
+    EXCLUDEDATES_PATTERN = '^ {8}\\[\\[\\[ExcludeDates\\]\\]\\]\n$'
+    RANGECHECK_PATTERN = '^ {8}\\[\\[\\[RangeCheck\\]\\]\\]\n$'
+    SOURCE_PATTERN = '^ {12}source'  # to match the source in DependencyCheck
+    LOWER_PATTERN = '^ {12}lower'  # to match the lower in RangeCheck
+    UPPER_PATTERN = '^ {12}upper'  # to match the lower in RangeCheck
+
+    @staticmethod
+    def check_l2_format(lines):
+        """
+            Check if the formatting for L1 is as expected
+            Args:
+                lines (list): List of strings. Lines in L1.txt
+            Returns:
+                (bool) : Returns True if the format is as expected, else return False
+        """
+        # check Level section
+        line0 = lines[0].rstrip('\n')
+        if not L2Validation.check_level_line(line0):
+            print("Incorrect format in Level section")
+            return False
+        # check Variables section
+        try:
+            variables_line_index = lines.index('[Variables]\n')
+        except ValueError:
+            print("ERROR : No [Variables] present in L2.txt.")
+            return False
+        try:
+            plots_line_index = lines.index('[Plots]\n')
+        except ValueError:
+            print("WARNING: no [Plots] present in L2.txt")
+            plots_line_index = None
+        if variables_line_index and plots_line_index:
+            if L2Validation.check_variables_line(lines[variables_line_index + 1:plots_line_index]):
+                return True
+            else:
+                print("Incorrect format in L2 Variables section")
+                return False
+        elif variables_line_index:
+            if L2Validation.check_variables_line(lines[variables_line_index + 1:]):
+                return True
+            else:
+                print("Undefined L2 Variables and Plots sections")
+                return False
+
+    @staticmethod
+    def check_level_line(line):
+        """
+            Check if the formatting for L1 Level section is as expected
+            Args:
+                line (str): Level line from input L1.txt
+            Returns:
+                (bool) : Returns True if the format is as expected, else return False
+        """
+        if line:
+            line_split = line.split('=')
+            if line_split[0].lower().strip() == 'level' and line_split[1].strip() == 'L2':
+                return True
+        return False
+
+    @staticmethod
+    def check_variables_line(lines, var_pattern=VAR_PATTERN, dependencycheck_pattern=DEPENDENCYCHECK_PATTERN,
+                             excludedates_pattern=EXCLUDEDATES_PATTERN, rangecheck_pattern=RANGECHECK_PATTERN,
+                             source_pattern=SOURCE_PATTERN, lower_pattern=LOWER_PATTERN, upper_pattern=UPPER_PATTERN):
+        """
+            Check if the formatting for L2 Variables section is as expected
+            Args:
+                lines (list): List of strings. Lines in L1.txt
+                var_pattern (str): Regex pattern to find the starting line for [Variables] section
+                dependencycheck_pattern (str): Regex pattern to find the [[[DependencyCheck]]] section
+                excludedates_pattern (str): Regex pattern to find the [[[ExcludeDates]]] section in Variables section
+                rangecheck_pattern (str): Regex pattern to find the [[[RangeCheck]]] section in Variables
+                source_pattern (str): Regex pattern to find the source line within DependencyCheck
+                lower_pattern (str): Regex pattern to find the lower line within RangeCheck
+                upper_pattern (str): Regex pattern to find the upper line within RangeCheck
+            Returns:
+                (bool) : Returns True if the format is as expected, else return False
+        """
+        var_start_end = L2Validation.get_variables_index(lines, var_pattern)
+        # check if excludedates, rangecheck and dependencycheck follow the expected format
+        for start, end in var_start_end:
+            is_success = L2Validation.check_var_sections(lines[start:end], dependencycheck_pattern, rangecheck_pattern,
+                                                         excludedates_pattern, source_pattern,
+                                                         lower_pattern, upper_pattern)
+            if not is_success:
+                return False
+        # all validations done
+        return True
+
+    @staticmethod
+    def get_variables_index(text, var_pattern):
+        """
+            Get all variables and start and end index for each variable from the pyfluxpro control file
+
+            Args:
+                text (list): List with all variable lines from L2.txt
+                var_pattern (str): Regex pattern of variable names
+            Returns:
+                var_start_end (list): List of tuple, the starting and ending index for each variable
+        """
+        var_indexes = [i for i, item in enumerate(text) if re.match(var_pattern, item)]
+        var_start_end = []
+        for i in range(len(var_indexes)-1):
+            start_ind = var_indexes[i]
+            end_ind = var_indexes[i+1]
+            var_start_end.append((start_ind, end_ind))
+        return var_start_end
+
+    @staticmethod
+    def check_var_sections(lines, dependencycheck_pattern, rangecheck_pattern, excludedates_pattern, source_pattern,
+                           lower_pattern, upper_pattern):
+        """
+        Method to validate each sections of a Variable.
+        Method checks if excludedates, rangecheck and dependencycheck follow the expected format
+        Check if rangecheck has lower and upper lines. Check if source line exists for DependencyCheck
+        Check if excludedates has from and to dates that are comma separated and if the dates are valid
+        Args:
+            lines (list): Lines of a variable from L2.txt
+            dependencycheck_pattern (str): Regex pattern of dependency check section
+            rangecheck_pattern (str): Regex pattern of range check section
+            excludedates_pattern (str): Regex pattern of exclude dates section
+            source_pattern (str): Regex pattern for source line in Dependency check section
+            lower_pattern (str): Regex pattern for lower line in Range check section
+            upper_pattern (str): Regex pattern for upper line in Range check section
+        Returns:
+            (bool): Returns True if all section validations are complete, else returns False
+        """
+        depcheck_line_index = [i for i, item in enumerate(lines) if re.match(dependencycheck_pattern, item)]
+        rangecheck_line_index = [i for i, item in enumerate(lines) if re.match(rangecheck_pattern, item)]
+        excludedates_line_index = [i for i, item in enumerate(lines) if re.match(excludedates_pattern, item)]
+        # get value from list
+        if depcheck_line_index:
+            depcheck_line_index = depcheck_line_index[0]
+        else:
+            depcheck_line_index = None
+        if rangecheck_line_index:
+            rangecheck_line_index = rangecheck_line_index[0]
+        else:
+            rangecheck_line_index = None
+        if excludedates_line_index:
+            excludedates_line_index = excludedates_line_index[0]
+        else:
+            excludedates_line_index = None
+        section_index = {'excludedates': excludedates_line_index, 'rangecheck': rangecheck_line_index,
+                         'depcheck': depcheck_line_index}
+        # exclude dates section can have arbitary number of lines.
+        # get the ending line index for exclude dates section by sorting other section indexes
+        section_index = dict(sorted(section_index.items(), key=lambda item: (item[1] is None, item[1])))
+        excludedates_section_index = list(section_index.keys()).index('excludedates')
+        if excludedates_section_index == 2:
+            # exclude dates section is the last section. the end index will be the ending index of the variable section
+            excludedates_end_index = len(lines) - 1
+        else:
+            # exclude dates section is not the last. end index will be the starting index of the next section.
+            excludedates_end_index = list(section_index.values())[excludedates_section_index + 1]
+
+        depcheck_flag, rangecheck_flag, excludedates_flag = False, False, False
+
+        # validate dependency check section
+        if depcheck_line_index:
+            if re.match(source_pattern, lines[depcheck_line_index+1]):
+                depcheck_flag = True
+            else:
+                print("Check Dependency Check format in line", lines[depcheck_line_index+1])
+                depcheck_flag = False
+
+        # validate rangecheck section
+        if rangecheck_line_index:
+            # check if the first line or second line matches the lower pattern
+            if re.match(lower_pattern, lines[rangecheck_line_index+1]):
+                lower_line = lines[rangecheck_line_index + 1]
+            elif re.match(lower_pattern, lines[rangecheck_line_index+2]):
+                lower_line = lines[rangecheck_line_index + 2]
+            # check if the first line or second line matches the upper pattern
+            if re.match(upper_pattern, lines[rangecheck_line_index+2]):
+                upper_line = lines[rangecheck_line_index + 2]
+            elif re.match(upper_pattern, lines[rangecheck_line_index+1]):
+                upper_line = lines[rangecheck_line_index + 1]
+            lower_items = lower_line.strip().split('=')[1].split(',')
+            upper_items = upper_line.strip().split('=')[1].split(',')
+            if lower_items and upper_items:
+                # NOTES 21
+                lower_items_num = len(lower_items)
+                upper_items_num = len(upper_items)
+                if (lower_items_num == 1 or lower_items_num == 12) and (upper_items_num == 1 or upper_items_num == 12):
+                    rangecheck_flag = True
+                else:
+                    print("Check number of items in lower and upper ranges in line", lines[rangecheck_line_index])
+                    rangecheck_flag = False
+            else:
+                print("Check Range Check format in line", lines[rangecheck_line_index])
+                rangecheck_flag = False
+
+        # validate exclude dates section
+        if excludedates_line_index:
+            # if ExcludeDates section is present, check if the dates are valid
+            # first line is ExcludeDates. start iteration from the next line onwards
+            for line in lines[excludedates_line_index+1:excludedates_end_index]:
+                date_line = line.split('=')[1]
+                dates = date_line.strip().split(',')
+                start_date, end_date = dates[0].strip(), dates[1].strip()
+                if DataValidation.datetime_validation(start_date) and DataValidation.datetime_validation(end_date) and \
+                        pd.to_datetime(end_date) > pd.to_datetime(start_date):
+                    excludedates_flag = True
+                else:
+                    excludedates_flag = False
+                    print("Check dateformat in line", line)
+                    break
+
+        if depcheck_line_index and (not depcheck_flag):
+            print("Check DependencyCheck section for variable {}".format(lines[0].strip()))
+            return False
+        elif rangecheck_line_index and (not rangecheck_flag):
+            print("Check RangeCheck section for variable {}".format(lines[0].strip()))
+            return False
+        elif excludedates_line_index and (not excludedates_flag):
+            print("Check ExcludeDates section for variable {}".format(lines[0].strip()))
+            return False
+        else:
+            # all validations done
+            return True

@@ -10,8 +10,9 @@ from datetime import timedelta
 import re
 from pandas.api.types import is_datetime64_any_dtype as is_datetime64
 
-from utils.process_validation import DataValidation
 import utils.data_util as data_util
+from utils.process_validation import DataValidation
+
 pd.options.mode.chained_assignment = None
 
 

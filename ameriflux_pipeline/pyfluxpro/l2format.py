@@ -8,6 +8,8 @@ import pandas as pd
 import os
 import re
 
+from utils.process_validation import DataValidation, L2Validation
+
 
 class L2Format:
     """
@@ -18,7 +20,6 @@ class L2Format:
     LEVEL_LINE = "level = L2"  # set the level
     VAR_PATTERN = '^\\[\\[[a-zA-Z0-9_]+\\]\\]$'  # variable name pattern
     VAR_PATTERN_WITH_SPACE = '^ {4}\\[\\[[a-zA-Z0-9_]+\\]\\]\n$'
-    XL_PATTERN = '^\\[\\[\\[xl\\]\\]\\]$'
     DEPENDENCYCHECK_PATTERN = '^\\[\\[\\[DependencyCheck\\]\\]\\]$'
     EXCLUDEDATES_PATTERN = '^\\[\\[\\[ExcludeDates\\]\\]\\]$'
     RANGECHECK_PATTERN = '^\\[\\[\\[RangeCheck\\]\\]\\]$'
@@ -50,6 +51,13 @@ class L2Format:
         # read lines from l1 inputs
         l2_mainstem_lines = l2_mainstem.readlines()
         l2_ameriflux_lines = l2_ameriflux.readlines()
+
+        # check if input L1 have the same format as expected
+        if not L2Validation.check_l2_format(l2_mainstem_lines) or not L2Validation.check_l2_format(l2_ameriflux_lines):
+            print("Check L2.txt format")
+            l2_mainstem.close()
+            l2_ameriflux.close()
+            return
 
         # writing to output file
 
