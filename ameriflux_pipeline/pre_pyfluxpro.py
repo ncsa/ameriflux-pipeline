@@ -359,7 +359,7 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
                                           cfg.L1_AMERIFLUX, erroring_variable_flag,
                                           cfg.L1_AMERIFLUX_ERRORING_VARIABLES_KEY)
     if pyfluxpro_ameriflux_labels is None:
-        print("Check L1 processing")
+        print("PyFluxPro L1 processing failed. Aborting")
         # return failure
         return False
 

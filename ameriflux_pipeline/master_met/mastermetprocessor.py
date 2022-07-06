@@ -7,11 +7,12 @@
 import pandas as pd
 import numpy as np
 from datetime import timedelta
+import re
 from pandas.api.types import is_datetime64_any_dtype as is_datetime64
-pd.options.mode.chained_assignment = None
 
 from utils.process_validation import DataValidation
 import utils.data_util as data_util
+pd.options.mode.chained_assignment = None
 
 
 class MasterMetProcessor:
@@ -29,7 +30,7 @@ class MasterMetProcessor:
         Returns processed df and file meta df which is used in eddyproformat.py
 
         Args:
-            input_path (str): A file path for the input data.
+            input_met_path (str): A file path for the input data.
             input_precip_path(str): A file path for the input precipitation data.
             precip_lower (int) : Lower threshold value for precipitation in inches
             precip_upper (int) : Upper threshold value for precipitation in inches
@@ -125,30 +126,45 @@ class MasterMetProcessor:
             # add precipitation unit mm to df_meta
             df_meta['Precip_IWS'] = 'mm'
 
+        df_cols = df.columns.to_list()
         # step 7 in guide - calculation of shortwave radiation
         SW_unit = 'W/m^2'  # unit for shortwave radiation
-        if 'SWUp_Avg' in df.columns:
+        # NOTE 10
+        # get shortwave in and shortwave out columns from two instrument data
+        sw_pattern = re.compile(r"^sw", re.IGNORECASE)  # shortwave pattern for SW instrument
+        cm3_pattern = re.compile(r"^cm3", re.IGNORECASE)  # shortwave pattern for CM3 instrument
+        df_sw_columns = list(filter(sw_pattern.search, df_cols))
+        df_sw_columns = [c.lower() for c in df_sw_columns]
+        df_cm3_columns = list(filter(cm3_pattern.search, df_cols))
+        df_cm3_columns = [c.lower() for c in df_cm3_columns]
+        # set shortwave out
+        if 'swup_avg' in df_sw_columns:
             shortwave_out = 'SWUp_Avg'
             df['SW_out_Avg'] = df[shortwave_out]
             df_meta['SW_out_Avg'] = SW_unit  # add shortwave radiation units
-        elif 'CM3Dn_Avg' in df.columns:
+        elif 'cm3dn_Avg' in df_cm3_columns:
             shortwave_out = 'CM3Dn_Avg'
-        df['SW_out_Avg'] = df[shortwave_out]
-        df_meta['SW_out_Avg'] = SW_unit  # add shortwave radiation units
-        # NOTE 10
+            df['SW_out_Avg'] = df[shortwave_out]
+            df_meta['SW_out_Avg'] = SW_unit  # add shortwave radiation units
+
         albedo_col = df.filter(regex="Albedo|albedo|ALB").columns.to_list()
         if (not albedo_col) or (albedo_col[0] not in df.columns):
             # calculate albedo_avg from shortwave out and shortwave in
-            if 'SWDn_Avg' in df.columns:
+            if 'swdn_avg' in df_sw_columns:
                 shortwave_in = 'SWDn_Avg'
-            elif 'CM3Up_Avg' in df.columns:
+            elif 'cm3up_avg' in df_cm3_columns:
                 shortwave_in = 'CM3Up_Avg'
-            # avoid zero division error
-            df[albedo_col[0]] = df.apply(lambda x: float(x[shortwave_out]) / float(x[shortwave_in])
-                                         if float(x[shortwave_in]) != 0 else np.nan, axis=1)
-            df_meta[albedo_col[0]] = SW_unit  # add shortwave radiation units
+            try:
+                if shortwave_in and shortwave_out:
+                    # avoid zero division error
+                    df[albedo_col[0]] = df.apply(lambda x: float(x[shortwave_out]) / float(x[shortwave_in])
+                                                 if float(x[shortwave_in]) != 0 else np.nan, axis=1)
+
+                    df_meta[albedo_col[0]] = SW_unit  # add shortwave radiation units
+            except NameError:
+                print("Shortwave calculation failed. Check SW or CD3 columns in met data.")
         else:
-            # albedo is present in the dataset. Add the corresponding unit.
+            # albedo column is present in metdata. Add SWunit
             df_meta[albedo_col[0]] = SW_unit  # add shortwave radiation units
 
         # NOTE 2
@@ -181,7 +197,7 @@ class MasterMetProcessor:
         # TODO : Check with Bethany if Min/Avg is to be checked for.
         file_df_meta = df.head(4)  # first four lines of file contains meta data
         # the first row contains the meta data of file. second and third row contains met variables and their units
-        file_df_meta = file_df_meta.fillna('')  # fill NaNs with empty string for ease of replace
+        file_df_meta.fillna(value='', inplace=True)  # fill NaNs with empty string for ease of replace
         file_df_meta = file_df_meta.applymap(lambda x: str(x).replace('"', ''))  # strip off quotes from all values
 
         # process df to get met data
