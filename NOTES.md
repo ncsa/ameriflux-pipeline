@@ -68,5 +68,7 @@
 ### 20
 - In 2021 there has been a program change resulting in the change of some datalogger met variables names. Hence when merging the met data, certain old variables names are to be changed to newer standardized variable names.
 - {'CM3Up_Avg': 'SWDn_Avg', 'CM3Dn_Avg': 'SWUp_Avg', 'CG3UpCo_Avg': 'LWDnCo_Avg', 'CG3DnCo_Avg': 'LWUpCo_Avg', 'NetTot_Avg': 'Rn_Avg', 'cnr1_T_C_Avg': 'CNR1TC_Avg', 'cnr1_T_K_Avg': 'CNR1TK_Avg', 'Rs_net_Avg': 'NetRs_Avg', 'Rl_net_Avg': 'NetRl_Avg' , 'VWC_': 'VWC1_', 'TC_':'TC1_'}
-
+### 21
+- In L2.txt, the RangeCheck should have lower and upper. 
+- The lower and upper have comma separated items. The number of items can be 1 or 12.
 

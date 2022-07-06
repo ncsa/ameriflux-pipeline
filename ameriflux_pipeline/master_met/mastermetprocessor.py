@@ -7,10 +7,12 @@
 import pandas as pd
 import numpy as np
 from datetime import timedelta
+import re
 from pandas.api.types import is_datetime64_any_dtype as is_datetime64
 
 import utils.data_util as data_util
 from utils.process_validation import DataValidation
+
 pd.options.mode.chained_assignment = None
 
 
@@ -125,13 +127,16 @@ class MasterMetProcessor:
             # add precipitation unit mm to df_meta
             df_meta['Precip_IWS'] = 'mm'
 
+        df_cols = df.columns.to_list()
         # step 7 in guide - calculation of shortwave radiation
         SW_unit = 'W/m^2'  # unit for shortwave radiation
         # NOTE 10
         # get shortwave in and shortwave out columns from two instrument data
-        df_sw_columns = df.filter(regex="SW").columns.to_list()
-        df_cm3_columns = df.filter(regex="CM3").columns.to_list()
+        sw_pattern = re.compile(r"^sw", re.IGNORECASE)  # shortwave pattern for SW instrument
+        cm3_pattern = re.compile(r"^cm3", re.IGNORECASE)  # shortwave pattern for CM3 instrument
+        df_sw_columns = list(filter(sw_pattern.search, df_cols))
         df_sw_columns = [c.lower() for c in df_sw_columns]
+        df_cm3_columns = list(filter(cm3_pattern.search, df_cols))
         df_cm3_columns = [c.lower() for c in df_cm3_columns]
         # set shortwave out
         if 'swup_avg' in df_sw_columns:
@@ -146,9 +151,9 @@ class MasterMetProcessor:
         albedo_col = df.filter(regex="Albedo|albedo|ALB").columns.to_list()
         if (not albedo_col) or (albedo_col[0] not in df.columns):
             # calculate albedo_avg from shortwave out and shortwave in
-            if 'swdn_Avg' in df_sw_columns:
+            if 'swdn_avg' in df_sw_columns:
                 shortwave_in = 'SWDn_Avg'
-            elif 'cm3up_Avg' in df_cm3_columns:
+            elif 'cm3up_avg' in df_cm3_columns:
                 shortwave_in = 'CM3Up_Avg'
             try:
                 if shortwave_in and shortwave_out:
