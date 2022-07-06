@@ -232,19 +232,51 @@ class DataValidation:
         if not site_name_col:
             print("Site name not in Soils key")
             return False
-        # check if required columns are present
+        # check if required columns are present. the required cols are given below
         req_cols = ['Datalogger/met water variable name', 'Datalogger/met temperature variable name',
-                    'EddyPro temperature variable name', 'EddyPro water variable name',
-                    'PyFluxPro water variable name', 'PyFluxPro temperature variable name']
-        if set(req_cols) <= set(df.columns):
-            # required columns is a subset of all column list
-            return True
-        else:
+                    'EddyPro temperature variable name', 'EddyPro water variable name']
+        # get column names matching datalogger / met tower
+        met_cols = df.filter(regex=re.compile("datalogger|met tower", re.IGNORECASE)).columns.to_list()
+        # get column names matching eddypro
+        eddypro_cols = df.filter(regex=re.compile("^eddypro", re.IGNORECASE)).columns.to_list()
+        # get column names matching pyfluxpro
+        pyfluxpro_cols = df.filter(regex=re.compile("^pyfluxpro", re.IGNORECASE)).columns.to_list()
+        if not met_cols or not eddypro_cols or not pyfluxpro_cols:
             print("Check for required columns in soils key: ", end='')
             print("Datalogger/met water variable name, Datalogger/met temperature variable name, "
                   "EddyPro temperature variable name, EddyPro water variable name, "
                   "PyFluxPro water variable name, PyFluxPro temperature variable name")
             return False
+
+        # remove variable columns that have 'old' in the name
+        old_pattern = re.compile(r'old', re.IGNORECASE)
+        met_cols = list(filter(lambda x: not old_pattern.search(x), met_cols))
+        eddypro_cols = list(filter(lambda x: not old_pattern.search(x), eddypro_cols))
+        pyfluxpro_cols = list(filter(lambda x: not old_pattern.search(x), pyfluxpro_cols))
+
+        # get temp and water variable columns from the above column list
+        temp_pattern = re.compile(r'temperature|temp', re.IGNORECASE)
+        water_pattern = re.compile(r"water|moisture", re.IGNORECASE)
+        met_temp_col = list(filter(temp_pattern.search, met_cols))
+        met_water_col = list(filter(water_pattern.search, met_cols))
+        if not met_water_col or not met_temp_col:
+            print("Check for required columns in soils key: ", end='')
+            print("Datalogger/met water variable name, Datalogger/met temperature variable name")
+            return False
+        eddypro_temp_col = list(filter(temp_pattern.search, eddypro_cols))
+        eddypro_water_col = list(filter(water_pattern.search, eddypro_cols))
+        if not eddypro_water_col or not eddypro_temp_col:
+            print("Check for required columns in soils key: ", end='')
+            print("EddyPro temperature variable name, EddyPro water variable name")
+            return False
+        pyfluxpro_temp_col = list(filter(temp_pattern.search, pyfluxpro_cols))
+        pyfluxpro_water_col = list(filter(water_pattern.search, pyfluxpro_cols))
+        if not pyfluxpro_water_col or not pyfluxpro_temp_col:
+            print("Check for required columns in soils key: ", end='')
+            print("PyFluxPro water variable name, PyFluxPro temperature variable name")
+            return False
+        # all validations done
+        return True
 
     @staticmethod
     def is_valid_full_output(df):
@@ -287,10 +319,17 @@ class DataValidation:
         Returns:
             (bool): True if df is valid, else False
         """
-        # check if required columns are present
+        # check if required columns are present. required columns are given below
         req_cols = ['Original variable name', 'Ameriflux variable name', 'Units after formatting']
-        if set(req_cols) <= set(df.columns):
-            # required columns is a subset of all column list
+        df_cols = df.columns.to_list()
+        original_pattern = re.compile(r'^original', re.IGNORECASE)
+        ameriflux_pattern = re.compile(r'^ameriflux', re.IGNORECASE)
+        units_pattern = re.compile(r'^units', re.IGNORECASE)
+        original_col = list(filter(original_pattern.search, df_cols))
+        ameriflux_col = list(filter(ameriflux_pattern.search, df_cols))
+        units_col = list(filter(units_pattern.search, df_cols))
+        if original_col and ameriflux_col and units_col:
+            # all required columns are present
             return True
         else:
             print("Check for required columns in Amerilfux-Mainstem-Key: ", end='')
@@ -333,6 +372,8 @@ class L1Validation:
     # define patterns to match
     # variable names have alphanumeric characters and underscores with two square brackets
     VAR_PATTERN = '^\\[\\[[a-zA-Z0-9_]+\\]\\]$'
+    # variable name lines starts with 4 spaces and ends with new line
+    VAR_PATTERN_WITH_SPACE = '^ {4}\\[\\[[a-zA-Z0-9_]+\\]\\]\n$'
     XL_PATTERN = '^\\[\\[\\[xl\\]\\]\\]$'  # to match [[xl]] line
     ATTR_PATTERN = '^\\[\\[\\[Attr\\]\\]\\]$|^\\[\\[\\[attr\\]\\]\\]$'  # to match [[Attr]] or [[attr]] line
     UNITS_PATTERN = 'units'
@@ -445,7 +486,7 @@ class L1Validation:
         """
         acknowledgement_flag = False  # flag for acknowledgement line
         for line in lines:
-            if (line.strip().startswith('acknowledgement')):
+            if (line.strip().startswith('acknowledgement|Acknowledgement')):
                 acknowledgement_flag = True  # found acknowledgment line
                 if L1Validation.check_space(line.split('=')[0].rstrip()) != 4:
                     return False
