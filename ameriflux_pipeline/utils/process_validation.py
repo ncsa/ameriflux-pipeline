@@ -228,7 +228,7 @@ class DataValidation:
         Returns:
             (bool): True if df is valid, else False
         """
-        site_name_col = df.filter(regex='Site name|site name|Site Name|Site|site').columns.to_list()
+        site_name_col = df.filter(regex=re.compile('^name|site name', re.IGNORECASE)).columns.to_list()
         if not site_name_col:
             print("Site name not in Soils key")
             return False
@@ -289,19 +289,19 @@ class DataValidation:
         Returns:
             (bool): True if df is valid, else False
         """
-        date_col = df.filter(regex="date|Date").columns.to_list()
-        time_col = df.filter(regex="time|Time").columns.to_list()
+        date_col = df.filter(regex=re.compile("^date", re.IGNORECASE)).columns.to_list()
+        time_col = df.filter(regex=re.compile("^time", re.IGNORECASE)).columns.to_list()
         if not date_col:
             print("Date column not present in EddyPro full output sheet")
             return False
         if not time_col:
             print("Time column not present in EddyPro full output sheet")
             return False
-        sonic_temperature_col = df.filter(regex="sonic_temperature").columns.to_list()
+        sonic_temperature_col = df.filter(regex=re.compile("^sonic_temperature", re.IGNORECASE)).columns.to_list()
         if not sonic_temperature_col:
             print("Sonic temperature column not present in EddyPro full output sheet")
             return False
-        air_pressure_col = df.filter(regex="air_pressure").columns.to_list()
+        air_pressure_col = df.filter(regex=re.compile("^air_pressure", re.IGNORECASE)).columns.to_list()
         if not air_pressure_col:
             print("Air pressure column not present in EddyPro full output sheet")
             return False
@@ -430,7 +430,7 @@ class L1Validation:
         """
         if line:
             line_split = line.split('=')
-            if line_split[0].startswith('level') and line_split[1].strip() == 'L1':
+            if line_split[0].lower().strip() == 'level' and line_split[1].strip() == 'L1':
                 return True
         return False
 
@@ -457,12 +457,12 @@ class L1Validation:
         file_path_flag = False  # flag for file_path line
         out_filename_flag = False  # flag for out_filename line
         for line in lines:
-            if (line.strip().startswith('file_path')):
+            if line.strip().lower().startswith('file_path'):
                 file_path_flag = True  # found file_path line
                 if L1Validation.check_space(line.split('=')[0].rstrip()) != 4:
                     # number of spaces is not as expected
                     return False
-            if (line.strip().startswith('out_filename')):
+            if line.strip().lower().startswith('out_filename'):
                 out_filename_flag = True  # found out_filename line
                 if L1Validation.check_space(line.split('=')[0].rstrip()) != 4:
                     # number of spaces is not as expected
@@ -486,7 +486,7 @@ class L1Validation:
         """
         acknowledgement_flag = False  # flag for acknowledgement line
         for line in lines:
-            if (line.strip().startswith('acknowledgement|Acknowledgement')):
+            if line.strip().lower().startswith('acknowledgement'):
                 acknowledgement_flag = True  # found acknowledgment line
                 if L1Validation.check_space(line.split('=')[0].rstrip()) != 4:
                     return False
@@ -539,19 +539,19 @@ class L1Validation:
                 attr_flag = True
                 if L1Validation.check_space(line.rstrip()) != 4 * 2:
                     return False
-            if (line.strip().startswith(units_pattern)):
+            if line.strip().lower().startswith(units_pattern):
                 units_flag = True
                 if L1Validation.check_space(line.split('=')[0].rstrip()) != 4 * 3:
                     return False
-            if (line.strip().startswith(long_name_pattern)):
+            if line.strip().lower().startswith(long_name_pattern):
                 long_name_flag = True
                 if L1Validation.check_space(line.split('=')[0].rstrip()) != 4 * 3:
                     return False
-            if (line.strip().startswith(name_pattern)):
+            if line.strip().lower().startswith(name_pattern):
                 name_flag = True
                 if L1Validation.check_space(line.split('=')[0].rstrip()) != 4 * 3:
                     return False
-            if (line.strip().startswith(sheet_pattern)):
+            if line.strip().lower().startswith(sheet_pattern):
                 sheet_flag = True
                 if L1Validation.check_space(line.split('=')[0].rstrip()) != 4 * 3:
                     return False
