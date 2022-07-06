@@ -308,11 +308,12 @@ class EddyProFormat:
         """
         req_cols = ['SWin', 'RH', 'LWin', 'PPFD']
         df_cols = df.columns.to_list()
+        # convert to lowercase for comparison
         req_cols = [col.lower() for col in req_cols]
         df_cols = [col.lower() for col in df_cols]
-        if not set(req_cols).issubset(set(df.columns)):
+        if not set(req_cols).issubset(set(df_cols)):
             print("WARNING")
-            print(' and '.join(set(req_cols).difference(df.columns)), end='')
+            print(' and '.join(set(req_cols).difference(df_cols)), end='')
             print(" are not present in met_output_eddypro")
         else:
             print("All required columns are present in met_output_eddypro")

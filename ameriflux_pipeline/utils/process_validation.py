@@ -739,11 +739,12 @@ class L2Validation:
         depcheck_flag, rangecheck_flag, excludedates_flag = False, False, False
 
         # validate dependency check section
-        if depcheck_line_index and re.match(source_pattern, lines[depcheck_line_index+1]):
-            depcheck_flag = True
-        else:
-            print("Check Dependency Check format in line", lines[depcheck_line_index+1])
-            depcheck_flag = False
+        if depcheck_line_index:
+            if re.match(source_pattern, lines[depcheck_line_index+1]):
+                depcheck_flag = True
+            else:
+                print("Check Dependency Check format in line", lines[depcheck_line_index+1])
+                depcheck_flag = False
 
         # validate rangecheck section
         if rangecheck_line_index:
