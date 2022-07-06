@@ -183,7 +183,8 @@ def data_processing(files, start_date, end_date):
     start_date = pd.to_datetime(start_date)
     end_date = pd.to_datetime(end_date)
     # NOTES 19
-    end_date += timedelta(days=1)
+    start_date -= timedelta(minutes=30)  # shift 30min behind
+    end_date += timedelta(minutes=30)  # shift 30min ahead
     met_data = met_data[(met_data['TIMESTAMP_datetime'] >= start_date) & (met_data['TIMESTAMP_datetime'] <= end_date)]
     met_data.drop(columns=['TIMESTAMP_datetime'], inplace=True)
     # check if number of columns in met data and meta data are same
