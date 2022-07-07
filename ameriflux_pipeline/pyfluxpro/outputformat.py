@@ -193,11 +193,11 @@ class OutputFormat:
         Returns:
             (str): matching ameriflux site name
         """
-        if site_name == 'Sorghum':
+        if site_name.lower() == 'sorghum':
             return 'E'
-        elif site_name in ['Miscanthus-Basalt', 'Miscanthus-Control']:
+        elif site_name.lower() in ['miscanthus-basalt', 'miscanthus-control']:
             return 'B'
-        elif site_name in ['Maize-Basalt', 'Maize-Control']:
+        elif site_name.lower() in ['maize-basalt', 'maize-control']:
             return 'C'
-        elif site_name == 'Switchgrass':
+        elif site_name.lower() == 'switchgrass':
             return 'A'
