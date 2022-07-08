@@ -20,7 +20,7 @@ from utils.process_validation import DataValidation
 
 # create and configure logger
 logging.basicConfig(level=logging.INFO, datefmt='%Y-%m-%dT%H:%M:%S',
-                    format='%(asctime)-15s.%(msecs)03dZ %(levelname)-7s [%(threadName)-10s] : %(name)s - %(message)s',
+                    format='%(asctime)-15s.%(msecs)03dZ %(levelname)-7s : %(name)s - %(message)s',
                     handlers=[logging.FileHandler("met_merger.log"), logging.StreamHandler(sys.stdout)])
 # create log object with current module name
 log = logging.getLogger(__name__)
@@ -189,10 +189,11 @@ def data_processing(files, start_date, end_date):
     # get met data between start date and end date
     met_data['TIMESTAMP_datetime'] = pd.to_datetime(met_data['TIMESTAMP'])
     met_data = met_data.sort_values(by='TIMESTAMP_datetime')
-    start_date = pd.to_datetime(start_date)
-    end_date = pd.to_datetime(end_date)
+    start_date = pd.to_datetime(start_date)  # 00:00 of start date
+    end_date = pd.to_datetime(end_date)  # 00:00 of end date. get records till 00:00 of the next day
     # NOTES 19
-    end_date += timedelta(days=1)
+    start_date -= timedelta(minutes=30)  # shift 30min behind
+    end_date += timedelta(days=1)  # shift a day ahead which gives till 00:00 of next day
     met_data = met_data[(met_data['TIMESTAMP_datetime'] >= start_date) & (met_data['TIMESTAMP_datetime'] <= end_date)]
     met_data.drop(columns=['TIMESTAMP_datetime'], inplace=True)
     # check if number of columns in met data and meta data are same
