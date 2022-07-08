@@ -12,6 +12,9 @@ import os.path
 # NOTES 18
 from netCDF4 import Dataset, num2date
 
+from utils.process_validation import DataValidation
+import utils.data_util as data_util
+
 
 class OutputFormat:
     """
@@ -26,20 +29,25 @@ class OutputFormat:
 
         Args:
             input_file (str): A file path for the input data. This is the PyFluxPro input excel sheet
-            file_meta_data_file (str) : File containing the meta data, typically the first line of Met data
+            file_meta_data_file (str) : Path for the file containing the meta data, typically the first line of Met data
             erroring_variable_flag (str): A flag denoting whether some PyFluxPro variables (erroring variables) have
                                         been renamed to Ameriflux labels. Y is renamed, N if not. By default it is N.
             erroring_variable_key (str): Variable name key used to match the original variable names to Ameriflux names
-                                    for variables throwing an error in PyFluxPro L1.
-                                    This is an excel file named L1_erroring_variables.xlsx
+                                        for variables throwing an error in PyFluxPro L1.
+                                        This is an excel file named L1_erroring_variables.xlsx
         Returns:
             obj: Pandas DataFrame object formatted for Ameriflux
             filename (str): Filename for writing the dataframe to csv
         """
         if os.path.splitext(input_file)[1] != '.nc':
-            print("Run output file not in netCDF format. No .nc extension")
+            print("Run output file not in netCDF format. .nc extension expected")
             return None, None
-        l2 = Dataset(input_file, mode='r')  # read netCDF file
+        try:
+            l2 = Dataset(input_file, mode='r')  # read netCDF file
+        except KeyError or IOError:
+            print("Unable to read netCDF file ", input_file)
+            return None, None
+
         l2_keys = list(l2.variables.keys())
         # list of unwanted variables to be removed
         unwanted_variables = ['latitude', 'longitude', 'crs', 'station_name']
@@ -56,6 +64,9 @@ class OutputFormat:
         time = time_var[:]
         time = num2date(time, units=time_units, calendar='gregorian')  # calendar can be 365_day / gregorian
         time_data = time.data
+        if len(time_data) < 1:
+            print("Check timestamp column in file", input_file)
+            return None, None
 
         # create a dataframe
         df = pd.DataFrame({'TIMESTAMP': [t.isoformat() for t in time_data]})
@@ -86,20 +97,34 @@ class OutputFormat:
             df[var_name] = df[var_name].apply(pd.to_numeric, errors='coerce')
             df[var_name] = df[var_name].round(decimals=3)
 
-        # drop columns if exists
+        # drop some met data columns if exists
         # step 2 in guide
-        df.drop(columns=['CO2_SIGMA', 'H2O_SIGMA'], errors='ignore', inplace=True)
+        unwanted_met_data = ['xldatetime', 'time', 'hour', 'second', 'minute', 'day', 'month', 'year', 'hdh', 'ddd',
+                             'fsd_syn', 'solar_altitude', 'co2_sigma', 'h2o_sigma']
+        # get columns that match unwanted met data. The method will convert the column name to lowercase and compare
+        met_data_col_delete = OutputFormat.find_met_data_cols(df, unwanted_met_data)
+        df.drop(columns=met_data_col_delete, errors='ignore', inplace=True)
 
         # rename the erroring variables back to Ameriflux-friendly variables
         # convert erroring variables as a dictionary
         if erroring_variable_flag.lower() in ['n', 'no']:
             # if user chose not to replace the variable name, read the name mapping
             erroring_variable_key = pd.read_excel(erroring_variable_key)  # read L1 erroring variable name matching file
-            column_labels = dict(zip(erroring_variable_key['PyFluxPro label'],
-                                     erroring_variable_key['Ameriflux label']))
-            df.rename(columns=column_labels, inplace=True)
-        # drop additional time columns
-        df.drop(columns=['time'], inplace=True)
+            if DataValidation.is_valid_erroring_variables_key(erroring_variable_key):
+                # strip column names of extra spaces and convert to lowercase
+                erroring_variable_key.columns = erroring_variable_key.columns.str.strip().str.lower()
+                ameriflux_col = erroring_variable_key.filter(regex="ameriflux").columns.to_list()
+                pyfluxpro_col = erroring_variable_key.filter(regex="pyfluxpro").columns.to_list()
+                if ameriflux_col and pyfluxpro_col:
+                    # the variable name mapping is valid and case sensitive as L2.txt is generated using the same
+                    erroring_variable_key['Ameriflux label'] = erroring_variable_key[ameriflux_col[0]]
+                    erroring_variable_key['PyFluxPro label'] = erroring_variable_key[pyfluxpro_col[0]]
+                    column_labels = dict(zip(erroring_variable_key['PyFluxPro label'],
+                                             erroring_variable_key['Ameriflux label']))
+                    df.rename(columns=column_labels, inplace=True)
+            else:
+                print("WARNING: L1 Erroring Variables.xlsx file invalid format. Proceeding without replacing label")
+
         # fill all empty cells with -9999
         df.replace(np.nan, '-9999', inplace=True)
         df.replace('-9999.0', '-9999', inplace=True)
@@ -108,7 +133,7 @@ class OutputFormat:
         file_meta = pd.read_csv(file_meta_data_file)
         # get the site name
         file_site_name = file_meta.iloc[0][5]
-        site_name = OutputFormat.get_site_name(file_site_name)
+        site_name = data_util.get_site_name(file_site_name)
         ameriflux_site_name = OutputFormat.get_ameriflux_site_name(site_name)
         start_time = df['TIMESTAMP_START'].iloc[0]
         end_time = df['TIMESTAMP_END'].iloc[-1]
@@ -160,30 +185,21 @@ class OutputFormat:
         else:
             return True
 
-    # TODO : This method has been used in 3 files (L1Format and EddyProFormat).
-    # Maybe place this in main or pass in just the site name as arguments
     @staticmethod
-    def get_site_name(file_site_name):
+    def find_met_data_cols(df, unwanted_met_data):
         """
-        Match the file site name to site names in soil key data.
-        From the input file site name, return the matching site name
-        Site name is used as lookup in soil key table
-
+        Find the columns in the met data that matches columns to be deleted
         Args:
-            file_site_name (str): file site name from file meta data, first row of input met file
+            df (DataFrame): Dataframe containing the data
+            unwanted_met_data (list): List of met data columns to be removed
         Returns:
-            (str): matching site name
+            list: List of met data columns to be removed
         """
-        if re.match('^CPU:Maize_Control_*', file_site_name):
-            return 'Maize-Control'
-        elif re.match('^CPU:Maize_*', file_site_name):
-            return 'Maize-Basalt'
-        elif re.match('^CPU:Miscanthus_Control_*', file_site_name):
-            return 'Miscanthus-Control'
-        elif re.match('^CPU:Miscanthus_*', file_site_name):
-            return 'Miscanthus-Basalt'
-        elif re.match('^CPU:Sorghum_*', file_site_name):
-            return 'Sorghum'
+        met_data_cols = []
+        for col in df.columns:
+            if col.lower() in unwanted_met_data:
+                met_data_cols.append(col)
+        return met_data_cols
 
     @staticmethod
     def get_ameriflux_site_name(site_name):
@@ -196,11 +212,11 @@ class OutputFormat:
         Returns:
             (str): matching ameriflux site name
         """
-        if site_name == 'Sorghum':
+        if site_name.lower() == 'sorghum':
             return 'E'
-        elif site_name in ['Miscanthus-Basalt', 'Miscanthus-Control']:
+        elif site_name.lower() in ['miscanthus-basalt', 'miscanthus-control']:
             return 'B'
-        elif site_name in ['Maize-Basalt', 'Maize-Control']:
+        elif site_name.lower() in ['maize-basalt', 'maize-control']:
             return 'C'
-        elif site_name == 'Switchgrass':
+        elif site_name.lower() == 'switchgrass':
             return 'A'
