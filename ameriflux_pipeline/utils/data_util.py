@@ -14,8 +14,20 @@ import logging
 # create log object with current module name
 log = logging.getLogger(__name__)
 
+def read_csv_file(file_path, **kwargs):
+    """
+        Read csv file to dataframe with optional arguments
 
-def write_data(df, output_data):
+        Args:
+            file_path (str): File path to read data
+        Returns:
+            df (object): Pandas DataFrame object
+    """
+    log.info("Read csv file %s", file_path)
+    df = pd.read_csv(file_path, **kwargs)  # read csv file
+    return df
+
+def write_data_to_csv(df, output_data):
     """
         Write the dataframe to csv file
 
