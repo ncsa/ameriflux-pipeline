@@ -148,7 +148,7 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
     # copy and rename the met data file
     shutil.copyfile(met_data_30_input, met_data_30_pyfluxpro)
 
-    met_data_df = pd.read_csv(met_data_30_pyfluxpro, low_memory=False)
+    met_data_df = data_util.read_csv_file(met_data_30_pyfluxpro, low_memory=False)
     # convert timestamp to datetime format so that pyfluxpro can read without error
     met_data_df['TIMESTAMP'][1:] = pd.to_datetime(met_data_df['TIMESTAMP'][1:])
 
