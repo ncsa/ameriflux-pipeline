@@ -130,8 +130,8 @@ class OutputFormat:
         df.replace('-9999.0', '-9999', inplace=True)
         # create the filename used for Ameriflux submission
         # read file_meta
-        file_meta = pd.read_csv(file_meta_data_file)
-        # get the site name
+        file_meta = data_util.read_csv_file(file_meta_data_file)
+        # get the site name from dataframe
         file_site_name = file_meta.iloc[0][5]
         site_name = data_util.get_site_name(file_site_name)
         ameriflux_site_name = OutputFormat.get_ameriflux_site_name(site_name)
