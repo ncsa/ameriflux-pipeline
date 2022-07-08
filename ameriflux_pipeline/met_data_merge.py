@@ -236,6 +236,8 @@ def main(files, start_date, end_date, output_file):
 
 
 if __name__ == '__main__':
+    log.info('-' * 50)
+    log.info("############# Process Started #############")
     log.info("Automatic merging of met files started")
     # get arguments
     parser = argparse.ArgumentParser()
