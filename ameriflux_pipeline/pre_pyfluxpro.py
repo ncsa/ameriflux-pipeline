@@ -36,6 +36,7 @@ logging.basicConfig(level=logging.INFO, datefmt='%Y-%m-%dT%H:%M:%S',
 # create log object with current module name
 log = logging.getLogger(__name__)
 
+
 def input_validation():
     """
     Method to check user input validation from config file

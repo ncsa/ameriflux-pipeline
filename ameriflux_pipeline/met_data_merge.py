@@ -25,6 +25,7 @@ logging.basicConfig(level=logging.INFO, datefmt='%Y-%m-%dT%H:%M:%S',
 # create log object with current module name
 log = logging.getLogger(__name__)
 
+
 def validate_inputs(files, start_date, end_date, output_file):
     """
     Method to check if inputs are valid
