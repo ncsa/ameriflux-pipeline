@@ -97,9 +97,13 @@ class OutputFormat:
             df[var_name] = df[var_name].apply(pd.to_numeric, errors='coerce')
             df[var_name] = df[var_name].round(decimals=3)
 
-        # drop columns if exists
+        # drop some met data columns if exists
         # step 2 in guide
-        df.drop(columns=['CO2_SIGMA', 'H2O_SIGMA'], errors='ignore', inplace=True)
+        unwanted_met_data = ['xldatetime', 'time', 'hour', 'second', 'minute', 'day', 'month', 'year', 'hdh', 'ddd',
+                             'fsd_syn', 'solar_altitude', 'co2_sigma', 'h2o_sigma']
+        # get columns that match unwanted met data. The method will convert the column name to lowercase and compare
+        met_data_col_delete = OutputFormat.find_met_data_cols(df, unwanted_met_data)
+        df.drop(columns=met_data_col_delete, errors='ignore', inplace=True)
 
         # rename the erroring variables back to Ameriflux-friendly variables
         # convert erroring variables as a dictionary
@@ -112,6 +116,7 @@ class OutputFormat:
                 ameriflux_col = erroring_variable_key.filter(regex="ameriflux").columns.to_list()
                 pyfluxpro_col = erroring_variable_key.filter(regex="pyfluxpro").columns.to_list()
                 if ameriflux_col and pyfluxpro_col:
+                    # the variable name mapping is valid and case sensitive as L2.txt is generated using the same
                     erroring_variable_key['Ameriflux label'] = erroring_variable_key[ameriflux_col[0]]
                     erroring_variable_key['PyFluxPro label'] = erroring_variable_key[pyfluxpro_col[0]]
                     column_labels = dict(zip(erroring_variable_key['PyFluxPro label'],
@@ -120,8 +125,6 @@ class OutputFormat:
             else:
                 print("WARNING: L1 Erroring Variables.xlsx file invalid format. Proceeding without replacing label")
 
-        # drop additional time columns
-        df.drop(columns=['time'], inplace=True)
         # fill all empty cells with -9999
         df.replace(np.nan, '-9999', inplace=True)
         df.replace('-9999.0', '-9999', inplace=True)
@@ -183,6 +186,22 @@ class OutputFormat:
             return True
 
     @staticmethod
+    def find_met_data_cols(df, unwanted_met_data):
+        """
+        Find the columns in the met data that matches columns to be deleted
+        Args:
+            df (DataFrame): Dataframe containing the data
+            unwanted_met_data (list): List of met data columns to be removed
+        Returns:
+            list: List of met data columns to be removed
+        """
+        met_data_cols = []
+        for col in df.columns:
+            if col.lower() in unwanted_met_data:
+                met_data_cols.append(col)
+        return met_data_cols
+
+    @staticmethod
     def get_ameriflux_site_name(site_name):
         """
         Get the ameriflux site name from the field site name.
@@ -193,11 +212,11 @@ class OutputFormat:
         Returns:
             (str): matching ameriflux site name
         """
-        if site_name == 'Sorghum':
+        if site_name.lower() == 'sorghum':
             return 'E'
-        elif site_name in ['Miscanthus-Basalt', 'Miscanthus-Control']:
+        elif site_name.lower() in ['miscanthus-basalt', 'miscanthus-control']:
             return 'B'
-        elif site_name in ['Maize-Basalt', 'Maize-Control']:
+        elif site_name.lower() in ['maize-basalt', 'maize-control']:
             return 'C'
-        elif site_name == 'Switchgrass':
+        elif site_name.lower() == 'switchgrass':
             return 'A'

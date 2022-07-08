@@ -228,23 +228,55 @@ class DataValidation:
         Returns:
             (bool): True if df is valid, else False
         """
-        site_name_col = df.filter(regex='Site name|site name|Site Name|Site|site').columns.to_list()
+        site_name_col = df.filter(regex=re.compile('^name|site name', re.IGNORECASE)).columns.to_list()
         if not site_name_col:
             print("Site name not in Soils key")
             return False
-        # check if required columns are present
+        # check if required columns are present. the required cols are given below
         req_cols = ['Datalogger/met water variable name', 'Datalogger/met temperature variable name',
-                    'EddyPro temperature variable name', 'EddyPro water variable name',
-                    'PyFluxPro water variable name', 'PyFluxPro temperature variable name']
-        if set(req_cols) <= set(df.columns):
-            # required columns is a subset of all column list
-            return True
-        else:
+                    'EddyPro temperature variable name', 'EddyPro water variable name']
+        # get column names matching datalogger / met tower
+        met_cols = df.filter(regex=re.compile("datalogger|met tower", re.IGNORECASE)).columns.to_list()
+        # get column names matching eddypro
+        eddypro_cols = df.filter(regex=re.compile("^eddypro", re.IGNORECASE)).columns.to_list()
+        # get column names matching pyfluxpro
+        pyfluxpro_cols = df.filter(regex=re.compile("^pyfluxpro", re.IGNORECASE)).columns.to_list()
+        if not met_cols or not eddypro_cols or not pyfluxpro_cols:
             print("Check for required columns in soils key: ", end='')
             print("Datalogger/met water variable name, Datalogger/met temperature variable name, "
                   "EddyPro temperature variable name, EddyPro water variable name, "
                   "PyFluxPro water variable name, PyFluxPro temperature variable name")
             return False
+
+        # remove variable columns that have 'old' in the name
+        old_pattern = re.compile(r'old', re.IGNORECASE)
+        met_cols = list(filter(lambda x: not old_pattern.search(x), met_cols))
+        eddypro_cols = list(filter(lambda x: not old_pattern.search(x), eddypro_cols))
+        pyfluxpro_cols = list(filter(lambda x: not old_pattern.search(x), pyfluxpro_cols))
+
+        # get temp and water variable columns from the above column list
+        temp_pattern = re.compile(r'temperature|temp', re.IGNORECASE)
+        water_pattern = re.compile(r"water|moisture", re.IGNORECASE)
+        met_temp_col = list(filter(temp_pattern.search, met_cols))
+        met_water_col = list(filter(water_pattern.search, met_cols))
+        if not met_water_col or not met_temp_col:
+            print("Check for required columns in soils key: ", end='')
+            print("Datalogger/met water variable name, Datalogger/met temperature variable name")
+            return False
+        eddypro_temp_col = list(filter(temp_pattern.search, eddypro_cols))
+        eddypro_water_col = list(filter(water_pattern.search, eddypro_cols))
+        if not eddypro_water_col or not eddypro_temp_col:
+            print("Check for required columns in soils key: ", end='')
+            print("EddyPro temperature variable name, EddyPro water variable name")
+            return False
+        pyfluxpro_temp_col = list(filter(temp_pattern.search, pyfluxpro_cols))
+        pyfluxpro_water_col = list(filter(water_pattern.search, pyfluxpro_cols))
+        if not pyfluxpro_water_col or not pyfluxpro_temp_col:
+            print("Check for required columns in soils key: ", end='')
+            print("PyFluxPro water variable name, PyFluxPro temperature variable name")
+            return False
+        # all validations done
+        return True
 
     @staticmethod
     def is_valid_full_output(df):
@@ -257,19 +289,19 @@ class DataValidation:
         Returns:
             (bool): True if df is valid, else False
         """
-        date_col = df.filter(regex="date|Date").columns.to_list()
-        time_col = df.filter(regex="time|Time").columns.to_list()
+        date_col = df.filter(regex=re.compile("^date", re.IGNORECASE)).columns.to_list()
+        time_col = df.filter(regex=re.compile("^time", re.IGNORECASE)).columns.to_list()
         if not date_col:
             print("Date column not present in EddyPro full output sheet")
             return False
         if not time_col:
             print("Time column not present in EddyPro full output sheet")
             return False
-        sonic_temperature_col = df.filter(regex="sonic_temperature").columns.to_list()
+        sonic_temperature_col = df.filter(regex=re.compile("^sonic_temperature", re.IGNORECASE)).columns.to_list()
         if not sonic_temperature_col:
             print("Sonic temperature column not present in EddyPro full output sheet")
             return False
-        air_pressure_col = df.filter(regex="air_pressure").columns.to_list()
+        air_pressure_col = df.filter(regex=re.compile("^air_pressure", re.IGNORECASE)).columns.to_list()
         if not air_pressure_col:
             print("Air pressure column not present in EddyPro full output sheet")
             return False
@@ -287,10 +319,17 @@ class DataValidation:
         Returns:
             (bool): True if df is valid, else False
         """
-        # check if required columns are present
+        # check if required columns are present. required columns are given below
         req_cols = ['Original variable name', 'Ameriflux variable name', 'Units after formatting']
-        if set(req_cols) <= set(df.columns):
-            # required columns is a subset of all column list
+        df_cols = df.columns.to_list()
+        original_pattern = re.compile(r'^original', re.IGNORECASE)
+        ameriflux_pattern = re.compile(r'^ameriflux', re.IGNORECASE)
+        units_pattern = re.compile(r'^units', re.IGNORECASE)
+        original_col = list(filter(original_pattern.search, df_cols))
+        ameriflux_col = list(filter(ameriflux_pattern.search, df_cols))
+        units_col = list(filter(units_pattern.search, df_cols))
+        if original_col and ameriflux_col and units_col:
+            # all required columns are present
             return True
         else:
             print("Check for required columns in Amerilfux-Mainstem-Key: ", end='')
@@ -333,6 +372,8 @@ class L1Validation:
     # define patterns to match
     # variable names have alphanumeric characters and underscores with two square brackets
     VAR_PATTERN = '^\\[\\[[a-zA-Z0-9_]+\\]\\]$'
+    # variable name lines starts with 4 spaces and ends with new line
+    VAR_PATTERN_WITH_SPACE = '^ {4}\\[\\[[a-zA-Z0-9_]+\\]\\]\n$'
     XL_PATTERN = '^\\[\\[\\[xl\\]\\]\\]$'  # to match [[xl]] line
     ATTR_PATTERN = '^\\[\\[\\[Attr\\]\\]\\]$|^\\[\\[\\[attr\\]\\]\\]$'  # to match [[Attr]] or [[attr]] line
     UNITS_PATTERN = 'units'
@@ -389,7 +430,7 @@ class L1Validation:
         """
         if line:
             line_split = line.split('=')
-            if line_split[0].startswith('level') and line_split[1].strip() == 'L1':
+            if line_split[0].lower().strip() == 'level' and line_split[1].strip() == 'L1':
                 return True
         return False
 
@@ -416,12 +457,12 @@ class L1Validation:
         file_path_flag = False  # flag for file_path line
         out_filename_flag = False  # flag for out_filename line
         for line in lines:
-            if (line.strip().startswith('file_path')):
+            if line.strip().lower().startswith('file_path'):
                 file_path_flag = True  # found file_path line
                 if L1Validation.check_space(line.split('=')[0].rstrip()) != 4:
                     # number of spaces is not as expected
                     return False
-            if (line.strip().startswith('out_filename')):
+            if line.strip().lower().startswith('out_filename'):
                 out_filename_flag = True  # found out_filename line
                 if L1Validation.check_space(line.split('=')[0].rstrip()) != 4:
                     # number of spaces is not as expected
@@ -445,7 +486,7 @@ class L1Validation:
         """
         acknowledgement_flag = False  # flag for acknowledgement line
         for line in lines:
-            if (line.strip().startswith('acknowledgement')):
+            if line.strip().lower().startswith('acknowledgement'):
                 acknowledgement_flag = True  # found acknowledgment line
                 if L1Validation.check_space(line.split('=')[0].rstrip()) != 4:
                     return False
@@ -498,19 +539,19 @@ class L1Validation:
                 attr_flag = True
                 if L1Validation.check_space(line.rstrip()) != 4 * 2:
                     return False
-            if (line.strip().startswith(units_pattern)):
+            if line.strip().lower().startswith(units_pattern):
                 units_flag = True
                 if L1Validation.check_space(line.split('=')[0].rstrip()) != 4 * 3:
                     return False
-            if (line.strip().startswith(long_name_pattern)):
+            if line.strip().lower().startswith(long_name_pattern):
                 long_name_flag = True
                 if L1Validation.check_space(line.split('=')[0].rstrip()) != 4 * 3:
                     return False
-            if (line.strip().startswith(name_pattern)):
+            if line.strip().lower().startswith(name_pattern):
                 name_flag = True
                 if L1Validation.check_space(line.split('=')[0].rstrip()) != 4 * 3:
                     return False
-            if (line.strip().startswith(sheet_pattern)):
+            if line.strip().lower().startswith(sheet_pattern):
                 sheet_flag = True
                 if L1Validation.check_space(line.split('=')[0].rstrip()) != 4 * 3:
                     return False
@@ -595,7 +636,7 @@ class L2Validation:
         """
         if line:
             line_split = line.split('=')
-            if line_split[0].startswith('level') and line_split[1].strip() == 'L2':
+            if line_split[0].lower().strip() == 'level' and line_split[1].strip() == 'L2':
                 return True
         return False
 
@@ -698,11 +739,12 @@ class L2Validation:
         depcheck_flag, rangecheck_flag, excludedates_flag = False, False, False
 
         # validate dependency check section
-        if depcheck_line_index and re.match(source_pattern, lines[depcheck_line_index+1]):
-            depcheck_flag = True
-        else:
-            print("Check Dependency Check format in line", lines[depcheck_line_index+1])
-            depcheck_flag = False
+        if depcheck_line_index:
+            if re.match(source_pattern, lines[depcheck_line_index+1]):
+                depcheck_flag = True
+            else:
+                print("Check Dependency Check format in line", lines[depcheck_line_index+1])
+                depcheck_flag = False
 
         # validate rangecheck section
         if rangecheck_line_index:
@@ -718,10 +760,15 @@ class L2Validation:
                 upper_line = lines[rangecheck_line_index + 1]
             lower_items = lower_line.strip().split('=')[1].split(',')
             upper_items = upper_line.strip().split('=')[1].split(',')
-            # TODO : Check with Bethany if an equal number of lower and upper items are necessary
-            # rangecheck_flag = len(lower_items) == len(upper_items)
             if lower_items and upper_items:
-                rangecheck_flag = True
+                # NOTES 21
+                lower_items_num = len(lower_items)
+                upper_items_num = len(upper_items)
+                if (lower_items_num == 1 or lower_items_num == 12) and (upper_items_num == 1 or upper_items_num == 12):
+                    rangecheck_flag = True
+                else:
+                    print("Check number of items in lower and upper ranges in line", lines[rangecheck_line_index])
+                    rangecheck_flag = False
             else:
                 print("Check Range Check format in line", lines[rangecheck_line_index])
                 rangecheck_flag = False
