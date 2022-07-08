@@ -66,8 +66,8 @@ if __name__ == '__main__':
     # run ameriflux formatting of pyfluxpro run output
     start = time.time()
     print("Post-processing of PyFluxPro run output has been started")
-    is_success = pyfluxpro_output_ameriflux_processing(cfg.L2_AMERIFLUX_RUN_OUTPUT, file_meta_data_file, erroring_variable_flag,
-                                          cfg.L1_AMERIFLUX_ERRORING_VARIABLES_KEY)
+    is_success = pyfluxpro_output_ameriflux_processing(cfg.L2_AMERIFLUX_RUN_OUTPUT, file_meta_data_file,
+                                                       erroring_variable_flag, cfg.L1_AMERIFLUX_ERRORING_VARIABLES_KEY)
     if is_success:
         print("Post-processing of PyFluxPro L2 run output is successful")
     else:
