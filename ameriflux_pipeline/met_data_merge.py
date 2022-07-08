@@ -12,9 +12,18 @@ import shutil
 import csv
 from datetime import timedelta
 from pandas.errors import ParserError
+import logging
+import sys
 
 import utils.data_util as data_util
 from utils.process_validation import DataValidation
+
+# create and configure logger
+logging.basicConfig(level=logging.INFO, datefmt='%Y-%m-%dT%H:%M:%S',
+                    format='%(asctime)-15s.%(msecs)03dZ %(levelname)-7s : %(name)s - %(message)s',
+                    handlers=[logging.FileHandler("met_merger.log"), logging.StreamHandler(sys.stdout)])
+# create log object with current module name
+log = logging.getLogger(__name__)
 
 
 def validate_inputs(files, start_date, end_date, output_file):
@@ -32,17 +41,17 @@ def validate_inputs(files, start_date, end_date, output_file):
     # check if input files exists
     for file in files:
         if not DataValidation.path_validation(file, 'file'):
-            print(file, "path does not exist")
+            log.error("%s path does not exist", file)
             return False
     if not data_util.get_valid_datetime(start_date):
         return False
     if not data_util.get_valid_datetime(end_date):
         return False
     if not DataValidation.path_validation(data_util.get_directory(output_file), 'dir'):
-        print(data_util.get_directory(output_file), "path does not exists")
+        log.error("%s path does not exists", data_util.get_directory(output_file))
         return False
     if not DataValidation.filetype_validation(output_file, '.csv'):
-        print(output_file, ".csv extension expected")
+        log.error(".csv extension expected for file %s", output_file)
         return False
     # all validations done
     return True
@@ -76,7 +85,7 @@ def read_met_data(data_path):
                 df = pd.read_csv(data_path, sep=';', header=None, names=None, skiprows=1, quotechar='"',
                                  low_memory=False)
             except ParserError as e:
-                print("Exception in reading ", data_path)
+                log.error("Exception in reading %s", data_path)
                 return None, None, None, None
 
     # process df to get meta data - column names and units
@@ -86,7 +95,7 @@ def read_met_data(data_path):
     df_meta = df_meta.applymap(lambda x: str(x).replace('"', ''))  # strip off quotes from all values
     df_meta = df_meta.applymap(lambda x: str(x).replace('*', ''))
     if not DataValidation.is_valid_meta_data(df_meta):
-        print("Met data not in valid format")
+        log.error("Met data not in valid format")
         return None, None, None, None
     df_meta.columns = df_meta.iloc[0]  # set column names
     df_meta = df_meta.iloc[1:, :]
@@ -158,12 +167,12 @@ def data_processing(files, start_date, end_date):
         shutil.copyfile(input_file, output_file)
         df, file_meta, df_meta, site_name = read_met_data(output_file)
         if df is None:
-            print(output_file, "not readable")
+            log.error("%s not readable", output_file)
             return None, None
         # check if the sites are the same for all metdata
         site_names.append(site_name)
         if len(set(site_names)) != 1:
-            print("Data merge for different sites not recommended.")
+            log.error("Data merge for different sites not recommended.")
             return None, None
         # all site names are the same. Append df to list
         dfs.append(df)
@@ -192,7 +201,7 @@ def data_processing(files, start_date, end_date):
         df = pd.concat([meta_df, met_data], ignore_index=True)
         return df, file_meta
     else:
-        print("Meta and data file columns not matching", meta_df.shape[1], met_data.shape[1])
+        log.error("Meta and data file columns not matching %d %d", meta_df.shape[1], met_data.shape[1])
         return None, None
 
 
@@ -221,12 +230,15 @@ def main(files, start_date, end_date, output_file):
             content = f.read()
             f.seek(0, 0)
             f.write(file_meta_line.rstrip('\r\n') + '\n' + content)
+        log.info("Merging of met files completed. Merged file %s", output_file)
     else:
-        print("Data merge failed. Aborting")
+        log.error("Data merge failed. Aborting")
 
 
 if __name__ == '__main__':
-    print("Automatic merging of met files started")
+    log.info('-' * 50)
+    log.info("############# Process Started #############")
+    log.info("Automatic merging of met files started")
     # get arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("--data", action="store", default=None, nargs='*', help=".dat files for merging")
@@ -262,4 +274,4 @@ if __name__ == '__main__':
     if is_valid:
         main(files, start_date, end_date, output_file)
     else:
-        print("Inputs not valid. Data merge failed. Aborting")
+        log.error("Inputs not valid. Data merge failed. Aborting")

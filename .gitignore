@@ -83,6 +83,7 @@ original/
 *.txt
 *.dat
 *.backup
+*.log
 
 # related to test file
 *test.py
