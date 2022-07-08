@@ -216,6 +216,7 @@ def main(files, start_date, end_date, output_file):
        Returns:
            None
     """
+    log.info("############# START #############")
     df, file_meta = data_processing(files, start_date, end_date)
     if df is not None:
         # make file_meta and df the same length to read as proper csv
