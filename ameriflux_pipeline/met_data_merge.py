@@ -19,9 +19,10 @@ from utils.process_validation import DataValidation
 
 # create and configure logger
 logging.basicConfig(filename="met_merger.log", filemode='w', level=logging.INFO, datefmt='%Y-%m-%dT%H:%M:%S',
-                    format='%(asctime)-15s.%(msecs)03dZ %(levelname)-7s [%(threadName)-10s] : %(name)s - %(message)s')
+                    format='%(asctime)-15s.%(msecs)03dZ %(levelname)-7s : %(name)s - %(message)s')
 # create log object with current module name
 log = logging.getLogger(__name__)
+
 
 def validate_inputs(files, start_date, end_date, output_file):
     """
