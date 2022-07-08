@@ -417,7 +417,6 @@ def main():
     # run pre-processing steps of PyFluxPro L1 an L2
     start = time.time()
     log.info("Pre-processing of PyFluxPro run output has been started")
-    print("Pre-processing of PyFluxPro run output has been started")
 
     is_success = pre_processing(file_meta_data_file, erroring_variable_flag)
     if is_success:
@@ -429,9 +428,10 @@ def main():
     hours, rem = divmod(end - start, 3600)
     minutes, seconds = divmod(rem, 60)
     log.info("Total elapsed time is : {:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
-    print("Total elapsed time is : {:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
 
 
 if __name__ == '__main__':
+    log.info('-' * 50)
+    log.info("############# Process Started #############")
     # Call main function
     main()
