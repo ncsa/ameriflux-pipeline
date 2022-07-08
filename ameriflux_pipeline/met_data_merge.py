@@ -216,7 +216,6 @@ def main(files, start_date, end_date, output_file):
        Returns:
            None
     """
-    log.info("############# START #############")
     df, file_meta = data_processing(files, start_date, end_date)
     if df is not None:
         # make file_meta and df the same length to read as proper csv
@@ -237,6 +236,7 @@ def main(files, start_date, end_date, output_file):
 
 
 if __name__ == '__main__':
+    log.info("############# START #############")
     log.info("Automatic merging of met files started")
     # get arguments
     parser = argparse.ArgumentParser()
