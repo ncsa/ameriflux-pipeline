@@ -195,6 +195,8 @@ def data_processing(files, start_date, end_date):
     start_date -= timedelta(minutes=30)  # shift 30min behind
     end_date += timedelta(days=1)  # shift a day ahead which gives till 00:00 of next day
     met_data = met_data[(met_data['TIMESTAMP_datetime'] >= start_date) & (met_data['TIMESTAMP_datetime'] <= end_date)]
+    # drop duplicate timestamps
+    met_data.drop_duplicates(subset='TIMESTAMP_datetime', keep='first', inplace=True)
     met_data.drop(columns=['TIMESTAMP_datetime'], inplace=True)
     # check if number of columns in met data and meta data are same
     if meta_df.shape[1] == met_data.shape[1]:
