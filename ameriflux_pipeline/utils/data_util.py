@@ -57,6 +57,26 @@ def read_excel(file_path):
     return df
 
 
+def write_list_to_file(in_list, outfile):
+    """
+        Save list with string to a file
+
+        Args:
+            in_list (list): List of the strings
+            outfile (str): A file path of the output file
+
+        Returns:
+            None
+    """
+    log.info("PyFluxPro control file saved in %s", outfile)
+    try:
+        with open(outfile, 'w') as f:
+            f.write('\n'.join(in_list))
+        log.info("AmeriFlux L1 saved in %s", outfile)
+    except Exception as e:
+        log.error("Failed to create file %s. %s", outfile, e)
+
+
 def get_site_name(file_site_name):
     """
     From the input file site name, return the site name
@@ -102,6 +122,6 @@ def get_valid_datetime(data):
     """
     try:
         return parse(data)
-    except ValueError:
-        log.error("%s Incorrect date format", data)
+    except ValueError as e:
+        log.error("%s Incorrect date format %s", data, e)
         return None

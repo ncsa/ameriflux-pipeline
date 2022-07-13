@@ -47,8 +47,8 @@ class OutputFormat:
             return None, None
         try:
             l2 = Dataset(input_file, mode='r')  # read netCDF file
-        except KeyError or IOError:
-            log.error("Unable to read netCDF file %s", input_file)
+        except KeyError or IOError as e:
+            log.error("Unable to read netCDF file %s %s", input_file, e)
             return None, None
 
         l2_keys = list(l2.variables.keys())

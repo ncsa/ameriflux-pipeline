@@ -191,7 +191,7 @@ class MasterMetProcessor:
             df (obj): Pandas DataFrame object
             file_df_meta (obj) : Pandas DataFrame object
         """
-        log.info("Read file %s", data_path)
+        # read data
         df = data_util.read_csv_file(data_path, header=None, low_memory=False)  # read file without headers.
 
         # process df to get meta data
@@ -540,8 +540,7 @@ class MasterMetProcessor:
             obj: Pandas DataFrame object
         """
         # convert datetime to string, replace - with /
-        df['TIMESTAMP'] = df['timestamp_sync'].map(lambda t: t.strftime('%Y-%m-%d %H:%M')) \
-            .map(lambda t: t.replace('-', '/'))
+        df['TIMESTAMP'] = df['timestamp_sync'].map(lambda t: t.strftime('%Y/%m/%d %H:%M'))
         return df
 
     @staticmethod

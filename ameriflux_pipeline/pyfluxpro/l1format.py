@@ -180,7 +180,7 @@ class L1Format:
         l1_output_lines.extend(variable_lines_out)
 
         # write output lines to file
-        L1Format.write_list_to_file(l1_output_lines, l1_ameriflux_output)
+        data_util.write_list_to_file(l1_output_lines, l1_ameriflux_output)
 
         # close files
         l1_mainstem.close()
@@ -296,6 +296,7 @@ class L1Format:
         """
         variables = text[text.str.contains(var_pattern)]
         var_start_end = []
+        end_ind = text.first_valid_index()  # initialize end index
         for i in range(len(variables.index) - 1):
             start_ind = variables.index[i]
             end_ind = variables.index[i + 1]
@@ -515,22 +516,3 @@ class L1Format:
 
         # end of for loop
         return variables_out, variables_mapping
-
-    @staticmethod
-    def write_list_to_file(in_list, outfile):
-        """
-            Save list with string to a file
-
-            Args:
-                in_list (list): List of the strings
-                outfile (str): A file path of the output file
-
-            Returns:
-                None
-        """
-        try:
-            with open(outfile, 'w') as f:
-                f.write('\n'.join(in_list))
-            log.info("AmeriFlux L1 saved in %s", outfile)
-        except Exception as e:
-            log.error("Failed to create file %s. %s", outfile, e)
