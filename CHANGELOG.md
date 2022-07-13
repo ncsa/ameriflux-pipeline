@@ -54,6 +54,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Data validation for formatting L2 control file for pyfluxpro. [#188](https://github.com/ncsa/ameriflux-pipeline/issues/188)
 - Data validation for formatting pyfluxpro output for Ameriflux submission. [#203](https://github.com/ncsa/ameriflux-pipeline/issues/203)
 - Created logging for met_data_merge. [#15](https://github.com/ncsa/ameriflux-pipeline/issues/15)
+- Added logging for pre_pyfluxpro. [#207](https://github.com/ncsa/ameriflux-pipeline/issues/207)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
@@ -73,6 +74,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed timestamp misalignment in csv file for ameriflux submission. [#198](https://github.com/ncsa/ameriflux-pipeline/issues/198)
 - Fixed timestamp shifts in met data merger module. [#220](https://github.com/ncsa/ameriflux-pipeline/issues/220)
 - Fixed timestamp duplication in met data merger module. [#224](https://github.com/ncsa/ameriflux-pipeline/issues/224)
+- Fixed starting timestamp in met data merger module. [#226](https://github.com/ncsa/ameriflux-pipeline/issues/226)
 - Fixed full output timestamp in pyfluxpro input excel sheet. [#227](https://github.com/ncsa/ameriflux-pipeline/issues/227)
 
 ### Changed

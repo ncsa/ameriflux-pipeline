@@ -85,7 +85,7 @@ def read_met_data(data_path):
                 df = pd.read_csv(data_path, sep=';', header=None, names=None, skiprows=1, quotechar='"',
                                  low_memory=False)
             except ParserError as e:
-                log.error("Exception in reading %s", data_path)
+                log.error("Exception in reading %s %s", data_path, e)
                 return None, None, None, None
 
     # process df to get meta data - column names and units
@@ -192,7 +192,7 @@ def data_processing(files, start_date, end_date):
     start_date = pd.to_datetime(start_date)  # 00:00 of start date
     end_date = pd.to_datetime(end_date)  # 00:00 of end date. get records till 00:00 of the next day
     # NOTES 19
-    start_date -= timedelta(minutes=30)  # shift 30min behind
+    start_date += timedelta(minutes=30)  # shift 30min forward
     end_date += timedelta(days=1)  # shift a day ahead which gives till 00:00 of next day
     met_data = met_data[(met_data['TIMESTAMP_datetime'] >= start_date) & (met_data['TIMESTAMP_datetime'] <= end_date)]
     # drop duplicate timestamps
