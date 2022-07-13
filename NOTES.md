@@ -74,4 +74,9 @@
 ### 21
 - In L2.txt, the RangeCheck should have lower and upper. 
 - The lower and upper have comma separated items. The number of items can be 1 or 12.
+### 22
+- When generating pyfluxpro input excel file, the TIMESTAMP column of the full_output sheet is shifted 30min behind.
+- This is because the 'time' column from EddyPro full output reflects the ending of the 30min interval. The met_data_30 sheet TIMESTAMP column reflects the starting of the 30min interval.
+- Hence the TIMESTAMP column of the full_output sheet is shifted 30min behind to get the correct timestamp, which reflects the starting of the 30min interval.
+
 
