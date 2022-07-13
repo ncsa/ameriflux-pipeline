@@ -96,7 +96,6 @@ class PyFluxProFormat:
         df_meta['TIMESTAMP'] = 'yyyy/mm/dd HH:MM'  # add new variable and unit to meta df
         # convert TIMESTAMP to string format
         df['TIMESTAMP'] = df['TIMESTAMP'].map(lambda t: t.strftime('%Y/%m/%d %H:%M'))
-        # df['TIMESTAMP'] = df['TIMESTAMP'].map(lambda t: t.replace('-', '/'))
         # move TIMESTAMP column to first index
         cols = list(df.columns)
         cols.insert(1, cols.pop(cols.index('TIMESTAMP')))  # pop and insert TIMESTAMP at index 1
