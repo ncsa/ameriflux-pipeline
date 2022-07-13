@@ -85,7 +85,7 @@ def read_met_data(data_path):
                 df = pd.read_csv(data_path, sep=';', header=None, names=None, skiprows=1, quotechar='"',
                                  low_memory=False)
             except ParserError as e:
-                log.error("Exception in reading %s", data_path)
+                log.error("Exception in reading %s %s", data_path, e)
                 return None, None, None, None
 
     # process df to get meta data - column names and units
