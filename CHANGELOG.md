@@ -73,6 +73,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed timestamp misalignment in csv file for ameriflux submission. [#198](https://github.com/ncsa/ameriflux-pipeline/issues/198)
 - Fixed timestamp shifts in met data merger module. [#220](https://github.com/ncsa/ameriflux-pipeline/issues/220)
 - Fixed timestamp duplication in met data merger module. [#224](https://github.com/ncsa/ameriflux-pipeline/issues/224)
+- Fixed starting timestamp in met data merger module. [#226](https://github.com/ncsa/ameriflux-pipeline/issues/226)
 
 ### Changed
 - AmeriFlux L1 formatting variable names in env editor [#118](https://github.com/ncsa/ameriflux-pipeline/issues/118)
