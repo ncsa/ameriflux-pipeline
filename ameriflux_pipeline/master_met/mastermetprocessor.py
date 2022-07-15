@@ -13,6 +13,7 @@ import logging
 
 import utils.data_util as data_util
 from utils.process_validation import DataValidation
+
 pd.options.mode.chained_assignment = None
 
 # create log object with current module name

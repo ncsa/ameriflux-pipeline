@@ -316,8 +316,7 @@ class EddyProFormat:
         req_cols = [col.lower() for col in req_cols]
         df_cols = [col.lower() for col in df_cols]
         if not set(req_cols).issubset(set(df_cols)):
-            print("WARNING")
-            print(' and '.join(set(req_cols).difference(df_cols)), end='')
-            print(" are not present in met_output_eddypro")
+            log.warning("Columns are not present in met_output_eddypro"
+                        .format(' and '.join(set(req_cols).difference(df_cols))))
         else:
             log.info("All required columns are present in met_output_eddypro")

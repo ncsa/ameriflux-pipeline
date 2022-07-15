@@ -7,9 +7,13 @@
 import pandas as pd
 import os
 import re
+import logging
 
 import utils.data_util as data_util
 from utils.process_validation import DataValidation, L1Validation
+
+# create log object with current module name
+log = logging.getLogger(__name__)
 
 
 class L1Format:
@@ -71,7 +75,7 @@ class L1Format:
 
         # check if input L1 have the same format as expected
         if not L1Validation.check_l1_format(l1_mainstem_lines) or not L1Validation.check_l1_format(l1_ameriflux_lines):
-            print("Check L1.txt format")
+            log.error("Check L1.txt format")
             l1_mainstem.close()
             l1_ameriflux.close()
             return None
@@ -83,12 +87,12 @@ class L1Format:
         site_name = data_util.get_site_name(file_site_name)
         df_soil_key = data_util.read_excel(soil_key)
         if not DataValidation.is_valid_soils_key(df_soil_key):
-            print("Soils_key.xlsx file invalid format. Aborting")
+            log.error("Soils_key.xlsx file invalid format.")
             return None
         soil_moisture_labels, soil_temp_labels = L1Format.get_soil_labels(site_name, df_soil_key)
         ameriflux_key = pd.read_excel(ameriflux_mainstem_key)  # read AmeriFlux-Mainstem variable name matching file
         if not DataValidation.is_valid_ameriflux_mainstem_key(ameriflux_key):
-            print("Ameriflux-Mainstem-Key.xlsx file invalid format. Aborting")
+            log.error("Ameriflux-Mainstem-Key.xlsx file invalid format.")
             return None
 
         if erroring_variable_flag.lower() in ['n', 'no']:
@@ -103,7 +107,7 @@ class L1Format:
                 erroring_variable_key['Ameriflux label'] = erroring_variable_key[ameriflux_col]
                 erroring_variable_key['PyFluxPro label'] = erroring_variable_key[pyfluxpro_col]
             else:
-                print("L1 Erroring Variables.xlsx file invalid format. Proceeding without replacing label")
+                log.warning("L1 Erroring Variables.xlsx file invalid format. Proceeding without replacing label")
                 # make erroring_variable_key a string to proceed with pipeline.
                 erroring_variable_key = ''
 
@@ -527,6 +531,6 @@ class L1Format:
         try:
             with open(outfile, 'w') as f:
                 f.write('\n'.join(in_list))
-            print("AmeriFlux L1 saved in ", outfile)
-        except Exception:
-            raise Exception("Failed to create file ", outfile)
+            log.info("AmeriFlux L1 saved in %s", outfile)
+        except Exception as e:
+            log.error("Failed to create file %s. %s", outfile, e)
