@@ -18,6 +18,7 @@ pd.options.mode.chained_assignment = None
 # create log object with current module name
 log = logging.getLogger(__name__)
 
+
 class MasterMetProcessor:
     '''
     Class to implement preprocessing of meteorological data as per guide
