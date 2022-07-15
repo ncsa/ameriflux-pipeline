@@ -42,7 +42,7 @@ class L2Format:
             spaces (str): Spaces to be inserted before each section and line
             level_line (str): Line specifying the level. L2 for this section.
         Returns:
-            None
+            (bool): True if success, False if not
         """
         # open input file in read mode
         l2_mainstem = open(l2_mainstem, 'r')
@@ -57,7 +57,7 @@ class L2Format:
             print("Check L2.txt format")
             l2_mainstem.close()
             l2_ameriflux.close()
-            return
+            return False
 
         # writing to output file
 
@@ -125,6 +125,8 @@ class L2Format:
 
         # write output lines to file
         L2Format.write_list_to_file(l2_output_lines, l2_ameriflux_output)
+        # processing completed
+        return True
 
     @staticmethod
     def get_variable_line_index(lines):

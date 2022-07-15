@@ -276,8 +276,9 @@ def pyfluxpro_l2_ameriflux_processing(pyfluxpro_ameriflux_label, l2_mainstem, l2
         Returns:
             None
     """
-    L2Format.data_formatting(pyfluxpro_ameriflux_label, l2_mainstem, l2_ameriflux_only, l1_run_output, l2_run_output,
-                             l2_ameriflux_output)
+    is_success = L2Format.data_formatting(pyfluxpro_ameriflux_label, l2_mainstem, l2_ameriflux_only, l1_run_output,
+                                          l2_run_output, l2_ameriflux_output)
+    return is_success
 
 
 def pre_processing(file_meta_data_file, erroring_variable_flag):
@@ -373,14 +374,18 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
         return False
 
     # run ameriflux formatting of pyfluxpro L2 control file
-    pyfluxpro_l2_ameriflux_processing(pyfluxpro_ameriflux_labels, cfg.L2_MAINSTEM_INPUT,
-                                      cfg.L2_AMERIFLUX_ONLY_INPUT, cfg.L1_AMERIFLUX_RUN_OUTPUT,
-                                      cfg.L2_AMERIFLUX_RUN_OUTPUT, cfg.L2_AMERIFLUX)
-    log.info("Run PyFluxPro V3.3.2 with the generated L1 and L2 control files")
-    log.info("Generated control files in %s %s", cfg.L1_AMERIFLUX, cfg.L2_AMERIFLUX)
-
-    # return success
-    return True
+    is_success = pyfluxpro_l2_ameriflux_processing(pyfluxpro_ameriflux_labels, cfg.L2_MAINSTEM_INPUT,
+                                                   cfg.L2_AMERIFLUX_ONLY_INPUT, cfg.L1_AMERIFLUX_RUN_OUTPUT,
+                                                   cfg.L2_AMERIFLUX_RUN_OUTPUT, cfg.L2_AMERIFLUX)
+    if is_success:
+        log.info("Run PyFluxPro V3.3.2 with the generated L1 and L2 control files")
+        log.info("Generated control files in %s %s", cfg.L1_AMERIFLUX, cfg.L2_AMERIFLUX)
+        # all processing done return success
+        return True
+    else:
+        log.error("PyFluxPro L2 processing failed. Aborting")
+        # return failure
+        return False
 
 
 def main():
