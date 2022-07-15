@@ -6,8 +6,12 @@
 
 import pandas as pd
 import numpy as np
+import logging
 
 from utils.process_validation import DataValidation
+
+# create log object with current module name
+log = logging.getLogger(__name__)
 
 
 class PyFluxProFormat:
@@ -30,7 +34,7 @@ class PyFluxProFormat:
         # check for required columns in eddypro full output sheet
         is_valid = DataValidation.is_valid_full_output(df)
         if not is_valid:
-            print("EddyPro full output not in valid format")
+            log.error("EddyPro full output not in valid format")
             return None
         # add columns and units to meta data if neccessary
         df, df_meta = PyFluxProFormat.add_timestamp(df, df_meta)  # step 3b in guide
@@ -63,7 +67,7 @@ class PyFluxProFormat:
             df (obj): Pandas DataFrame object
             df_meta (obj) : Pandas DataFrame object having the meta data
         """
-        print("Reading EddyPro full output file ", path)
+        log.info("Reading EddyPro full output file %s", path)
         df = pd.read_csv(path, skiprows=1)  # skip the first row so as to skip file_info row
         df_meta = df.head(1)  # the first row has the meta data. Row index 0 has the units of all variables
         df = df.iloc[1:, :]  # drop the first row of units. Will be concatenated with df_meta later
@@ -156,6 +160,6 @@ class PyFluxProFormat:
             df = pd.concat([df_meta, df], ignore_index=True)
             return df
         else:
-            print("Number of columns in met data {} not the same as number of columns in meta data {}".
-                  format(df.shape[1], df_meta.shape[1]))
+            log.error("Number of columns in met data {} not the same as number of columns in meta data {}".
+                      format(df.shape[1], df_meta.shape[1]))
             return None
