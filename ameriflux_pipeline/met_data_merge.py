@@ -39,9 +39,9 @@ def validate_inputs(files, start_date, end_date, output_file):
         (bool): True if inputs are valid, False if not
     """
     # check if input files exists
-    for file in files:
-        if not DataValidation.path_validation(file, 'file'):
-            log.error("%s path does not exist", file)
+    for f in files:
+        if not DataValidation.path_validation(f, 'file'):
+            log.error("%s path does not exist", f)
             return False
     if not data_util.get_valid_datetime(start_date):
         return False
