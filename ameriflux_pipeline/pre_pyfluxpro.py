@@ -31,7 +31,7 @@ pandas.io.formats.excel.header_style = None
 
 # create and configure logger
 logging.basicConfig(level=logging.INFO, datefmt='%Y-%m-%dT%H:%M:%S',
-                    format='%(asctime)-15s.%(msecs)03dZ %(levelname)-7s [%(threadName)-10s] : %(name)s - %(message)s',
+                    format='%(asctime)-15s.%(msecs)03dZ %(levelname)-7s : %(name)s - %(message)s',
                     handlers=[logging.FileHandler("pre_pyfluxpro.log"), logging.StreamHandler(sys.stdout)])
 # create log object with current module name
 log = logging.getLogger(__name__)
@@ -436,5 +436,7 @@ def main():
 
 
 if __name__ == '__main__':
+    log.info('-' * 50)
+    log.info("############# Process Started #############")
     # Call main function
     main()

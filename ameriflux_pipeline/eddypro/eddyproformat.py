@@ -109,18 +109,28 @@ class EddyProFormat:
             eddypro_soil_moisture_labels(dict): Dictionary for soil moisture mapping from met variable to eddypro label
             eddypro_soil_temp_labels(dict): Dictionary for soil temperature mapping from met variable to eddypro label
         """
-        site_name_col = df_soil_key.filter(regex='Site name|site name|Site Name|Site|site').columns.to_list()[0]
+        site_name_col = df_soil_key.filter(regex=re.compile("^name|^site", re.IGNORECASE)).columns.to_list()[0]
         site_soil_key = df_soil_key[df_soil_key[site_name_col] == site_name]  # get all variables for the site
+        # get column names matching datalogger / met tower
+        met_cols = site_soil_key.filter(regex=re.compile("datalogger|met tower", re.IGNORECASE)).columns.to_list()
+        # get column names matching eddypro
+        eddypro_cols = site_soil_key.filter(regex=re.compile("^eddypro", re.IGNORECASE)).columns.to_list()
+        # remove variable columns that have 'old' in the name
+        old_pattern = re.compile(r'old', re.IGNORECASE)
+        met_cols = list(filter(lambda x: not old_pattern.search(x), met_cols))
+        eddypro_cols = list(filter(lambda x: not old_pattern.search(x), eddypro_cols))
+        # get temp and water variable columns from the above column list
+        temp_pattern = re.compile(r'temperature|temp', re.IGNORECASE)
+        water_pattern = re.compile(r"water|moisture", re.IGNORECASE)
+        met_temp_col = list(filter(temp_pattern.search, met_cols))
+        met_water_col = list(filter(water_pattern.search, met_cols))
+        eddypro_temp_col = list(filter(temp_pattern.search, eddypro_cols))
+        eddypro_water_col = list(filter(water_pattern.search, eddypro_cols))
         # get soil temp and moisture variables
-        site_soil_moisture = site_soil_key[['Datalogger/met water variable name',
-                                            'EddyPro water variable name']]
-        site_soil_temp = site_soil_key[['Datalogger/met temperature variable name',
-                                        'EddyPro temperature variable name']]
-        col_rename = {'Datalogger/met water variable name': 'Met variable',
-                      'Datalogger/met temperature variable name': 'Met variable',
-                      'EddyPro water variable name': 'Eddypro label',
-                      'EddyPro temperature variable name': 'Eddypro label'
-                      }
+        site_soil_moisture = site_soil_key[[met_water_col[0], eddypro_water_col[0]]]
+        site_soil_temp = site_soil_key[[met_temp_col[0], eddypro_temp_col[0]]]
+        col_rename = {met_water_col[0]: 'Met variable', met_temp_col[0]: 'Met variable',
+                      eddypro_water_col[0]: 'Eddypro label', eddypro_temp_col[0]: 'Eddypro label'}
         site_soil_moisture.rename(columns=col_rename, inplace=True)
         site_soil_temp.rename(columns=col_rename, inplace=True)
         # make these variable labels as dictionary
@@ -283,8 +293,9 @@ class EddyProFormat:
         Returns:
             df (object): Processed Pandas DataFrame object
         """
-        df.replace({'W/m^2': 'W+1m-2', '√Ç¬µmols/m√Ç¬≤/s': 'umol+1m-2s-1', '¬µmols/m¬≤/s': 'umol+1m-2s-1',
-                    'Kelvin': 'K', 'm/s': 'm+1s-1', 'Deg': 'degrees', 'vwc': 'm+3m-3'}, inplace=True)
+        df.replace({'(?i)W/m^2': 'W+1m-2', '√Ç¬µmols/m√Ç¬≤/s': 'umol+1m-2s-1', '¬µmols/m¬≤/s': 'umol+1m-2s-1',
+                    '(?i)Kelvin': 'K', 'm/s': 'm+1s-1', '(?i)Deg': 'degrees', '(?i)vwc': 'm+3m-3'},
+                   regex=True, inplace=True)  # replace units using regex. (?i) is for case-insensitive
         # replace the text which has word µmols/m
         df = df.replace(to_replace=r".*mols/m.*", value='umol+1m-2s-1', regex=True)
         return df
@@ -300,8 +311,13 @@ class EddyProFormat:
             None
         """
         req_cols = ['SWin', 'RH', 'LWin', 'PPFD']
-        if not set(req_cols).issubset(set(df.columns)):
-            log.warning("Columns are not present in met_output_eddypro"
-                        .format(' and '.join(set(req_cols).difference(df.columns))))
+        df_cols = df.columns.to_list()
+        # convert to lowercase for comparison
+        req_cols = [col.lower() for col in req_cols]
+        df_cols = [col.lower() for col in df_cols]
+        if not set(req_cols).issubset(set(df_cols)):
+            print("WARNING")
+            print(' and '.join(set(req_cols).difference(df_cols)), end='')
+            print(" are not present in met_output_eddypro")
         else:
             log.info("All required columns are present in met_output_eddypro")
