@@ -53,6 +53,8 @@ def pyfluxpro_output_ameriflux_processing(l2_run_output, file_meta_data_file, er
 
 if __name__ == '__main__':
     # Main function which calls method for post processing of PyFluxPro output
+    log.info('-' * 50)
+    log.info("############# Process Started #############")
     # Some preprocessing
     # Filename to write file meta data
     input_filename = os.path.basename(cfg.INPUT_MET)
