@@ -238,7 +238,6 @@ class DataValidation:
             return False
         # check if required columns are present. the required cols are given below
         req_cols = ['Datalogger/met water variable name', 'Datalogger/met temperature variable name',
-
                     'EddyPro temperature variable name', 'EddyPro water variable name']
         # get column names matching datalogger / met tower
         met_cols = df.filter(regex=re.compile("datalogger|met tower", re.IGNORECASE)).columns.to_list()
