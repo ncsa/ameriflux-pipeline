@@ -17,7 +17,7 @@ from pyfluxpro.outputformat import OutputFormat
 
 # create and configure logger
 logging.basicConfig(level=logging.INFO, datefmt='%Y-%m-%dT%H:%M:%S',
-                    format='%(asctime)-15s.%(msecs)03dZ %(levelname)-7s [%(threadName)-10s] : %(name)s - %(message)s',
+                    format='%(asctime)-15s.%(msecs)03dZ %(levelname)-7s : %(name)s - %(message)s',
                     handlers=[logging.FileHandler("post_pyfluxpro.log"), logging.StreamHandler(sys.stdout)])
 # create log object with current module name
 log = logging.getLogger(__name__)
@@ -53,6 +53,8 @@ def pyfluxpro_output_ameriflux_processing(l2_run_output, file_meta_data_file, er
 
 if __name__ == '__main__':
     # Main function which calls method for post processing of PyFluxPro output
+    log.info('-' * 50)
+    log.info("############# Process Started #############")
     # Some preprocessing
     # Filename to write file meta data
     input_filename = os.path.basename(cfg.INPUT_MET)
