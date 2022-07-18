@@ -81,33 +81,45 @@ class L2Format:
         l2_output_lines.extend(files_lines)
 
         # get starting index for Variables section
-        mainstem_variable_ind = L2Format.get_variable_line_index(l2_mainstem_lines)
-        ameriflux_variable_ind = L2Format.get_variable_line_index(l2_ameriflux_lines)
+        mainstem_variable_startind = L2Format.get_variable_line_index(l2_mainstem_lines)
+        ameriflux_variable_startind = L2Format.get_variable_line_index(l2_ameriflux_lines)
 
         # get index for Plots section
-        l2_mainstem_lines_last_valid_index = len(l2_mainstem_lines) - 1
-        mainstem_plot_ind = l2_mainstem_lines_last_valid_index - L2Format.get_plots_line_index(l2_mainstem_lines)
-        l2_ameriflux_lines_last_valid_index = len(l2_ameriflux_lines) - 1
-        ameriflux_plot_ind = l2_ameriflux_lines_last_valid_index - L2Format.get_plots_line_index(l2_ameriflux_lines)
+        mainstem_plot_ind = L2Format.get_plots_line_index(l2_mainstem_lines)
+        ameriflux_plot_ind = L2Format.get_plots_line_index(l2_ameriflux_lines)
+
+        if mainstem_plot_ind:
+            mainstem_plot_startind = mainstem_plot_ind
+            mainstem_plot_endind = len(l2_mainstem_lines)
+            mainstem_variable_endind = mainstem_plot_ind
+        else:
+            mainstem_plot_startind = None
+            mainstem_plot_endind = None
+            mainstem_variable_endind = len(l2_mainstem_lines)
+        if ameriflux_plot_ind:
+            ameriflux_plot_startind = ameriflux_plot_ind
+            ameriflux_plot_endind = len(l2_ameriflux_lines)
+            ameriflux_variable_endind = ameriflux_plot_ind
+        else:
+            ameriflux_plot_startind = None
+            ameriflux_plot_endind = None
+            ameriflux_variable_endind = len(l2_ameriflux_lines)
 
         # get the variables section lines
-        l2_mainstem_var_lines = l2_mainstem_lines[mainstem_variable_ind + 1: mainstem_plot_ind]
-        l2_ameriflux_var_lines = l2_ameriflux_lines[ameriflux_variable_ind + 1: ameriflux_plot_ind]
+        l2_mainstem_var_lines = l2_mainstem_lines[mainstem_variable_startind + 1: mainstem_variable_endind]
+        l2_ameriflux_var_lines = l2_ameriflux_lines[ameriflux_variable_startind + 1: ameriflux_variable_endind]
 
         # write variable line
         variable_line = ["[Variables]"]
         l2_output_lines.extend(variable_line)
 
-        # write the variables section to dataframe. this is used to get the indexes easily
-        mainstem_var_df = pd.DataFrame(l2_mainstem_var_lines, columns=['Text'])
         # remove newline and extra spaces from each line
-        mainstem_var_df['Text'] = mainstem_var_df['Text'].apply(lambda x: x.strip())
-        ameriflux_var_df = pd.DataFrame(l2_ameriflux_var_lines, columns=['Text'])
-        ameriflux_var_df['Text'] = ameriflux_var_df['Text'].apply(lambda x: x.strip())
+        mainstem_var_lines = [x.strip() for x in l2_mainstem_var_lines]
+        ameriflux_var_lines = [x.strip() for x in l2_ameriflux_var_lines]
 
-        # get df with only variables and a list of variable start and end indexes
-        ameriflux_variables, ameriflux_var_start_end = L2Format.get_variables_index(ameriflux_var_df['Text'])
-        mainstem_variables, mainstem_var_start_end = L2Format.get_variables_index(mainstem_var_df['Text'])
+        # get list of variable start and end indexes
+        mainstem_var_start_end = L2Format.get_variables_index(mainstem_var_lines)
+        ameriflux_var_start_end = L2Format.get_variables_index(ameriflux_var_lines)
 
         # get the variable lines to be written
         ameriflux_variable_lines_out = L2Format.format_variables(ameriflux_var_df, ameriflux_var_start_end,
@@ -154,12 +166,35 @@ class L2Format:
                 ind (integer): Index of [Plots] section
         """
         # read from the end as Plots section is the last section
+        # if Plots section does not exist, return None
         for ind, line in enumerate(lines[::-1]):
             if line.strip() == "[Plots]":
-                return ind
+                return len(lines) - ind
+        return None
 
     @staticmethod
     def get_variables_index(text, var_pattern=VAR_PATTERN):
+        """
+            Get all variables and start and end index for each variable from L1.txt
+
+            Args:
+                text (list): list of strings with all variable lines from L1.txt
+                var_pattern (str): Regex pattern to find the starting line for [Variables] section
+            Returns:
+                var_start_end (list): List of tuples with variable name, start and end index for each variable
+        """
+        var_startind = []  # list of tuples with variable name, start index for each variable
+        var_start_end = []  # list of tuples with variable name, start and end index for each variable
+        for i, line in enumerate(text):
+            if re.match(var_pattern, line):
+                var_startind.append((line, i))
+        for i in range(len(var_startind)-1):
+            var_start_end.append((var_startind[i][0], var_startind[i][1], var_startind[i+1][1]))
+        var_start_end.append((var_startind[-1][0], var_startind[-1][1], len(text)))
+        return var_start_end
+
+    @staticmethod
+    def get_variables_index_old(text, var_pattern=VAR_PATTERN):
         """
             Get all variables and start and end index for each variable from L1.txt
 
@@ -181,7 +216,7 @@ class L2Format:
         return variables, var_start_end
 
     @staticmethod
-    def format_variables(df, var_start_end, labels, spaces=SPACES, DependencyCheck_pattern=DEPENDENCYCHECK_PATTERN,
+    def format_variables_old(df, var_start_end, labels, spaces=SPACES, DependencyCheck_pattern=DEPENDENCYCHECK_PATTERN,
                          ExcludeDates_pattern=EXCLUDEDATES_PATTERN, RangeCheck_pattern=RANGECHECK_PATTERN):
         """
             Change variable names and units to AmeriFlux standard
