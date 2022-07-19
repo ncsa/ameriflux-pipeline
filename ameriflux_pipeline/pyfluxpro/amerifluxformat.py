@@ -7,6 +7,10 @@
 import pandas as pd
 import numpy as np
 from datetime import timedelta
+import logging
+
+# create log object with current module name
+log = logging.getLogger(__name__)
 
 
 class AmeriFluxFormat:
@@ -52,14 +56,14 @@ class AmeriFluxFormat:
         if full_output_df_meta.shape[1] == full_output_df.shape[1]:
             full_output_df = pd.concat([full_output_df_meta, full_output_df], ignore_index=True)
         else:
-            print("Number of columns in Full_output meta data {} not the same as number of columns in data {}".
-                  format(full_output_df_meta.shape[1], full_output_df.shape[1]))
+            log.error("Number of columns in Full_output meta data {} not the same as number of columns in data {}".
+                      format(full_output_df_meta.shape[1], full_output_df.shape[1]))
             full_output_df = None
         if met_df_meta.shape[1] == met_df.shape[1]:
             met_df = pd.concat([met_df_meta, met_df], ignore_index=True)
         else:
-            print("Number of columns in Met_data_30 meta data {} not the same as number of columns in data {}".
-                  format(met_df_meta.shape[1], met_df.shape[1]))
+            log.error("Number of columns in Met_data_30 meta data {} not the same as number of columns in data {}".
+                      format(met_df_meta.shape[1], met_df.shape[1]))
             met_df = None
 
         return full_output_df, met_df
@@ -140,14 +144,18 @@ class AmeriFluxFormat:
             met_df (object): Met_data_30 sheet of pyfluxpro
             met_df_meta (object): Meta data of met data. Contains col names and units
         Returns :
-            obj: Pandas DataFrame object
+            (obj): full_output_df processed Pandas DataFrame object
+            (obj): full_output_df_meta processed Pandas DataFrame object
+            (obj): met_df processed Pandas DataFrame object
+            (obj): met_df_meta processed Pandas DataFrame object
+
         """
         # convert columns given in AmeriFlux mainstem keys
         # get Albedo column and convert to ALB
         try:
             albedo_col = str(met_df.filter(regex=("albedo|Albedo|ALBEDO")).columns[0])
         except IndexError as ex:
-            print("Albedo column not present")
+            log.warning("Albedo column not present")
             albedo_col = None
         if albedo_col:
             met_df = met_df.astype({albedo_col: float})
@@ -158,13 +166,13 @@ class AmeriFluxFormat:
             full_output_df['VPD'] = full_output_df[vpd_col[0]] / 100
             full_output_df_meta['VPD'].iloc[0] = '[hPa]'
         else:
-            print("VPD column not present in full_output")
+            log.warning("VPD column not present in full_output")
         tau_col = full_output_df.filter(regex="Tau|tau|TAU").columns.to_list()
         if tau_col:
             full_output_df['Tau'] = full_output_df[tau_col[0]] * -1.0
             full_output_df_meta['Tau'].iloc[0] = '[kg+1m-1s-2]'
         else:
-            print("Tau column not present in full_output")
+            log.warning("Tau column not present in full_output")
         # convert soil moisture variables into percentage values
         soil_moisture_col = [col for col in met_df if col.lower().startswith('moisture')]
         soil_moisture_col.extend(col for col in met_df if col.startswith('VWC'))

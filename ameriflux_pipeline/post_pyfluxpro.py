@@ -8,10 +8,19 @@ File to run post-processing of PyFluxPro run output for Ameriflux submission
 """
 import os
 import time
+import sys
+import logging
 
 from config import Config as cfg
 import utils.data_util as data_util
 from pyfluxpro.outputformat import OutputFormat
+
+# create and configure logger
+logging.basicConfig(level=logging.INFO, datefmt='%Y-%m-%dT%H:%M:%S',
+                    format='%(asctime)-15s.%(msecs)03dZ %(levelname)-7s : %(name)s - %(message)s',
+                    handlers=[logging.FileHandler("post_pyfluxpro.log"), logging.StreamHandler(sys.stdout)])
+# create log object with current module name
+log = logging.getLogger(__name__)
 
 
 def pyfluxpro_output_ameriflux_processing(l2_run_output, file_meta_data_file, erroring_variable_flag,
@@ -33,7 +42,7 @@ def pyfluxpro_output_ameriflux_processing(l2_run_output, file_meta_data_file, er
     ameriflux_df, ameriflux_file_name = OutputFormat.data_formatting(l2_run_output, file_meta_data_file,
                                                                      erroring_variable_flag, erroring_variable_key)
     if ameriflux_file_name is None:
-        print("PyFluxPro run output not formatted for Ameriflux")
+        log.error("PyFluxPro run output not formatted for Ameriflux")
         return False
     ameriflux_file_name = ameriflux_file_name + '.csv'
     directory_name = os.path.dirname(l2_run_output)
@@ -44,6 +53,8 @@ def pyfluxpro_output_ameriflux_processing(l2_run_output, file_meta_data_file, er
 
 if __name__ == '__main__':
     # Main function which calls method for post processing of PyFluxPro output
+    log.info('-' * 50)
+    log.info("############# Process Started #############")
     # Some preprocessing
     # Filename to write file meta data
     input_filename = os.path.basename(cfg.INPUT_MET)
@@ -65,14 +76,14 @@ if __name__ == '__main__':
 
     # run ameriflux formatting of pyfluxpro run output
     start = time.time()
-    print("Post-processing of PyFluxPro run output has been started")
+    log.info("Post-processing of PyFluxPro run output has been started")
     is_success = pyfluxpro_output_ameriflux_processing(cfg.L2_AMERIFLUX_RUN_OUTPUT, file_meta_data_file,
                                                        erroring_variable_flag, cfg.L1_AMERIFLUX_ERRORING_VARIABLES_KEY)
     if is_success:
-        print("Post-processing of PyFluxPro L2 run output is successful")
+        log.info("Post-processing of PyFluxPro L2 run output is successful")
     else:
-        print("Post-processing of PyFluxPro L2 run output has failed. Aborting")
+        log.error("Post-processing of PyFluxPro L2 run output has failed. Aborting")
     end = time.time()
     hours, rem = divmod(end - start, 3600)
     minutes, seconds = divmod(rem, 60)
-    print("Total elapsed time is : {:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
+    log.info("Total elapsed time is : {:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
