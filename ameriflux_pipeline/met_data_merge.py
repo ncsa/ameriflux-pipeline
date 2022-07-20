@@ -77,15 +77,15 @@ def read_met_data(data_path):
     # get met data in a dataframe
     try:
         df = data_util.read_csv_file(data_path, sep=',', header=None, names=None, skiprows=1, quotechar='"',
-                                     low_memory=False)
+                                     dtype='unicode')
     except ParserError as e:
         try:
             df = data_util.read_csv_file(data_path, sep='\t', header=None, names=None, skiprows=1, quotechar='"',
-                                         low_memory=False)
+                                         dtype='unicode')
         except ParserError as e:
             try:
                 df = data_util.read_csv_file(data_path, sep=';', header=None, names=None, skiprows=1, quotechar='"',
-                                             low_memory=False)
+                                             dtype='unicode')
             except ParserError as e:
                 log.error("Exception in reading %s : %s", data_path, e)
                 return None, None, None, None
