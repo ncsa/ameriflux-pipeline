@@ -7,6 +7,7 @@
 import pandas as pd
 import numpy as np
 from datetime import timedelta
+import re
 import logging
 
 # create log object with current module name
@@ -108,21 +109,22 @@ class AmeriFluxFormat:
         # convert columns given in AmeriFlux mainstem keys
         # get Albedo column and convert to ALB
         try:
-            albedo_col = str(met_df.filter(regex=("albedo|Albedo|ALBEDO")).columns[0])
+            albedo_col = met_df.filter(regex=re.compile('^albedo', re.IGNORECASE)).columns.to_list()[0]
         except IndexError as ex:
             log.warning("Albedo column not present")
             albedo_col = None
         if albedo_col:
             met_df = met_df.astype({albedo_col: float})
+            # TODO check if this is correct
             met_df['ALB'] = met_df[albedo_col].apply(lambda x: 1 if float(x) > 1 else float(x) * 100)
             met_df_meta['ALB'] = '%'
-        vpd_col = full_output_df.filter(regex="VPD|vpd|Vpd").columns.to_list()
+        vpd_col = full_output_df.filter(regex=re.compile('^vpd', re.IGNORECASE)).columns.to_list()
         if vpd_col:
             full_output_df['VPD'] = full_output_df[vpd_col[0]] / 100
             full_output_df_meta['VPD'].iloc[0] = '[hPa]'
         else:
             log.warning("VPD column not present in full_output")
-        tau_col = full_output_df.filter(regex="Tau|tau|TAU").columns.to_list()
+        tau_col = full_output_df.filter(regex=re.compile('^tau', re.IGNORECASE)).columns.to_list()
         if tau_col:
             full_output_df['Tau'] = full_output_df[tau_col[0]] * -1.0
             full_output_df_meta['Tau'].iloc[0] = '[kg+1m-1s-2]'
@@ -139,6 +141,7 @@ class AmeriFluxFormat:
         variance_vars = [col for col in full_output_df if col.lower().endswith('_var')]
         for col in variance_vars:
             col_sd = col.split('_')[0] + '_sd'
+            # TODO check what to do with sqrt of negative numbers
             full_output_df[col_sd] = np.sqrt(full_output_df[col].astype(float))
             if full_output_df_meta[col].iloc[0] == '[m+2s-2]':
                 full_output_df_meta[col_sd] = '[m+1s-1]'
