@@ -197,7 +197,7 @@ class MasterMetProcessor:
             file_df_meta (obj) : Pandas DataFrame object
         """
         # read data
-        df = data_util.read_csv_file(data_path, header=None, low_memory=False)  # read file without headers.
+        df = data_util.read_csv_file(data_path, header=None, dtype='unicode')  # read file without headers.
 
         # process df to get meta data
         file_df_meta = df.head(4)  # first four lines of file contains meta data
