@@ -72,7 +72,7 @@ def write_list_to_file(in_list, outfile):
     try:
         with open(outfile, 'w') as f:
             f.write('\n'.join(in_list))
-        log.info("AmeriFlux L1 saved in %s", outfile)
+        log.info("AmeriFlux control file saved in %s", outfile)
     except Exception as e:
         log.error("Failed to create file %s. %s", outfile, e)
 
