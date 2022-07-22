@@ -91,7 +91,7 @@ class L2Format:
         if mainstem_plot_ind:
             mainstem_plot_startind = mainstem_plot_ind
             mainstem_plot_endind = len(l2_mainstem_lines)
-            mainstem_variable_endind = mainstem_plot_ind
+            mainstem_variable_endind = mainstem_plot_ind - 1
         else:
             mainstem_plot_startind = None
             mainstem_plot_endind = None
@@ -99,7 +99,7 @@ class L2Format:
         if ameriflux_plot_ind:
             ameriflux_plot_startind = ameriflux_plot_ind
             ameriflux_plot_endind = len(l2_ameriflux_lines)
-            ameriflux_variable_endind = ameriflux_plot_ind
+            ameriflux_variable_endind = ameriflux_plot_ind - 1
         else:
             ameriflux_plot_startind = None
             ameriflux_plot_endind = None
@@ -122,15 +122,15 @@ class L2Format:
         ameriflux_var_start_end = L2Format.get_variables_index(ameriflux_var_lines)
 
         # get the variable lines to be written
-        ameriflux_variable_lines_out = L2Format.format_variables(ameriflux_var_df, ameriflux_var_start_end,
+        ameriflux_variable_lines_out = L2Format.format_variables(ameriflux_var_lines, ameriflux_var_start_end,
                                                                  pyfluxpro_ameriflux_labels)
         l2_output_lines.extend(ameriflux_variable_lines_out)
-        mainstem_variable_lines_out = L2Format.format_variables(mainstem_var_df, mainstem_var_start_end,
+        mainstem_variable_lines_out = L2Format.format_variables(mainstem_var_lines, mainstem_var_start_end,
                                                                 pyfluxpro_ameriflux_labels)
         l2_output_lines.extend(mainstem_variable_lines_out)
 
         # get the Plots section from Mainstem L2
-        l2_mainstem_plot_lines = l2_mainstem_lines[mainstem_plot_ind:l2_mainstem_lines_last_valid_index + 1]
+        l2_mainstem_plot_lines = l2_mainstem_lines[mainstem_plot_startind:mainstem_plot_endind]
         l2_mainstem_plot_lines = [line.rstrip() for line in l2_mainstem_plot_lines]
         plot_lines_out = L2Format.format_plots(l2_mainstem_plot_lines, pyfluxpro_ameriflux_labels)
         l2_output_lines.extend(plot_lines_out)
@@ -188,8 +188,13 @@ class L2Format:
         for i, line in enumerate(text):
             if re.match(var_pattern, line):
                 var_startind.append((line, i))
+        # from var_startind, get starting and ending indexes
         for i in range(len(var_startind)-1):
-            var_start_end.append((var_startind[i][0], var_startind[i][1], var_startind[i+1][1]))
+            var_name = var_startind[i][0]
+            start_ind = var_startind[i][1]
+            # ending index is one less than the next starting index
+            end_ind = var_startind[i + 1][1] - 1
+            var_start_end.append((var_name, start_ind, end_ind))
         var_start_end.append((var_startind[-1][0], var_startind[-1][1], len(text)))
         return var_start_end
 
@@ -214,6 +219,141 @@ class L2Format:
         # append the start and end index of the last variable
         var_start_end.append((end_ind, text.last_valid_index()+1))
         return variables, var_start_end
+
+    @staticmethod
+    def format_variables(variable_lines, var_start_end, labels, spaces=SPACES,
+                         RangeCheck_pattern=RANGECHECK_PATTERN, DependencyCheck_pattern=DEPENDENCYCHECK_PATTERN):
+        """
+            Change variable names and units to AmeriFlux standard
+
+            Args:
+                var_lines (list): List of variable lines from L2 input file
+                var_start_end (list): List of tuple, the starting and ending index for each variable
+                labels (dict) : Mapping from pyfluxpro to ameriflux labels
+                spaces (str): Spaces to be inserted before each section and line
+                RangeCheck_pattern (str): Regex pattern to find the [[[RangeCheck]]] section within Variables section
+                DependencyCheck_pattern (str): Regex pattern to find the [[[DependencyCheck]]] section within Variables
+            Returns:
+                variable_lines_out (list) : List of variables lines to be written to l2_ameriflux
+        """
+        # define spaces for formatting in L1
+        var_spaces = spaces
+        check_spaces = spaces + spaces
+        other_spaces = spaces + spaces + spaces
+        variables_lines_out = []  # variable lines to be written to l2_ameriflux
+        # iterate through each variable
+        for var, var_start, var_end in var_start_end:
+            var_out = []  # empty list to append this variable lines
+            var_lines = variable_lines[var_start:var_end+1]
+            # get variable name
+            var_name = var_lines[0].strip('[]')
+
+            if var_name not in labels.keys():
+                # only write Ameriflux-friendly variables. NOTES 13
+                continue
+            ameriflux_var_name = labels[var_name]
+            var_out.append(var_spaces + "[[" + ameriflux_var_name + "]]")
+
+            # get list of check, start and end indexes for this variable
+            var_checks = L2Format.get_variable_check_indexes(var_lines)
+            for check, check_start, check_end in var_checks:
+                if bool(re.match(RangeCheck_pattern, check)):
+                    # range check section found. format it
+                    first_line = var_lines[check_start]
+                    second_line = var_lines[check_end]
+                    if first_line.split('=')[0].strip().lower() == 'lower':
+                        lower_line = first_line
+                        upper_line = second_line
+                    else:
+                        lower_line = second_line
+                        upper_line = first_line
+                    # NOTES 15. Convert lower and upper ranges to percentage
+                    if ameriflux_var_name.startswith("SWC_"):
+                        # fix lower range
+                        lower_range_values = lower_line.split('=')[1].strip().split(',')
+                        lower_range_values = [float(x) * 100 for x in lower_range_values]
+                        lower_line = ",".join([str(i) for i in lower_range_values])
+                        lower_line = 'lower = ' + lower_line
+                        # fix upper range
+                        upper_range_values = upper_line.split('=')[1].strip().split(',')
+                        upper_range_values = [float(x) * 100 for x in upper_range_values]
+                        upper_line = ",".join([str(i) for i in upper_range_values])
+                        upper_line = 'upper = ' + upper_line
+                    # write to output list with proper spaces
+                    var_out.append(check_spaces + check)
+                    var_out.append(other_spaces + lower_line)
+                    var_out.append(other_spaces + upper_line)
+
+                elif bool(re.match(DependencyCheck_pattern, check)):
+                    # dependency check found. format it
+                    source_line = var_lines[check_start]
+                    # replace values with pattern x_[0-9] with empty string
+                    updated_source_line = re.sub(r"x_[0-9]+", "", source_line)
+                    # NOTES 14
+                    # change H2O_IRGA_Vr to H2O_SIGMA
+                    updated_source_line = re.sub(r"H2O_IRGA_Vr", "H2O_SIGMA", updated_source_line)
+                    # check if the source line is valid / not empty
+                    sources = updated_source_line.split('=')
+                    if len(sources) == 2:
+                        # remove unnecessary comma
+                        updated_source_line = re.sub(r",", '', updated_source_line)
+                        sources = updated_source_line.split('=')
+                        if sources[1] in ['', ' ']:
+                            # the source line is empty
+                            updated_source_line = ''
+                    # add updated lines with appropriate spaces
+                    if len(updated_source_line) > 0:
+                        var_out.append(check_spaces + check)
+                        var_out.append(other_spaces + updated_source_line)
+
+                else:
+                    # other checks. format with correct spaces
+                    var_out.append(check_spaces + check)
+                    for i in range(check_start, check_end+1):
+                        var_out.append(other_spaces + var_lines[i])
+            # end of for loop for checks
+            variables_lines_out.extend(var_out)
+        # end of for loop for variables
+        return variables_lines_out
+
+    @staticmethod
+    def get_variable_check_indexes(var_lines):
+        """
+            Get the starting and ending indexes for each variable in the L2 input file
+            Args:
+                var_lines (list): List of variable lines from L2 input file
+            Returns:
+                var_start_end (list) : List of tuple, the starting and ending index for each variable
+        """
+        check_start_end = []
+        # get the starting and ending indexes for each check
+        for ind, line in enumerate(var_lines):
+            if L2Format.is_check_line(line):
+                # found a check, get start and end indexes
+                start_ind = ind+1
+                end_ind = ind+1
+                while end_ind < len(var_lines) and not L2Format.is_check_line(var_lines[end_ind]):
+                    end_ind += 1
+                if start_ind == end_ind:
+                    # empty check section. proceed with other checks without writing to l2_ameriflux
+                    continue
+                else:
+                    check_start_end.append((line, start_ind, end_ind-1))
+        return check_start_end
+
+    @staticmethod
+    def is_check_line(line):
+        """
+            Check if the line is a check line
+            Args:
+                line (str): A string of a line from L2 input file
+            Returns:
+                (bool) : True if the line is a check line, False otherwise
+        """
+        if line.startswith('[[[') and line.endswith(']]]'):
+            return True
+        else:
+            return False
 
     @staticmethod
     def format_variables_old(df, var_start_end, labels, spaces=SPACES, DependencyCheck_pattern=DEPENDENCYCHECK_PATTERN,
@@ -410,7 +550,7 @@ class L2Format:
             Returns:
                 (list) : List of strings formatted for Ameriflux
         """
-        plot_lines_out = ['' for i in range(len(plot_lines))]  # create empty list of length same as plots section
+        plot_lines_out = ['' for _ in range(len(plot_lines))]  # create empty list of length same as plots section
         other_spaces = spaces + spaces  # spaces for Variables line
 
         for ind, line in enumerate(plot_lines):
