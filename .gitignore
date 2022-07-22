@@ -101,3 +101,7 @@ original/
 
 # template folder
 */templates/
+
+# data folder
+*/data_*/
+*/data/
