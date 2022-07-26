@@ -56,7 +56,7 @@ class L2Format:
         l2_mainstem_lines = l2_mainstem.readlines()
         l2_ameriflux_lines = l2_ameriflux.readlines()
 
-        # check if input L1 have the same format as expected
+        # check if input L2 have the same format as expected
         if not L2Validation.check_l2_format(l2_mainstem_lines) or not L2Validation.check_l2_format(l2_ameriflux_lines):
             log.error("Check L2.txt format")
             l2_mainstem.close()
