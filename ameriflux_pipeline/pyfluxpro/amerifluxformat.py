@@ -184,7 +184,11 @@ class AmeriFluxFormat:
         variance_vars = [col for col in full_output_df if col.lower().endswith('_var')]
         for col in variance_vars:
             col_sd = col.split('_')[0] + '_sd'
-            full_output_df[col_sd] = np.sqrt(full_output_df[col].astype(float))
+            full_output_df[col] = pd.to_numeric(full_output_df[col], errors='coerce')  # convert column to numeric
+            # convert negative values to nan to prevent errors while calculating std deviation
+            full_output_df[col] = full_output_df[col].apply(lambda x: np.nan if x < 0 else x)
+            # convert to sqrt
+            full_output_df[col_sd] = np.sqrt(full_output_df[col])
             if full_output_df_meta[col].iloc[0] == '[m+2s-2]':
                 full_output_df_meta[col_sd] = '[m+1s-1]'
             elif full_output_df_meta[col].iloc[0] == '[K+2]':

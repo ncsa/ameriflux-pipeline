@@ -29,6 +29,9 @@ from pyfluxpro.l2format import L2Format
 import pandas.io.formats.excel
 pandas.io.formats.excel.header_style = None
 
+import warnings
+warnings.simplefilter(action='ignore', category=pd.errors.PerformanceWarning)
+
 # create and configure logger
 logging.basicConfig(level=logging.INFO, datefmt='%Y-%m-%dT%H:%M:%S',
                     format='%(asctime)-15s.%(msecs)03dZ %(levelname)-7s : %(name)s - %(message)s',
