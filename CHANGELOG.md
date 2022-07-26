@@ -43,7 +43,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Correction of fill values and filename of final Ameriflux csv file [#162](https://github.com/ncsa/ameriflux-pipeline/issues/162)
 - User input validation [#159](https://github.com/ncsa/ameriflux-pipeline/issues/159)
 - Updated NOTES [#166](https://github.com/ncsa/ameriflux-pipeline/issues/166)
-- Reading xls formating functionality [#164](https://github.com/ncsa/ameriflux-pipeline/issues/164)
+- Reading xls formatting functionality [#164](https://github.com/ncsa/ameriflux-pipeline/issues/164)
 - Details on met_data_merge in README [#178](https://github.com/ncsa/ameriflux-pipeline/issues/178)
 - Data validation for met data merge [#168](https://github.com/ncsa/ameriflux-pipeline/issues/168)
 - Data validation for creation of master met data [#172](https://github.com/ncsa/ameriflux-pipeline/issues/172)
@@ -60,7 +60,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Logging for pyfluxpro. [#215](https://github.com/ncsa/ameriflux-pipeline/issues/215)
 - Logging for post_pyfluxpro. [#217](https://github.com/ncsa/ameriflux-pipeline/issues/217)
 - Logging for eddypro run. [#212](https://github.com/ncsa/ameriflux-pipeline/issues/212), [#231](https://github.com/ncsa/ameriflux-pipeline/issues/231)
-- Conversion of path string to absolute path in creating eddypro proejct file. [#212](https://github.com/ncsa/ameriflux-pipeline/issues/212), [#235](https://github.com/ncsa/ameriflux-pipeline/issues/235)
+- Conversion of path string to absolute path in creating eddypro project file. [#235](https://github.com/ncsa/ameriflux-pipeline/issues/235)
+- Additional L2 Variable checks. [#230](https://github.com/ncsa/ameriflux-pipeline/issues/230)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
@@ -82,6 +83,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Timestamp duplication in met data merger module. [#224](https://github.com/ncsa/ameriflux-pipeline/issues/224)
 - Starting timestamp in met data merger module. [#226](https://github.com/ncsa/ameriflux-pipeline/issues/226)
 - Full output timestamp in pyfluxpro input excel sheet. [#227](https://github.com/ncsa/ameriflux-pipeline/issues/227)
+- Ignore empty L2 Variable Check sections. [#236](https://github.com/ncsa/ameriflux-pipeline/issues/236)
 
 ### Changed
 - AmeriFlux L1 formatting variable names in env editor [#118](https://github.com/ncsa/ameriflux-pipeline/issues/118)
