@@ -134,6 +134,8 @@ class L2Format:
         l2_output_lines.extend(mainstem_variable_lines_out)
 
         # get the Plots section from Mainstem L2
+        plot_line = ["[Plots]"]
+        l2_output_lines.extend(plot_line)
         l2_mainstem_plot_lines = l2_mainstem_lines[mainstem_plot_startind:mainstem_plot_endind]
         l2_mainstem_plot_lines = [line.rstrip() for line in l2_mainstem_plot_lines]
         plot_lines_out = L2Format.format_plots(l2_mainstem_plot_lines, pyfluxpro_ameriflux_labels)
@@ -231,7 +233,7 @@ class L2Format:
             Change variable names and units to AmeriFlux standard
 
             Args:
-                var_lines (list): List of variable lines from L2 input file
+                variable_lines (list): List of variable lines from L2 input file
                 var_start_end (list): List of tuple, the starting and ending index for each variable
                 labels (dict) : Mapping from pyfluxpro to ameriflux labels
                 spaces (str): Spaces to be inserted before each section and line
