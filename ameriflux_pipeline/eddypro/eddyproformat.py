@@ -8,9 +8,13 @@ import numpy as np
 import pandas as pd
 import shutil
 import re
+import logging
 
 from utils.process_validation import DataValidation
 import utils.data_util as data_util
+
+# create log object with current module name
+log = logging.getLogger(__name__)
 
 
 class EddyProFormat:
@@ -46,7 +50,7 @@ class EddyProFormat:
         # read soil key file. File contains the mapping for met variables and eddypro labels for soil temp and moisture
         df_soil_key = data_util.read_excel(input_soil_key)
         if not DataValidation.is_valid_soils_key(df_soil_key):
-            print("Soils_key.xlsx file invalid format. Aborting")
+            log.error("Soils_key.xlsx file invalid format. Aborting")
             return None
         # get the soil temp and moisture keys for the site
         eddypro_soil_moisture_labels, eddypro_soil_temp_labels = EddyProFormat.get_soil_keys(df_soil_key, site_name)
@@ -312,8 +316,7 @@ class EddyProFormat:
         req_cols = [col.lower() for col in req_cols]
         df_cols = [col.lower() for col in df_cols]
         if not set(req_cols).issubset(set(df_cols)):
-            print("WARNING")
-            print(' and '.join(set(req_cols).difference(df_cols)), end='')
-            print(" are not present in met_output_eddypro")
+            log.warning("Columns are not present in met_output_eddypro"
+                        .format(' and '.join(set(req_cols).difference(df_cols))))
         else:
-            print("All required columns are present in met_output_eddypro")
+            log.info("All required columns are present in met_output_eddypro")

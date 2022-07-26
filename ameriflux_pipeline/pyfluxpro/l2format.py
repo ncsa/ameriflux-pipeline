@@ -7,8 +7,12 @@
 import pandas as pd
 import os
 import re
+import logging
 
 from utils.process_validation import DataValidation, L2Validation
+
+# create log object with current module name
+log = logging.getLogger(__name__)
 
 
 class L2Format:
@@ -54,7 +58,7 @@ class L2Format:
 
         # check if input L1 have the same format as expected
         if not L2Validation.check_l2_format(l2_mainstem_lines) or not L2Validation.check_l2_format(l2_ameriflux_lines):
-            print("Check L2.txt format")
+            log.error("Check L2.txt format")
             l2_mainstem.close()
             l2_ameriflux.close()
             return False
@@ -582,6 +586,6 @@ class L2Format:
         try:
             with open(outfile, 'w') as f:
                 f.write('\n'.join(in_list))
-            print("AmeriFlux L2 saved in ", outfile)
-        except Exception:
-            raise Exception("Failed to create file ", outfile)
+            log.info("AmeriFlux L2 saved in %s", outfile)
+        except Exception as e:
+            log.error("Failed to create file %s. %s", outfile, e)

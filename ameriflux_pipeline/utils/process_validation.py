@@ -246,10 +246,10 @@ class DataValidation:
         # get column names matching pyfluxpro
         pyfluxpro_cols = df.filter(regex=re.compile("^pyfluxpro", re.IGNORECASE)).columns.to_list()
         if not met_cols or not eddypro_cols or not pyfluxpro_cols:
-            print("Check for required columns in soils key: ", end='')
-            print("Datalogger/met water variable name, Datalogger/met temperature variable name, "
-                  "EddyPro temperature variable name, EddyPro water variable name, "
-                  "PyFluxPro water variable name, PyFluxPro temperature variable name")
+            log.error("Check for required columns in soils key: ", end='')
+            log.error("Datalogger/met water variable name, Datalogger/met temperature variable name, " 
+                      "EddyPro temperature variable name, EddyPro water variable name,  "
+                      "PyFluxPro water variable name, PyFluxPro temperature variable name")
             return False
 
         # remove variable columns that have 'old' in the name
@@ -264,20 +264,20 @@ class DataValidation:
         met_temp_col = list(filter(temp_pattern.search, met_cols))
         met_water_col = list(filter(water_pattern.search, met_cols))
         if not met_water_col or not met_temp_col:
-            print("Check for required columns in soils key: ", end='')
-            print("Datalogger/met water variable name, Datalogger/met temperature variable name")
+            log.error("Check for required columns in soils key: ", end='')
+            log.error("Datalogger/met water variable name, Datalogger/met temperature variable name")
             return False
         eddypro_temp_col = list(filter(temp_pattern.search, eddypro_cols))
         eddypro_water_col = list(filter(water_pattern.search, eddypro_cols))
         if not eddypro_water_col or not eddypro_temp_col:
-            print("Check for required columns in soils key: ", end='')
-            print("EddyPro temperature variable name, EddyPro water variable name")
+            log.error("Check for required columns in soils key: ", end='')
+            log.error("EddyPro temperature variable name, EddyPro water variable name")
             return False
         pyfluxpro_temp_col = list(filter(temp_pattern.search, pyfluxpro_cols))
         pyfluxpro_water_col = list(filter(water_pattern.search, pyfluxpro_cols))
         if not pyfluxpro_water_col or not pyfluxpro_temp_col:
-            print("Check for required columns in soils key: ", end='')
-            print("PyFluxPro water variable name, PyFluxPro temperature variable name")
+            log.error("Check for required columns in soils key: ", end='')
+            log.error("PyFluxPro water variable name, PyFluxPro temperature variable name")
             return False
         # all validations done
         return True
@@ -565,7 +565,7 @@ class L1Validation:
                 # all flag values are true, then break out of for loop
                 return True
             elif var_count > 1:
-                log.error("Check first variable in Variables section")
+                log.error("Check first variable in L1 Variables section")
                 return False
         # end of for loop, format is as expected
         flags = [var_flag, xl_flag, attr_flag, units_flag, long_name_flag, name_flag, sheet_flag]
@@ -772,7 +772,8 @@ class L2Validation:
                 if (lower_items_num == 1 or lower_items_num == 12) and (upper_items_num == 1 or upper_items_num == 12):
                     rangecheck_flag = True
                 else:
-                    print("Check number of items in lower and upper ranges in line", lines[rangecheck_line_index])
+                    log.error("Check number of items in lower and upper ranges in line %s",
+                              str(lines[rangecheck_line_index]).rstrip())
                     rangecheck_flag = False
             else:
                 log.error("Check Range Check format in line %s", str(lines[rangecheck_line_index]).rstrip())
