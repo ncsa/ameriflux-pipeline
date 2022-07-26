@@ -94,3 +94,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Calculation of albedo. [#191](https://github.com/ncsa/ameriflux-pipeline/issues/191)
 - Updated column name comparison for eddypro formatting of master met data [#193](https://github.com/ncsa/ameriflux-pipeline/issues/193)
 - Renamed data_validation to process_validation [#195](https://github.com/ncsa/ameriflux-pipeline/issues/195)
+- Log message for Aborting run. [#238](https://github.com/ncsa/ameriflux-pipeline/issues/238)
