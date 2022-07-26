@@ -583,7 +583,7 @@ class L2Validation:
     # define global variables
     SPACES = "    "  # set 4 spaces as default for a section in L2
     LEVEL_LINE = "level = L2"  # set the level
-    VAR_PATTERN = '^ {4}\\[\\[[a-zA-Z0-9_]+\\]\\]\n$'  # variable name pattern
+    VAR_PATTERN_WITH_SPACE = '^ {4}\\[\\[[a-zA-Z0-9_]+\\]\\]\n$'  # variable name pattern
     DEPENDENCYCHECK_PATTERN = '^\\[\\[\\[DependencyCheck\\]\\]\\]$'
     EXCLUDEDATES_PATTERN = '^\\[\\[\\[ExcludeDates\\]\\]\\]$'
     RANGECHECK_PATTERN = '^\\[\\[\\[RangeCheck\\]\\]\\]$'
@@ -645,7 +645,7 @@ class L2Validation:
         return False
 
     @staticmethod
-    def check_variables_line(lines, var_pattern=VAR_PATTERN, dependencycheck_pattern=DEPENDENCYCHECK_PATTERN,
+    def check_variables_line(lines, var_pattern=VAR_PATTERN_WITH_SPACE, dependencycheck_pattern=DEPENDENCYCHECK_PATTERN,
                              excludedates_pattern=EXCLUDEDATES_PATTERN, rangecheck_pattern=RANGECHECK_PATTERN,
                              source_pattern=SOURCE_PATTERN, lower_pattern=LOWER_PATTERN, upper_pattern=UPPER_PATTERN):
         """
