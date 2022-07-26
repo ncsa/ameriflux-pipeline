@@ -341,11 +341,11 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
 
     # if eddypro full output file not present
     if not eddypro_full_outfile:
-        log.error("EddyPro full output not present. Aborting")
+        log.error('-' * 10 + "EddyPro full output not present. Aborting" + '-' * 10)
         # return failure
         return False
     if not is_pyfluxpro_processing_success:
-        log.error("PyFluxpro processing failed. Aborting")
+        log.error('-' * 10 + "PyFluxpro processing failed. Aborting" + '-' * 10)
         return False
 
     # run ameriflux formatting of pyfluxpro input
@@ -358,7 +358,7 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
         # return failure
         return False
     if not is_pyfluxpro_ameriflux_processing_success:
-        log.error("PyFluxpro input sheet formatting for Ameriflux failed. Aborting")
+        log.error('-' * 10 + "PyFluxpro input sheet formatting for Ameriflux failed. Aborting" + '-' * 10)
         return False
 
     # run ameriflux formatting of pyfluxpro L1 control file
@@ -369,7 +369,7 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
                                           cfg.L1_AMERIFLUX, erroring_variable_flag,
                                           cfg.L1_AMERIFLUX_ERRORING_VARIABLES_KEY)
     if pyfluxpro_ameriflux_labels is None:
-        log.error("PyFluxPro L1 processing failed. Aborting")
+        log.error('-' * 10 + "PyFluxPro L1 processing failed. Aborting" + '-' * 10)
         # return failure
         return False
 
@@ -383,7 +383,7 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
         # all processing done return success
         return True
     else:
-        log.error("PyFluxPro L2 processing failed. Aborting")
+        log.error('-' * 10 + "PyFluxPro L2 processing failed. Aborting" + '-' * 10)
         # return failure
         return False
 
@@ -397,7 +397,7 @@ def main():
     # Main function
     is_valid_config = input_validation()
     if not is_valid_config:
-        log.error("Check .env file and fix configurations. Aborting")
+        log.error('-' * 10 + "Check .env file and fix configurations. Aborting" + '-' * 10)
         return
 
     # Some preprocessing
@@ -427,7 +427,7 @@ def main():
     if is_success:
         log.info("Successfully completed pre-processing of PyFluxPro L1 and L2")
     else:
-        log.error("Pre-processing resulted in an error.")
+        log.error('-' * 10 + "Pre-processing resulted in an error." + '-' * 10)
 
     end = time.time()
     hours, rem = divmod(end - start, 3600)
