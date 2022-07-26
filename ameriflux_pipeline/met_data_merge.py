@@ -234,7 +234,7 @@ def main(files, start_date, end_date, output_file):
             f.write(file_meta_line.rstrip('\r\n') + '\n' + content)
         log.info("Merging of met files completed. Merged file %s", output_file)
     else:
-        log.error("Data merge failed. Aborting")
+        log.error('-' * 10 + "Data merge failed. Aborting" + '-' * 10)
 
 
 if __name__ == '__main__':
@@ -276,4 +276,4 @@ if __name__ == '__main__':
     if is_valid:
         main(files, start_date, end_date, output_file)
     else:
-        log.error("Inputs not valid. Data merge failed. Aborting")
+        log.error('-' * 10 + "Inputs not valid. Data merge failed. Aborting" + '-' * 10)
