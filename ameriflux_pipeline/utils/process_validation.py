@@ -246,9 +246,9 @@ class DataValidation:
         # get column names matching pyfluxpro
         pyfluxpro_cols = df.filter(regex=re.compile("^pyfluxpro", re.IGNORECASE)).columns.to_list()
         if not met_cols or not eddypro_cols or not pyfluxpro_cols:
-            log.error("Check for required columns in soils key: ", end='')
-            log.error("Datalogger/met water variable name, Datalogger/met temperature variable name, " 
-                      "EddyPro temperature variable name, EddyPro water variable name,  "
+            log.error("Check for required columns in soils key : "
+                      "Datalogger/met water variable name, Datalogger/met temperature variable name, "
+                      "EddyPro temperature variable name, EddyPro water variable name, "
                       "PyFluxPro water variable name, PyFluxPro temperature variable name")
             return False
 
@@ -264,8 +264,8 @@ class DataValidation:
         met_temp_col = list(filter(temp_pattern.search, met_cols))
         met_water_col = list(filter(water_pattern.search, met_cols))
         if not met_water_col or not met_temp_col:
-            log.error("Check for required columns in soils key: ", end='')
-            log.error("Datalogger/met water variable name, Datalogger/met temperature variable name")
+            log.error("Check for required columns in soils key: "
+                      "Datalogger/met water variable name, Datalogger/met temperature variable name")
             return False
         eddypro_temp_col = list(filter(temp_pattern.search, eddypro_cols))
         eddypro_water_col = list(filter(water_pattern.search, eddypro_cols))
