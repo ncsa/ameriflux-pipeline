@@ -7,6 +7,7 @@
 import pandas as pd
 import numpy as np
 from datetime import timedelta
+import re
 import logging
 
 # create log object with current module name
@@ -88,51 +89,6 @@ class AmeriFluxFormat:
         df = df.replace('NAN', np.nan)
         return df
 
-    # currently not used
-    @staticmethod
-    def timestamp_met_df(df, df_meta):
-        """
-        Function to format timestamp in met_data_30
-
-        Args:
-            df (object): Pandas DataFrame object
-            df_meta (object) : dataframe containng meta data info about df. Pandas DataFrame object
-        Returns :
-            df (obj): Formatted Pandas DataFrame object
-            df_meta (obj): Formatted Pandas DataFrame object
-        """
-        df['TIMESTAMP'] = pd.to_datetime(df['TIMESTAMP'])
-        # shift each timestamp 30min behind and store in another column
-        df.insert(0, 'TIMESTAMP', df.pop('TIMESTAMP'))
-        df.insert(1, 'TIMESTAMP_END', df['TIMESTAMP'] + timedelta(minutes=30))
-        df.insert(2, 'TIMESTAMP_START', df['TIMESTAMP'])
-
-        # convert to correct format. Not used currently
-        # df = AmeriFluxFormat.timestamp_format(df, ['TIMESTAMP', 'TIMESTAMP_START', 'TIMESTAMP_END'])
-        # add columns in meta data
-        df_meta.insert(1, 'TIMESTAMP_END', 'TS')
-        df_meta.insert(2, 'TIMESTAMP_START', 'TS')
-
-        return df, df_meta
-
-    # currently not used
-    @staticmethod
-    def timestamp_format(df, timestamp_cols):
-        """
-        Function to convert datetime to string and correct timestamp format
-
-        Args:
-            df (object): Pandas DataFrame object
-            timestamp_cols : List of timestamp column names to be formatted
-        Returns:
-            obj: Pandas DataFrame object
-        """
-        # convert datetime to string, replace - with /
-        for col in timestamp_cols:
-            df[col] = df[col].map(lambda t: t.strftime('%Y-%m-%d %H:%M')) \
-                                .map(lambda t: t.replace('-', '/'))
-        return df
-
     @staticmethod
     def var_unit_changes(full_output_df, full_output_df_meta, met_df, met_df_meta):
         """
@@ -153,21 +109,22 @@ class AmeriFluxFormat:
         # convert columns given in AmeriFlux mainstem keys
         # get Albedo column and convert to ALB
         try:
-            albedo_col = str(met_df.filter(regex=("albedo|Albedo|ALBEDO")).columns[0])
+            albedo_col = met_df.filter(regex=re.compile('^albedo', re.IGNORECASE)).columns.to_list()[0]
         except IndexError as ex:
             log.warning("Albedo column not present")
             albedo_col = None
         if albedo_col:
             met_df = met_df.astype({albedo_col: float})
+            # TODO check if this is correct
             met_df['ALB'] = met_df[albedo_col].apply(lambda x: 1 if float(x) > 1 else float(x) * 100)
             met_df_meta['ALB'] = '%'
-        vpd_col = full_output_df.filter(regex="VPD|vpd|Vpd").columns.to_list()
+        vpd_col = full_output_df.filter(regex=re.compile('^vpd', re.IGNORECASE)).columns.to_list()
         if vpd_col:
             full_output_df['VPD'] = full_output_df[vpd_col[0]] / 100
             full_output_df_meta['VPD'].iloc[0] = '[hPa]'
         else:
             log.warning("VPD column not present in full_output")
-        tau_col = full_output_df.filter(regex="Tau|tau|TAU").columns.to_list()
+        tau_col = full_output_df.filter(regex=re.compile('^tau', re.IGNORECASE)).columns.to_list()
         if tau_col:
             full_output_df['Tau'] = full_output_df[tau_col[0]] * -1.0
             full_output_df_meta['Tau'].iloc[0] = '[kg+1m-1s-2]'

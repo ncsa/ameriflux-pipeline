@@ -82,6 +82,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Timestamp duplication in met data merger module. [#224](https://github.com/ncsa/ameriflux-pipeline/issues/224)
 - Starting timestamp in met data merger module. [#226](https://github.com/ncsa/ameriflux-pipeline/issues/226)
 - Full output timestamp in pyfluxpro input excel sheet. [#227](https://github.com/ncsa/ameriflux-pipeline/issues/227)
+- Timestamp span warning message in post_pyfluxpro. [#232](https://github.com/ncsa/ameriflux-pipeline/issues/232)
 - Runtime and Performance Warning messages. [#234](https://github.com/ncsa/ameriflux-pipeline/issues/234)
 
 ### Changed
@@ -95,3 +96,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Calculation of albedo. [#191](https://github.com/ncsa/ameriflux-pipeline/issues/191)
 - Updated column name comparison for eddypro formatting of master met data [#193](https://github.com/ncsa/ameriflux-pipeline/issues/193)
 - Renamed data_validation to process_validation [#195](https://github.com/ncsa/ameriflux-pipeline/issues/195)
+- Log message for Aborting run. [#238](https://github.com/ncsa/ameriflux-pipeline/issues/238)
+- Moved common read and write methods to utils. [#44](https://github.com/ncsa/ameriflux-pipeline/issues/44)
