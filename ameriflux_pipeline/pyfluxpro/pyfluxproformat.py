@@ -68,7 +68,7 @@ class PyFluxProFormat:
             df_meta (obj) : Pandas DataFrame object having the meta data
         """
         log.info("Reading EddyPro full output file %s", path)
-        df = pd.read_csv(path, skiprows=1)  # skip the first row so as to skip file_info row
+        df = pd.read_csv(path, skiprows=1, dtype='unicode')  # skip the first row to skip file_info row
         df_meta = df.head(1)  # the first row has the meta data. Row index 0 has the units of all variables
         df = df.iloc[1:, :]  # drop the first row of units. Will be concatenated with df_meta later
         df.reset_index(drop=True, inplace=True)  # reset index after dropping rows
