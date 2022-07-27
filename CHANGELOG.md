@@ -82,6 +82,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Timestamp duplication in met data merger module. [#224](https://github.com/ncsa/ameriflux-pipeline/issues/224)
 - Starting timestamp in met data merger module. [#226](https://github.com/ncsa/ameriflux-pipeline/issues/226)
 - Full output timestamp in pyfluxpro input excel sheet. [#227](https://github.com/ncsa/ameriflux-pipeline/issues/227)
+- Timestamp span warning message in post_pyfluxpro. [#232](https://github.com/ncsa/ameriflux-pipeline/issues/232)
 
 ### Changed
 - AmeriFlux L1 formatting variable names in env editor [#118](https://github.com/ncsa/ameriflux-pipeline/issues/118)

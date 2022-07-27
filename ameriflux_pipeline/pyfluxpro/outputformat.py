@@ -148,7 +148,7 @@ class OutputFormat:
     @staticmethod
     def check_timestamp_span(start, end):
         """
-        Check if the timestamp spans the entire year from Jan 01 00:00 to Dec 31 23:30
+        Check if the timestamp spans the entire year from Jan 01 00:00 to Jan 01 00:00 of next year
         Args:
             start (datetime): Starting timestamp of data
             end (datetime): Ending timestamp of data
@@ -158,32 +158,32 @@ class OutputFormat:
         start_year, start_month, start_day, start_hour, start_minute = \
             start.year, start.month, start.day, start.hour, start.minute
         end_year, end_month, end_day, end_hour, end_minute = end.year, end.month, end.day, end.hour, end.minute
-        if start_year != end_year:
-            log.warning("Year in timestamp_start and timestamp_end does not match")
+        if start_year != end_year - 1:
+            log.warning("Year in timestamp_start and timestamp_end does not differ by 1")
             return False
         elif start_month != 1:
             log.warning("Starting month not January")
             return False
-        elif end_month != 12:
-            log.warning("Ending month not December")
+        elif end_month != 1:
+            log.warning("Ending month not January")
             return False
         elif start_day != 1:
             log.warning("Start day not 1")
             return False
-        elif end_day != 31:
-            log.warning("End day is not 31")
+        elif end_day != 1:
+            log.warning("End day is not 1")
             return False
         elif start_hour != 0:
             log.warning("Starting hour not 00")
             return False
-        elif end_hour != 23:
-            log.warning("Ending hour not 23")
+        elif end_hour != 0:
+            log.warning("Ending hour not 00")
             return False
         elif start_minute != 0:
             log.warning("Starting minute not 00")
             return False
-        elif end_minute != 30:
-            log.warning("ending minute not 30")
+        elif end_minute != 0:
+            log.warning("ending minute not 00")
             return False
         else:
             return True
