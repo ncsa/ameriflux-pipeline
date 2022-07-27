@@ -47,7 +47,7 @@ def pyfluxpro_output_ameriflux_processing(l2_run_output, file_meta_data_file, er
     ameriflux_file_name = ameriflux_file_name + '.csv'
     directory_name = os.path.dirname(l2_run_output)
     output_file = os.path.join(directory_name, ameriflux_file_name)
-    data_util.write_data(ameriflux_df, output_file)
+    data_util.write_data_to_csv(ameriflux_df, output_file)
     return True
 
 
@@ -82,7 +82,7 @@ if __name__ == '__main__':
     if is_success:
         log.info("Post-processing of PyFluxPro L2 run output is successful")
     else:
-        log.error("Post-processing of PyFluxPro L2 run output has failed. Aborting")
+        log.error('-' * 10 + "Post-processing of PyFluxPro L2 run output has failed. Aborting" + '-' * 10)
     end = time.time()
     hours, rem = divmod(end - start, 3600)
     minutes, seconds = divmod(rem, 60)

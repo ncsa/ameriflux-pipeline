@@ -52,6 +52,7 @@ class RunEddypro():
 
         # check the OS type
         os_platform = RunEddypro.get_platform()
+        logfile = open("pre_pyfluxpro.log", 'a')
 
         # create log file for eddypro run
         eddypro_logfile = os.path.join(out_path, "eddypro_" + datetime.now().strftime('%Y-%m-%d_%H-%M') + ".log")

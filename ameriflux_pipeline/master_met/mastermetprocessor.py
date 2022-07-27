@@ -196,11 +196,10 @@ class MasterMetProcessor:
             df (obj): Pandas DataFrame object
             file_df_meta (obj) : Pandas DataFrame object
         """
-        log.info("Read file %s", data_path)
-        df = pd.read_csv(data_path, header=None, low_memory=False)  # read file without headers.
+        # read data
+        df = data_util.read_csv_file(data_path, header=None, dtype='unicode')  # read file without headers.
 
         # process df to get meta data
-        # TODO : Check with Bethany if Min/Avg is to be checked for.
         file_df_meta = df.head(4)  # first four lines of file contains meta data
         # the first row contains the meta data of file. second and third row contains met variables and their units
         file_df_meta.fillna(value='', inplace=True)  # fill NaNs with empty string for ease of replace
@@ -228,9 +227,8 @@ class MasterMetProcessor:
             df_meta (obj) : meta data of met data. Consists of column names and units.
             file_meta (obj) : meta data of file. Consists of file name, field site, and crop.
         """
-        # TODO : Check meta_data format. At present the code checks for first 4 lines.
-        # But even if the last line is not present, it is ok.
-        # Need to check at which row the timestamp/ numerical data is starting.
+        # At present the code checks for the first 4 lines as meta data.
+        # TODO : To make is dynamic, need to check at which row the timestamp/ numerical data is starting.
         file_meta = file_df_meta.head(1)
         # the first row contains meta data of file. Used to match the filename to soil key.
         # returned with the processed df
@@ -547,8 +545,7 @@ class MasterMetProcessor:
             obj: Pandas DataFrame object
         """
         # convert datetime to string, replace - with /
-        df['TIMESTAMP'] = df['timestamp_sync'].map(lambda t: t.strftime('%Y-%m-%d %H:%M')) \
-            .map(lambda t: t.replace('-', '/'))
+        df['TIMESTAMP'] = df['timestamp_sync'].map(lambda t: t.strftime('%Y/%m/%d %H:%M'))
         return df
 
     @staticmethod

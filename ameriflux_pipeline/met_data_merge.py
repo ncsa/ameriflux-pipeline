@@ -76,16 +76,18 @@ def read_met_data(data_path):
 
     # get met data in a dataframe
     try:
-        df = pd.read_csv(data_path, sep=',', header=None, names=None, skiprows=1, quotechar='"', low_memory=False)
+        df = data_util.read_csv_file(data_path, sep=',', header=None, names=None, skiprows=1, quotechar='"',
+                                     dtype='unicode')
     except ParserError as e:
         try:
-            df = pd.read_csv(data_path, sep='\t', header=None, names=None, skiprows=1, quotechar='"', low_memory=False)
+            df = data_util.read_csv_file(data_path, sep='\t', header=None, names=None, skiprows=1, quotechar='"',
+                                         dtype='unicode')
         except ParserError as e:
             try:
-                df = pd.read_csv(data_path, sep=';', header=None, names=None, skiprows=1, quotechar='"',
-                                 low_memory=False)
+                df = data_util.read_csv_file(data_path, sep=';', header=None, names=None, skiprows=1, quotechar='"',
+                                             dtype='unicode')
             except ParserError as e:
-                log.error("Exception in reading %s %s", data_path, e)
+                log.error("Exception in reading %s : %s", data_path, e)
                 return None, None, None, None
 
     # process df to get meta data - column names and units
@@ -226,7 +228,7 @@ def main(files, start_date, end_date, output_file):
             file_meta.append(' ')
         file_meta_line = ','.join(file_meta)
         # write processed df to output path
-        data_util.write_data(df, output_file)
+        data_util.write_data_to_csv(df, output_file)
         # Prepend the file_meta to the met data csv
         with open(output_file, 'r+') as f:
             content = f.read()
@@ -234,7 +236,7 @@ def main(files, start_date, end_date, output_file):
             f.write(file_meta_line.rstrip('\r\n') + '\n' + content)
         log.info("Merging of met files completed. Merged file %s", output_file)
     else:
-        log.error("Data merge failed. Aborting")
+        log.error('-' * 10 + "Data merge failed. Aborting" + '-' * 10)
 
 
 if __name__ == '__main__':
@@ -276,4 +278,4 @@ if __name__ == '__main__':
     if is_valid:
         main(files, start_date, end_date, output_file)
     else:
-        log.error("Inputs not valid. Data merge failed. Aborting")
+        log.error('-' * 10 + "Inputs not valid. Data merge failed. Aborting" + '-' * 10)

@@ -47,8 +47,8 @@ class OutputFormat:
             return None, None
         try:
             l2 = Dataset(input_file, mode='r')  # read netCDF file
-        except KeyError or IOError:
-            log.error("Unable to read netCDF file %s", input_file)
+        except KeyError or IOError as e:
+            log.error("Unable to read netCDF file %s %s", input_file, e)
             return None, None
 
         l2_keys = list(l2.variables.keys())
@@ -133,8 +133,8 @@ class OutputFormat:
         df.replace('-9999.0', '-9999', inplace=True)
         # create the filename used for Ameriflux submission
         # read file_meta
-        file_meta = pd.read_csv(file_meta_data_file)
-        # get the site name
+        file_meta = data_util.read_csv_file(file_meta_data_file)
+        # get the site name from dataframe
         file_site_name = file_meta.iloc[0][5]
         site_name = data_util.get_site_name(file_site_name)
         ameriflux_site_name = OutputFormat.get_ameriflux_site_name(site_name)
@@ -148,7 +148,7 @@ class OutputFormat:
     @staticmethod
     def check_timestamp_span(start, end):
         """
-        Check if the timestamp spans the entire year from Jan 01 00:00 to Dec 31 23:30
+        Check if the timestamp spans the entire year from Jan 01 00:00 to Jan 01 00:00 of next year
         Args:
             start (datetime): Starting timestamp of data
             end (datetime): Ending timestamp of data
@@ -158,32 +158,32 @@ class OutputFormat:
         start_year, start_month, start_day, start_hour, start_minute = \
             start.year, start.month, start.day, start.hour, start.minute
         end_year, end_month, end_day, end_hour, end_minute = end.year, end.month, end.day, end.hour, end.minute
-        if start_year != end_year:
-            log.warning("Year in timestamp_start and timestamp_end does not match")
+        if start_year != end_year - 1:
+            log.warning("Year in timestamp_start and timestamp_end does not differ by 1")
             return False
         elif start_month != 1:
             log.warning("Starting month not January")
             return False
-        elif end_month != 12:
-            log.warning("Ending month not December")
+        elif end_month != 1:
+            log.warning("Ending month not January")
             return False
         elif start_day != 1:
             log.warning("Start day not 1")
             return False
-        elif end_day != 31:
-            log.warning("End day is not 31")
+        elif end_day != 1:
+            log.warning("End day is not 1")
             return False
         elif start_hour != 0:
             log.warning("Starting hour not 00")
             return False
-        elif end_hour != 23:
-            log.warning("Ending hour not 23")
+        elif end_hour != 0:
+            log.warning("Ending hour not 00")
             return False
         elif start_minute != 0:
             log.warning("Starting minute not 00")
             return False
-        elif end_minute != 30:
-            log.warning("ending minute not 30")
+        elif end_minute != 0:
+            log.warning("ending minute not 00")
             return False
         else:
             return True
