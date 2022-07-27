@@ -45,13 +45,18 @@ class AmeriFluxFormat:
         full_output_df.reset_index(drop=True, inplace=True)  # reset index after dropping rows
         met_df.reset_index(drop=True, inplace=True)  # reset index after dropping rows
 
-        # Step 1 of guide
+        # convert -9999 and empty cells to NaN. To make numerical conversions easier.
         full_output_df = AmeriFluxFormat.replace_empty(full_output_df)
         met_df = AmeriFluxFormat.replace_empty(met_df)
 
         # step 3,4,5,6,7 in guide
         full_output_df, full_output_df_meta, met_df, met_df_meta = AmeriFluxFormat.\
             var_unit_changes(full_output_df, full_output_df_meta, met_df, met_df_meta)
+
+        # Step 1 of guide. convert NaNs back
+        full_output_df.replace(np.nan, 'NAN', inplace=True)
+        met_df.replace(np.nan, 'NAN', inplace=True)
+
         # concat the meta df and df if number of columns is the same
         if full_output_df_meta.shape[1] == full_output_df.shape[1]:
             full_output_df = pd.concat([full_output_df_meta, full_output_df], ignore_index=True)
@@ -153,13 +158,14 @@ class AmeriFluxFormat:
         # convert columns given in AmeriFlux mainstem keys
         # get Albedo column and convert to ALB
         try:
-            albedo_col = str(met_df.filter(regex=("albedo|Albedo|ALBEDO")).columns[0])
+            albedo_col = met_df.filter(regex="albedo|Albedo|ALBEDO").columns.to_list()[0]
         except IndexError as ex:
             log.warning("Albedo column not present")
             albedo_col = None
         if albedo_col:
             met_df = met_df.astype({albedo_col: float})
-            met_df['ALB'] = met_df[albedo_col].apply(lambda x: 1 if float(x) > 1 else float(x) * 100)
+            met_df['ALB'] = met_df[albedo_col].apply(lambda x:
+                                                     np.nan if (float(x) > 1 and float(x) < 0) else float(x)*100)
             met_df_meta['ALB'] = '%'
         vpd_col = full_output_df.filter(regex="VPD|vpd|Vpd").columns.to_list()
         if vpd_col:
