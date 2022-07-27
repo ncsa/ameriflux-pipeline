@@ -164,6 +164,7 @@ class AmeriFluxFormat:
             albedo_col = None
         if albedo_col:
             met_df = met_df.astype({albedo_col: float})
+            # NOTES 23
             met_df['ALB'] = met_df[albedo_col].apply(lambda x: float(x)*100 if (0 <= float(x) <= 1) else np.nan)
             met_df_meta['ALB'] = '%'
         vpd_col = full_output_df.filter(regex="VPD|vpd|Vpd").columns.to_list()
