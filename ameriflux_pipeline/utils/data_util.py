@@ -68,11 +68,10 @@ def write_list_to_file(in_list, outfile):
         Returns:
             None
     """
-    log.info("PyFluxPro control file saved in %s", outfile)
     try:
         with open(outfile, 'w') as f:
             f.write('\n'.join(in_list))
-        log.info("AmeriFlux control file saved in %s", outfile)
+        log.info("Successfully written to file %s", outfile)
     except Exception as e:
         log.error("Failed to create file %s. %s", outfile, e)
 

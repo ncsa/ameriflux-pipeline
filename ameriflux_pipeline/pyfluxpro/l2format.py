@@ -129,6 +129,7 @@ class L2Format:
         l2_output_lines.extend(plot_lines_out)
 
         # write output lines to file
+        log.info("Writting Ameriflux L2 control file to " + l2_ameriflux_output)
         data_util.write_list_to_file(l2_output_lines, l2_ameriflux_output)
         # process successfully completed
         return True

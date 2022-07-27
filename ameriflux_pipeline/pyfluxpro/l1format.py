@@ -180,6 +180,7 @@ class L1Format:
         l1_output_lines.extend(variable_lines_out)
 
         # write output lines to file
+        log.info("Writting Ameriflux L1 control file to " + l1_ameriflux_output)
         data_util.write_list_to_file(l1_output_lines, l1_ameriflux_output)
 
         # close files
