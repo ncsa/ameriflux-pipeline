@@ -15,7 +15,21 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def write_data(df, output_data):
+def read_csv_file(file_path, **kwargs):
+    """
+        Read csv file to dataframe with optional arguments
+
+        Args:
+            file_path (str): File path to read data
+        Returns:
+            df (object): Pandas DataFrame object
+    """
+    log.info("Read csv file %s", file_path)
+    df = pd.read_csv(file_path, **kwargs)  # read csv file
+    return df
+
+
+def write_data_to_csv(df, output_data):
     """
         Write the dataframe to csv file
 
@@ -41,6 +55,25 @@ def read_excel(file_path):
     log.info("Read excel file %s", file_path)
     df = pd.read_excel(file_path)  # read excel file
     return df
+
+
+def write_list_to_file(in_list, outfile):
+    """
+        Save list with string to a file
+
+        Args:
+            in_list (list): List of the strings
+            outfile (str): A file path of the output file
+
+        Returns:
+            None
+    """
+    try:
+        with open(outfile, 'w') as f:
+            f.write('\n'.join(in_list))
+        log.info("Successfully written to file %s", outfile)
+    except Exception as e:
+        log.error("Failed to create file %s. %s", outfile, e)
 
 
 def get_site_name(file_site_name):
@@ -88,6 +121,6 @@ def get_valid_datetime(data):
     """
     try:
         return parse(data)
-    except ValueError:
-        log.error("%s Incorrect date format", data)
+    except ValueError as e:
+        log.error("%s Incorrect date format %s", data, e)
         return None

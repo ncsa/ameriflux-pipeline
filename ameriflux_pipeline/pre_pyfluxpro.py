@@ -85,10 +85,10 @@ def eddypro_preprocessing(file_meta_data_file):
         log.error("Creation of master met data has failed.")
         return None
     # write processed df to output path
-    data_util.write_data(df, cfg.MASTER_MET)
+    data_util.write_data_to_csv(df, cfg.MASTER_MET)
 
     # Write file meta data to another file
-    data_util.write_data(file_meta, file_meta_data_file)  # write meta data of file to file. One row.
+    data_util.write_data_to_csv(file_meta, file_meta_data_file)  # write meta data of file to file. One row.
 
     # create file for master met formatted for eddypro
     # filename is selected to be master_met_eddypro
@@ -101,7 +101,7 @@ def eddypro_preprocessing(file_meta_data_file):
         log.error("Eddypro formatting of master met data failed.")
         return None
     # write formatted df to output path
-    data_util.write_data(df, eddypro_formatted_met_file)
+    data_util.write_data_to_csv(df, eddypro_formatted_met_file)
 
     return eddypro_formatted_met_file
 
@@ -144,11 +144,11 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
     full_output_df['TIMESTAMP'][1:] = pd.to_datetime(full_output_df['TIMESTAMP'][1:])
 
     # write pyfluxpro formatted df to output path
-    data_util.write_data(full_output_df, full_output_pyfluxpro)
+    data_util.write_data_to_csv(full_output_df, full_output_pyfluxpro)
     # copy and rename the met data file
     shutil.copyfile(met_data_30_input, met_data_30_pyfluxpro)
 
-    met_data_df = pd.read_csv(met_data_30_pyfluxpro, low_memory=False)
+    met_data_df = data_util.read_csv_file(met_data_30_pyfluxpro, dtype='unicode')
     # convert timestamp to datetime format so that pyfluxpro can read without error
     met_data_df['TIMESTAMP'][1:] = pd.to_datetime(met_data_df['TIMESTAMP'][1:])
 
