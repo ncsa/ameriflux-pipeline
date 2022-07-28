@@ -85,6 +85,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Full output timestamp in pyfluxpro input excel sheet. [#227](https://github.com/ncsa/ameriflux-pipeline/issues/227)
 - Timestamp span warning message in post_pyfluxpro. [#232](https://github.com/ncsa/ameriflux-pipeline/issues/232)
 - Ignore empty L2 Variable Check sections. [#236](https://github.com/ncsa/ameriflux-pipeline/issues/236)
+- Runtime and Performance Warning messages. [#234](https://github.com/ncsa/ameriflux-pipeline/issues/234)
 
 ### Changed
 - AmeriFlux L1 formatting variable names in env editor [#118](https://github.com/ncsa/ameriflux-pipeline/issues/118)
