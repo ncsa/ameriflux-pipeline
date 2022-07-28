@@ -26,10 +26,9 @@ from pyfluxpro.amerifluxformat import AmeriFluxFormat
 from pyfluxpro.l1format import L1Format
 from pyfluxpro.l2format import L2Format
 
+import warnings
 import pandas.io.formats.excel
 pandas.io.formats.excel.header_style = None
-
-import warnings
 warnings.simplefilter(action='ignore', category=pd.errors.PerformanceWarning)
 
 # create and configure logger
@@ -305,7 +304,7 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
         # return failure
         log.error("EddyPro Processing failed")
         return False
-    
+
     # archive old eddypro output path
     outfile_list = os.listdir(cfg.EDDYPRO_OUTPUT_PATH)
     if len(outfile_list) > 0:
@@ -322,7 +321,7 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
 
     # run eddypro
     run_eddypro(eddypro_formatted_met_file)
-    
+
     # grab eddypro full output
     outfile_list = os.listdir(cfg.EDDYPRO_OUTPUT_PATH)
     eddypro_full_outfile = None
