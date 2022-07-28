@@ -78,5 +78,7 @@
 - When generating pyfluxpro input excel file, the TIMESTAMP column of the full_output sheet is shifted 30min behind.
 - This is because the 'time' column from EddyPro full output reflects the ending of the 30min interval. The met_data_30 sheet TIMESTAMP column reflects the starting of the 30min interval.
 - Hence the TIMESTAMP column of the full_output sheet is shifted 30min behind to get the correct timestamp, which reflects the starting of the 30min interval.
+### 23
+- In pyfluxpro input excel sheet for ameriflux, Albedo values are to be converted to percentage values. Desirable albedo values are between 0 and 1. Values outside of this range are converted to NaNs.
 
 

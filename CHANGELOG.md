@@ -85,6 +85,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Full output timestamp in pyfluxpro input excel sheet. [#227](https://github.com/ncsa/ameriflux-pipeline/issues/227)
 - Timestamp span warning message in post_pyfluxpro. [#232](https://github.com/ncsa/ameriflux-pipeline/issues/232)
 - Ignore empty L2 Variable Check sections. [#236](https://github.com/ncsa/ameriflux-pipeline/issues/236)
+- Albedo percentage calculation in ameriflux pyfluxpro input sheet. [#242](https://github.com/ncsa/ameriflux-pipeline/issues/242)
 - Runtime and Performance Warning messages. [#234](https://github.com/ncsa/ameriflux-pipeline/issues/234)
 
 ### Changed
