@@ -10,6 +10,7 @@ import numpy as np
 import os
 import shutil
 import csv
+import re
 from datetime import timedelta
 from pandas.errors import ParserError
 import logging
@@ -108,6 +109,30 @@ def read_met_data(data_path):
     df = df.applymap(lambda x: str(x).replace('*', ''))
     df.columns = df.iloc[0]  # set column names
     # NOTES 20
+    # rename certain columns
+    col_labels = {}
+    albedo_col = df.filter(regex=re.compile('^albedo', re.IGNORECASE)).columns.to_list()
+    if len(albedo_col) > 0:
+        col_labels[albedo_col[0]] = 'Albedo_Avg'
+    cm3up_col = df.filter(regex=re.compile('^CM3Up', re.IGNORECASE)).columns.to_list()
+    if cm3up_col:
+        col_labels[cm3up_col[0]] = 'SWDn_Avg'
+    cm3dn_col = df.filter(regex=re.compile('^CM3Dn', re.IGNORECASE)).columns.to_list()
+    if cm3dn_col:
+        col_labels[cm3dn_col[0]] = 'SWUp_Avg'
+    cg3upco_col = df.filter(regex=re.compile('^CG3UpCo', re.IGNORECASE)).columns.to_list()
+    if cg3upco_col:
+        col_labels[cg3upco_col[0]] = 'LWDnCo_Avg'
+    cg3dnco_col = df.filter(regex=re.compile('^CG3DnCo', re.IGNORECASE)).columns.to_list()
+    if cg3dnco_col:
+        col_labels[cg3dnco_col[0]] = 'LWUpCo_Avg'
+    cg3up_col = df.filter(regex=re.compile('^CG3Up_?', re.IGNORECASE)).columns.to_list()
+    if cg3up_col:
+        col_labels[cg3up_col[0]] = 'LWDn_Avg'
+    cg3dn_col = df.filter(regex=re.compile('^CG3Dn_?', re.IGNORECASE)).columns.to_list()
+    if cg3dn_col:
+        col_labels[cg3dn_col[0]] = 'LWUp_Avg'
+
     col_labels = {'CM3Up_Avg': 'SWDn_Avg', 'CM3Dn_Avg': 'SWUp_Avg', 'CG3Up_Avg': 'LWDn_Avg', 'CG3Dn_Avg': 'LWUp_Avg',
                   'CG3UpCo_Avg': 'LWDnCo_Avg', 'CG3DnCo_Avg': 'LWUpCo_Avg', 'NetTot_Avg': 'Rn_Avg',
                   'cnr1_T_C_Avg': 'CNR1TC_Avg', 'cnr1_T_K_Avg': 'CNR1TK_Avg',
@@ -252,7 +277,7 @@ if __name__ == '__main__':
                         default=os.path.join(os.getcwd(), "data", "master_met", "input", "Flux.csv"),
                         help="File path to write the output merged csv file")
     args = parser.parse_args()
-    # Some data preprocessing
+    # get list of files to be merged
     files = []
     if args.data is None:
         # no data is given as argument. ask for data during runtime.
