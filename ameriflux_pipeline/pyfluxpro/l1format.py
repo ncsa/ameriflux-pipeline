@@ -517,4 +517,3 @@ class L1Format:
 
         # end of for loop
         return variables_out, variables_mapping
-

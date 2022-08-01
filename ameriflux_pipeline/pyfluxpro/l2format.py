@@ -369,4 +369,3 @@ class L2Format:
                 plot_lines_out[ind] = line
 
         return plot_lines_out
-
