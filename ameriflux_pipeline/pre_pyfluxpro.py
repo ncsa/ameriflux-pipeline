@@ -26,8 +26,17 @@ from pyfluxpro.amerifluxformat import AmeriFluxFormat
 from pyfluxpro.l1format import L1Format
 from pyfluxpro.l2format import L2Format
 
+import warnings
 import pandas.io.formats.excel
 pandas.io.formats.excel.header_style = None
+warnings.simplefilter(action='ignore', category=pd.errors.PerformanceWarning)
+
+# create and configure logger
+logging.basicConfig(level=logging.INFO, datefmt='%Y-%m-%dT%H:%M:%S',
+                    format='%(asctime)-15s.%(msecs)03dZ %(levelname)-7s : %(name)s - %(message)s',
+                    handlers=[logging.FileHandler("pre_pyfluxpro.log"), logging.StreamHandler(sys.stdout)])
+# create log object with current module name
+log = logging.getLogger(__name__)
 
 # create and configure logger
 logging.basicConfig(level=logging.INFO, datefmt='%Y-%m-%dT%H:%M:%S',
@@ -85,10 +94,10 @@ def eddypro_preprocessing(file_meta_data_file):
         log.error("Creation of master met data has failed.")
         return None
     # write processed df to output path
-    data_util.write_data(df, cfg.MASTER_MET)
+    data_util.write_data_to_csv(df, cfg.MASTER_MET)
 
     # Write file meta data to another file
-    data_util.write_data(file_meta, file_meta_data_file)  # write meta data of file to file. One row.
+    data_util.write_data_to_csv(file_meta, file_meta_data_file)  # write meta data of file to file. One row.
 
     # create file for master met formatted for eddypro
     # filename is selected to be master_met_eddypro
@@ -101,7 +110,7 @@ def eddypro_preprocessing(file_meta_data_file):
         log.error("Eddypro formatting of master met data failed.")
         return None
     # write formatted df to output path
-    data_util.write_data(df, eddypro_formatted_met_file)
+    data_util.write_data_to_csv(df, eddypro_formatted_met_file)
 
     return eddypro_formatted_met_file
 
@@ -144,11 +153,11 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
     full_output_df['TIMESTAMP'][1:] = pd.to_datetime(full_output_df['TIMESTAMP'][1:])
 
     # write pyfluxpro formatted df to output path
-    data_util.write_data(full_output_df, full_output_pyfluxpro)
+    data_util.write_data_to_csv(full_output_df, full_output_pyfluxpro)
     # copy and rename the met data file
     shutil.copyfile(met_data_30_input, met_data_30_pyfluxpro)
 
-    met_data_df = pd.read_csv(met_data_30_pyfluxpro, low_memory=False)
+    met_data_df = data_util.read_csv_file(met_data_30_pyfluxpro, dtype='unicode')
     # convert timestamp to datetime format so that pyfluxpro can read without error
     met_data_df['TIMESTAMP'][1:] = pd.to_datetime(met_data_df['TIMESTAMP'][1:])
 
@@ -341,11 +350,11 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
 
     # if eddypro full output file not present
     if not eddypro_full_outfile:
-        log.error("EddyPro full output not present. Aborting")
+        log.error('-' * 10 + "EddyPro full output not present. Aborting" + '-' * 10)
         # return failure
         return False
     if not is_pyfluxpro_processing_success:
-        log.error("PyFluxpro processing failed. Aborting")
+        log.error('-' * 10 + "PyFluxpro processing failed. Aborting" + '-' * 10)
         return False
 
     # run ameriflux formatting of pyfluxpro input
@@ -358,7 +367,7 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
         # return failure
         return False
     if not is_pyfluxpro_ameriflux_processing_success:
-        log.error("PyFluxpro input sheet formatting for Ameriflux failed. Aborting")
+        log.error('-' * 10 + "PyFluxpro input sheet formatting for Ameriflux failed. Aborting" + '-' * 10)
         return False
 
     # run ameriflux formatting of pyfluxpro L1 control file
@@ -369,7 +378,7 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
                                           cfg.L1_AMERIFLUX, erroring_variable_flag,
                                           cfg.L1_AMERIFLUX_ERRORING_VARIABLES_KEY)
     if pyfluxpro_ameriflux_labels is None:
-        log.error("PyFluxPro L1 processing failed. Aborting")
+        log.error('-' * 10 + "PyFluxPro L1 processing failed. Aborting" + '-' * 10)
         # return failure
         return False
 
@@ -383,7 +392,7 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
         # all processing done return success
         return True
     else:
-        log.error("PyFluxPro L2 processing failed. Aborting")
+        log.error('-' * 10 + "PyFluxPro L2 processing failed. Aborting" + '-' * 10)
         # return failure
         return False
 
@@ -397,7 +406,7 @@ def main():
     # Main function
     is_valid_config = input_validation()
     if not is_valid_config:
-        log.error("Check .env file and fix configurations. Aborting")
+        log.error('-' * 10 + "Check .env file and fix configurations. Aborting" + '-' * 10)
         return
 
     # Some preprocessing
@@ -427,7 +436,7 @@ def main():
     if is_success:
         log.info("Successfully completed pre-processing of PyFluxPro L1 and L2")
     else:
-        log.error("Pre-processing resulted in an error.")
+        log.error('-' * 10 + "Pre-processing resulted in an error." + '-' * 10)
 
     end = time.time()
     hours, rem = divmod(end - start, 3600)
@@ -436,5 +445,7 @@ def main():
 
 
 if __name__ == '__main__':
+    log.info('-' * 50)
+    log.info("############# Process Started #############")
     # Call main function
     main()

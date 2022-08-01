@@ -68,7 +68,7 @@ class PyFluxProFormat:
             df_meta (obj) : Pandas DataFrame object having the meta data
         """
         log.info("Reading EddyPro full output file %s", path)
-        df = pd.read_csv(path, skiprows=1)  # skip the first row so as to skip file_info row
+        df = pd.read_csv(path, skiprows=1, dtype='unicode')  # skip the first row to skip file_info row
         df_meta = df.head(1)  # the first row has the meta data. Row index 0 has the units of all variables
         df = df.iloc[1:, :]  # drop the first row of units. Will be concatenated with df_meta later
         df.reset_index(drop=True, inplace=True)  # reset index after dropping rows
@@ -89,11 +89,17 @@ class PyFluxProFormat:
             df (object): Processed Pandas DataFrame object
             df_meta (object): Processed Pandas DataFrame object
         """
+        # create new column and unit for TIMESTAMP by adding date and time columns
         date_col = df.filter(regex="date|Date").columns.to_list()[0]
         time_col = df.filter(regex="time|Time").columns.to_list()[0]
         df['TIMESTAMP'] = df[date_col] + ' ' + df[time_col]
+        df['TIMESTAMP'] = pd.to_datetime(df['TIMESTAMP'])
+        # NOTES 22
+        # shift timestamp 30min behind to get the start time of the data
+        df['TIMESTAMP'] = df['TIMESTAMP'] - pd.Timedelta(minutes=30)
         df_meta['TIMESTAMP'] = 'yyyy/mm/dd HH:MM'  # add new variable and unit to meta df
-        df['TIMESTAMP'] = df['TIMESTAMP'].map(lambda t: t.replace('-', '/'))
+        # convert TIMESTAMP to string format
+        df['TIMESTAMP'] = df['TIMESTAMP'].map(lambda t: t.strftime('%Y/%m/%d %H:%M'))
         # move TIMESTAMP column to first index
         cols = list(df.columns)
         cols.insert(1, cols.pop(cols.index('TIMESTAMP')))  # pop and insert TIMESTAMP at index 1

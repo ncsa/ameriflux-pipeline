@@ -76,16 +76,18 @@ def read_met_data(data_path):
 
     # get met data in a dataframe
     try:
-        df = pd.read_csv(data_path, sep=',', header=None, names=None, skiprows=1, quotechar='"', low_memory=False)
+        df = data_util.read_csv_file(data_path, sep=',', header=None, names=None, skiprows=1, quotechar='"',
+                                     dtype='unicode')
     except ParserError as e:
         try:
-            df = pd.read_csv(data_path, sep='\t', header=None, names=None, skiprows=1, quotechar='"', low_memory=False)
+            df = data_util.read_csv_file(data_path, sep='\t', header=None, names=None, skiprows=1, quotechar='"',
+                                         dtype='unicode')
         except ParserError as e:
             try:
-                df = pd.read_csv(data_path, sep=';', header=None, names=None, skiprows=1, quotechar='"',
-                                 low_memory=False)
+                df = data_util.read_csv_file(data_path, sep=';', header=None, names=None, skiprows=1, quotechar='"',
+                                             dtype='unicode')
             except ParserError as e:
-                log.error("Exception in reading %s", data_path)
+                log.error("Exception in reading %s : %s", data_path, e)
                 return None, None, None, None
 
     # process df to get meta data - column names and units
@@ -192,9 +194,11 @@ def data_processing(files, start_date, end_date):
     start_date = pd.to_datetime(start_date)  # 00:00 of start date
     end_date = pd.to_datetime(end_date)  # 00:00 of end date. get records till 00:00 of the next day
     # NOTES 19
-    start_date -= timedelta(minutes=30)  # shift 30min behind
+    start_date += timedelta(minutes=30)  # shift 30min forward
     end_date += timedelta(days=1)  # shift a day ahead which gives till 00:00 of next day
     met_data = met_data[(met_data['TIMESTAMP_datetime'] >= start_date) & (met_data['TIMESTAMP_datetime'] <= end_date)]
+    # drop duplicate timestamps
+    met_data.drop_duplicates(subset='TIMESTAMP_datetime', keep='first', inplace=True)
     met_data.drop(columns=['TIMESTAMP_datetime'], inplace=True)
     # check if number of columns in met data and meta data are same
     if meta_df.shape[1] == met_data.shape[1]:
@@ -224,7 +228,7 @@ def main(files, start_date, end_date, output_file):
             file_meta.append(' ')
         file_meta_line = ','.join(file_meta)
         # write processed df to output path
-        data_util.write_data(df, output_file)
+        data_util.write_data_to_csv(df, output_file)
         # Prepend the file_meta to the met data csv
         with open(output_file, 'r+') as f:
             content = f.read()
@@ -232,10 +236,12 @@ def main(files, start_date, end_date, output_file):
             f.write(file_meta_line.rstrip('\r\n') + '\n' + content)
         log.info("Merging of met files completed. Merged file %s", output_file)
     else:
-        log.error("Data merge failed. Aborting")
+        log.error('-' * 10 + "Data merge failed. Aborting" + '-' * 10)
 
 
 if __name__ == '__main__':
+    log.info('-' * 50)
+    log.info("############# Process Started #############")
     log.info("Automatic merging of met files started")
     # get arguments
     parser = argparse.ArgumentParser()
@@ -272,4 +278,4 @@ if __name__ == '__main__':
     if is_valid:
         main(files, start_date, end_date, output_file)
     else:
-        log.error("Inputs not valid. Data merge failed. Aborting")
+        log.error('-' * 10 + "Inputs not valid. Data merge failed. Aborting" + '-' * 10)
