@@ -230,8 +230,14 @@ def data_processing(files, start_date, end_date):
     meta_df.replace(r'^\s*$', np.nan, regex=True, inplace=True)
     meta_df = meta_df.head(2)  # first 2 rows will give units and min/avg
 
+    # get timestamp column
+    timestamp_col = met_data.filter(regex=re.compile('TIMESTAMP', re.IGNORECASE)).columns.to_list()
+    if not timestamp_col:
+        log.error("No timestamp column found in met data")
+        return None, None
+    timestamp_col = timestamp_col[0]
     # get met data between start date and end date
-    met_data['TIMESTAMP_datetime'] = pd.to_datetime(met_data['TIMESTAMP'])
+    met_data['TIMESTAMP_datetime'] = pd.to_datetime(met_data[timestamp_col])
     met_data = met_data.sort_values(by='TIMESTAMP_datetime')
     start_date = pd.to_datetime(start_date)  # 00:00 of start date
     end_date = pd.to_datetime(end_date)  # 00:00 of end date. get records till 00:00 of the next day
