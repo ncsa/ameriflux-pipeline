@@ -111,27 +111,35 @@ def read_met_data(data_path):
     # NOTES 20
     # rename certain columns
     col_labels = {}
+    # find albedo column and rename
     albedo_col = df.filter(regex=re.compile('^albedo', re.IGNORECASE)).columns.to_list()
     if len(albedo_col) > 0:
         col_labels[albedo_col[0]] = 'Albedo_Avg'
+    # find CM3Dn and CM3Up columns and rename to SWDn and SWUp
     cm3up_col = df.filter(regex=re.compile('^CM3Up', re.IGNORECASE)).columns.to_list()
     if cm3up_col:
         col_labels[cm3up_col[0]] = 'SWDn_Avg'
     cm3dn_col = df.filter(regex=re.compile('^CM3Dn', re.IGNORECASE)).columns.to_list()
     if cm3dn_col:
         col_labels[cm3dn_col[0]] = 'SWUp_Avg'
+    # find CG3Dn and CG3Up columns and rename to LWDn and LWUp
     cg3upco_col = df.filter(regex=re.compile('^CG3UpCo', re.IGNORECASE)).columns.to_list()
     if cg3upco_col:
         col_labels[cg3upco_col[0]] = 'LWDnCo_Avg'
     cg3dnco_col = df.filter(regex=re.compile('^CG3DnCo', re.IGNORECASE)).columns.to_list()
     if cg3dnco_col:
         col_labels[cg3dnco_col[0]] = 'LWUpCo_Avg'
-    cg3up_col = df.filter(regex=re.compile('^CG3Up_?', re.IGNORECASE)).columns.to_list()
+    # search for string ending with CG3Up or starting with CG3Up_Avg
+    cg3up_col = df.filter(regex=re.compile('CG3Up$|^CG3Up_Avg', re.IGNORECASE)).columns.to_list()
     if cg3up_col:
         col_labels[cg3up_col[0]] = 'LWDn_Avg'
-    cg3dn_col = df.filter(regex=re.compile('^CG3Dn_?', re.IGNORECASE)).columns.to_list()
+    cg3dn_col = df.filter(regex=re.compile('^CG3Dn$|^CG3Dn_Avg', re.IGNORECASE)).columns.to_list()
     if cg3dn_col:
         col_labels[cg3dn_col[0]] = 'LWUp_Avg'
+    netto_col = df.filter(regex=re.compile('^NetTot', re.IGNORECASE)).columns.to_list()
+    if netto_col:
+        col_labels[netto_col[0]] = 'Rn_Avg'
+    cnr1tc_col = df.filter(regex=re.compile('^CNR1_?T_?C', re.IGNORECASE)).columns.to_list()
 
     col_labels = {'CM3Up_Avg': 'SWDn_Avg', 'CM3Dn_Avg': 'SWUp_Avg', 'CG3Up_Avg': 'LWDn_Avg', 'CG3Dn_Avg': 'LWUp_Avg',
                   'CG3UpCo_Avg': 'LWDnCo_Avg', 'CG3DnCo_Avg': 'LWUpCo_Avg', 'NetTot_Avg': 'Rn_Avg',
