@@ -140,28 +140,37 @@ def read_met_data(data_path):
     if netto_col:
         col_labels[netto_col[0]] = 'Rn_Avg'
     cnr1tc_col = df.filter(regex=re.compile('^CNR1_?T_?C', re.IGNORECASE)).columns.to_list()
-
-    col_labels = {'CM3Up_Avg': 'SWDn_Avg', 'CM3Dn_Avg': 'SWUp_Avg', 'CG3Up_Avg': 'LWDn_Avg', 'CG3Dn_Avg': 'LWUp_Avg',
-                  'CG3UpCo_Avg': 'LWDnCo_Avg', 'CG3DnCo_Avg': 'LWUpCo_Avg', 'NetTot_Avg': 'Rn_Avg',
-                  'cnr1_T_C_Avg': 'CNR1TC_Avg', 'cnr1_T_K_Avg': 'CNR1TK_Avg',
-                  'Rs_net_Avg': 'NetRs_Avg', 'Rl_net_Avg': 'NetRl_Avg', 'albedo_Avg': 'Albedo_Avg'
-                  }
+    if cnr1tc_col:
+        col_labels[cnr1tc_col[0]] = 'CNR1TC_Avg'
+    cnr1tk_col = df.filter(regex=re.compile('^CNR1_?T_?K', re.IGNORECASE)).columns.to_list()
+    if cnr1tk_col:
+        col_labels[cnr1tk_col[0]] = 'CNR1TK_Avg'
+    netrs_col = df.filter(regex=re.compile('^Rs_net', re.IGNORECASE)).columns.to_list()
+    if netrs_col:
+        col_labels[netrs_col[0]] = 'NetRs_Avg'
+    netrl_col = df.filter(regex=re.compile('^Rl_net', re.IGNORECASE)).columns.to_list()
+    if netrl_col:
+        col_labels[netrl_col[0]] = 'NetRl_Avg'
+    # rename columns
     df.rename(columns=col_labels, inplace=True)
     df_meta.rename(columns=col_labels, inplace=True)
+
     # change VWC to VWC1
-    vwc_col = [col for col in df if col.startswith('VWC_')]
-    vwc_labels = {}
-    for col in vwc_col:
-        vwc_labels[col] = 'VWC1_' + col.split('_')[1] + '_Avg'
-    df.rename(columns=vwc_labels, inplace=True)
-    df_meta.rename(columns=vwc_labels, inplace=True)
+    vwc_col = df.filter(regex=re.compile('^VWC_', re.IGNORECASE)).columns.to_list()
+    if vwc_col:
+        vwc_labels = {}
+        for col in vwc_col:
+            vwc_labels[col] = 'VWC1_' + col.split('_')[1] + '_Avg'
+        df.rename(columns=vwc_labels, inplace=True)
+        df_meta.rename(columns=vwc_labels, inplace=True)
     # change TC to TC1
-    tc_col = [col for col in df if col.startswith('TC_')]
-    tc_labels = {}
-    for col in tc_col:
-        tc_labels[col] = 'TC1_' + col.split('_')[1] + '_Avg'
-    df.rename(columns=tc_labels, inplace=True)
-    df_meta.rename(columns=tc_labels, inplace=True)
+    tc_col = df.filter(regex=re.compile('^TC_', re.IGNORECASE)).columns.to_list()
+    if tc_col:
+        tc_labels = {}
+        for col in tc_col:
+            tc_labels[col] = 'TC1_' + col.split('_')[1] + '_Avg'
+        df.rename(columns=tc_labels, inplace=True)
+        df_meta.rename(columns=tc_labels, inplace=True)
 
     df = df.iloc[3:, :]  # drop first and second row as it is the units and min / avg
     df.reset_index(drop=True, inplace=True)  # reset index after dropping rows
