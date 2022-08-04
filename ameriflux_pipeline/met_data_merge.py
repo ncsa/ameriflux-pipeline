@@ -7,6 +7,7 @@
 import argparse
 import pandas as pd
 import numpy as np
+from collections import Counter
 import os
 import shutil
 import csv
@@ -139,12 +140,12 @@ def read_met_data(data_path):
     netto_col = df.filter(regex=re.compile('^NetTot', re.IGNORECASE)).columns.to_list()
     if netto_col:
         col_labels[netto_col[0]] = 'Rn_Avg'
-    cnr1tc_col = df.filter(regex=re.compile('^CNR1_?T_?C', re.IGNORECASE)).columns.to_list()
-    if cnr1tc_col:
-        col_labels[cnr1tc_col[0]] = 'CNR1TC_Avg'
-    cnr1tk_col = df.filter(regex=re.compile('^CNR1_?T_?K', re.IGNORECASE)).columns.to_list()
-    if cnr1tk_col:
-        col_labels[cnr1tk_col[0]] = 'CNR1TK_Avg'
+    cnrtc_col = df.filter(regex=re.compile('^CNR\d_?T_?C', re.IGNORECASE)).columns.to_list()
+    if cnrtc_col:
+        col_labels[cnrtc_col[0]] = 'CNRTC_Avg'
+    cnrtk_col = df.filter(regex=re.compile('^CNR\d_?T_?K', re.IGNORECASE)).columns.to_list()
+    if cnrtk_col:
+        col_labels[cnrtk_col[0]] = 'CNRTK_Avg'
     netrs_col = df.filter(regex=re.compile('^Rs_net', re.IGNORECASE)).columns.to_list()
     if netrs_col:
         col_labels[netrs_col[0]] = 'NetRs_Avg'
@@ -171,6 +172,14 @@ def read_met_data(data_path):
             tc_labels[col] = 'TC1_' + col.split('_')[1] + '_Avg'
         df.rename(columns=tc_labels, inplace=True)
         df_meta.rename(columns=tc_labels, inplace=True)
+
+    # after renaming check if column names are unique
+    if len(df.columns.to_list()) != len(df.columns.unique()):
+        counter_1 = Counter(df.columns.to_list())
+        counter_2 = Counter(df.columns.unique())
+        counter_diff = counter_1 - counter_2
+        log.error("Met data column names are not unique: {}".format(counter_diff))
+        return None, None, None, None
 
     df = df.iloc[3:, :]  # drop first and second row as it is the units and min / avg
     df.reset_index(drop=True, inplace=True)  # reset index after dropping rows

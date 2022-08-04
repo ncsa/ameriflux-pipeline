@@ -90,9 +90,10 @@ class L1Format:
             log.error("Soils_key.xlsx file invalid format.")
             return None
         soil_moisture_labels, soil_temp_labels = L1Format.get_soil_labels(site_name, df_soil_key)
-        ameriflux_key = pd.read_excel(ameriflux_mainstem_key)  # read AmeriFlux-Mainstem variable name matching file
-        if not DataValidation.is_valid_ameriflux_mainstem_key(ameriflux_key):
-            log.error("Ameriflux-Mainstem-Key.xlsx file invalid format.")
+
+        # get AmeriFlux-Mainstem variable name matching key
+        ameriflux_key = L1Format.get_ameriflux_key(ameriflux_mainstem_key)
+        if ameriflux_key.empty:
             return None
 
         if erroring_variable_flag.lower() in ['n', 'no']:
@@ -201,16 +202,29 @@ class L1Format:
             soil_moisture_labels (dict): Soil moisture variable mapping from pyfluxpro to ameriflux labels
             soil_temp_labels (dict): Soil temperature variable mapping from pyfluxpro to ameriflux labels
         """
-        site_name_col = df_soil_key.filter(regex='Site name|site name|Site Name|Site|site').columns.to_list()[0]
+        site_name_col = df_soil_key.filter(regex=re.compile("^name|^site", re.IGNORECASE)).columns.to_list()[0]
         site_soil_key = df_soil_key[df_soil_key[site_name_col] == site_name]  # get all variables for the site
-        # get soil temp and moisture variables
-        site_soil_moisture = site_soil_key[['PyFluxPro water variable name', 'EddyPro water variable name']]
-        site_soil_temp = site_soil_key[['PyFluxPro temperature variable name', 'EddyPro temperature variable name']]
 
-        col_rename = {'PyFluxPro water variable name': 'PyFluxPro label',
-                      'PyFluxPro temperature variable name': 'PyFluxPro label',
-                      'EddyPro water variable name': 'Ameriflux label',
-                      'EddyPro temperature variable name': 'Ameriflux label'}
+        # get column names matching pyfluxpro
+        pyfluxpro_cols = site_soil_key.filter(regex=re.compile("^pyfluxpro", re.IGNORECASE)).columns.to_list()
+        # get column names matching eddypro
+        eddypro_cols = site_soil_key.filter(regex=re.compile("^eddypro", re.IGNORECASE)).columns.to_list()
+        # remove variable columns that have 'old' in the name
+        old_pattern = re.compile(r'old', re.IGNORECASE)
+        pyfluxpro_cols = list(filter(lambda x: not old_pattern.search(x), pyfluxpro_cols))
+        eddypro_cols = list(filter(lambda x: not old_pattern.search(x), eddypro_cols))
+        # get temp and water variable columns from the above column list
+        temp_pattern = re.compile(r'temperature|temp', re.IGNORECASE)
+        water_pattern = re.compile(r"water|moisture", re.IGNORECASE)
+        pyfluxpro_temp_col = list(filter(temp_pattern.search, pyfluxpro_cols))
+        pyfluxpro_water_col = list(filter(water_pattern.search, pyfluxpro_cols))
+        eddypro_temp_col = list(filter(temp_pattern.search, eddypro_cols))
+        eddypro_water_col = list(filter(water_pattern.search, eddypro_cols))
+        # get soil temp and moisture variables
+        site_soil_moisture = site_soil_key[[pyfluxpro_water_col[0], eddypro_water_col[0]]]
+        site_soil_temp = site_soil_key[[pyfluxpro_temp_col[0], eddypro_temp_col[0]]]
+        col_rename = {pyfluxpro_water_col[0]: 'PyFluxPro label', pyfluxpro_temp_col[0]: 'PyFluxPro label',
+                      eddypro_water_col[0]: 'Ameriflux label', eddypro_temp_col[0]: 'Ameriflux label'}
         site_soil_moisture.rename(columns=col_rename, inplace=True)
         site_soil_temp.rename(columns=col_rename, inplace=True)
 
@@ -225,6 +239,33 @@ class L1Format:
             soil_temp_labels[key] = ''.join(value)
 
         return soil_moisture_labels, soil_temp_labels
+
+    @staticmethod
+    def get_ameriflux_key(ameriflux_mainstem_key):
+        """
+        Method to get ameriflux key dataframe
+        Args :
+            ameriflux_mainstem_key (str): path to ameriflux key file
+        Returns :
+            df_ameriflux_key (obj): ameriflux key dataframe
+        """
+        # read AmeriFlux-Mainstem variable name matching file
+        df_ameriflux_key = data_util.read_excel(ameriflux_mainstem_key)
+        if not DataValidation.is_valid_ameriflux_mainstem_key(df_ameriflux_key):
+            log.error("Ameriflux-Mainstem-Key.xlsx file invalid format.")
+            return None
+        # get column names matching Ameriflux
+        ameriflux_cols = df_ameriflux_key.filter(regex=re.compile("^ameriflux", re.IGNORECASE)).columns.to_list()
+        # get column names matching Original
+        original_cols = df_ameriflux_key.filter(regex=re.compile("^original", re.IGNORECASE)).columns.to_list()
+        # get units column
+        units_col = df_ameriflux_key.filter(regex=re.compile("^units", re.IGNORECASE)).columns.to_list()
+        # rename columns
+        df_ameriflux_key.rename(columns={ameriflux_cols[0]: 'Ameriflux variable name',
+                                         original_cols[0]: 'Original variable name',
+                                         units_col[0]: 'Units after formatting'}, inplace=True)
+
+        return df_ameriflux_key
 
     @staticmethod
     def get_global_lines(lines, spaces=SPACES):
