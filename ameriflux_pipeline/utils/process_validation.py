@@ -194,6 +194,22 @@ class DataValidation:
             return True
 
     @staticmethod
+    def is_file_in_dir(filename, dirname):
+        """
+        Method to check if the file is present in the directory
+        Returns True if present, else returns False
+        Args:
+            filename (str): Input file name to check if present in directory
+            dirname (str): Input directory name to check if file is present
+        Returns:
+            (bool): True if file is present, else False
+        """
+        if any(fname.startswith(filename) for fname in os.listdir(dirname)):
+            return True
+        else:
+            return False
+
+    @staticmethod
     def is_valid_meta_data(df):
         """
         Method to check if the input dataframe containing meta data of met tower variables is in valid format.

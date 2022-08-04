@@ -203,9 +203,11 @@ class InputValidation:
         """
         eddypro_bin_loc = cfg.EDDYPRO_BIN_LOC
         eddypro_bin_loc_success = \
-            DataValidation.path_validation(eddypro_bin_loc, 'dir') and not DataValidation.is_empty_dir(eddypro_bin_loc)
+            DataValidation.path_validation(eddypro_bin_loc, 'dir') and \
+            not DataValidation.is_empty_dir(eddypro_bin_loc) and \
+            DataValidation.is_file_in_dir('eddypro_rp', eddypro_bin_loc)
         if not eddypro_bin_loc_success:
-            log.error("Expected directory containing exec file for EDDYPRO_BIN_LOC")
+            log.error("Expected directory containing eddypro exec file for EDDYPRO_BIN_LOC")
             return False
 
         eddypro_proj_file_template = cfg.EDDYPRO_PROJ_FILE_TEMPLATE

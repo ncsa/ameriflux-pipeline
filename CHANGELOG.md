@@ -62,6 +62,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Logging for eddypro run. [#212](https://github.com/ncsa/ameriflux-pipeline/issues/212), [#231](https://github.com/ncsa/ameriflux-pipeline/issues/231)
 - Conversion of path string to absolute path in creating eddypro project file. [#235](https://github.com/ncsa/ameriflux-pipeline/issues/235)
 - Additional L2 Variable checks. [#230](https://github.com/ncsa/ameriflux-pipeline/issues/230)
+- Check if eddypro executable file exists in eddypro bin loc. [#249](https://github.com/ncsa/ameriflux-pipeline/issues/249)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
