@@ -319,14 +319,16 @@ class InputValidation:
             DataValidation.path_validation(l1_mainstem_input, 'file') and \
             DataValidation.filetype_validation(l1_mainstem_input, '.txt')
         if not l1_mainstem_input_success:
-            log.error("Expected a txt file for L1_MAINSTEM_INPUT")
+            log.error("Check txt file for L1_MAINSTEM_INPUT")
+            return False
 
         l1_ameriflux_only_input = cfg.L1_AMERIFLUX_ONLY_INPUT
         l1_ameriflux_only_input_success = \
             DataValidation.path_validation(l1_ameriflux_only_input, 'file') and \
             DataValidation.filetype_validation(l1_ameriflux_only_input, '.txt')
         if not l1_ameriflux_only_input_success:
-            log.error("Expected a txt file for L1_AMERIFLUX_ONLY_INPUT")
+            log.error("Check txt file for L1_AMERIFLUX_ONLY_INPUT")
+            return False
 
         l1_ameriflux_mainstem_key = cfg.L1_AMERIFLUX_MAINSTEM_KEY
         l1_ameriflux_mainstem_key_success = \
@@ -334,21 +336,24 @@ class InputValidation:
             (DataValidation.filetype_validation(l1_ameriflux_mainstem_key, '.xlsx') or
              DataValidation.filetype_validation(l1_ameriflux_mainstem_key, '.xls'))
         if not l1_ameriflux_mainstem_key_success:
-            log.error("Expected an excel file for L1_AMERIFLUX_MAINSTEM_KEY")
+            log.error("Check excel file for L1_AMERIFLUX_MAINSTEM_KEY")
+            return False
 
         l1_ameriflux_run_output = cfg.L1_AMERIFLUX_RUN_OUTPUT
         l1_ameriflux_run_output_success = \
             DataValidation.path_validation(data_util.get_directory(l1_ameriflux_run_output), 'dir') and \
             DataValidation.filetype_validation(l1_ameriflux_run_output, '.nc')
         if not l1_ameriflux_run_output_success:
-            log.error("Expected a netCDF .nc file for L1_AMERIFLUX_RUN_OUTPUT")
+            log.error("Check netCDF .nc file for L1_AMERIFLUX_RUN_OUTPUT")
+            return False
 
         l1_ameriflux = cfg.L1_AMERIFLUX
         l1_ameriflux_success = \
             DataValidation.path_validation(data_util.get_directory(l1_ameriflux), 'dir') and \
             DataValidation.filetype_validation(l1_ameriflux, '.txt')
         if not l1_ameriflux_success:
-            log.error("Expected a txt file for L1_AMERIFLUX")
+            log.error("Check txt file for L1_AMERIFLUX")
+            return False
 
         ameriflux_variable_user_confirmation = cfg.AMERIFLUX_VARIABLE_USER_CONFIRMATION
         ameriflux_variable_user_confirmation_success = \
@@ -392,28 +397,32 @@ class InputValidation:
             DataValidation.path_validation(l2_mainstem_input, 'file') and \
             DataValidation.filetype_validation(l2_mainstem_input, '.txt')
         if not l2_mainstem_input_success:
-            log.error("Expected a txt file for L2_MAINSTEM_INPUT")
+            log.error("Check txt file for L2_MAINSTEM_INPUT")
+            return False
 
         l2_ameriflux_only_input = cfg.L2_AMERIFLUX_ONLY_INPUT
         l2_ameriflux_only_input_success = \
             DataValidation.path_validation(l2_ameriflux_only_input, 'file') and \
             DataValidation.filetype_validation(l2_ameriflux_only_input, '.txt')
         if not l2_ameriflux_only_input_success:
-            log.error("Expected a txt file for L2_AMERIFLUX_ONLY_INPUT")
+            log.error("Check txt file for L2_AMERIFLUX_ONLY_INPUT")
+            return False
 
         l2_ameriflux_run_output = cfg.L2_AMERIFLUX_RUN_OUTPUT
         l2_ameriflux_run_output_success = \
             DataValidation.path_validation(data_util.get_directory(l2_ameriflux_run_output), 'dir') and \
             DataValidation.filetype_validation(l2_ameriflux_run_output, '.nc')
         if not l2_ameriflux_run_output_success:
-            log.error("Expected a netCDF .nc file for L2_AMERIFLUX_RUN_OUTPUT")
+            log.error("Check netCDF .nc file for L2_AMERIFLUX_RUN_OUTPUT")
+            return False
 
         l2_ameriflux = cfg.L2_AMERIFLUX
         l2_ameriflux_success = \
             DataValidation.path_validation(data_util.get_directory(l2_ameriflux), 'dir') and \
             DataValidation.filetype_validation(l2_ameriflux, '.txt')
         if not l2_ameriflux_success:
-            log.error("Expected a txt file for L2_AMERIFLUX")
+            log.error("Check txt file for L2_AMERIFLUX")
+            return False
 
         # all validations true
         return True
