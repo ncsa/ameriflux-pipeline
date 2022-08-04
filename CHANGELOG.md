@@ -101,3 +101,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Renamed data_validation to process_validation [#195](https://github.com/ncsa/ameriflux-pipeline/issues/195)
 - Log message for Aborting run. [#238](https://github.com/ncsa/ameriflux-pipeline/issues/238)
 - Moved common read and write methods to utils. [#44](https://github.com/ncsa/ameriflux-pipeline/issues/44)
+- Updated Readme file with new information. [#189](https://github.com/ncsa/ameriflux-pipeline/issues/189)
