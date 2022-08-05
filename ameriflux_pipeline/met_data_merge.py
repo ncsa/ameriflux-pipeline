@@ -76,10 +76,12 @@ def read_met_data(data_path):
 
     # get met data in a dataframe
     try:
+        # try to read data as a csv with separator ', ; or tab'
         df = data_util.read_csv_file(data_path, sep=',|;|\t', header=None, names=None, skiprows=1, quotechar='"',
                                      dtype='unicode', engine='python')
     except ParserError as e:
         try:
+            # try to read data as a csv with separator None argument
             df = data_util.read_csv_file(data_path, sep=None, header=None, names=None, skiprows=1, quotechar='"',
                                          dtype='unicode', engine='python')
         except ParserError as e:
