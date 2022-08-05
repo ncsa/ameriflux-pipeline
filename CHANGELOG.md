@@ -87,6 +87,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Ignore empty L2 Variable Check sections. [#236](https://github.com/ncsa/ameriflux-pipeline/issues/236)
 - Albedo percentage calculation in ameriflux pyfluxpro input sheet. [#242](https://github.com/ncsa/ameriflux-pipeline/issues/242)
 - Runtime and Performance Warning messages. [#234](https://github.com/ncsa/ameriflux-pipeline/issues/234)
+- Inserting missing timestamps in met data and precip data. [#246](https://github.com/ncsa/ameriflux-pipeline/issues/246)
 
 ### Changed
 - AmeriFlux L1 formatting variable names in env editor [#118](https://github.com/ncsa/ameriflux-pipeline/issues/118)
