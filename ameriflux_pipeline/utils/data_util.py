@@ -84,15 +84,15 @@ def get_site_name(file_site_name):
     Returns:
         (str): matching site name
     """
-    if re.match('^CPU:Maize_Control_*', file_site_name):
+    if re.match('^CPU:Maize_Control_', file_site_name, re.IGNORECASE):
         return 'Maize-Control'
-    elif re.match('^CPU:Maize_*', file_site_name):
+    elif re.match('^CPU:Maize_', file_site_name, re.IGNORECASE):
         return 'Maize-Basalt'
-    elif re.match('^CPU:Miscanthus_Control_*', file_site_name):
+    elif re.match('^CPU:Miscanthus_Control_', file_site_name, re.IGNORECASE):
         return 'Miscanthus-Control'
-    elif re.match('^CPU:Miscanthus_*', file_site_name):
+    elif re.match('^CPU:Miscanthus_', file_site_name, re.IGNORECASE):
         return 'Miscanthus-Basalt'
-    elif re.match('^CPU:Sorghum_*', file_site_name):
+    elif re.match('^CPU:Sorghum_', file_site_name, re.IGNORECASE):
         return 'Sorghum'
 
 

@@ -350,8 +350,8 @@ class DataValidation:
             # all required columns are present
             return True
         else:
-            log.error("Check for required columns in Amerilfux-Mainstem-Key: ", end='')
-            log.error("Original variable name, Ameriflux variable name, Units after formatting")
+            log.error("Check for required columns in Amerilfux-Mainstem-Key: "
+                      "Original variable name, Ameriflux variable name, Units after formatting ")
             return False
 
     @staticmethod

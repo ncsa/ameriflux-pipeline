@@ -73,22 +73,26 @@ class MasterMetProcessor:
         # NOTE 6
         # set new variables
         new_variables = []
-        # sync time
-        df, new_variables = MasterMetProcessor.sync_time(df, new_variables)
-
+        # convert string timedate to pandas datetime type and store in another column
+        df['timestamp'] = pd.to_datetime(df['TIMESTAMP'])
         # check for missing timestamps. get timedelta between 2 rows and add as a new column
-        df['timedelta'] = MasterMetProcessor.get_timedelta(df['timestamp_sync'])
+        df['timedelta'] = MasterMetProcessor.get_timedelta(df['timestamp'])
         # add the new column to new_variables
+        new_variables.append('timestamp')
         new_variables.append('timedelta')
 
         # create missing timestamps
         # NOTE 7
-        df, insert_flag = MasterMetProcessor.insert_missing_timestamp(df, 'timestamp_sync', 30.0,
+        log.info("Checking for missing timestamps in met data")
+        df, insert_flag = MasterMetProcessor.insert_missing_timestamp(df, 'timestamp', 30.0,
                                                                       missing_time_threshold, user_confirmation)
         if insert_flag == 'N':
             # user confirmed not to insert missing timestamps. Return to main program
             log.warning("Ignoring missing timestamps in met data. Return to main")
             return df
+
+        # sync time
+        df, new_variables = MasterMetProcessor.sync_time(df, new_variables)
 
         # correct timestamp string format - step 1 in guide
         df = MasterMetProcessor.timestamp_format(df)
@@ -382,6 +386,7 @@ class MasterMetProcessor:
         """
         # check timestamps, if present for every 5 min
         df['timedelta'] = MasterMetProcessor.get_timedelta(df['Timestamp'])
+        log.info("Checking for missing timestamps in precip data")
         df, insert_flag = \
             MasterMetProcessor.insert_missing_timestamp(df, 'Timestamp', 5.0,
                                                         missing_time_threshold, user_confirmation)
@@ -427,14 +432,9 @@ class MasterMetProcessor:
         Returns:
             obj, list: Pandas DataFrame object and list of variables
         """
-        # convert string timedate to pandas datetime type and store in another column
-        df['timestamp'] = pd.to_datetime(df['TIMESTAMP'])
-
         # shift each timestamp 30min behind and store in another column
         df['timestamp_sync'] = df['timestamp'] - timedelta(minutes=30)
-
         # add the newly created columns to new_variables
-        new_variables.append('timestamp')
         new_variables.append('timestamp_sync')
 
         return df, new_variables
@@ -484,7 +484,6 @@ class MasterMetProcessor:
             for i in row_indexes[::-1]:
                 df1 = df[:i]  # slice the upper half of df
                 df2 = df[i:]  # slice the lower half of df
-
                 # insert rows between df1 and df2. number of rows given by timedelta/timeinterval
                 missing_num_rows = int(df2['timedelta'].iloc[0] // time_interval) - 1
                 if missing_num_rows > 0:
@@ -512,9 +511,13 @@ class MasterMetProcessor:
                                  missing_num_rows, str(start_timestamp), str(end_timestamp))
                         # create a series of time_interval timestamps
                         if time_interval == 5.0:
-                            freq = '5T'
+                            freq = '5T'  # set frequency to 5min
+                            # set start timestamp to the next 5min
+                            start_timestamp = start_timestamp + timedelta(minutes=5)
                         elif time_interval == 30.0:
-                            freq = '30T'
+                            freq = '30T'  # set frequency to 30min
+                            # set start timestamp to the next 30min
+                            start_timestamp = start_timestamp + timedelta(minutes=30)
                         else:
                             print(time_interval, "is invalid")
                             return df, 'N'
@@ -544,7 +547,7 @@ class MasterMetProcessor:
         Returns:
             obj: Pandas DataFrame object
         """
-        # convert datetime to string, replace - with /
+        # convert datetime to string in format 'YYYY/MM/DD HH:MM'
         df['TIMESTAMP'] = df['timestamp_sync'].map(lambda t: t.strftime('%Y/%m/%d %H:%M'))
         return df
 
