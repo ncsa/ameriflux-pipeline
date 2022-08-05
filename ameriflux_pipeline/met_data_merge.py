@@ -140,10 +140,10 @@ def read_met_data(data_path):
     netto_col = df.filter(regex=re.compile('^NetTot', re.IGNORECASE)).columns.to_list()
     if netto_col:
         col_labels[netto_col[0]] = 'Rn_Avg'
-    cnrtc_col = df.filter(regex=re.compile('^CNR\d_?T_?C', re.IGNORECASE)).columns.to_list()
+    cnrtc_col = df.filter(regex=re.compile('^CNR[1-9]_?T_?C', re.IGNORECASE)).columns.to_list()
     if cnrtc_col:
         col_labels[cnrtc_col[0]] = 'CNRTC_Avg'
-    cnrtk_col = df.filter(regex=re.compile('^CNR\d_?T_?K', re.IGNORECASE)).columns.to_list()
+    cnrtk_col = df.filter(regex=re.compile('^CNR[1-9]_?T_?K', re.IGNORECASE)).columns.to_list()
     if cnrtk_col:
         col_labels[cnrtk_col[0]] = 'CNRTK_Avg'
     netrs_col = df.filter(regex=re.compile('^Rs_net', re.IGNORECASE)).columns.to_list()
