@@ -14,7 +14,7 @@ import logging
 log = logging.getLogger(__name__)
 
 
-class RunEddypro():
+class RunEddypro:
     """
     This is a class for running EddyPro in the pipeline
     """
