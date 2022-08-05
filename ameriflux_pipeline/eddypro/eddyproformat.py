@@ -100,7 +100,8 @@ class EddyProFormat:
     @staticmethod
     def get_soil_keys(df_soil_key, site_name):
         """
-        Get soil keys for the specific site. Returns dictionary for soil moisture and soil temp variables
+        Get mapping from met variable to eddypro soil keys for the specific site.
+        Returns dictionary for soil moisture and soil temp variables
 
         Args:
             df_soil_key (obj): pandas dataframe having soil keys
@@ -186,8 +187,8 @@ class EddyProFormat:
             dictionary: met column name and eddypro label mapping
         """
         df_cols = [col.lower() for col in df_cols]
-        rtd_pattern = re.compile('rtd_c_avg|rtdcavg')
-        airtc_pattern = re.compile('airtc_avg|airtcavg|air_tc_avg')
+        rtd_pattern = re.compile('^rtd_?c?_?avg')
+        airtc_pattern = re.compile('^air_?tc_?avg')
         rtd_col = list(filter(rtd_pattern.match, df_cols))
         airtc_col = list(filter(airtc_pattern.match, df_cols))
         air_temp_cols = None
