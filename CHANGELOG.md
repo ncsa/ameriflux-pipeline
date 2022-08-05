@@ -91,7 +91,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Runtime and Performance Warning messages. [#234](https://github.com/ncsa/ameriflux-pipeline/issues/234)
 - Inserting missing timestamps in met data and precip data. [#246](https://github.com/ncsa/ameriflux-pipeline/issues/246)
 - Input validation and error logs for Pyfluxpro L1 and L2. [#247](https://github.com/ncsa/ameriflux-pipeline/issues/247)
-
+- Eddypro run finish log message. [#245](https://github.com/ncsa/ameriflux-pipeline/issues/245)
 
 ### Changed
 - AmeriFlux L1 formatting variable names in env editor [#118](https://github.com/ncsa/ameriflux-pipeline/issues/118)

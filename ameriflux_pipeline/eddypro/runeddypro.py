@@ -67,18 +67,18 @@ class RunEddypro():
                 proc = subprocess.Popen(["eddypro_rp.exe", "-s", "win", "-e", out_path, proj_file_name], shell=True,
                                         cwd=eddypro_bin_loc, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                         universal_newlines=True)
-                log.info("EddyPro run finished at %s", datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
                 # write running log to log file
                 for line in proc.stdout:
                     sys.stdout.write(line)
                     eddypro_log.write(line)
                 proc.wait()
-
                 for line in proc.stderr:
                     sys.stderr.write(line)
                     eddypro_log.write(line)
                 proc.wait()
+
+                log.info("EddyPro run finished at %s", datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
                 log.info("EddyPro run log is saved at %s", eddypro_logfile)
                 eddypro_log.close()
 
@@ -92,18 +92,18 @@ class RunEddypro():
                 proc = subprocess.Popen(["./eddypro_rp", "-s", "mac", "-e", out_path, proj_file_name], shell=False,
                                         cwd=eddypro_bin_loc, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                         universal_newlines=True)
-                log.info("EddyPro run finished at %s", datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
                 # write running log to log file
                 for line in proc.stdout:
                     sys.stdout.write(line)
                     eddypro_log.write(line)
                 proc.wait()
-
                 for line in proc.stderr:
                     sys.stderr.write(line)
                     eddypro_log.write(line)
                 proc.wait()
+
+                log.info("EddyPro run finished at %s", datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
                 log.info("EddyPro run log is saved at %s", eddypro_logfile)
                 eddypro_log.close()
 
