@@ -7,9 +7,11 @@
 import argparse
 import pandas as pd
 import numpy as np
+from collections import Counter
 import os
 import shutil
 import csv
+import re
 from datetime import timedelta
 from pandas.errors import ParserError
 import logging
@@ -39,9 +41,9 @@ def validate_inputs(files, start_date, end_date, output_file):
         (bool): True if inputs are valid, False if not
     """
     # check if input files exists
-    for file in files:
-        if not DataValidation.path_validation(file, 'file'):
-            log.error("%s path does not exist", file)
+    for f in files:
+        if not DataValidation.path_validation(f, 'file'):
+            log.error("%s path does not exist", f)
             return False
     if not data_util.get_valid_datetime(start_date):
         return False
@@ -76,19 +78,17 @@ def read_met_data(data_path):
 
     # get met data in a dataframe
     try:
-        df = data_util.read_csv_file(data_path, sep=',', header=None, names=None, skiprows=1, quotechar='"',
-                                     dtype='unicode')
+        # try to read data as a csv with separator ', ; or tab'
+        df = data_util.read_csv_file(data_path, sep=',|;|\t', header=None, names=None, skiprows=1, quotechar='"',
+                                     dtype='unicode', engine='python')
     except ParserError as e:
         try:
-            df = data_util.read_csv_file(data_path, sep='\t', header=None, names=None, skiprows=1, quotechar='"',
-                                         dtype='unicode')
+            # try to read data as a csv with separator None argument
+            df = data_util.read_csv_file(data_path, sep=None, header=None, names=None, skiprows=1, quotechar='"',
+                                         dtype='unicode', engine='python')
         except ParserError as e:
-            try:
-                df = data_util.read_csv_file(data_path, sep=';', header=None, names=None, skiprows=1, quotechar='"',
-                                             dtype='unicode')
-            except ParserError as e:
-                log.error("Exception in reading %s : %s", data_path, e)
-                return None, None, None, None
+            log.error("Exception in reading %s : %s", data_path, e)
+            return None, None, None, None
 
     # process df to get meta data - column names and units
     # the first row contains the meta data of file, which is skipped in read_csv.
@@ -108,27 +108,76 @@ def read_met_data(data_path):
     df = df.applymap(lambda x: str(x).replace('*', ''))
     df.columns = df.iloc[0]  # set column names
     # NOTES 20
-    col_labels = {'CM3Up_Avg': 'SWDn_Avg', 'CM3Dn_Avg': 'SWUp_Avg', 'CG3Up_Avg': 'LWDn_Avg', 'CG3Dn_Avg': 'LWUp_Avg',
-                  'CG3UpCo_Avg': 'LWDnCo_Avg', 'CG3DnCo_Avg': 'LWUpCo_Avg', 'NetTot_Avg': 'Rn_Avg',
-                  'cnr1_T_C_Avg': 'CNR1TC_Avg', 'cnr1_T_K_Avg': 'CNR1TK_Avg',
-                  'Rs_net_Avg': 'NetRs_Avg', 'Rl_net_Avg': 'NetRl_Avg', 'albedo_Avg': 'Albedo_Avg'
-                  }
+    # rename certain columns
+    col_labels = {}
+    # find albedo column and rename
+    albedo_col = df.filter(regex=re.compile('^albedo', re.IGNORECASE)).columns.to_list()
+    if len(albedo_col) > 0:
+        col_labels[albedo_col[0]] = 'Albedo_Avg'
+    # find CM3Dn and CM3Up columns and rename to SWDn and SWUp
+    cm3up_col = df.filter(regex=re.compile('^CM3Up', re.IGNORECASE)).columns.to_list()
+    if cm3up_col:
+        col_labels[cm3up_col[0]] = 'SWDn_Avg'
+    cm3dn_col = df.filter(regex=re.compile('^CM3Dn', re.IGNORECASE)).columns.to_list()
+    if cm3dn_col:
+        col_labels[cm3dn_col[0]] = 'SWUp_Avg'
+    # find CG3Dn and CG3Up columns and rename to LWDn and LWUp
+    cg3upco_col = df.filter(regex=re.compile('^CG3UpCo', re.IGNORECASE)).columns.to_list()
+    if cg3upco_col:
+        col_labels[cg3upco_col[0]] = 'LWDnCo_Avg'
+    cg3dnco_col = df.filter(regex=re.compile('^CG3DnCo', re.IGNORECASE)).columns.to_list()
+    if cg3dnco_col:
+        col_labels[cg3dnco_col[0]] = 'LWUpCo_Avg'
+    # search for string ending with CG3Up or starting with CG3Up_Avg
+    cg3up_col = df.filter(regex=re.compile('CG3Up$|^CG3Up_Avg', re.IGNORECASE)).columns.to_list()
+    if cg3up_col:
+        col_labels[cg3up_col[0]] = 'LWDn_Avg'
+    cg3dn_col = df.filter(regex=re.compile('^CG3Dn$|^CG3Dn_Avg', re.IGNORECASE)).columns.to_list()
+    if cg3dn_col:
+        col_labels[cg3dn_col[0]] = 'LWUp_Avg'
+    netto_col = df.filter(regex=re.compile('^NetTot', re.IGNORECASE)).columns.to_list()
+    if netto_col:
+        col_labels[netto_col[0]] = 'Rn_Avg'
+    cnrtc_col = df.filter(regex=re.compile('^CNR[1-9]_?T_?C', re.IGNORECASE)).columns.to_list()
+    if cnrtc_col:
+        col_labels[cnrtc_col[0]] = 'CNRTC_Avg'
+    cnrtk_col = df.filter(regex=re.compile('^CNR[1-9]_?T_?K', re.IGNORECASE)).columns.to_list()
+    if cnrtk_col:
+        col_labels[cnrtk_col[0]] = 'CNRTK_Avg'
+    netrs_col = df.filter(regex=re.compile('^Rs_net', re.IGNORECASE)).columns.to_list()
+    if netrs_col:
+        col_labels[netrs_col[0]] = 'NetRs_Avg'
+    netrl_col = df.filter(regex=re.compile('^Rl_net', re.IGNORECASE)).columns.to_list()
+    if netrl_col:
+        col_labels[netrl_col[0]] = 'NetRl_Avg'
+    # rename columns
     df.rename(columns=col_labels, inplace=True)
     df_meta.rename(columns=col_labels, inplace=True)
+
     # change VWC to VWC1
-    vwc_col = [col for col in df if col.startswith('VWC_')]
-    vwc_labels = {}
-    for col in vwc_col:
-        vwc_labels[col] = 'VWC1_' + col.split('_')[1] + '_Avg'
-    df.rename(columns=vwc_labels, inplace=True)
-    df_meta.rename(columns=vwc_labels, inplace=True)
+    vwc_col = df.filter(regex=re.compile('^VWC_', re.IGNORECASE)).columns.to_list()
+    if vwc_col:
+        vwc_labels = {}
+        for col in vwc_col:
+            vwc_labels[col] = 'VWC1_' + col.split('_')[1] + '_Avg'
+        df.rename(columns=vwc_labels, inplace=True)
+        df_meta.rename(columns=vwc_labels, inplace=True)
     # change TC to TC1
-    tc_col = [col for col in df if col.startswith('TC_')]
-    tc_labels = {}
-    for col in tc_col:
-        tc_labels[col] = 'TC1_' + col.split('_')[1] + '_Avg'
-    df.rename(columns=tc_labels, inplace=True)
-    df_meta.rename(columns=tc_labels, inplace=True)
+    tc_col = df.filter(regex=re.compile('^TC_', re.IGNORECASE)).columns.to_list()
+    if tc_col:
+        tc_labels = {}
+        for col in tc_col:
+            tc_labels[col] = 'TC1_' + col.split('_')[1] + '_Avg'
+        df.rename(columns=tc_labels, inplace=True)
+        df_meta.rename(columns=tc_labels, inplace=True)
+
+    # after renaming check if column names are unique
+    if len(df.columns.to_list()) != len(df.columns.unique()):
+        counter_1 = Counter(df.columns.to_list())
+        counter_2 = Counter(df.columns.unique())
+        counter_diff = counter_1 - counter_2
+        log.error("Met data column names are not unique: {}".format(counter_diff))
+        return None, None, None, None
 
     df = df.iloc[3:, :]  # drop first and second row as it is the units and min / avg
     df.reset_index(drop=True, inplace=True)  # reset index after dropping rows
@@ -188,8 +237,14 @@ def data_processing(files, start_date, end_date):
     meta_df.replace(r'^\s*$', np.nan, regex=True, inplace=True)
     meta_df = meta_df.head(2)  # first 2 rows will give units and min/avg
 
+    # get timestamp column
+    timestamp_col = met_data.filter(regex=re.compile('TIMESTAMP', re.IGNORECASE)).columns.to_list()
+    if not timestamp_col:
+        log.error("No timestamp column found in met data")
+        return None, None
+    timestamp_col = timestamp_col[0]
     # get met data between start date and end date
-    met_data['TIMESTAMP_datetime'] = pd.to_datetime(met_data['TIMESTAMP'])
+    met_data['TIMESTAMP_datetime'] = pd.to_datetime(met_data[timestamp_col])
     met_data = met_data.sort_values(by='TIMESTAMP_datetime')
     start_date = pd.to_datetime(start_date)  # 00:00 of start date
     end_date = pd.to_datetime(end_date)  # 00:00 of end date. get records till 00:00 of the next day
@@ -252,7 +307,7 @@ if __name__ == '__main__':
                         default=os.path.join(os.getcwd(), "data", "master_met", "input", "Flux.csv"),
                         help="File path to write the output merged csv file")
     args = parser.parse_args()
-    # Some data preprocessing
+    # get list of files to be merged
     files = []
     if args.data is None:
         # no data is given as argument. ask for data during runtime.

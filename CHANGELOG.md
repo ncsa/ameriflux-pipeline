@@ -62,6 +62,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Logging for eddypro run. [#212](https://github.com/ncsa/ameriflux-pipeline/issues/212), [#231](https://github.com/ncsa/ameriflux-pipeline/issues/231)
 - Conversion of path string to absolute path in creating eddypro project file. [#235](https://github.com/ncsa/ameriflux-pipeline/issues/235)
 - Additional L2 Variable checks. [#230](https://github.com/ncsa/ameriflux-pipeline/issues/230)
+- Robust string comparisons. [#219](https://github.com/ncsa/ameriflux-pipeline/issues/219)
+- Check if eddypro executable file exists in eddypro bin loc. [#249](https://github.com/ncsa/ameriflux-pipeline/issues/249)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
@@ -87,6 +89,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Ignore empty L2 Variable Check sections. [#236](https://github.com/ncsa/ameriflux-pipeline/issues/236)
 - Albedo percentage calculation in ameriflux pyfluxpro input sheet. [#242](https://github.com/ncsa/ameriflux-pipeline/issues/242)
 - Runtime and Performance Warning messages. [#234](https://github.com/ncsa/ameriflux-pipeline/issues/234)
+- Inserting missing timestamps in met data and precip data. [#246](https://github.com/ncsa/ameriflux-pipeline/issues/246)
+- Input validation and error logs for Pyfluxpro L1 and L2. [#247](https://github.com/ncsa/ameriflux-pipeline/issues/247)
+- Eddypro run finish log message. [#245](https://github.com/ncsa/ameriflux-pipeline/issues/245)
 
 ### Changed
 - AmeriFlux L1 formatting variable names in env editor [#118](https://github.com/ncsa/ameriflux-pipeline/issues/118)
@@ -101,4 +106,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Renamed data_validation to process_validation [#195](https://github.com/ncsa/ameriflux-pipeline/issues/195)
 - Log message for Aborting run. [#238](https://github.com/ncsa/ameriflux-pipeline/issues/238)
 - Moved common read and write methods to utils. [#44](https://github.com/ncsa/ameriflux-pipeline/issues/44)
+- Reading csv with multiple separators. [#148](https://github.com/ncsa/ameriflux-pipeline/issues/148)
 - Updated Readme file with new information. [#189](https://github.com/ncsa/ameriflux-pipeline/issues/189)
