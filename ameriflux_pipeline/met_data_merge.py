@@ -46,10 +46,10 @@ def validate_inputs(files, start_date, end_date, output_file):
             log.error("%s path does not exist", f)
             return False
     # validate start date if it is user provided, not the default value of 9999-01-01
-    if start_date != '9999-01-01' and not data_util.get_valid_datetime(start_date):
+    if start_date != '9999-99-99' and not data_util.get_valid_datetime(start_date):
         return False
     # validate end date if it is user provided, not the default value of 9999-12-31
-    if end_date != '9999-12-31' and not data_util.get_valid_datetime(end_date):
+    if end_date != '9999-99-99' and not data_util.get_valid_datetime(end_date):
         return False
     if not DataValidation.path_validation(data_util.get_directory(output_file), 'dir'):
         log.error("%s path does not exists", data_util.get_directory(output_file))
@@ -250,22 +250,26 @@ def data_processing(files, start_date, end_date):
     # get met data between start date and end date
     met_data['TIMESTAMP_datetime'] = pd.to_datetime(met_data[timestamp_col])
     met_data = met_data.sort_values(by='TIMESTAMP_datetime')
-    if start_date == '9999-01-01':
+    if start_date == '9999-99-99':
+        # no start date specified. merge all data
         start_date = met_data['TIMESTAMP_datetime'].min()
     else:
         # convert user input start date to datetime object
         start_date = pd.to_datetime(start_date)  # 00:00 of start date
         # NOTES 19
         start_date += timedelta(minutes=30)  # shift 30min forward
-    if end_date == '9999-12-31':
+    if end_date == '9999-99-99':
+        # no end date specified. merge all data
         end_date = met_data['TIMESTAMP_datetime'].max()
     else:
         # convert user input end date to datetime object
         end_date = pd.to_datetime(end_date)  # 00:00 of end date. get records till 00:00 of the next day
         # NOTES 19
         end_date += timedelta(days=1)  # shift a day ahead which gives till 00:00 of next day
-
-    met_data = met_data[(met_data['TIMESTAMP_datetime'] >= start_date) & (met_data['TIMESTAMP_datetime'] <= end_date)]
+    if start_date != met_data['TIMESTAMP_datetime'].min():
+        # filter met data between start date and end date
+        met_data = met_data[(met_data['TIMESTAMP_datetime'] >= start_date) &
+                            (met_data['TIMESTAMP_datetime'] <= end_date)]
     # drop duplicate timestamps
     met_data.drop_duplicates(subset='TIMESTAMP_datetime', keep='first', inplace=True)
     met_data.drop(columns=['TIMESTAMP_datetime'], inplace=True)
@@ -317,9 +321,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--data", action="store", default=None, nargs='*', help=".dat files for merging")
     # get the start date. default will be Jan 1 of the year in met data file
-    parser.add_argument("--start", action="store", default="9999-01-01", help="Start date for merging in yyyy-mm-dd")
+    parser.add_argument("--start", action="store", default="9999-99-99", help="Start date for merging in yyyy-mm-dd")
     # get the end date. default will be Dec 31 of the year in met data file
-    parser.add_argument("--end", action="store", default='9999-12-31', help="End date for merging in yyyy-mm-dd")
+    parser.add_argument("--end", action="store", default='9999-99-99', help="End date for merging in yyyy-mm-dd")
     parser.add_argument("--output", action="store",
                         default=os.path.join(os.getcwd(), "data", "master_met", "input", "Flux.csv"),
                         help="File path to write the output merged csv file")
