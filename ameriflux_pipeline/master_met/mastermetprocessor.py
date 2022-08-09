@@ -279,7 +279,7 @@ class MasterMetProcessor:
         Returns:
             obj: Pandas DataFrame object
         """
-        df = pd.read_excel(data_path)  # read excel file
+        df = data_util.read_excel(data_path)  # read excel file
         df = MasterMetProcessor.get_valid_precip_data(df)
         if df is None:
             log.error("Precipitation data not valid.")
