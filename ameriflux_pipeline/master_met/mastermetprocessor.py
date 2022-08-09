@@ -129,7 +129,7 @@ class MasterMetProcessor:
             # keep all met data and have NaN for precip values that are missing - left join with met data
             # throw a warning if there are extra timestamps in met data
             if (df.shape[0] > df_precip.shape[0]):
-                # there are more records in met data
+                # there are more records in met data than in precip data
                 log.warning("Extra timestamps in met data. Joining precip with NaN value in extra timestamps")
             # NOTE 8
             df = pd.merge(df, df_precip, on='TIMESTAMP', how='left')
