@@ -95,7 +95,7 @@ class EddyProFormat:
         EddyProFormat.check_req_columns(df)
 
         # return formatted df
-        return df
+        return df, eddypro_soil_temp_labels, eddypro_soil_moisture_labels
 
     @staticmethod
     def get_soil_keys(df_soil_key, site_name):

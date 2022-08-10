@@ -41,6 +41,7 @@ class L1Format:
     def data_formatting(pyfluxpro_input, l1_mainstem, l1_ameriflux_only, ameriflux_mainstem_key, file_meta_data_file,
                         soil_key, outfile, l1_ameriflux_output,
                         erroring_variable_flag, erroring_variable_key,
+                        met_eddypro_soil_temp_labels, met_eddypro_soil_moisture_labels,
                         spaces=SPACES, level_line=LEVEL_LINE):
         """
         Main method for the class.
@@ -158,7 +159,9 @@ class L1Format:
                                                                                    mainstem_var_start_end,
                                                                                    soil_moisture_labels,
                                                                                    soil_temp_labels,
-                                                                                   ameriflux_key, erroring_variable_key)
+                                                                                   ameriflux_key, erroring_variable_key,
+                                                                                   met_eddypro_soil_temp_labels,
+                                                                                   met_eddypro_soil_moisture_labels)
         # write variables section lines to l1 output
         l1_output_lines.extend(variable_lines_out)
 
@@ -349,6 +352,7 @@ class L1Format:
 
     @staticmethod
     def format_variables(df, var_start_end, moisture_labels, temp_labels, ameriflux_key, erroring_variable_key,
+                         met_eddypro_soil_temp_labels, met_eddypro_soil_moisture_labels,
                          spaces=SPACES, xl_pattern=XL_PATTERN, attr_pattern=ATTR_PATTERN):
         """
             Change variable names and units to AmeriFlux standard
@@ -449,23 +453,32 @@ class L1Format:
                                                                          "units = " + var_ameriflux_units
             # check if variable is soil moisture
             elif var_name.startswith("Sws_"):
-                var_flag = True
                 var_name_index = var.index[0]
-                var_ameriflux_name = moisture_labels[var_name]
-                variables_mapping[var_name] = var_ameriflux_name
-                var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_ameriflux_name + "]]"
-                # change the unit to percentage
-                if units_row.shape[0] > 0:
-                    var_units_index = units_row.index[0]
-                    var['Text'].iloc[var.index == var_units_index] = other_spaces + "units = " + '%'
+                # get the met tower variable name from xl line and compare with met_eddypro_soil_moisture_labels
+                met_tower_var_name = xl_df['Text'].iloc[1].split('=')[1].strip()
+                # get ameriflux name. returns None if not found
+                var_ameriflux_name = met_eddypro_soil_moisture_labels.get(met_tower_var_name)
+                if var_ameriflux_name is not None:
+                    # write only if ameriflux name is found
+                    var_flag = True
+                    variables_mapping[var_name] = var_ameriflux_name
+                    var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_ameriflux_name + "]]"
+                    # change the unit to percentage
+                    if units_row.shape[0] > 0:
+                        var_units_index = units_row.index[0]
+                        var['Text'].iloc[var.index == var_units_index] = other_spaces + "units = " + '%'
 
             # check if variable is soil temp
             elif var_name.startswith("Ts_"):
-                var_flag = True
                 var_name_index = var.index[0]
-                var_ameriflux_name = temp_labels[var_name].upper()
-                variables_mapping[var_name] = var_ameriflux_name
-                var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_ameriflux_name + "]]"
+                # get the met tower variable name from xl line and compare with met_eddypro_soil_temp_labels
+                met_tower_var_name = xl_df['Text'].iloc[1].split('=')[1].strip()
+                var_ameriflux_name = met_eddypro_soil_temp_labels.get(met_tower_var_name)
+                if var_ameriflux_name is not None:
+                    var_flag = True
+                    var_ameriflux_name = var_ameriflux_name.upper()
+                    variables_mapping[var_name] = var_ameriflux_name
+                    var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_ameriflux_name + "]]"
 
             if var_flag:
                 variables_lines_out.extend(var['Text'].tolist())

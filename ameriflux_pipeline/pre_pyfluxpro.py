@@ -80,6 +80,10 @@ def eddypro_preprocessing(file_meta_data_file):
         file_meta_data_file (str) : Filepath to write the meta data, typically the first line of Met data
     Returns :
         eddypro_formatted_met_file (str) : File name of the Met data formatted for eddypro
+        met_eddypro_soil_temp_labels (dict): Dictionary of soil temperature labels mapping
+                                             from met tower variables to eddypro labels
+        met_eddypro_soil_moisture_labels (dict): Dictionary of soil moisture labels mapping
+                                                 from met tower variables to eddypro labels
     """
     # start preprocessing data
     missing_time = cfg.MISSING_TIME
@@ -105,14 +109,14 @@ def eddypro_preprocessing(file_meta_data_file):
     eddypro_formatted_met_name = os.path.splitext(output_filename)[0] + '_eddypro.csv'
     eddypro_formatted_met_file = os.path.join(data_util.get_directory(cfg.MASTER_MET), eddypro_formatted_met_name)
     # start formatting data
-    df = EddyProFormat.data_formatting(cfg.MASTER_MET, cfg.INPUT_SOIL_KEY, file_meta, eddypro_formatted_met_file)
+    df, met_eddypro_soil_temp_labels, met_eddypro_soil_moisture_labels = EddyProFormat.data_formatting(cfg.MASTER_MET, cfg.INPUT_SOIL_KEY, file_meta, eddypro_formatted_met_file)
     if df is None:
         log.error("Eddypro formatting of master met data failed.")
         return None
     # write formatted df to output path
     data_util.write_data_to_csv(df, eddypro_formatted_met_file)
 
-    return eddypro_formatted_met_file
+    return eddypro_formatted_met_file, met_eddypro_soil_temp_labels, met_eddypro_soil_moisture_labels
 
 
 def run_eddypro(eddypro_formatted_met_file):
@@ -237,7 +241,8 @@ def pyfluxpro_ameriflux_processing(input_file, output_file):
 
 def pyfluxpro_l1_ameriflux_processing(pyfluxpro_input, l1_mainstem, l1_ameriflux_only, ameriflux_mainstem_key,
                                       file_meta_data_file, soil_key, l1_run_output, l1_ameriflux_output,
-                                      erroring_variable_flag, erroring_variable_key):
+                                      erroring_variable_flag, erroring_variable_key,
+                                      met_eddypro_soil_temp_labels, met_eddypro_soil_moisture_labels):
     """
     Main function to run PyFluxPro L1 control file formatting for AmeriFlux. Calls other functions
     Args:
@@ -265,7 +270,8 @@ def pyfluxpro_l1_ameriflux_processing(pyfluxpro_input, l1_mainstem, l1_ameriflux
     pyfluxpro_ameriflux_labels = \
         L1Format.data_formatting(pyfluxpro_input, l1_mainstem, l1_ameriflux_only, ameriflux_mainstem_key,
                                  file_meta_data_file, soil_key, l1_run_output, l1_ameriflux_output,
-                                 erroring_variable_flag, erroring_variable_key)
+                                 erroring_variable_flag, erroring_variable_key,
+                                 met_eddypro_soil_temp_labels, met_eddypro_soil_moisture_labels)
     return pyfluxpro_ameriflux_labels
 
 
@@ -305,13 +311,14 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
     syncdata.sync_data()
 
     # run eddypro preprocessing and formatting
-    eddypro_formatted_met_file = eddypro_preprocessing(file_meta_data_file)
+    eddypro_formatted_met_file, met_eddypro_soil_temp_labels, met_eddypro_soil_moisture_labels = \
+        eddypro_preprocessing(file_meta_data_file)
 
     if not os.path.exists(eddypro_formatted_met_file):
         # return failure
         log.error("EddyPro Processing failed")
         return False
-
+    '''
     # archive old eddypro output path
     outfile_list = os.listdir(cfg.EDDYPRO_OUTPUT_PATH)
     if len(outfile_list) > 0:
@@ -328,7 +335,7 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
 
     # run eddypro
     run_eddypro(eddypro_formatted_met_file)
-
+    '''
     # grab eddypro full output
     outfile_list = os.listdir(cfg.EDDYPRO_OUTPUT_PATH)
     eddypro_full_outfile = None
@@ -376,7 +383,8 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
                                           cfg.L1_AMERIFLUX_ONLY_INPUT, cfg.L1_AMERIFLUX_MAINSTEM_KEY,
                                           file_meta_data_file, cfg.INPUT_SOIL_KEY, cfg.L1_AMERIFLUX_RUN_OUTPUT,
                                           cfg.L1_AMERIFLUX, erroring_variable_flag,
-                                          cfg.L1_AMERIFLUX_ERRORING_VARIABLES_KEY)
+                                          cfg.L1_AMERIFLUX_ERRORING_VARIABLES_KEY,
+                                          met_eddypro_soil_temp_labels, met_eddypro_soil_moisture_labels)
     if pyfluxpro_ameriflux_labels is None:
         log.error('-' * 10 + "PyFluxPro L1 processing failed. Aborting" + '-' * 10)
         # return failure
