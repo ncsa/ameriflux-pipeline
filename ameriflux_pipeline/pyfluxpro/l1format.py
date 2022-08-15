@@ -405,19 +405,7 @@ class L1Format:
                 attr_df = df[attr.index[0]:end]
                 xl_df = df[xl.index[0]:attr.index[0]]
 
-            # format text as per L1
-            xl_df['Text'].iloc[0] = xl_spaces + xl_df['Text'].iloc[0]
-            xl_df['Text'].iloc[1:] = other_spaces + xl_df['Text'].iloc[1:]
-
-            # format text as per L1
-            attr_df['Text'].iloc[0] = attr_spaces + attr_df['Text'].iloc[0]
-            attr_df['Text'].iloc[1:] = other_spaces + attr_df['Text'].iloc[1:]
-
-            # update the variable df
-            var.update(xl_df)
-            var.update(attr_df)
-
-            units_row = attr_df[attr_df['Text'].apply(lambda x: x.strip().startswith("units"))]
+            units_row = attr_df[attr_df['Text'].apply(lambda x: x.strip().startswith("unit"))]
 
             # check if the variable is one of the erroring variables in L1 PyFluxPro
             # check if the erroring_variable_key is a dataframe.
@@ -453,6 +441,10 @@ class L1Format:
                                                                          "units = " + var_ameriflux_units
             # check if variable is soil moisture
             elif var_name.startswith("Sws_"):
+                # get moisture variable lines
+                moisture_xl_df = xl_df
+                moisture_attr_df = attr_df
+                # format moisture variable lines
                 var_name_index = var.index[0]
                 # get the met tower variable name from xl line and compare with met_eddypro_soil_moisture_labels
                 met_tower_var_name = xl_df['Text'].iloc[1].split('=')[1].strip()
@@ -461,29 +453,107 @@ class L1Format:
                 if var_ameriflux_name is not None:
                     # write only if ameriflux name is found
                     var_flag = True
+                    # delete key from labels
+                    del met_eddypro_soil_moisture_labels[met_tower_var_name]
                     variables_mapping[var_name] = var_ameriflux_name
                     var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_ameriflux_name + "]]"
                     # change the unit to percentage
                     if units_row.shape[0] > 0:
                         var_units_index = units_row.index[0]
-                        var['Text'].iloc[var.index == var_units_index] = other_spaces + "units = " + '%'
+                        attr_df['Text'].iloc[var_units_index] = other_spaces + "units = " + '%'
+                    # correct the height row
+                    height_row = attr_df[attr_df['Text'].apply(lambda x: x.strip().startswith("height"))]
+                    var_height_index = height_row.index[0]
+                    # get number in ameriflux var name to get height
+                    attr_height = [str(x) for x in var_ameriflux_name if x.isdigit()]
+                    attr_height = ''.join(attr_height)
+                    # round height to one decimal place and convert to string
+                    moisture_height = str(round(int(attr_height)/100, 1))
+                    attr_df['Text'].iloc[var_height_index] = other_spaces + "height = " + '-' + moisture_height + 'm'
 
             # check if variable is soil temp
             elif var_name.startswith("Ts_"):
+                # get temp variable lines
+                temp_xl_df = xl_df
+                temp_attr_df = attr_df
+                # format temp variable lines
                 var_name_index = var.index[0]
                 # get the met tower variable name from xl line and compare with met_eddypro_soil_temp_labels
                 met_tower_var_name = xl_df['Text'].iloc[1].split('=')[1].strip()
                 var_ameriflux_name = met_eddypro_soil_temp_labels.get(met_tower_var_name)
                 if var_ameriflux_name is not None:
                     var_flag = True
+                    # delete key from labels
+                    del met_eddypro_soil_temp_labels[met_tower_var_name]
                     var_ameriflux_name = var_ameriflux_name.upper()
                     variables_mapping[var_name] = var_ameriflux_name
                     var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_ameriflux_name + "]]"
+
+            # format text as per L1
+            xl_df['Text'].iloc[0] = xl_spaces + xl_df['Text'].iloc[0]
+            xl_df['Text'].iloc[1:] = other_spaces + xl_df['Text'].iloc[1:]
+
+            # format text as per L1
+            attr_df['Text'].iloc[0] = attr_spaces + attr_df['Text'].iloc[0]
+            attr_df['Text'].iloc[1:] = other_spaces + attr_df['Text'].iloc[1:]
+
+            # update the variable df
+            var.update(xl_df)
+            var.update(attr_df)
 
             if var_flag:
                 variables_lines_out.extend(var['Text'].tolist())
 
         # end of for loop
+        # if there are variables left in the labels, write them to the variables sheet
+        if len(met_eddypro_soil_moisture_labels) > 0:
+            for key, value in met_eddypro_soil_moisture_labels.items():
+                variables_lines_out.append(var_spaces + "[[" + value + "]]")
+                name_row = moisture_xl_df[moisture_xl_df['Text'].apply(lambda x: x.strip().startswith("name"))]
+                moisture_xl_df.iloc[name_row.index[0]]['Text'] = other_spaces + "name = " + key
+                height_row = moisture_attr_df[moisture_attr_df['Text'].apply(lambda x: x.strip().startswith("height"))]
+                attr_height = [str(x) for x in value if x.isdigit()]
+                attr_height = ''.join(attr_height)
+                # round height to one decimal place and convert to string
+                moisture_height = str(round(int(attr_height) / 100, 1))
+                moisture_attr_df.iloc[height_row.index[0]]['Text'] = \
+                    other_spaces + "height = " + '-' + moisture_height + 'm'
+                # change instrument according to the met tower variable name
+                instrument_row = moisture_attr_df[moisture_attr_df['Text'].apply(lambda x:
+                                                                                 x.strip().startswith("instrument"))]
+                if key.startswith("Moisture"):
+                    moisture_attr_df.iloc[instrument_row.index[0]]['Text'] = \
+                        other_spaces + "instrument = " + 'Hydra probe'
+                else:
+                    moisture_attr_df.iloc[instrument_row.index[0]]['Text'] = \
+                        other_spaces + "instrument = " + 'soilVUE'
+                variables_lines_out.extend(moisture_attr_df['Text'].tolist())
+                variables_lines_out.extend(moisture_xl_df['Text'].tolist())
+        if len(met_eddypro_soil_temp_labels) > 0:
+            for key, value in met_eddypro_soil_temp_labels.items():
+                variables_lines_out.append(var_spaces + "[[" + value + "]]")
+                name_row = temp_xl_df[temp_xl_df['Text'].apply(lambda x: x.strip().startswith("name"))]
+                temp_xl_df.iloc[name_row.index[0]]['Text'] = other_spaces + "name = " + key
+                height_row = moisture_attr_df[moisture_attr_df['Text'].apply(lambda x: x.strip().startswith("height"))]
+                attr_height = [str(x) for x in value if x.isdigit()]
+                attr_height = ''.join(attr_height)
+                # round height to one decimal place and convert to string
+                moisture_height = str(round(int(attr_height) / 100, 1))
+                moisture_attr_df.iloc[height_row.index[0]]['Text'] = \
+                    other_spaces + "height = " + '-' + moisture_height + 'm'
+                # change instrument according to the met tower variable name
+                instrument_row = moisture_attr_df[moisture_attr_df['Text'].apply(lambda x:
+                                                                                 x.strip().startswith("instrument"))]
+                if key.startswith("Moisture"):
+                    moisture_attr_df.iloc[instrument_row.index[0]]['Text'] = \
+                        other_spaces + "instrument = " + 'Hydra probe'
+                else:
+                    moisture_attr_df.iloc[instrument_row.index[0]]['Text'] = \
+                        other_spaces + "instrument = " + 'soilVUE'
+                variables_lines_out.extend(moisture_attr_df['Text'].tolist())
+                variables_lines_out.extend(moisture_xl_df['Text'].tolist())
+
+
         return variables_lines_out, variables_mapping
 
     @staticmethod
