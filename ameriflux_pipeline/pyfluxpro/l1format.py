@@ -353,6 +353,40 @@ class L1Format:
         var_start_end.append((end_ind, text.last_valid_index()+1))
         return variables, var_start_end
 
+
+    @staticmethod
+    def get_var_xl_attr_df(df, start, end, xl_pattern=XL_PATTERN, attr_pattern=ATTR_PATTERN):
+        """
+            Get xl and attr sections from variable dataframe
+            Args:
+                df (obj): Pandas dataframe with all variable lines from L1.txt
+                start (int): Starting index of the variable section
+                end (int): Ending index of the variable section
+                xl_pattern (str): Regex pattern to find the [[[xl]]] section within Variables section
+                attr_pattern (str): Regex pattern to find the [[[Attr]]] section within Variables section
+            Returns:
+                attr_df (obj): Pandas dataframe with attr section for the variable
+                xl_df (obj): Pandas dataframe with xl section for the variable
+        """
+        # get variable in a dataframe
+        var = df[start:end]
+        # get the [[[xl]]] section
+        xl = var[var['Text'].str.contains(xl_pattern)]
+        # get the [[[Attr]]] OR [[[attr]]] section
+        attr = var[var['Text'].str.contains(attr_pattern)]
+
+        # check which section comes first
+        if xl.index[0] > attr.index[0]:
+            # attr section comes first
+            xl_df = df[xl.index[0]:end]
+            attr_df = df[attr.index[0]:xl.index[0]]
+        else:
+            # xl section comes first
+            attr_df = df[attr.index[0]:end]
+            xl_df = df[xl.index[0]:attr.index[0]]
+
+        return var, xl_df, attr_df
+
     @staticmethod
     def get_corrected_met_tower_var_name(met_tower_var_name):
         """
@@ -473,25 +507,9 @@ class L1Format:
         for start, end in var_start_end:
             # NOTES 13
             var_flag = False  # flag to see if variable is to be written or not
-            # get each variable in a separate df
-            var = df[start:end]
-            var_name = var['Text'].iloc[0].strip('[]')
-
-            # get the [[[xl]]] section
-            xl = var[var['Text'].str.contains(xl_pattern)]
-            # get the [[[Attr]]] OR [[[attr]]] section
-            attr = var[var['Text'].str.contains(attr_pattern)]
-
-            # check which section comes first
-            if xl.index[0] > attr.index[0]:
-                # attr section comes first
-                xl_df = df[xl.index[0]:end]
-                attr_df = df[attr.index[0]:xl.index[0]]
-            else:
-                # xl section comes first
-                attr_df = df[attr.index[0]:end]
-                xl_df = df[xl.index[0]:attr.index[0]]
-
+            # get variable, xl and attr sections as separate dataframes
+            var, xl_df, attr_df = L1Format.get_var_xl_attr_df(df, start, end)
+            var_name = var['Text'].iloc[0].strip('[]')  # get variable name
             # get met tower variable name
             name_row = xl_df[xl_df['Text'].apply(lambda x: x.strip().startswith("name"))]
             met_tower_var_name = name_row['Text'].iloc[0].split('=')[1].strip()
@@ -570,7 +588,7 @@ class L1Format:
                     # change the unit to percentage
                     if units_row.shape[0] > 0:
                         var_units_index = units_row.index[0]
-                        attr_df['Text'].iloc[var_units_index] = other_spaces + "units = " + '%'
+                        var['Text'].iloc[var.index == var_units_index] = other_spaces + "units = " + '%'
 
                     # correct the height row
                     var_height_index = height_row.index[0]
@@ -623,39 +641,41 @@ class L1Format:
         # end of for loop. Variables in input L1 sheet are now formatted
 
         # if there are variables left in the labels, write them to the variables sheet
-        if len(met_eddypro_soil_moisture_labels) > 0 and moisture_attr_df and moisture_xl_df:
+        if len(met_eddypro_soil_moisture_labels) > 0 and moisture_attr_df is not None and moisture_xl_df is not None:
             # write moisture variables by modifying the attr and xl sections
             for key, value in met_eddypro_soil_moisture_labels.items():
                 variables_lines_out.extend(var_spaces + "[[" + value + "]]")
                 variables_mapping[key] = value  # add variable name to the mapping
                 name_row = moisture_xl_df[moisture_xl_df['Text'].apply(lambda x: x.strip().startswith("name"))]
-                moisture_xl_df.iloc[name_row.index[0]]['Text'] = other_spaces + "name = " + key
+                moisture_xl_df.iloc[moisture_xl_df.index == name_row.index[0]] = other_spaces + "name = " + key
                 height_row = moisture_attr_df[moisture_attr_df['Text'].apply(lambda x: x.strip().startswith("height"))]
                 height = L1Format.get_corrected_height(value)
-                moisture_attr_df.iloc[height_row.index[0]]['Text'] = other_spaces + "height = " + '-' + height + 'm'
+                moisture_xl_df.iloc[moisture_xl_df.index == height_row.index[0]] = other_spaces + "height = " + '-' + height + 'm'
                 # change instrument according to the met tower variable name
                 instrument_row = moisture_attr_df[moisture_attr_df['Text'].apply(lambda x:
                                                                                  x.strip().startswith("instrument"))]
                 instrument = L1Format.get_corrected_instrument(key)
-                moisture_attr_df.iloc[instrument_row.index[0]]['Text'] = other_spaces + "instrument = " + instrument
+                moisture_attr_df.iloc[moisture_attr_df.index == instrument_row.index[0]] = \
+                    other_spaces + "instrument = " + instrument
                 # write the modified sections
                 variables_lines_out.extend(moisture_attr_df['Text'].tolist())
                 variables_lines_out.extend(moisture_xl_df['Text'].tolist())
 
-        if len(met_eddypro_soil_temp_labels) > 0 and temp_attr_df and temp_xl_df:
+        if len(met_eddypro_soil_temp_labels) > 0 and temp_attr_df is not None and temp_xl_df is not None:
             for key, value in met_eddypro_soil_temp_labels.items():
                 variables_lines_out.extend(var_spaces + "[[" + value + "]]")
                 variables_mapping[key] = value  # add variable name to the mapping
                 name_row = temp_xl_df[temp_xl_df['Text'].apply(lambda x: x.strip().startswith("name"))]
-                temp_xl_df.iloc[name_row.index[0]]['Text'] = other_spaces + "name = " + key
+                temp_xl_df.iloc[temp_xl_df.index == name_row.index[0]] = other_spaces + "name = " + key
                 height_row = temp_attr_df[temp_attr_df['Text'].apply(lambda x: x.strip().startswith("height"))]
                 height = L1Format.get_corrected_height(value)
-                temp_attr_df.iloc[height_row.index[0]]['Text'] = other_spaces + "height = " + '-' + height + 'm'
+                temp_attr_df.iloc[temp_attr_df.index == height_row.index[0]] = other_spaces + "height = " + '-' + height + 'm'
                 # change instrument according to the met tower variable name
                 instrument_row = temp_attr_df[temp_attr_df['Text'].apply(lambda x:
                                                                          x.strip().startswith("instrument"))]
                 instrument = L1Format.get_corrected_instrument(key)
-                temp_attr_df.iloc[instrument_row.index[0]]['Text'] = other_spaces + "instrument = " + instrument
+                temp_attr_df.iloc[temp_attr_df.index == instrument_row.index[0]] = \
+                    other_spaces + "instrument = " + instrument
                 # write the modified sections
                 variables_lines_out.extend(temp_attr_df['Text'].tolist())
                 variables_lines_out.extend(temp_xl_df['Text'].tolist())
@@ -691,29 +711,14 @@ class L1Format:
         # iterate over the variables
         for start, end in var_start_end:
             var_flag = False  # flag to see if variable has been changed or not
-            # get each variable in a separate df
-            var = df[start:end]
-            var_name = var['Text'].iloc[0].strip('[]')
+            # get variable, xl and attr sections as separate dataframes
+            var, xl_df, attr_df = L1Format.get_var_xl_attr_df(df, start, end)
+            var_name = var['Text'].iloc[0].strip('[]')  # get variable name
 
             # set the spacing for variable name line
             var_name_index = var.index[0]
             var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_name + "]]"
             variables_mapping[var_name] = var_name
-
-            # get the [[[xl]]] section
-            xl = var[var['Text'].str.contains(xl_pattern)]
-            # get the [[[Attr]]] OR [[[attr]]] section
-            attr = var[var['Text'].str.contains(attr_pattern)]
-
-            # check which section comes first
-            if xl.index[0] > attr.index[0]:
-                # attr section comes first
-                xl_df = df[xl.index[0]:end]
-                attr_df = df[attr.index[0]:xl.index[0]]
-            else:
-                # xl section comes first
-                attr_df = df[attr.index[0]:end]
-                xl_df = df[xl.index[0]:attr.index[0]]
 
             # format text as per L1
             xl_df['Text'].iloc[0] = xl_spaces + xl_df['Text'].iloc[0]
