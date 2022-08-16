@@ -627,7 +627,7 @@ class L1Format:
             # write moisture variables by modifying the attr and xl sections
             for key, value in met_eddypro_soil_moisture_labels.items():
                 variables_lines_out.extend(var_spaces + "[[" + value + "]]")
-                variables_mapping[key] = value
+                variables_mapping[key] = value  # add variable name to the mapping
                 name_row = moisture_xl_df[moisture_xl_df['Text'].apply(lambda x: x.strip().startswith("name"))]
                 moisture_xl_df.iloc[name_row.index[0]]['Text'] = other_spaces + "name = " + key
                 height_row = moisture_attr_df[moisture_attr_df['Text'].apply(lambda x: x.strip().startswith("height"))]
@@ -645,7 +645,7 @@ class L1Format:
         if len(met_eddypro_soil_temp_labels) > 0 and temp_attr_df and temp_xl_df:
             for key, value in met_eddypro_soil_temp_labels.items():
                 variables_lines_out.extend(var_spaces + "[[" + value + "]]")
-                variables_mapping[key] = value
+                variables_mapping[key] = value  # add variable name to the mapping
                 name_row = temp_xl_df[temp_xl_df['Text'].apply(lambda x: x.strip().startswith("name"))]
                 temp_xl_df.iloc[name_row.index[0]]['Text'] = other_spaces + "name = " + key
                 height_row = temp_attr_df[temp_attr_df['Text'].apply(lambda x: x.strip().startswith("height"))]
@@ -653,14 +653,14 @@ class L1Format:
                 temp_attr_df.iloc[height_row.index[0]]['Text'] = other_spaces + "height = " + '-' + height + 'm'
                 # change instrument according to the met tower variable name
                 instrument_row = temp_attr_df[temp_attr_df['Text'].apply(lambda x:
-                                                                                 x.strip().startswith("instrument"))]
+                                                                         x.strip().startswith("instrument"))]
                 instrument = L1Format.get_corrected_instrument(key)
                 temp_attr_df.iloc[instrument_row.index[0]]['Text'] = other_spaces + "instrument = " + instrument
                 # write the modified sections
                 variables_lines_out.extend(temp_attr_df['Text'].tolist())
                 variables_lines_out.extend(temp_xl_df['Text'].tolist())
 
-
+        # return the variables mapping and output list
         return variables_lines_out, variables_mapping
 
     @staticmethod
