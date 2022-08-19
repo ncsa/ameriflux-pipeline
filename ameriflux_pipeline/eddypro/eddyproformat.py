@@ -34,7 +34,9 @@ class EddyProFormat:
             file_meta (obj) : A pandas dataframe containing meta data about the input met data file
             output_path (str): A file path for the output data.
         Returns:
-            obj: Pandas DataFrame object.
+            obj: Pandas DataFrame object. Met tower data formatted for EddyPro run.
+            site_soil_moisture_variables(dict): Dictionary for soil moisture variable details from Soils key file
+            site_soil_temp_variables (dict): Dictionary for soil temperature variable details from Soils key file
         """
         input_path = input_data_path  # path of input data csv file
         input_soil_key = input_soil_key  # path for soil key
@@ -53,8 +55,12 @@ class EddyProFormat:
             log.error("Soils_key.xlsx file invalid format. Aborting")
             return None
         # get the soil temp and moisture keys for the site
-        eddypro_soil_moisture_labels, eddypro_soil_temp_labels = EddyProFormat.get_soil_keys(df_soil_key, site_name)
-
+        site_soil_moisture_variables, site_soil_temp_variables = EddyProFormat.get_soil_keys(df_soil_key, site_name)
+        # get mapping of soil temp and moisture met tower names to eddypro labels
+        eddypro_soil_moisture_labels = {key: value['Eddypro label'] for key, value in
+                                        site_soil_moisture_variables.items()}
+        eddypro_soil_temp_labels = {key: value['Eddypro label'] for key, value in
+                                    site_soil_temp_variables.items()}
         # read data file to dataframe. step 1 of guide
         df = EddyProFormat.read_rename(input_path, output_path)
 
@@ -94,8 +100,8 @@ class EddyProFormat:
         # check if required columns from meteorological file are in df
         EddyProFormat.check_req_columns(df)
 
-        # return formatted df
-        return df
+        # return formatted df and all the soil temp and moisture labels and depth dictionaries
+        return df, site_soil_moisture_variables, site_soil_temp_variables
 
     @staticmethod
     def get_soil_keys(df_soil_key, site_name):
@@ -107,8 +113,8 @@ class EddyProFormat:
             df_soil_key (obj): pandas dataframe having soil keys
             site_name (str): site name extracted from file meta data
         Returns:
-            eddypro_soil_moisture_labels(dict): Dictionary for soil moisture mapping from met variable to eddypro label
-            eddypro_soil_temp_labels(dict): Dictionary for soil temperature mapping from met variable to eddypro label
+            site_soil_moisture_variables(dict): Dictionary for soil moisture variable details from Soils key file
+            site_soil_temp_variables (dict): Dictionary for soil temperature variable details from Soils key file
         """
         site_name_col = df_soil_key.filter(regex=re.compile("^name|^site", re.IGNORECASE)).columns.to_list()[0]
         site_soil_key = df_soil_key[df_soil_key[site_name_col] == site_name]  # get all variables for the site
@@ -127,22 +133,31 @@ class EddyProFormat:
         met_water_col = list(filter(water_pattern.search, met_cols))
         eddypro_temp_col = list(filter(temp_pattern.search, eddypro_cols))
         eddypro_water_col = list(filter(water_pattern.search, eddypro_cols))
-        # get soil temp and moisture variables
-        site_soil_moisture = site_soil_key[[met_water_col[0], eddypro_water_col[0]]]
-        site_soil_temp = site_soil_key[[met_temp_col[0], eddypro_temp_col[0]]]
+
+        # get instrument used for soil moisture and soil temp
+        instrument_col = df_soil_key.filter(regex=re.compile("^instrument", re.IGNORECASE)).columns.to_list()[0]
+        # get instrument depth for soil moisture and soil temp
+        depth_col = df_soil_key.filter(regex=re.compile("^depth", re.IGNORECASE)).columns.to_list()[0]
+
+        # get instrument, depth and eddypro labels for soil temp and moisture variables
+        site_soil_moisture_variables = site_soil_key[[met_water_col[0], eddypro_water_col[0],
+                                                      instrument_col, depth_col]]
+        site_soil_temp_variables = site_soil_key[[met_temp_col[0], eddypro_temp_col[0],
+                                                  instrument_col, depth_col]]
+
+        # rename columns
         col_rename = {met_water_col[0]: 'Met variable', met_temp_col[0]: 'Met variable',
-                      eddypro_water_col[0]: 'Eddypro label', eddypro_temp_col[0]: 'Eddypro label'}
-        site_soil_moisture.rename(columns=col_rename, inplace=True)
-        site_soil_temp.rename(columns=col_rename, inplace=True)
-        # make these variable labels as dictionary
-        eddypro_soil_moisture_labels = site_soil_moisture.set_index('Met variable').T.to_dict('list')
-        eddypro_soil_temp_labels = site_soil_temp.set_index('Met variable').T.to_dict('list')
-        # remove list from values
-        for key, value in eddypro_soil_moisture_labels.items():
-            eddypro_soil_moisture_labels[key] = ''.join(value)
-        for key, value in eddypro_soil_temp_labels.items():
-            eddypro_soil_temp_labels[key] = ''.join(value)
-        return eddypro_soil_moisture_labels, eddypro_soil_temp_labels
+                      eddypro_water_col[0]: 'Eddypro label', eddypro_temp_col[0]: 'Eddypro label',
+                      depth_col: 'Depth (cm)', instrument_col: 'Instrument'}
+        site_soil_moisture_variables.rename(columns=col_rename, inplace=True)
+        site_soil_temp_variables.rename(columns=col_rename, inplace=True)
+
+        # make these as dictionary, in json format
+        site_soil_moisture_variables = site_soil_moisture_variables.set_index('Met variable').T.to_dict()
+        site_soil_temp_variables = site_soil_temp_variables.set_index('Met variable').T.to_dict()
+
+        # return soil variables
+        return site_soil_moisture_variables, site_soil_temp_variables
 
     @staticmethod
     def read_rename(input_path, output_path):

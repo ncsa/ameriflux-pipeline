@@ -39,8 +39,8 @@ class L1Format:
     # main method which calls other functions
     @staticmethod
     def data_formatting(pyfluxpro_input, l1_mainstem, l1_ameriflux_only, ameriflux_mainstem_key, file_meta_data_file,
-                        soil_key, outfile, l1_ameriflux_output,
-                        erroring_variable_flag, erroring_variable_key,
+                        outfile, l1_ameriflux_output, erroring_variable_flag, erroring_variable_key,
+                        site_soil_moisture_variables, site_soil_temp_variables,
                         spaces=SPACES, level_line=LEVEL_LINE):
         """
         Main method for the class.
@@ -52,7 +52,6 @@ class L1Format:
             ameriflux_mainstem_key (str): Variable name key used to match the original variable names to Ameriflux names
                                             This is an excel file named Ameriflux-Mainstem-Key.xlsx
             file_meta_data_file (str) : CSV file containing the meta data, typically the first line of Met data
-            soil_key (str) : A file path for input soil key sheet
             outfile (str): A file path for the output of L1 run. This typically has .nc extension
             l1_ameriflux_output (str): A file path for the L1.txt that is formatted for Ameriflux standards
             erroring_variable_flag (str): A flag denoting whether some PyFluxPro variables (erroring variables) are
@@ -60,6 +59,8 @@ class L1Format:
             erroring_variable_key (str): Variable name key used to match the original variable names to Ameriflux names
                                         for variables throwing an error in PyFluxPro L1.
                                         This is an excel file named L1_erroring_variables.xlsx
+            site_soil_moisture_variables (dict): Dictionary for soil moisture variable details from Soils key file
+            site_soil_temp_variables (dict): Dictionary for soil temperature variable details from Soils key file
             spaces (str): Spaces to be inserted before each section and line
             level_line (str): Line specifying the level. L1 for this section.
         Returns:
@@ -69,27 +70,25 @@ class L1Format:
         l1_mainstem = open(l1_mainstem, 'r')
         l1_ameriflux = open(l1_ameriflux_only, 'r')
         l1_output_lines = []  # comma separated list of lines to be written
+
         # read lines from l1 inputs
         l1_mainstem_lines = l1_mainstem.readlines()
-        l1_ameriflux_lines = l1_ameriflux.readlines()
-
         # check if input L1 have the same format as expected
-        if not L1Validation.check_l1_format(l1_mainstem_lines) or not L1Validation.check_l1_format(l1_ameriflux_lines):
-            log.error("Check L1.txt format")
+        if not L1Validation.check_l1_format(l1_mainstem_lines):
+            log.error("Check input L1.txt format %s", l1_mainstem)
             l1_mainstem.close()
+            return None
+        l1_ameriflux_lines = l1_ameriflux.readlines()
+        if not L1Validation.check_l1_format(l1_ameriflux_lines):
+            log.error("Check input L1.txt format %s", l1_ameriflux_only)
             l1_ameriflux.close()
             return None
 
         # read file_meta
-        file_meta = pd.read_csv(file_meta_data_file)
+        file_meta = data_util.read_csv_file(file_meta_data_file)
         # get the site name
         file_site_name = file_meta.iloc[0][5]
-        site_name = data_util.get_site_name(file_site_name)
-        df_soil_key = data_util.read_excel(soil_key)
-        if not DataValidation.is_valid_soils_key(df_soil_key):
-            log.error("Soils_key.xlsx file invalid format.")
-            return None
-        soil_moisture_labels, soil_temp_labels = L1Format.get_soil_labels(site_name, df_soil_key)
+        site_name = data_util.get_site_name(file_site_name)  # TODO : use this site_name to modify Global section
 
         # get AmeriFlux-Mainstem variable name matching key
         ameriflux_key = L1Format.get_ameriflux_key(ameriflux_mainstem_key)
@@ -138,6 +137,7 @@ class L1Format:
         l1_output_lines.extend(files_lines)
 
         # get Global section
+        # TODO changes in global section : site_name, title, vegetation lines
         mainstem_global_lines, mainstem_variable_ind = L1Format.get_global_lines(l1_mainstem_lines)
         ameriflux_global_lines, ameriflux_variable_ind = L1Format.get_global_lines(l1_ameriflux_lines)
         # write global section lines to l1 output
@@ -154,13 +154,13 @@ class L1Format:
         # get df with only variables and a list of variable start and end indexes
         mainstem_variables, mainstem_var_start_end = L1Format.get_variables_index(mainstem_var_df['Text'])
         # get the mainstem variable lines to be written and variable name mapping
-        variable_lines_out, mainstem_variables_mapping = L1Format.format_variables(mainstem_var_df,
-                                                                                   mainstem_var_start_end,
-                                                                                   soil_moisture_labels,
-                                                                                   soil_temp_labels,
-                                                                                   ameriflux_key, erroring_variable_key)
+        mainstem_var_lines_out, mainstem_variables_mapping = \
+            L1Format.format_mainstem_var(mainstem_var_df, mainstem_var_start_end,
+                                         ameriflux_key, erroring_variable_key,
+                                         site_soil_moisture_variables, site_soil_temp_variables)
+
         # write variables section lines to l1 output
-        l1_output_lines.extend(variable_lines_out)
+        l1_output_lines.extend(mainstem_var_lines_out)
 
         # read from Ameriflux only L1 file
         ameriflux_var_df = pd.DataFrame(l1_ameriflux_lines[ameriflux_variable_ind + 1:], columns=['Text'])
@@ -169,16 +169,15 @@ class L1Format:
         # get df with only variables and a list of variable start and end indexes
         ameriflux_variables, ameriflux_var_start_end = L1Format.get_variables_index(ameriflux_var_df['Text'])
         # get the variable lines to be written
-        variable_lines_out, ameriflux_variables_mapping = L1Format.format_ameriflux_var_units(ameriflux_var_df,
-                                                                                              ameriflux_var_start_end,
-                                                                                              ameriflux_key)
+        ameriflux_var_lines_out, ameriflux_variables_mapping = \
+            L1Format.format_ameriflux_var(ameriflux_var_df, ameriflux_var_start_end, ameriflux_key)
+
+        # write variables section lines to l1 output
+        l1_output_lines.extend(ameriflux_var_lines_out)
 
         # create dictionary mapping of variables . pyfluxpro labels : ameriflux labels
         variable_mapping = mainstem_variables_mapping.copy()
         variable_mapping.update(ameriflux_variables_mapping)
-
-        # write variables section lines to l1 output
-        l1_output_lines.extend(variable_lines_out)
 
         # write output lines to file
         log.info("Writting Ameriflux L1 control file to " + l1_ameriflux_output)
@@ -190,55 +189,6 @@ class L1Format:
 
         # return pyfluxpro to ameriflux label mapping
         return variable_mapping
-
-    @staticmethod
-    def get_soil_labels(site_name, df_soil_key):
-        """
-        Method to get a mapping from PyFluxPro labels to Ameriflux labels
-        Args :
-            site_name (str): Name of site used to filter the soil variables
-            df_soil_key (obj): soil key dataframe containing the mapping between variable labels
-        Returns :
-            soil_moisture_labels (dict): Soil moisture variable mapping from pyfluxpro to ameriflux labels
-            soil_temp_labels (dict): Soil temperature variable mapping from pyfluxpro to ameriflux labels
-        """
-        site_name_col = df_soil_key.filter(regex=re.compile("^name|^site", re.IGNORECASE)).columns.to_list()[0]
-        site_soil_key = df_soil_key[df_soil_key[site_name_col] == site_name]  # get all variables for the site
-
-        # get column names matching pyfluxpro
-        pyfluxpro_cols = site_soil_key.filter(regex=re.compile("^pyfluxpro", re.IGNORECASE)).columns.to_list()
-        # get column names matching eddypro
-        eddypro_cols = site_soil_key.filter(regex=re.compile("^eddypro", re.IGNORECASE)).columns.to_list()
-        # remove variable columns that have 'old' in the name
-        old_pattern = re.compile(r'old', re.IGNORECASE)
-        pyfluxpro_cols = list(filter(lambda x: not old_pattern.search(x), pyfluxpro_cols))
-        eddypro_cols = list(filter(lambda x: not old_pattern.search(x), eddypro_cols))
-        # get temp and water variable columns from the above column list
-        temp_pattern = re.compile(r'temperature|temp', re.IGNORECASE)
-        water_pattern = re.compile(r"water|moisture", re.IGNORECASE)
-        pyfluxpro_temp_col = list(filter(temp_pattern.search, pyfluxpro_cols))
-        pyfluxpro_water_col = list(filter(water_pattern.search, pyfluxpro_cols))
-        eddypro_temp_col = list(filter(temp_pattern.search, eddypro_cols))
-        eddypro_water_col = list(filter(water_pattern.search, eddypro_cols))
-        # get soil temp and moisture variables
-        site_soil_moisture = site_soil_key[[pyfluxpro_water_col[0], eddypro_water_col[0]]]
-        site_soil_temp = site_soil_key[[pyfluxpro_temp_col[0], eddypro_temp_col[0]]]
-        col_rename = {pyfluxpro_water_col[0]: 'PyFluxPro label', pyfluxpro_temp_col[0]: 'PyFluxPro label',
-                      eddypro_water_col[0]: 'Ameriflux label', eddypro_temp_col[0]: 'Ameriflux label'}
-        site_soil_moisture.rename(columns=col_rename, inplace=True)
-        site_soil_temp.rename(columns=col_rename, inplace=True)
-
-        # make these variable labels as dictionary
-        soil_moisture_labels = site_soil_moisture.set_index('PyFluxPro label').T.to_dict('list')
-        soil_temp_labels = site_soil_temp.set_index('PyFluxPro label').T.to_dict('list')
-
-        # remove list from values
-        for key, value in soil_moisture_labels.items():
-            soil_moisture_labels[key] = ''.join(value)
-        for key, value in soil_temp_labels.items():
-            soil_temp_labels[key] = ''.join(value)
-
-        return soil_moisture_labels, soil_temp_labels
 
     @staticmethod
     def get_ameriflux_key(ameriflux_mainstem_key):
@@ -258,11 +208,14 @@ class L1Format:
         ameriflux_cols = df_ameriflux_key.filter(regex=re.compile("^ameriflux", re.IGNORECASE)).columns.to_list()
         # get column names matching Original
         original_cols = df_ameriflux_key.filter(regex=re.compile("^original", re.IGNORECASE)).columns.to_list()
+        # get column names matching Input sheet or Met tower
+        input_cols = df_ameriflux_key.filter(regex=re.compile("^input|^met", re.IGNORECASE)).columns.to_list()
         # get units column
         units_col = df_ameriflux_key.filter(regex=re.compile("^units", re.IGNORECASE)).columns.to_list()
         # rename columns
         df_ameriflux_key.rename(columns={ameriflux_cols[0]: 'Ameriflux variable name',
                                          original_cols[0]: 'Original variable name',
+                                         input_cols[0]: 'Input sheet variable name',
                                          units_col[0]: 'Units after formatting'}, inplace=True)
 
         return df_ameriflux_key
@@ -348,22 +301,113 @@ class L1Format:
         return variables, var_start_end
 
     @staticmethod
-    def format_variables(df, var_start_end, moisture_labels, temp_labels, ameriflux_key, erroring_variable_key,
-                         spaces=SPACES, xl_pattern=XL_PATTERN, attr_pattern=ATTR_PATTERN):
+    def get_var_xl_attr_df(df, start, end, xl_pattern=XL_PATTERN, attr_pattern=ATTR_PATTERN):
+        """
+            Get xl and attr sections from variable dataframe
+            Args:
+                df (obj): Pandas dataframe with all variable lines from L1.txt
+                start (int): Starting index of the variable section
+                end (int): Ending index of the variable section
+                xl_pattern (str): Regex pattern to find the [[[xl]]] section within Variables section
+                attr_pattern (str): Regex pattern to find the [[[Attr]]] section within Variables section
+            Returns:
+                var (obj) : Pandas dataframe with the specific variable section
+                xl_df (obj): Pandas dataframe with xl section for the variable
+                attr_df (obj): Pandas dataframe with attr section for the variable
+        """
+        # get variable in a dataframe
+        var = df[start:end]
+        # get the [[[xl]]] section
+        xl = var[var['Text'].str.contains(xl_pattern)]
+        # get the [[[Attr]]] OR [[[attr]]] section
+        attr = var[var['Text'].str.contains(attr_pattern)]
+
+        # check which section comes first
+        if xl.index[0] > attr.index[0]:
+            # attr section comes first
+            xl_df = df[xl.index[0]:end]
+            attr_df = df[attr.index[0]:xl.index[0]]
+        else:
+            # xl section comes first
+            attr_df = df[attr.index[0]:end]
+            xl_df = df[xl.index[0]:attr.index[0]]
+
+        return var, xl_df, attr_df
+
+    @staticmethod
+    def get_corrected_met_tower_var_name(met_tower_var_name):
+        """
+            Get corrected met tower variable name. See NOTES#20 for details.
+            Some met tower variable names are changed in met merger. Get corrected name.
+            Args:
+                met_tower_var_name (str): Met tower variable name
+            Returns:
+                corrected_met_tower_var_name (str): Corrected met tower variable name
+        """
+        corrected_met_tower_var_name = met_tower_var_name  # set initial value as same
+        # if VWC change to VWC1
+        if bool(re.match('^VWC_', met_tower_var_name, re.I)):
+            corrected_met_tower_var_name = 'VWC1_' + met_tower_var_name.split('_')[1] + '_Avg'
+        # if TC change to TC1
+        elif bool(re.match('^TC_', met_tower_var_name, re.I)):
+            corrected_met_tower_var_name = 'TC1_' + met_tower_var_name.split('_')[1] + '_Avg'
+        # if CM3Dn and CM3Up columns, rename to SWDn and SWUp
+        elif bool(re.match('^CM3Up', met_tower_var_name, re.I)):
+            corrected_met_tower_var_name = 'SWDn_Avg'
+        elif bool(re.match('^CM3Dn', met_tower_var_name, re.I)):
+            corrected_met_tower_var_name = 'SWUp_Avg'
+        # if CG3Dn and CG3Up columns, rename to LWDn and LWUp
+        elif bool(re.match('^CG3UpCo', met_tower_var_name, re.I)):
+            corrected_met_tower_var_name = 'LWDnCo_Avg'
+        elif bool(re.match('^CG3DnCo', met_tower_var_name, re.I)):
+            corrected_met_tower_var_name = 'LWUpCo_Avg'
+        # search for string ending with CG3Up or starting with CG3Up_Avg
+        elif bool(re.match('CG3Up$|^CG3Up_Avg', met_tower_var_name, re.I)):
+            corrected_met_tower_var_name = 'LWDn_Avg'
+        elif bool(re.match('CG3Dn$|^CG3Dn_Avg', met_tower_var_name, re.I)):
+            corrected_met_tower_var_name = 'LWUp_Avg'
+        # NetTot column is renamed to Rn_Avg
+        elif bool(re.match('^NetTot', met_tower_var_name, re.I)):
+            corrected_met_tower_var_name = 'Rn_Avg'
+        elif bool(re.match('^CNR[1-9]_?T_?C', met_tower_var_name, re.I)):
+            corrected_met_tower_var_name = 'CNRTC_Avg'
+        elif bool(re.match('^CNR[1-9]_?T_?K', met_tower_var_name, re.I)):
+            corrected_met_tower_var_name = 'CNRTK_Avg'
+        elif bool(re.match('^Rs_net', met_tower_var_name, re.I)):
+            corrected_met_tower_var_name = 'NetRs_Avg'
+        elif bool(re.match('^Rl_net', met_tower_var_name, re.I)):
+            corrected_met_tower_var_name = 'NetRl_Avg'
+
+        return corrected_met_tower_var_name
+
+    @staticmethod
+    def get_corrected_height(height):
+        """
+        Convert height from cm to m.
+            Args:
+                height (str): Height from Soils Key
+            Returns:
+                height (str): Corrected height of variable
+        """
+        # convert cm to m
+        # limit height to two decimal place and convert to string
+        return str(round(int(height) / 100, 2))
+
+    @staticmethod
+    def format_mainstem_var(df, var_start_end, ameriflux_key, erroring_variable_key,
+                            site_soil_moisture_variables, site_soil_temp_variables, spaces=SPACES):
         """
             Change variable names and units to AmeriFlux standard
 
             Args:
                 df (obj): Pandas dataframe with all variable lines from L1_mainstem.txt
                 var_start_end (list): List of tuple, the starting and ending index for each variable
-                moisture_labels (dict) : Mapping from pyfluxpro to ameriflux labels for soil moisture
-                temp_labels (dict): Mapping from pyfluxpro to ameriflux labels for soil temperature
                 ameriflux_key (obj): Pandas dataframe of AmeriFlux-Mainstem varible name sheet
                 erroring_variable_key (str/obj): Variable name key used to match the original variable names to
                                         Ameriflux names for variables throwing an error in PyFluxPro L1.
+                site_soil_moisture_variables (dict): Dictionary for soil moisture variable details from Soils key file
+                site_soil_temp_variables (dict): Dictionary for soil temperature variable details from Soils key file
                 spaces (str): Spaces to be inserted before each section and line
-                xl_pattern (str): Regex pattern to find the [[[xl]]] section within Variables section
-                attr_pattern (str): Regex pattern to find the [[[Attr]]] section within Variables section
             Returns:
                 variable_lines_out (list) : List of variables lines to be written to l1_ameriflux
                 variables_mapping (dict) : Mapping of pyfluxpro-friendly to ameriflux-friendly variable names in L1
@@ -377,29 +421,25 @@ class L1Format:
         variables_lines_out = []  # variable lines to be written
         # mapping for variables to be written
         variables_mapping = {}  # dictionary of pyfluxpro-friendly names to ameriflux-friendly names
-
+        # get xl and attr sections for soil moisture and temperature variables
+        moisture_xl_df, moisture_attr_df, temp_xl_df, temp_attr_df = None, None, None, None
         # iterate over the variables
         for start, end in var_start_end:
             # NOTES 13
             var_flag = False  # flag to see if variable is to be written or not
-            # get each variable in a separate df
-            var = df[start:end]
-            var_name = var['Text'].iloc[0].strip('[]')
+            # get variable, xl and attr sections as separate dataframes
+            var, xl_df, attr_df = L1Format.get_var_xl_attr_df(df, start, end)
+            var_name = var['Text'].iloc[0].strip('[]')  # get variable name
+            var_name_index = var.index[0]  # get index of variable name
+            # get met tower variable name
+            name_row = xl_df[xl_df['Text'].apply(lambda x: x.strip().startswith("name"))]
+            met_tower_var_name = name_row['Text'].iloc[0].split('=')[1].strip()
+            # get the corrected met tower variable name
+            met_tower_var_name = L1Format.get_corrected_met_tower_var_name(met_tower_var_name)
 
-            # get the [[[xl]]] section
-            xl = var[var['Text'].str.contains(xl_pattern)]
-            # get the [[[Attr]]] OR [[[attr]]] section
-            attr = var[var['Text'].str.contains(attr_pattern)]
-
-            # check which section comes first
-            if xl.index[0] > attr.index[0]:
-                # attr section comes first
-                xl_df = df[xl.index[0]:end]
-                attr_df = df[attr.index[0]:xl.index[0]]
-            else:
-                # xl section comes first
-                attr_df = df[attr.index[0]:end]
-                xl_df = df[xl.index[0]:attr.index[0]]
+            units_row = attr_df[attr_df['Text'].apply(lambda x: x.strip().startswith("unit"))]
+            height_row = attr_df[attr_df['Text'].apply(lambda x: x.strip().startswith("height"))]
+            instrument_row = attr_df[attr_df['Text'].apply(lambda x: x.strip().startswith("instrument"))]
 
             # format text as per L1
             xl_df['Text'].iloc[0] = xl_spaces + xl_df['Text'].iloc[0]
@@ -413,8 +453,6 @@ class L1Format:
             var.update(xl_df)
             var.update(attr_df)
 
-            units_row = attr_df[attr_df['Text'].apply(lambda x: x.strip().startswith("units"))]
-
             # check if the variable is one of the erroring variables in L1 PyFluxPro
             # check if the erroring_variable_key is a dataframe.
             if isinstance(erroring_variable_key, pd.DataFrame) and \
@@ -422,25 +460,26 @@ class L1Format:
                 # the variable name is one of the erroring variables.
                 # do not replace the variable name with ameriflux label
                 var_flag = True
-                var_name_index = var.index[0]
+                # add to the mapping
                 variables_mapping[var_name] = var_name
                 var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_name + "]]"
 
             # if the erroring variable is to be replaced, the Ameriflux friendly variable name is in ameriflux_key
-            elif ameriflux_key['Original variable name'].isin([var_name]).any():
+            elif ameriflux_key['Input sheet variable name'].isin([met_tower_var_name]).any():
                 var_flag = True
                 # check if var name should be changed for Ameriflux
-                var_name_index = var.index[0]
-                var_ameriflux_name = ameriflux_key.loc[ameriflux_key['Original variable name'] == var_name,
+                var_ameriflux_name = ameriflux_key.loc[ameriflux_key['Input sheet variable name'] == met_tower_var_name,
                                                        'Ameriflux variable name'].iloc[0]
+                # add to the mapping, both met tower and original names
                 variables_mapping[var_name] = var_ameriflux_name
+                variables_mapping[met_tower_var_name] = var_ameriflux_name
                 var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_ameriflux_name + "]]"
 
                 if units_row.shape[0] > 0:
                     # check if units need to be changed
                     var_units_index = units_row.index[0]
                     var_ameriflux_units = \
-                        ameriflux_key.loc[ameriflux_key['Original variable name'] == var_name,
+                        ameriflux_key.loc[ameriflux_key['Input sheet variable name'] == met_tower_var_name,
                                           'Units after formatting'].iloc[0]
                     if not pd.isnull(var_ameriflux_units):
                         # if unit needs to be changed, if its not NaN in the ameriflux-mainstem sheet
@@ -449,33 +488,141 @@ class L1Format:
                                                                          "units = " + var_ameriflux_units
             # check if variable is soil moisture
             elif var_name.startswith("Sws_"):
+                # soil moisture variable varies with site
+                # save moisture variable xl and attr sections
+                moisture_xl_df = xl_df
+                moisture_attr_df = attr_df
+                # format moisture variable lines
+                # get the ameriflux variable name from site_soil_moisture_variables. continue if not found
+                if met_tower_var_name not in site_soil_moisture_variables:
+                    # met variables not found in site_soil_moisture_variables
+                    continue
+                var_ameriflux_name = site_soil_moisture_variables[met_tower_var_name]['Eddypro label']
+                # write to variable lines
                 var_flag = True
-                var_name_index = var.index[0]
-                var_ameriflux_name = moisture_labels[var_name]
-                variables_mapping[var_name] = var_ameriflux_name
+                # add met tower name to the mapping
+                variables_mapping[met_tower_var_name] = var_ameriflux_name
                 var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_ameriflux_name + "]]"
                 # change the unit to percentage
                 if units_row.shape[0] > 0:
                     var_units_index = units_row.index[0]
                     var['Text'].iloc[var.index == var_units_index] = other_spaces + "units = " + '%'
 
+                # correct the height row
+                var_height_index = height_row.index[0]
+                # get height from met variable name
+                height_cm = site_soil_moisture_variables[met_tower_var_name]['Depth (cm)']
+                height = L1Format.get_corrected_height(height_cm)
+                var['Text'].iloc[var.index == var_height_index] = \
+                    other_spaces + "height = " + '-' + height + 'm'
+
+                # change the instrument row
+                var_instrument_index = instrument_row.index[0]
+                instrument = site_soil_moisture_variables[met_tower_var_name]['Instrument']
+                if var_instrument_index is not None:
+                    var['Text'].iloc[var.index == var_instrument_index] = \
+                        other_spaces + "instrument = " + instrument
+                # delete key from labels
+                del site_soil_moisture_variables[met_tower_var_name]
+
             # check if variable is soil temp
             elif var_name.startswith("Ts_"):
-                var_flag = True
+                # soil temp variable varies with site
+                # save temp variable xl and attr sections
+                temp_xl_df = xl_df
+                temp_attr_df = attr_df
+                # format temp variable lines
                 var_name_index = var.index[0]
-                var_ameriflux_name = temp_labels[var_name].upper()
-                variables_mapping[var_name] = var_ameriflux_name
+                if met_tower_var_name not in site_soil_temp_variables:
+                    # met variables not found in site_soil_temp_variables. skip writing to variable lines
+                    continue
+                var_ameriflux_name = site_soil_temp_variables[met_tower_var_name]['Eddypro label']
+                # write to variable lines
+                var_flag = True
+                var_ameriflux_name = var_ameriflux_name.upper()
+                # add met tower name to the mapping
+                variables_mapping[met_tower_var_name] = var_ameriflux_name
                 var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_ameriflux_name + "]]"
 
-            if var_flag:
-                variables_lines_out.extend(var['Text'].tolist())
+                # correct the height row
+                var_height_index = height_row.index[0]
+                # get height from met variable name
+                height_cm = site_soil_temp_variables[met_tower_var_name]['Depth (cm)']
+                height = L1Format.get_corrected_height(height_cm)
+                var['Text'].iloc[var.index == var_height_index] = \
+                    other_spaces + "height = " + '-' + height + 'm'
 
-        # end of for loop
+                # change the instrument row
+                var_instrument_index = instrument_row.index[0]
+                instrument = site_soil_temp_variables[met_tower_var_name]['Instrument']
+                if var_instrument_index is not None:
+                    var['Text'].iloc[var.index == var_instrument_index] = \
+                        other_spaces + "instrument = " + instrument
+                # delete key from labels
+                del site_soil_temp_variables[met_tower_var_name]
+
+            if var_flag:
+                # write the modified variable to the output list
+                variables_lines_out.extend(var['Text'].tolist())
+        # end of for loop. Variables in input L1 sheet are now formatted
+
+        # if there are variables left in the labels, write them to the variables sheet
+        if len(site_soil_moisture_variables) > 0 and moisture_attr_df is not None and moisture_xl_df is not None:
+            # write moisture variables by modifying the attr and xl sections
+            log.info("Writing additional soil moisture variables to L1 Variables")
+            for key, value in site_soil_moisture_variables.items():
+                var_name_line = var_spaces + "[[" + value['Eddypro label'] + "]]"
+                variables_lines_out.append(var_name_line)
+                variables_mapping[key] = value['Eddypro label']  # add variable name to the mapping
+                name_row = moisture_xl_df[moisture_xl_df['Text'].apply(lambda x: x.strip().startswith("name"))]
+                moisture_xl_df.iloc[moisture_xl_df.index == name_row.index[0]] = other_spaces + "name = " + key
+                height_row = moisture_attr_df[moisture_attr_df['Text'].apply(lambda x: x.strip().startswith("height"))]
+                # get height from met variable name
+                height_cm = value['Depth (cm)']
+                height = L1Format.get_corrected_height(height_cm)
+                moisture_attr_df.iloc[moisture_attr_df.index == height_row.index[0]] = \
+                    other_spaces + "height = " + '-' + height + 'm'
+                # change instrument according to the met tower variable name
+                instrument_row = moisture_attr_df[moisture_attr_df['Text'].apply(lambda x:
+                                                                                 x.strip().startswith("instrument"))]
+                instrument = value['Instrument']
+                moisture_attr_df.iloc[moisture_attr_df.index == instrument_row.index[0]] = \
+                    other_spaces + "instrument = " + instrument
+                # write the modified sections
+                variables_lines_out.extend(moisture_attr_df['Text'].tolist())
+                variables_lines_out.extend(moisture_xl_df['Text'].tolist())
+
+        if len(site_soil_temp_variables) > 0 and temp_attr_df is not None and temp_xl_df is not None:
+            log.info("Writing additional soil temperature variables to L1 Variables")
+            # write temp variables by modifying the attr and xl sections
+            for key, value in site_soil_temp_variables.items():
+                var_name_line = var_spaces + "[[" + value['Eddypro label'] + "]]"
+                variables_lines_out.append(var_name_line)
+                variables_mapping[key] = value['Eddypro label']  # add variable name to the mapping
+                name_row = temp_xl_df[temp_xl_df['Text'].apply(lambda x: x.strip().startswith("name"))]
+                temp_xl_df.iloc[temp_xl_df.index == name_row.index[0]] = other_spaces + "name = " + key
+                height_row = temp_attr_df[temp_attr_df['Text'].apply(lambda x: x.strip().startswith("height"))]
+                # get height from met variable name
+                height_cm = value['Depth (cm)']
+                height = L1Format.get_corrected_height(height_cm)
+                temp_attr_df.iloc[temp_attr_df.index == height_row.index[0]] = \
+                    other_spaces + "height = " + '-' + height + 'm'
+                # change instrument according to the met tower variable name
+                instrument_row = temp_attr_df[temp_attr_df['Text'].apply(lambda x:
+                                                                         x.strip().startswith("instrument"))]
+                instrument = value['Instrument']
+                temp_attr_df.iloc[temp_attr_df.index == instrument_row.index[0]] = \
+                    other_spaces + "instrument = " + instrument
+                # write the modified sections
+                variables_lines_out.extend(temp_attr_df['Text'].tolist())
+                variables_lines_out.extend(temp_xl_df['Text'].tolist())
+
+        # return the variables mapping and output list
         return variables_lines_out, variables_mapping
 
     @staticmethod
-    def format_ameriflux_var_units(df, var_start_end, ameriflux_key,
-                                   spaces=SPACES, xl_pattern=XL_PATTERN, attr_pattern=ATTR_PATTERN):
+    def format_ameriflux_var(df, var_start_end, ameriflux_key,
+                             spaces=SPACES, xl_pattern=XL_PATTERN, attr_pattern=ATTR_PATTERN):
         """
             Change variable units for Ameriflux only variables
 
@@ -501,29 +648,13 @@ class L1Format:
         # iterate over the variables
         for start, end in var_start_end:
             var_flag = False  # flag to see if variable has been changed or not
-            # get each variable in a separate df
-            var = df[start:end]
-            var_name = var['Text'].iloc[0].strip('[]')
-
+            # get variable, xl and attr sections as separate dataframes
+            var, xl_df, attr_df = L1Format.get_var_xl_attr_df(df, start, end)
+            var_name = var['Text'].iloc[0].strip('[]')  # get variable name
             # set the spacing for variable name line
             var_name_index = var.index[0]
             var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_name + "]]"
             variables_mapping[var_name] = var_name
-
-            # get the [[[xl]]] section
-            xl = var[var['Text'].str.contains(xl_pattern)]
-            # get the [[[Attr]]] OR [[[attr]]] section
-            attr = var[var['Text'].str.contains(attr_pattern)]
-
-            # check which section comes first
-            if xl.index[0] > attr.index[0]:
-                # attr section comes first
-                xl_df = df[xl.index[0]:end]
-                attr_df = df[attr.index[0]:xl.index[0]]
-            else:
-                # xl section comes first
-                attr_df = df[attr.index[0]:end]
-                xl_df = df[xl.index[0]:attr.index[0]]
 
             # format text as per L1
             xl_df['Text'].iloc[0] = xl_spaces + xl_df['Text'].iloc[0]
