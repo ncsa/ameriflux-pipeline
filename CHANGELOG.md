@@ -65,6 +65,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Robust string comparisons. [#219](https://github.com/ncsa/ameriflux-pipeline/issues/219)
 - Check if eddypro executable file exists in eddypro bin loc. [#249](https://github.com/ncsa/ameriflux-pipeline/issues/249)
 - Create site-specific L1 and L2 from generic L1 and L2. [#144](https://github.com/ncsa/ameriflux-pipeline/issues/144)
+- Dynamic start and end dates for met data merge. [#184](https://github.com/ncsa/ameriflux-pipeline/issues/184)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)

@@ -46,6 +46,7 @@ class OutputFormat:
             log.error("Run output file not in netCDF format. .nc extension expected")
             return None, None
         try:
+            log.info("Reading netCDF file %s", input_file)
             l2 = Dataset(input_file, mode='r')  # read netCDF file
         except KeyError or IOError as e:
             log.error("Unable to read netCDF file %s %s", input_file, e)
