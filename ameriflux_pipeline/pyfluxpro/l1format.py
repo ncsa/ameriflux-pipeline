@@ -390,8 +390,8 @@ class L1Format:
                 height (str): Corrected height of variable
         """
         # convert cm to m
-        # round height to one decimal place and convert to string
-        return str(round(int(height) / 100, 1))
+        # limit height to two decimal place and convert to string
+        return str(round(int(height) / 100, 2))
 
     @staticmethod
     def format_mainstem_var(df, var_start_end, ameriflux_key, erroring_variable_key,
@@ -569,6 +569,7 @@ class L1Format:
         # if there are variables left in the labels, write them to the variables sheet
         if len(site_soil_moisture_variables) > 0 and moisture_attr_df is not None and moisture_xl_df is not None:
             # write moisture variables by modifying the attr and xl sections
+            log.info("Writing additional soil moisture variables to L1 Variables")
             for key, value in site_soil_moisture_variables.items():
                 var_name_line = var_spaces + "[[" + value['Eddypro label'] + "]]"
                 variables_lines_out.append(var_name_line)
@@ -579,7 +580,7 @@ class L1Format:
                 # get height from met variable name
                 height_cm = value['Depth (cm)']
                 height = L1Format.get_corrected_height(height_cm)
-                moisture_xl_df.iloc[moisture_xl_df.index == height_row.index[0]] = \
+                moisture_attr_df.iloc[moisture_attr_df.index == height_row.index[0]] = \
                     other_spaces + "height = " + '-' + height + 'm'
                 # change instrument according to the met tower variable name
                 instrument_row = moisture_attr_df[moisture_attr_df['Text'].apply(lambda x:
@@ -592,6 +593,7 @@ class L1Format:
                 variables_lines_out.extend(moisture_xl_df['Text'].tolist())
 
         if len(site_soil_temp_variables) > 0 and temp_attr_df is not None and temp_xl_df is not None:
+            log.info("Writing additional soil temperature variables to L1 Variables")
             # write temp variables by modifying the attr and xl sections
             for key, value in site_soil_temp_variables.items():
                 var_name_line = var_spaces + "[[" + value['Eddypro label'] + "]]"
