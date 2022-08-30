@@ -122,6 +122,8 @@ class EddyProFormat:
         met_cols = site_soil_key.filter(regex=re.compile("datalogger|met tower", re.IGNORECASE)).columns.to_list()
         # get column names matching eddypro
         eddypro_cols = site_soil_key.filter(regex=re.compile("^eddypro", re.IGNORECASE)).columns.to_list()
+        # get column names matching pyfluxpro
+        pyfluxpro_cols = site_soil_key.filter(regex=re.compile("^pyfluxpro", re.IGNORECASE)).columns.to_list()
         # remove variable columns that have 'old' in the name
         old_pattern = re.compile(r'old', re.IGNORECASE)
         met_cols = list(filter(lambda x: not old_pattern.search(x), met_cols))
@@ -133,6 +135,8 @@ class EddyProFormat:
         met_water_col = list(filter(water_pattern.search, met_cols))
         eddypro_temp_col = list(filter(temp_pattern.search, eddypro_cols))
         eddypro_water_col = list(filter(water_pattern.search, eddypro_cols))
+        pyfluxpro_temp_col = list(filter(temp_pattern.search, pyfluxpro_cols))
+        pyfluxpro_water_col = list(filter(water_pattern.search, pyfluxpro_cols))
 
         # get instrument used for soil moisture and soil temp
         instrument_col = df_soil_key.filter(regex=re.compile("^instrument", re.IGNORECASE)).columns.to_list()[0]
@@ -140,14 +144,15 @@ class EddyProFormat:
         depth_col = df_soil_key.filter(regex=re.compile("^depth", re.IGNORECASE)).columns.to_list()[0]
 
         # get instrument, depth and eddypro labels for soil temp and moisture variables
-        site_soil_moisture_variables = site_soil_key[[met_water_col[0], eddypro_water_col[0],
+        site_soil_moisture_variables = site_soil_key[[met_water_col[0], eddypro_water_col[0], pyfluxpro_water_col[0],
                                                       instrument_col, depth_col]]
-        site_soil_temp_variables = site_soil_key[[met_temp_col[0], eddypro_temp_col[0],
+        site_soil_temp_variables = site_soil_key[[met_temp_col[0], eddypro_temp_col[0], pyfluxpro_temp_col[0],
                                                   instrument_col, depth_col]]
 
         # rename columns
         col_rename = {met_water_col[0]: 'Met variable', met_temp_col[0]: 'Met variable',
                       eddypro_water_col[0]: 'Eddypro label', eddypro_temp_col[0]: 'Eddypro label',
+                      pyfluxpro_water_col[0]: 'Pyfluxpro label', pyfluxpro_temp_col[0]: 'Pyfluxpro label',
                       depth_col: 'Depth (cm)', instrument_col: 'Instrument'}
         site_soil_moisture_variables.rename(columns=col_rename, inplace=True)
         site_soil_temp_variables.rename(columns=col_rename, inplace=True)

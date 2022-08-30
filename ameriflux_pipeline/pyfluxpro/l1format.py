@@ -498,10 +498,13 @@ class L1Format:
                     # met variables not found in site_soil_moisture_variables
                     continue
                 var_ameriflux_name = site_soil_moisture_variables[met_tower_var_name]['Eddypro label']
+                var_pyfluxpro_name = site_soil_moisture_variables[met_tower_var_name]['Pyfluxpro label']
                 # write to variable lines
                 var_flag = True
                 # add met tower name to the mapping
                 variables_mapping[met_tower_var_name] = var_ameriflux_name
+                # add pyfluxpro name to the mapping
+                variables_mapping[var_pyfluxpro_name] = var_ameriflux_name
                 var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_ameriflux_name + "]]"
                 # change the unit to percentage
                 if units_row.shape[0] > 0:
@@ -537,11 +540,14 @@ class L1Format:
                     # met variables not found in site_soil_temp_variables. skip writing to variable lines
                     continue
                 var_ameriflux_name = site_soil_temp_variables[met_tower_var_name]['Eddypro label']
+                var_pyfluxpro_name = site_soil_temp_variables[met_tower_var_name]['Pyfluxpro label']
                 # write to variable lines
                 var_flag = True
                 var_ameriflux_name = var_ameriflux_name.upper()
                 # add met tower name to the mapping
                 variables_mapping[met_tower_var_name] = var_ameriflux_name
+                # add pyfluxpro name to the mapping
+                variables_mapping[var_pyfluxpro_name] = var_ameriflux_name
                 var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_ameriflux_name + "]]"
 
                 # correct the height row
