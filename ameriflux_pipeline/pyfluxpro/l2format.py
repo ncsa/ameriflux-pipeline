@@ -226,18 +226,27 @@ class L2Format:
         check_spaces = spaces + spaces
         other_spaces = spaces + spaces + spaces
         variables_lines_out = []  # variable lines to be written to l2_ameriflux
+        var_name_out = []  # store variable names written to l2_ameriflux
         # iterate through each variable
         for var, var_start, var_end in var_start_end:
             var_out = []  # empty list to append this variable lines
             var_lines = variable_lines[var_start:var_end+1]
             # get variable name
             var_name = var_lines[0].strip('[]')
+            # check if variable is already written to L2
+            if var_name in var_name_out:
+                log.warning("Variable " + var_name + " is already written to L2. Skipping this variable.")
+                continue
 
             if var_name not in labels.keys():
                 # only write Ameriflux-friendly variables. NOTES 13
                 continue
+
             ameriflux_var_name = labels[var_name]
             var_out.append(var_spaces + "[[" + ameriflux_var_name + "]]")
+            # add variable names to var_name_out
+            var_name_out.append(ameriflux_var_name)
+            var_name_out.append(var_name)
 
             # get list of check, start and end indexes for this variable
             var_checks = L2Format.get_variable_check_indexes(var_lines)

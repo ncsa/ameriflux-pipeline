@@ -441,6 +441,10 @@ class L1Format:
             # get variable, xl and attr sections as separate dataframes
             var, xl_df, attr_df = L1Format.get_var_xl_attr_df(df, start, end)
             var_name = var['Text'].iloc[0].strip('[]')  # get variable name
+            # check if variable is already written to L1
+            if var_name in variables_mapping.keys():
+                log.warning("Variable " + var_name + " is already written to L1. Skipping this variable.")
+                continue
             var_name_index = var.index[0]  # get index of variable name
             # get met tower variable name
             name_row = xl_df[xl_df['Text'].apply(lambda x: x.strip().startswith("name"))]
@@ -665,6 +669,10 @@ class L1Format:
             # get variable, xl and attr sections as separate dataframes
             var, xl_df, attr_df = L1Format.get_var_xl_attr_df(df, start, end)
             var_name = var['Text'].iloc[0].strip('[]')  # get variable name
+            # check if variable is already written to L1
+            if var_name in variables_mapping.keys():
+                log.warning("Variable " + var_name + " is already written to L1. Skipping this variable.")
+                continue
             # set the spacing for variable name line
             var_name_index = var.index[0]
             var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_name + "]]"
