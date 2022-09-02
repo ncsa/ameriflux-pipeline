@@ -154,6 +154,9 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
 
     # convert timestamp to datetime format so that pyfluxpro can read without error
     full_output_df['TIMESTAMP'][1:] = pd.to_datetime(full_output_df['TIMESTAMP'][1:])
+    # get the starting and ending timestamp of full output
+    full_output_timestamp_start = full_output_df['TIMESTAMP'][1]
+    full_output_timestamp_end = full_output_df['TIMESTAMP'][len(full_output_df['TIMESTAMP']) - 1]
 
     # write pyfluxpro formatted df to output path
     data_util.write_data_to_csv(full_output_df, full_output_pyfluxpro)
@@ -163,6 +166,15 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
     met_data_df = data_util.read_csv_file(met_data_30_pyfluxpro, dtype='unicode')
     # convert timestamp to datetime format so that pyfluxpro can read without error
     met_data_df['TIMESTAMP'][1:] = pd.to_datetime(met_data_df['TIMESTAMP'][1:])
+    # get the starting and ending timestamp of met data
+    met_data_timestamp_start = met_data_df['TIMESTAMP'][1]
+    met_data_timestamp_end = met_data_df['TIMESTAMP'][len(met_data_df['TIMESTAMP']) - 1]
+
+    # check if the met data file has data for the entire period of eddypro full output
+    if not (met_data_timestamp_start == full_output_timestamp_start and
+            met_data_timestamp_end == full_output_timestamp_end):
+        log.error("The met data file does not timestamps matching eddypro full output.")
+        return False
 
     full_output_col_list = full_output_df.columns
     met_data_col_list = met_data_df.columns
