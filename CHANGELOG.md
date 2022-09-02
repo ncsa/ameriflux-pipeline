@@ -67,6 +67,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Create site-specific L1 and L2 from generic L1 and L2. [#144](https://github.com/ncsa/ameriflux-pipeline/issues/144)
 - Dynamic start and end dates for met data merge. [#184](https://github.com/ncsa/ameriflux-pipeline/issues/184)
 - Met tower variable name mapping for 2020 data. [#260](https://github.com/ncsa/ameriflux-pipeline/issues/260)
+- Check for duplicate variable names in L1 and L2. [#263](https://github.com/ncsa/ameriflux-pipeline/issues/263)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
