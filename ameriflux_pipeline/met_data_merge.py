@@ -157,7 +157,7 @@ def read_met_data(data_path):
         col_labels[netto_col[0]] = 'Rn_Avg'
     else:
         # check if Net_Rad_Avg is present
-        net_rad_col = df.filter(regex=re.compile('^Net_Rad', re.IGNORECASE)).columns.to_list()
+        net_rad_col = df.filter(regex=re.compile('^Net_?Rad', re.IGNORECASE)).columns.to_list()
         if net_rad_col:
             col_labels[net_rad_col[0]] = 'Rn_Avg'
 

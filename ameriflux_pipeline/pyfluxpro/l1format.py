@@ -351,11 +351,18 @@ class L1Format:
         # if TC change to TC1
         elif bool(re.match('^TC_', met_tower_var_name, re.I)):
             corrected_met_tower_var_name = 'TC1_' + met_tower_var_name.split('_')[1] + '_Avg'
-        # if CM3Dn and CM3Up columns, rename to SWDn and SWUp
+
+        # if CM3Dn and Solar_Wm2 columns, rename to SWDn
         elif bool(re.match('^CM[1-9]Up', met_tower_var_name, re.I)):
             corrected_met_tower_var_name = 'SWDn_Avg'
+        elif bool(re.match('^Solar_Wm[1-9]', met_tower_var_name, re.I)):
+            corrected_met_tower_var_name = 'SWDn_Avg'
+        # if CM3Dn and Sw_Out columns, rename to SWUp
         elif bool(re.match('^CM[1-9]Dn', met_tower_var_name, re.I)):
             corrected_met_tower_var_name = 'SWUp_Avg'
+        elif bool(re.match('^Sw_Out', met_tower_var_name, re.I)):
+            corrected_met_tower_var_name = 'SWUp_Avg'
+
         # if CG3Dn and CG3Up columns, rename to LWDn and LWUp
         elif bool(re.match('^CG[1-9]UpCo', met_tower_var_name, re.I)):
             corrected_met_tower_var_name = 'LWDnCo_Avg'
@@ -366,9 +373,13 @@ class L1Format:
             corrected_met_tower_var_name = 'LWDn_Avg'
         elif bool(re.match('CG[1-9]Dn$|^CG[1-9]Dn_Avg', met_tower_var_name, re.I)):
             corrected_met_tower_var_name = 'LWUp_Avg'
-        # NetTot column is renamed to Rn_Avg
+
+        # NetTot or Net_Rad column is renamed to Rn_Avg
         elif bool(re.match('^NetTot', met_tower_var_name, re.I)):
             corrected_met_tower_var_name = 'Rn_Avg'
+        elif bool(re.match('^Net_?Rad', met_tower_var_name, re.I)):
+            corrected_met_tower_var_name = 'Rn_Avg'
+
         elif bool(re.match('^CNR[1-9]_?T_?C', met_tower_var_name, re.I)):
             corrected_met_tower_var_name = 'CNRTC_Avg'
         elif bool(re.match('^CNR[1-9]_?T_?K', met_tower_var_name, re.I)):
@@ -487,7 +498,7 @@ class L1Format:
                         var['Text'].iloc[var.index == var_units_index] = other_spaces + \
                                                                          "units = " + var_ameriflux_units
             # check if variable is soil moisture
-            elif var_name.startswith("Sws_"):
+            elif var_name.lower().startswith("sws_"):
                 # soil moisture variable varies with site
                 # save moisture variable xl and attr sections
                 moisture_xl_df = xl_df
@@ -529,7 +540,7 @@ class L1Format:
                 del site_soil_moisture_variables[met_tower_var_name]
 
             # check if variable is soil temp
-            elif var_name.startswith("Ts_"):
+            elif var_name.lower().startswith("ts_"):
                 # soil temp variable varies with site
                 # save temp variable xl and attr sections
                 temp_xl_df = xl_df
