@@ -352,19 +352,19 @@ class L1Format:
         elif bool(re.match('^TC_', met_tower_var_name, re.I)):
             corrected_met_tower_var_name = 'TC1_' + met_tower_var_name.split('_')[1] + '_Avg'
         # if CM3Dn and CM3Up columns, rename to SWDn and SWUp
-        elif bool(re.match('^CM3Up', met_tower_var_name, re.I)):
+        elif bool(re.match('^CM[1-9]Up', met_tower_var_name, re.I)):
             corrected_met_tower_var_name = 'SWDn_Avg'
-        elif bool(re.match('^CM3Dn', met_tower_var_name, re.I)):
+        elif bool(re.match('^CM[1-9]Dn', met_tower_var_name, re.I)):
             corrected_met_tower_var_name = 'SWUp_Avg'
         # if CG3Dn and CG3Up columns, rename to LWDn and LWUp
-        elif bool(re.match('^CG3UpCo', met_tower_var_name, re.I)):
+        elif bool(re.match('^CG[1-9]UpCo', met_tower_var_name, re.I)):
             corrected_met_tower_var_name = 'LWDnCo_Avg'
-        elif bool(re.match('^CG3DnCo', met_tower_var_name, re.I)):
+        elif bool(re.match('^CG[1-9]DnCo', met_tower_var_name, re.I)):
             corrected_met_tower_var_name = 'LWUpCo_Avg'
         # search for string ending with CG3Up or starting with CG3Up_Avg
-        elif bool(re.match('CG3Up$|^CG3Up_Avg', met_tower_var_name, re.I)):
+        elif bool(re.match('CG[1-9]Up$|^CG[1-9]Up_Avg', met_tower_var_name, re.I)):
             corrected_met_tower_var_name = 'LWDn_Avg'
-        elif bool(re.match('CG3Dn$|^CG3Dn_Avg', met_tower_var_name, re.I)):
+        elif bool(re.match('CG[1-9]Dn$|^CG[1-9]Dn_Avg', met_tower_var_name, re.I)):
             corrected_met_tower_var_name = 'LWUp_Avg'
         # NetTot column is renamed to Rn_Avg
         elif bool(re.match('^NetTot', met_tower_var_name, re.I)):
