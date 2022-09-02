@@ -627,8 +627,7 @@ class L1Format:
         return variables_lines_out, variables_mapping
 
     @staticmethod
-    def format_ameriflux_var(df, var_start_end, ameriflux_key,
-                             spaces=SPACES, xl_pattern=XL_PATTERN, attr_pattern=ATTR_PATTERN):
+    def format_ameriflux_var(df, var_start_end, ameriflux_key, spaces=SPACES):
         """
             Change variable units for Ameriflux only variables
 
@@ -637,8 +636,6 @@ class L1Format:
                 var_start_end (list): List of tuple, the starting and ending index for each ameriflux variable
                 ameriflux_key (obj): Pandas dataframe of AmeriFlux-Mainstem varible name sheet
                 spaces (str): Spaces to be inserted before each section and line
-                xl_pattern (str): Regex pattern to find the [[[xl]]] section within Variables section
-                attr_pattern (str): Regex pattern to find the [[[Attr]]] section within Variables section
             Returns:
                 variable_lines_out (list) : List of variables lines to be written to l1_ameriflux
                 variables_mapping (dict) : Mapping of pyfluxpro-friendly to ameriflux-friendly variable names in L1
