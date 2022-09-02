@@ -118,16 +118,16 @@ def read_met_data(data_path):
         col_labels[albedo_col[0]] = 'Albedo_Avg'
     # find CM3Up or Solar_Wm2_Avg col and rename to SWDn_Avg
     # and CM3Dn columns and rename to SWDn and SWUp
-    cm3up_col = df.filter(regex=re.compile('^CM3Up', re.IGNORECASE)).columns.to_list()
+    cm3up_col = df.filter(regex=re.compile('^CM[1-9]Up', re.IGNORECASE)).columns.to_list()
     if cm3up_col:
         col_labels[cm3up_col[0]] = 'SWDn_Avg'
     else:
         # check if Solar_Wm2_Avg is present
-        solar_col = df.filter(regex=re.compile('^Solar_Wm2', re.IGNORECASE)).columns.to_list()
+        solar_col = df.filter(regex=re.compile('^Solar_Wm[1-9]', re.IGNORECASE)).columns.to_list()
         if solar_col:
             col_labels[solar_col[0]] = 'SWDn_Avg'
     # find CM3Dn or Sw_Out_Avg col and rename to SWUp_Avg
-    cm3dn_col = df.filter(regex=re.compile('^CM3Dn', re.IGNORECASE)).columns.to_list()
+    cm3dn_col = df.filter(regex=re.compile('^CM[1-9]Dn', re.IGNORECASE)).columns.to_list()
     if cm3dn_col:
         col_labels[cm3dn_col[0]] = 'SWUp_Avg'
     else:
@@ -137,17 +137,17 @@ def read_met_data(data_path):
             col_labels[sw_out_col[0]] = 'SWUp_Avg'
 
     # find CG3Dn and CG3Up columns and rename to LWDn and LWUp
-    cg3upco_col = df.filter(regex=re.compile('^CG3UpCo', re.IGNORECASE)).columns.to_list()
+    cg3upco_col = df.filter(regex=re.compile('^CG[1-9]UpCo', re.IGNORECASE)).columns.to_list()
     if cg3upco_col:
         col_labels[cg3upco_col[0]] = 'LWDnCo_Avg'
-    cg3dnco_col = df.filter(regex=re.compile('^CG3DnCo', re.IGNORECASE)).columns.to_list()
+    cg3dnco_col = df.filter(regex=re.compile('^CG[1-9]DnCo', re.IGNORECASE)).columns.to_list()
     if cg3dnco_col:
         col_labels[cg3dnco_col[0]] = 'LWUpCo_Avg'
     # search for string ending with CG3Up or starting with CG3Up_Avg
-    cg3up_col = df.filter(regex=re.compile('CG3Up$|^CG3Up_Avg', re.IGNORECASE)).columns.to_list()
+    cg3up_col = df.filter(regex=re.compile('CG[1-9]Up$|^CG[1-9]Up_Avg', re.IGNORECASE)).columns.to_list()
     if cg3up_col:
         col_labels[cg3up_col[0]] = 'LWDn_Avg'
-    cg3dn_col = df.filter(regex=re.compile('^CG3Dn$|^CG3Dn_Avg', re.IGNORECASE)).columns.to_list()
+    cg3dn_col = df.filter(regex=re.compile('^CG[1-9]Dn$|^CG[1-9]Dn_Avg', re.IGNORECASE)).columns.to_list()
     if cg3dn_col:
         col_labels[cg3dn_col[0]] = 'LWUp_Avg'
 
