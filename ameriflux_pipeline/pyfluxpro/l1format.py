@@ -170,7 +170,8 @@ class L1Format:
         ameriflux_variables, ameriflux_var_start_end = L1Format.get_variables_index(ameriflux_var_df['Text'])
         # get the variable lines to be written
         ameriflux_var_lines_out, ameriflux_variables_mapping = \
-            L1Format.format_ameriflux_var(ameriflux_var_df, ameriflux_var_start_end, ameriflux_key)
+            L1Format.format_ameriflux_var(ameriflux_var_df, ameriflux_var_start_end, ameriflux_key,
+                                          mainstem_variables_mapping)
 
         # write variables section lines to l1 output
         l1_output_lines.extend(ameriflux_var_lines_out)
@@ -642,7 +643,7 @@ class L1Format:
         return variables_lines_out, variables_mapping
 
     @staticmethod
-    def format_ameriflux_var(df, var_start_end, ameriflux_key, spaces=SPACES):
+    def format_ameriflux_var(df, var_start_end, ameriflux_key, mainstem_variables_mapping, spaces=SPACES):
         """
             Change variable units for Ameriflux only variables
 
@@ -650,6 +651,7 @@ class L1Format:
                 df (obj): Pandas dataframe with all variable lines from L1_ameriflux_only.txt
                 var_start_end (list): List of tuple, the starting and ending index for each ameriflux variable
                 ameriflux_key (obj): Pandas dataframe of AmeriFlux-Mainstem varible name sheet
+                mainstem_variables_mapping (dict) : Mapping of mainstem variables
                 spaces (str): Spaces to be inserted before each section and line
             Returns:
                 variable_lines_out (list) : List of variables lines to be written to l1_ameriflux
@@ -662,7 +664,7 @@ class L1Format:
         other_spaces = spaces + spaces + spaces
 
         variables_out = []  # variable lines to be written
-        variables_mapping = {}
+        ameriflux_variables_mapping = {}
         # iterate over the variables
         for start, end in var_start_end:
             var_flag = False  # flag to see if variable has been changed or not
@@ -670,13 +672,13 @@ class L1Format:
             var, xl_df, attr_df = L1Format.get_var_xl_attr_df(df, start, end)
             var_name = var['Text'].iloc[0].strip('[]')  # get variable name
             # check if variable is already written to L1
-            if var_name in variables_mapping.keys():
+            if var_name in ameriflux_variables_mapping.keys() or mainstem_variables_mapping.keys():
                 log.warning("Variable " + var_name + " is already written to L1. Skipping this variable.")
                 continue
             # set the spacing for variable name line
             var_name_index = var.index[0]
             var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_name + "]]"
-            variables_mapping[var_name] = var_name
+            ameriflux_variables_mapping[var_name] = var_name
 
             # format text as per L1
             xl_df['Text'].iloc[0] = xl_spaces + xl_df['Text'].iloc[0]
@@ -710,4 +712,4 @@ class L1Format:
                 variables_out.extend(var['Text'].tolist())
 
         # end of for loop
-        return variables_out, variables_mapping
+        return variables_out, ameriflux_variables_mapping
