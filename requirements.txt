@@ -10,5 +10,6 @@ python-dotenv>=0.10.3
 pytz>=2021.1
 six>=1.16.0
 tk>=0.1.0
+tkcalendar>=1.6.1
 validators>=0.19.0
 XlsxWriter>=3.0.2
