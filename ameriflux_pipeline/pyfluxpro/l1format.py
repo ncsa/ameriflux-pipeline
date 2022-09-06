@@ -672,7 +672,7 @@ class L1Format:
             var, xl_df, attr_df = L1Format.get_var_xl_attr_df(df, start, end)
             var_name = var['Text'].iloc[0].strip('[]')  # get variable name
             # check if variable is already written to L1
-            if var_name in ameriflux_variables_mapping.keys() or mainstem_variables_mapping.keys():
+            if (var_name in ameriflux_variables_mapping.keys()) or (var_name in mainstem_variables_mapping.keys()):
                 log.warning("Variable " + var_name + " is already written to L1. Skipping this variable.")
                 continue
             # set the spacing for variable name line
