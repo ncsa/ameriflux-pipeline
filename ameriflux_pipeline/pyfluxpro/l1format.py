@@ -351,24 +351,35 @@ class L1Format:
         # if TC change to TC1
         elif bool(re.match('^TC_', met_tower_var_name, re.I)):
             corrected_met_tower_var_name = 'TC1_' + met_tower_var_name.split('_')[1] + '_Avg'
-        # if CM3Dn and CM3Up columns, rename to SWDn and SWUp
-        elif bool(re.match('^CM3Up', met_tower_var_name, re.I)):
+
+        # if CM3Dn and Solar_Wm2 columns, rename to SWDn
+        elif bool(re.match('^CM[1-9]Up', met_tower_var_name, re.I)):
             corrected_met_tower_var_name = 'SWDn_Avg'
-        elif bool(re.match('^CM3Dn', met_tower_var_name, re.I)):
+        elif bool(re.match('^Solar_Wm[1-9]', met_tower_var_name, re.I)):
+            corrected_met_tower_var_name = 'SWDn_Avg'
+        # if CM3Dn and Sw_Out columns, rename to SWUp
+        elif bool(re.match('^CM[1-9]Dn', met_tower_var_name, re.I)):
             corrected_met_tower_var_name = 'SWUp_Avg'
+        elif bool(re.match('^Sw_Out', met_tower_var_name, re.I)):
+            corrected_met_tower_var_name = 'SWUp_Avg'
+
         # if CG3Dn and CG3Up columns, rename to LWDn and LWUp
-        elif bool(re.match('^CG3UpCo', met_tower_var_name, re.I)):
+        elif bool(re.match('^CG[1-9]UpCo', met_tower_var_name, re.I)):
             corrected_met_tower_var_name = 'LWDnCo_Avg'
-        elif bool(re.match('^CG3DnCo', met_tower_var_name, re.I)):
+        elif bool(re.match('^CG[1-9]DnCo', met_tower_var_name, re.I)):
             corrected_met_tower_var_name = 'LWUpCo_Avg'
         # search for string ending with CG3Up or starting with CG3Up_Avg
-        elif bool(re.match('CG3Up$|^CG3Up_Avg', met_tower_var_name, re.I)):
+        elif bool(re.match('CG[1-9]Up$|^CG[1-9]Up_Avg', met_tower_var_name, re.I)):
             corrected_met_tower_var_name = 'LWDn_Avg'
-        elif bool(re.match('CG3Dn$|^CG3Dn_Avg', met_tower_var_name, re.I)):
+        elif bool(re.match('CG[1-9]Dn$|^CG[1-9]Dn_Avg', met_tower_var_name, re.I)):
             corrected_met_tower_var_name = 'LWUp_Avg'
-        # NetTot column is renamed to Rn_Avg
+
+        # NetTot or Net_Rad column is renamed to Rn_Avg
         elif bool(re.match('^NetTot', met_tower_var_name, re.I)):
             corrected_met_tower_var_name = 'Rn_Avg'
+        elif bool(re.match('^Net_?Rad', met_tower_var_name, re.I)):
+            corrected_met_tower_var_name = 'Rn_Avg'
+
         elif bool(re.match('^CNR[1-9]_?T_?C', met_tower_var_name, re.I)):
             corrected_met_tower_var_name = 'CNRTC_Avg'
         elif bool(re.match('^CNR[1-9]_?T_?K', met_tower_var_name, re.I)):
@@ -487,7 +498,7 @@ class L1Format:
                         var['Text'].iloc[var.index == var_units_index] = other_spaces + \
                                                                          "units = " + var_ameriflux_units
             # check if variable is soil moisture
-            elif var_name.startswith("Sws_"):
+            elif var_name.lower().startswith("sws_"):
                 # soil moisture variable varies with site
                 # save moisture variable xl and attr sections
                 moisture_xl_df = xl_df
@@ -498,10 +509,13 @@ class L1Format:
                     # met variables not found in site_soil_moisture_variables
                     continue
                 var_ameriflux_name = site_soil_moisture_variables[met_tower_var_name]['Eddypro label']
+                var_pyfluxpro_name = site_soil_moisture_variables[met_tower_var_name]['Pyfluxpro label']
                 # write to variable lines
                 var_flag = True
                 # add met tower name to the mapping
                 variables_mapping[met_tower_var_name] = var_ameriflux_name
+                # add pyfluxpro name to the mapping
+                variables_mapping[var_pyfluxpro_name] = var_ameriflux_name
                 var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_ameriflux_name + "]]"
                 # change the unit to percentage
                 if units_row.shape[0] > 0:
@@ -526,7 +540,7 @@ class L1Format:
                 del site_soil_moisture_variables[met_tower_var_name]
 
             # check if variable is soil temp
-            elif var_name.startswith("Ts_"):
+            elif var_name.lower().startswith("ts_"):
                 # soil temp variable varies with site
                 # save temp variable xl and attr sections
                 temp_xl_df = xl_df
@@ -537,11 +551,14 @@ class L1Format:
                     # met variables not found in site_soil_temp_variables. skip writing to variable lines
                     continue
                 var_ameriflux_name = site_soil_temp_variables[met_tower_var_name]['Eddypro label']
+                var_pyfluxpro_name = site_soil_temp_variables[met_tower_var_name]['Pyfluxpro label']
                 # write to variable lines
                 var_flag = True
                 var_ameriflux_name = var_ameriflux_name.upper()
                 # add met tower name to the mapping
                 variables_mapping[met_tower_var_name] = var_ameriflux_name
+                # add pyfluxpro name to the mapping
+                variables_mapping[var_pyfluxpro_name] = var_ameriflux_name
                 var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_ameriflux_name + "]]"
 
                 # correct the height row
@@ -621,8 +638,7 @@ class L1Format:
         return variables_lines_out, variables_mapping
 
     @staticmethod
-    def format_ameriflux_var(df, var_start_end, ameriflux_key,
-                             spaces=SPACES, xl_pattern=XL_PATTERN, attr_pattern=ATTR_PATTERN):
+    def format_ameriflux_var(df, var_start_end, ameriflux_key, spaces=SPACES):
         """
             Change variable units for Ameriflux only variables
 
@@ -631,8 +647,6 @@ class L1Format:
                 var_start_end (list): List of tuple, the starting and ending index for each ameriflux variable
                 ameriflux_key (obj): Pandas dataframe of AmeriFlux-Mainstem varible name sheet
                 spaces (str): Spaces to be inserted before each section and line
-                xl_pattern (str): Regex pattern to find the [[[xl]]] section within Variables section
-                attr_pattern (str): Regex pattern to find the [[[Attr]]] section within Variables section
             Returns:
                 variable_lines_out (list) : List of variables lines to be written to l1_ameriflux
                 variables_mapping (dict) : Mapping of pyfluxpro-friendly to ameriflux-friendly variable names in L1

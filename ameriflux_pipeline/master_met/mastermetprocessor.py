@@ -142,9 +142,9 @@ class MasterMetProcessor:
         # NOTE 10
         # get shortwave in and shortwave out columns from two instrument data
         sw_pattern = re.compile(r"^sw", re.IGNORECASE)  # shortwave pattern for SW instrument
-        cm3_pattern = re.compile(r"^cm3", re.IGNORECASE)  # shortwave pattern for CM3 instrument
-        df_sw_columns = list(filter(sw_pattern.search, df_cols))
-        df_sw_columns = [c.lower() for c in df_sw_columns]
+        cm3_pattern = re.compile(r"^cm[1-9]", re.IGNORECASE)  # shortwave pattern for CM3 instrument
+        df_sw_columns = list(filter(sw_pattern.search, df_cols))  # filter out columns matching pattern
+        df_sw_columns = [c.lower() for c in df_sw_columns]  # convert to lowercase for easy comparison
         df_cm3_columns = list(filter(cm3_pattern.search, df_cols))
         df_cm3_columns = [c.lower() for c in df_cm3_columns]
         # set shortwave out
@@ -152,10 +152,13 @@ class MasterMetProcessor:
             shortwave_out = 'SWUp_Avg'
             df['SW_out_Avg'] = df[shortwave_out]
             df_meta['SW_out_Avg'] = SW_unit  # add shortwave radiation units
-        elif 'cm3dn_Avg' in df_cm3_columns:
-            shortwave_out = 'CM3Dn_Avg'
-            df['SW_out_Avg'] = df[shortwave_out]
-            df_meta['SW_out_Avg'] = SW_unit  # add shortwave radiation units
+        else:
+            cm3dn_pattern = re.compile(r"^cm[1-9]dn", re.IGNORECASE)  # find cm3dn column
+            df_cm3dn_columns = list(filter(cm3dn_pattern.match, df_cols))
+            if df_cm3dn_columns:
+                shortwave_out = df_cm3dn_columns[0]  # take the first match as cm3dn column
+                df['SW_out_Avg'] = df[shortwave_out]
+                df_meta['SW_out_Avg'] = SW_unit  # add shortwave radiation units
 
         albedo_col = df.filter(regex="Albedo|albedo|ALB").columns.to_list()
         if (not albedo_col) or (albedo_col[0] not in df.columns):
