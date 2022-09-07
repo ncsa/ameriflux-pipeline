@@ -173,7 +173,7 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
     # check if the met data file has data for the entire period of eddypro full output
     if not (met_data_timestamp_start == full_output_timestamp_start and
             met_data_timestamp_end == full_output_timestamp_end):
-        log.error("The met data file does not timestamps matching eddypro full output.")
+        log.error("The met data file does not have timestamps matching eddypro full output.")
         return False
 
     full_output_col_list = full_output_df.columns
