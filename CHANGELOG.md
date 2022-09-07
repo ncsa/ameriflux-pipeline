@@ -109,3 +109,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Log message for Aborting run. [#238](https://github.com/ncsa/ameriflux-pipeline/issues/238)
 - Moved common read and write methods to utils. [#44](https://github.com/ncsa/ameriflux-pipeline/issues/44)
 - Reading csv with multiple separators. [#148](https://github.com/ncsa/ameriflux-pipeline/issues/148)
+- Updated Readme file with new information. [#189](https://github.com/ncsa/ameriflux-pipeline/issues/189)
