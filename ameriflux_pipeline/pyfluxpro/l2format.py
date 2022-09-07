@@ -123,8 +123,10 @@ class L2Format:
 
         # get list of variable start and end indexes
         var_names = []  # list of variable names read from input L2
-        mainstem_var_start_end, var_names = L2Format.get_variables_index(mainstem_var_lines, var_names)
-        ameriflux_var_start_end, var_names = L2Format.get_variables_index(ameriflux_var_lines, var_names)
+        mainstem_var_start_end, mainstem_var_names = L2Format.get_variables_index(mainstem_var_lines, var_names,
+                                                                                  pyfluxpro_ameriflux_labels)
+        ameriflux_var_start_end, all_var_names = L2Format.get_variables_index(ameriflux_var_lines, mainstem_var_names,
+                                                                              pyfluxpro_ameriflux_labels)
 
         # get the variable lines to be written
         ameriflux_variable_lines_out = L2Format.format_variables(ameriflux_var_lines, ameriflux_var_start_end,
@@ -181,7 +183,7 @@ class L2Format:
         return None
 
     @staticmethod
-    def get_variables_index(text, var_names, var_pattern=VAR_PATTERN):
+    def get_variables_index(text, var_names, labels, var_pattern=VAR_PATTERN):
         """
             Get all variables and start and end index for each variable from L2.txt
             Read variable lines and updated var_names list with read variables. Avoid duplicates.
@@ -189,6 +191,7 @@ class L2Format:
             Args:
                 text (list): list of strings with all variable lines from L1.txt
                 var_names (list): list of variable names read till now. Used to check for duplicates
+                labels (dict) : Mapping from pyfluxpro to ameriflux labels
                 var_pattern (str): Regex pattern to find the starting line for [Variables] section
             Returns:
                 var_start_end (list): List of tuples with variable name, start and end index for each variable
@@ -201,18 +204,35 @@ class L2Format:
                 var_startind.append((line, i))
         # from var_startind, get starting and ending indexes
         for i in range(len(var_startind)-1):
-            var_name = var_startind[i][0]
+            var_name = var_startind[i][0].strip('[]')
             if var_name in var_names:
                 # var_name already written. Skip this variable
                 log.warning("Variable " + var_name + " is already read in L2. Skipping this variable.")
+                continue
+            elif var_name not in labels.keys():
+                # var_name not in L1 labels. Skip this variable
+                log.warning("Variable " + var_name + " is not in L1. Skipping this variable.")
                 continue
             # add starting and ending index only if not read previously
             start_ind = var_startind[i][1]
             # ending index is one less than the next starting index
             end_ind = var_startind[i + 1][1] - 1
             var_start_end.append((var_name, start_ind, end_ind))
-            var_names.append(var_name)
-        var_start_end.append((var_startind[-1][0], var_startind[-1][1], len(text)))
+            var_names.append(var_name)  # append pyfluxpro label
+            var_names.append(labels[var_name])  # append ameriflux label
+        # add last variable
+        var_name = var_startind[-1][0].strip('[]')
+        if var_name in var_names:
+            # var_name already written. Skip this variable
+            log.warning("Variable " + var_name + " is already read in L2. Skipping this variable.")
+        elif var_name not in labels.keys():
+            # var_name not in L1 labels. Skip this variable
+            log.warning("Variable " + var_name + " is not in L1. Skipping this variable.")
+        else:
+            var_start_end.append((var_startind[-1][0], var_startind[-1][1], len(text)))
+            var_names.append(var_name)  # append pyfluxpro label
+            var_names.append(labels[var_name])  # append ameriflux label
+
         return var_start_end, var_names
 
     @staticmethod
