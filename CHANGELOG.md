@@ -66,6 +66,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Check if eddypro executable file exists in eddypro bin loc. [#249](https://github.com/ncsa/ameriflux-pipeline/issues/249)
 - Create site-specific L1 and L2 from generic L1 and L2. [#144](https://github.com/ncsa/ameriflux-pipeline/issues/144)
 - Dynamic start and end dates for met data merge. [#184](https://github.com/ncsa/ameriflux-pipeline/issues/184)
+- Met tower variable name mapping for 2020 data. [#260](https://github.com/ncsa/ameriflux-pipeline/issues/260)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
@@ -94,6 +95,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Inserting missing timestamps in met data and precip data. [#246](https://github.com/ncsa/ameriflux-pipeline/issues/246)
 - Input validation and error logs for Pyfluxpro L1 and L2. [#247](https://github.com/ncsa/ameriflux-pipeline/issues/247)
 - Eddypro run finish log message. [#245](https://github.com/ncsa/ameriflux-pipeline/issues/245)
+- Pyfluxpro label variable mapping in L2. [#261](https://github.com/ncsa/ameriflux-pipeline/issues/261)
 
 ### Changed
 - AmeriFlux L1 formatting variable names in env editor [#118](https://github.com/ncsa/ameriflux-pipeline/issues/118)
