@@ -60,6 +60,7 @@ python -m venv env
 conda create --prefix=venv python=3.8
 conda activate venv
 ```
+
 4. Install dependencies:
 - The model is tested on Python 3.8, with dependencies listed in requirements.txt.
 - To install these Python dependencies, please run following command in your virtual env
@@ -70,6 +71,7 @@ pip install -r requirements.txt
 ```
 conda install --file requirements.txt
 ```
+
 5. If multiple dat files for met data needs to be merged, run ```python met_data_merge.py```.
 - To request all command line parameters, please run ```python met_data_merge.py --help``` 
 - data parameter takes in comma separated file paths. This is a mandatory field. If not specified, the code will ask for user inputs at run time.
@@ -85,14 +87,14 @@ conda install --file requirements.txt
 6. Set necessary parameters for pre and post processing of PyFluxPro and EddyPro
 - This creates a csv file with merged data from the raw dat files and a log file met_merger.log.
 
-8. Set necessary parameters for pre and post processing of PyFluxPro and EddyPro
+7. Set necessary parameters for pre and post processing of PyFluxPro and EddyPro
 - This can be done by creating .env file under ameriflux_pipeline directory, or directly change the values in config.py
 - Give the full path to all input and output file location.
 - There is a GUI application for this. Run enveditor.py under ameriflux_pipeline directory 
   by typing `python enveditor.py` in command prompt after cd into ameriflux_pipleline directory (recommended).
 - Details about the parameters are describes in the section 9 below
 
-7. To run python module for processing till PyFluxPro L1 and L2 control files, please run:
+8. To run python module for processing till PyFluxPro L1 and L2 control files, please run:
 ```
 python pre_pyfluxpro.py
 ```
@@ -105,15 +107,15 @@ This creates
 - L1 and L2 control files formatted for Ameriflux,
 - log file pre_pyfluxpro.log, and log file for eddypro run in eddypro output folder.
 
-8. Run PyFluxPro version 3.3.2 with the generated L1 and L2 control files to produce graphs and perform quality checks on the data.
+9. Run PyFluxPro version 3.3.2 with the generated L1 and L2 control files to produce graphs and perform quality checks on the data.
 
-9. To run python module for post processing of PyFluxPro L2 run output to produce Ameriflux-ready data, please run:
+10. To run python module for post processing of PyFluxPro L2 run output to produce Ameriflux-ready data, please run:
 ```
 python post_pyfluxpro.py
 ```
 This produces a csv file that is Ameriflux-friendly in the same directory as the L2 run output. The log file is post_pyfluxpro.log.
 
-10. Example .env file
+11. Example .env file
 - Using enveditor.py is recommended than directly modifying config.py file or .env file.
 - There are buttons for more information and description on each item.
 - Save button at the bottom will generate .env file in the proper location.
