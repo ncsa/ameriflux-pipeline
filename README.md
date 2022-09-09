@@ -67,10 +67,6 @@ conda activate venv
 ```
 pip install -r requirements.txt
 ```
-- Or if you prefer to use conda,
-```
-conda install --file requirements.txt
-```
 
 5. If multiple dat files for met data needs to be merged, run ```python met_data_merge.py```.
 - To request all command line parameters, please run ```python met_data_merge.py --help``` 
