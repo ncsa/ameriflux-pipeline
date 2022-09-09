@@ -15,6 +15,7 @@ from tkcalendar import Calendar
 
 from eddypro.runeddypro import RunEddypro
 
+
 class MetMergerGUI():
     def __init__(self):
         self.INPUT_DATA = []
@@ -145,8 +146,8 @@ class MetMergerGUI():
             grid(sticky="w", row=i+1, column=0)
         button_info_start_date = tk.Button(second_frame, text=self.INFO_TITLE, command=self.on_click_start_date). \
             grid(sticky="w", row=i+1, column=1)
-        button_set_start_date = tk.Button(second_frame, text=self.LABEL_START_DATE, command=self.pop_up_calendar_start). \
-            grid(sticky="w", row=i+1, column=2)
+        button_set_start_date = tk.Button(second_frame, text=self.LABEL_START_DATE,
+                                          command=self.pop_up_calendar_start).grid(sticky="w", row=i+1, column=2)
         desc_start_date = tk.Label(second_frame, text=self.DESC_START_DATE, font=self.DESC_FONT). \
             grid(sticky="w", row=i+2, columnspan=3)
         self.start_date_value = tk.Label(
@@ -183,7 +184,7 @@ class MetMergerGUI():
                                              font=self.MAIN_FONT, command=self.browse_input_path). \
             grid(sticky="w", row=i+1, column=2)
         button_reset_input_data = tk.Button(master=second_frame, text="Reset",
-                                             font=self.MAIN_FONT, command=self.reset_input_path). \
+                                            font=self.MAIN_FONT, command=self.reset_input_path). \
             grid(sticky="w", row=i+2, column=0)
         desc_input_data = tk.Label(second_frame, text=self.DESC_INPUT_DATA, font=self.DESC_FONT). \
             grid(sticky="w", row=i+3, column=0, columnspan=2)
@@ -196,17 +197,16 @@ class MetMergerGUI():
         # out met data
         i = self.LINE_OUT_DATA
         label_output_path = tk.Label(master=second_frame, text=self.BROWSE_OUTPUT_PATH,
-                                             font=self.BOLD_FONT).grid(sticky="w", row=i+1, column=0)
+                                     font=self.BOLD_FONT).grid(sticky="w", row=i+1, column=0)
         info_output_path = tk.Button(second_frame, text=self.INFO_TITLE, font=self.MAIN_FONT,
-                                             command=self.on_click_output_path). \
+                                     command=self.on_click_output_path). \
             grid(sticky="w", row=i+1, column=1)
         button_browse_output_path = tk.Button(master=second_frame, text="Browse",
-                                                      font=self.MAIN_FONT, command=self.browse_output_path). \
+                                              font=self.MAIN_FONT, command=self.browse_output_path). \
             grid(sticky="w", row=i+1, column=2)
         desc_output_path = tk.Label(second_frame, text=self.DESC_OUTPUT_PATH, font=self.DESC_FONT). \
             grid(sticky="w", row=i+2, column=0, columnspan=3)
-        self.path_output_path = tk.Label(master=second_frame, text=self.OUT_DATA,
-                                                 font=self.MAIN_FONT)
+        self.path_output_path = tk.Label(master=second_frame, text=self.OUT_DATA, font=self.MAIN_FONT)
         self.path_output_path.grid(sticky="w", row=i+3, column=0, columnspan=3)
         label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL_SUB). \
             grid(sticky="w", row=i+4, column=0, columnspan=3)
