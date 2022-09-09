@@ -19,8 +19,8 @@ This automated code creates master met data, runs EddyPro automatically and crea
 - pyfluxpro / l1format.py creates L1 control file as per Ameriflux standards
 - pyfluxpro / l2format.py creates L2 control file as per Ameriflux standards
 - pyfluxpro / outputformat.py creates csv file with data formatted for Ameriflux submission from the L2 run output
-- utils / data_util.py performs various data operations
 - utils / syncdata.py performs syncing of GHG data with server and local
+- utils / data_util.py performs various data operations
 - utils / input_validation.py performs validations on user inputs from the env file
 - utils / process_validation.py performs validations on data
 - templates/ folder keeps the eddypro project files needed to run EddyPro headless
@@ -66,10 +66,6 @@ conda activate venv
 ```
 pip install -r requirements.txt
 ```
-- Or if you prefer to use conda,
-```
-conda install --file requirements.txt
-```
 5. If multiple dat files needs to be merged, run ```python met_data_merge.py```. 
 - To request all command line parameters, please run ```python met_data_merge.py --help``` 
 - data parameter takes in comma separated file paths. This is a mandatory field. If not specified, the code will ask for user inputs at run time.
@@ -79,12 +75,13 @@ conda install --file requirements.txt
 - To run the python module with default parameters run ```python met_data_merge.py```
 - Run command example with all arguments:  
 ``` python met_data_merge.py --data /Users/xx/data/master_met/input/FluxSB_EC.dat,/Users/xx/data/master_met/input/FluxSB_EC.dat.9.backup,/Users/xx/data/master_met/input/FluxSB_EC.dat.10.backup --start 2021-01-01 --end 2021-12-31 --output /Users/xx/data/master_met/input/Flux.csv ```
+- This creates a csv file with merged data from the raw dat files and a log file met_merger.log.
 
 8. Set necessary parameters for pre and post processing of PyFluxPro and EddyPro
 - This can be done by creating .env file under ameriflux_pipeline directory, or directly change the values in config.py
 - Give the full path to all input and output file location.
 - There is a GUI application for this. Run enveditor.py under ameriflux_pipeline directory 
-  by typing `python enveditor.py` in command prompt after cd into ameriflux_pipleline directory.
+  by typing `python enveditor.py` in command prompt after cd into ameriflux_pipleline directory (recommended).
 - Details about the parameters are describes in the section 9 below
 
 6. To run python module for processing till PyFluxPro L1 and L2 control files, please run:
@@ -97,7 +94,8 @@ This creates
 - eddypro full output, 
 - pyfluxpro input excel sheet, 
 - pyfluxpro input excel sheet formatted for Ameriflux, 
-- L1 and L2 control files formatted for Ameriflux.
+- L1 and L2 control files formatted for Ameriflux,
+- log file pre_pyfluxpro.log, and log file for eddypro run in eddypro output folder.
 
 7. Run PyFluxPro version 3.3.2 with the generated L1 and L2 control files to produce graphs and perform quality checks on the data.
 
@@ -105,7 +103,7 @@ This creates
 ```
 python post_pyfluxpro.py
 ```
-This produces a csv file that is Ameriflux-friendly in the same directory as the L2 run output.
+This produces a csv file that is Ameriflux-friendly in the same directory as the L2 run output. The log file is post_pyfluxpro.log.
 
 9. Example .env file
 - Using enveditor.py is recommended than directly modifying config.py file or .env file.
@@ -139,11 +137,10 @@ SFTP_MET_REMOTE_PATH=/path/in/the/remote/server/
 SFTP_MET_LOCAL_PATH=/path/in/the/local/machine/
 
 # Variables for EddyPro formatting
-MISSING_TIME_USER_CONFIRMATION=A
+MISSING_TIME_USER_CONFIRMATION=Y
 INPUT_MET=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/master_met/input/FLUXSB_EC_JanMar2021.csv
 INPUT_PRECIP=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/master_met/input/Precip_IWS_Jan-Feb_2021.xlsx
 MISSING_TIME=96
-USER_CONFIRMATION='Y'
 MASTER_MET=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/master_met/output/met_output.csv
 INPUT_SOIL_KEY=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/eddypro/input/Soils_key.xlsx
 
@@ -165,7 +162,7 @@ PYFLUXPRO_INPUT_SHEET=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/pyfl
 PYFLUXPRO_INPUT_AMERIFLUX=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/generated/pyfluxpro_input_ameriflux.xlsx
 
 # Variables for PyFluxPro AmeriFlux formatting
-AMERIFLUX_VARIABLE_USER_CONFIRMATION=Y
+AMERIFLUX_VARIABLE_USER_CONFIRMATION=N
 L1_MAINSTEM_INPUT=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/input/L1.txt
 L1_AMERIFLUX_ONLY_INPUT=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/generated/L1_ameriflux_only.txt
 L1_AMERIFLUX_MAINSTEM_KEY=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/input/Ameriflux-Mainstem-Key.xlsx
