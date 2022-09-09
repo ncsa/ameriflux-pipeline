@@ -78,8 +78,6 @@ class MetMergerGUI():
         self.SAVE_LABEL = "Generate output meteorology data"
         self.SAVE_ENV_FILE = "Generate"
 
-        self.run()
-
     def run(self):
         # check if there is .env file
         # checking this by SFTP_CONFIRMATION variable is not none
@@ -388,3 +386,4 @@ class MetMergerGUI():
 
 if __name__ == '__main__':
     app = MetMergerGUI()
+    app.run()
