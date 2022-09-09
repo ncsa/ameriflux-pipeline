@@ -67,6 +67,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Create site-specific L1 and L2 from generic L1 and L2. [#144](https://github.com/ncsa/ameriflux-pipeline/issues/144)
 - Dynamic start and end dates for met data merge. [#184](https://github.com/ncsa/ameriflux-pipeline/issues/184)
 - GUI for met data merger. [#266](https://github.com/ncsa/ameriflux-pipeline/issues/266)
+- Timestamp checks for pyfluxpro input sheet processing. [#267](https://github.com/ncsa/ameriflux-pipeline/issues/267)
+- Met tower variable name mapping for 2020 data. [#260](https://github.com/ncsa/ameriflux-pipeline/issues/260)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
@@ -95,6 +97,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Inserting missing timestamps in met data and precip data. [#246](https://github.com/ncsa/ameriflux-pipeline/issues/246)
 - Input validation and error logs for Pyfluxpro L1 and L2. [#247](https://github.com/ncsa/ameriflux-pipeline/issues/247)
 - Eddypro run finish log message. [#245](https://github.com/ncsa/ameriflux-pipeline/issues/245)
+- Pyfluxpro label variable mapping in L2. [#261](https://github.com/ncsa/ameriflux-pipeline/issues/261)
 
 ### Changed
 - AmeriFlux L1 formatting variable names in env editor [#118](https://github.com/ncsa/ameriflux-pipeline/issues/118)
@@ -110,3 +113,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Log message for Aborting run. [#238](https://github.com/ncsa/ameriflux-pipeline/issues/238)
 - Moved common read and write methods to utils. [#44](https://github.com/ncsa/ameriflux-pipeline/issues/44)
 - Reading csv with multiple separators. [#148](https://github.com/ncsa/ameriflux-pipeline/issues/148)
+- Updated Readme file with new information. [#189](https://github.com/ncsa/ameriflux-pipeline/issues/189)
