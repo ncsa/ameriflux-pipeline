@@ -79,17 +79,6 @@ class MetMergerGUI():
         self.SAVE_ENV_FILE = "Generate"
 
     def run(self):
-        # check if there is .env file
-        # checking this by SFTP_CONFIRMATION variable is not none
-        is_env = os.path.exists('.env')
-
-        # if .env doesn't exist, pre fill the values
-        if not is_env:
-            print("There is no .env file. The GUI will fill default values. "
-                  "Please make sure if every values are correct.")
-
-            self.preset_variables()
-
         # create main gui window
         root = tk.Tk()
         root.title("AmeriFlux Pipeline Environment Setter")
@@ -178,7 +167,7 @@ class MetMergerGUI():
             grid(sticky="w", row=i+1, column=0)
         button_info_input_data = tk.Button(second_frame, text=self.INFO_TITLE, command=self.on_click_input_data). \
             grid(sticky="w", row=i+1, column=1)
-        button_browse_input_data = tk.Button(master=second_frame, text="Add selection",
+        button_browse_input_data = tk.Button(master=second_frame, text="Add file",
                                              font=self.MAIN_FONT, command=self.browse_input_path). \
             grid(sticky="w", row=i+1, column=2)
         button_reset_input_data = tk.Button(master=second_frame, text="Reset",
