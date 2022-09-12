@@ -16,7 +16,7 @@ from tkcalendar import Calendar
 from eddypro.runeddypro import RunEddypro
 
 
-class MetMergerGUI():
+class MetMergerGUI:
     def __init__(self):
         self.INPUT_DATA = []
         self.INPUT_DATA_STR = ""

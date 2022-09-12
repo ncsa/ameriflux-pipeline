@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 from eddypro.runeddypro import RunEddypro
 
 
-class EnvEditor():
+class EnvEditor:
     def __init__(self):
         # check what is the current platform
         self.OS_PLATFORM = RunEddypro.get_platform()
