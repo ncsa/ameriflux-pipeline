@@ -27,6 +27,7 @@ This automated code creates master met data, runs EddyPro automatically and crea
 - enveditor.py is the GUI for helping the users to set the input and output data
 - config.py lists all configurations
 - requirements.txt lists the required packages
+- metmerger.py is the GUI for helping the users to merge multiple meteorology data to single one with given start and end date
 - met_data_merge.py merges multiple .dat files containing raw met data to a csv file that can then be used in the pipeline.
 - pre_pyfluxpro.py runs all processing steps till PyFluxPro runs. It generates L1 and L2 control files as per Ameriflux standards
 - post_pyfluxpro.py runs all post processing steps to convert the L2 run output to csv file required for Ameriflux submission.
