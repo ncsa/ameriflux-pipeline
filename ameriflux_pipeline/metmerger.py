@@ -54,7 +54,7 @@ class MetMergerGUI():
         # start date
         self.START_DATE_LOCAL_VALUE = ""
         self.LABEL_START_DATE = " Set start date"
-        self.DESC_START_DATE = " start date for the output Mmteorology data."
+        self.DESC_START_DATE = " start date for the output Meteorology data."
         self.INFO_START_DATE = "The date will be used as the start date for the output meteorology data."
 
         # end date
@@ -76,7 +76,6 @@ class MetMergerGUI():
 
         # create button
         self.SAVE_LABEL = "Generate output meteorology data"
-        self.SAVE_ENV_FILE = "Generate"
 
     def run(self):
         # create main gui window
