@@ -76,6 +76,7 @@ class MetMergerGUI:
 
         # create button
         self.SAVE_LABEL = "Generate output meteorology data"
+        self.GENERATE = "Generate"
 
     def run(self):
         # create main gui window
@@ -204,7 +205,7 @@ class MetMergerGUI:
         label_separation = tk.Label(master=second_frame, text="").grid(sticky="w", row=i+1, column=0, columnspan=3)
         label_eddypro_save = tk.Label(master=second_frame, text=self.SAVE_LABEL, font=self.MAIN_BOLD_FONT). \
             grid(sticky="w", row=i+2, column=0, columnspan=3)
-        button_save_env = tk.Button(master=second_frame, width=25, text=self.SAVE_ENV_FILE, font=self.MAIN_FONT,
+        button_save_env = tk.Button(master=second_frame, width=25, text=self.GENERATE, font=self.MAIN_FONT,
                                     command=self.create_output).grid(sticky="w", row=i+3, column=0, columnspan=3)
 
         root.mainloop()
