@@ -30,15 +30,14 @@ class L2Format:
 
     # main method which calls other functions
     @staticmethod
-    def data_formatting(pyfluxpro_ameriflux_labels, l2_mainstem, l2_ameriflux_only, l1_run_output, l2_run_output,
+    def data_formatting(ameriflux_labels, l2_mainstem, l2_ameriflux_only, l1_run_output, l2_run_output,
                         l2_ameriflux_output, spaces=SPACES, level_line=LEVEL_LINE):
         """
         Main method for the class.
 
         Args:
-            pyfluxpro_ameriflux_labels (dict): Mapping of pyfluxpro-friendly label to Ameriflux-friendly labels for
-                                            variables in l1_ameriflux_output
-            l2_mainstem (str): A file path for the input L2.txt. This is the PyFluxPro original L2 control file
+            ameriflux_labels (dict): Mapping of variable names to Ameriflux-friendly labels read in l1
+            l2_mainstem (str): A file path for the input L2.txt. This is the PyFluxPro original/mainstem L2 control file
             l2_ameriflux_only (str): A file path for the L2.txt that contains only Ameriflux-friendly variables
             l1_run_output (str): A file path for the output of L1 run. This typically has .nc extension
             l2_run_output (str): A file path for the output of L2 run. This typically has .nc extension
@@ -122,18 +121,18 @@ class L2Format:
         ameriflux_var_lines = [x.strip() for x in l2_ameriflux_var_lines]
 
         # get list of variable start and end indexes
-        var_names = []  # list of variable names read from input L2
-        mainstem_var_start_end, mainstem_var_names = L2Format.get_variables_index(mainstem_var_lines, var_names,
-                                                                                  pyfluxpro_ameriflux_labels)
+        mainstem_var_start_end, mainstem_var_names = L2Format.get_variables_index(mainstem_var_lines, [],
+                                                                                  ameriflux_labels)
         ameriflux_var_start_end, all_var_names = L2Format.get_variables_index(ameriflux_var_lines, mainstem_var_names,
-                                                                              pyfluxpro_ameriflux_labels)
+                                                                              ameriflux_labels)
 
         # get the variable lines to be written
-        ameriflux_variable_lines_out = L2Format.format_variables(ameriflux_var_lines, ameriflux_var_start_end,
-                                                                 pyfluxpro_ameriflux_labels)
+        ameriflux_variable_lines_out, ameriflux_l2_var_name_out = \
+            L2Format.format_variables(ameriflux_var_lines, ameriflux_var_start_end, ameriflux_labels, [])
         l2_output_lines.extend(ameriflux_variable_lines_out)
-        mainstem_variable_lines_out = L2Format.format_variables(mainstem_var_lines, mainstem_var_start_end,
-                                                                pyfluxpro_ameriflux_labels)
+        mainstem_variable_lines_out, all_l2_var_name_out = \
+            L2Format.format_variables(mainstem_var_lines, mainstem_var_start_end, ameriflux_labels,
+                                      ameriflux_l2_var_name_out)
         l2_output_lines.extend(mainstem_variable_lines_out)
 
         # get the Plots section from Mainstem L2
@@ -141,7 +140,7 @@ class L2Format:
         l2_output_lines.extend(plot_line)
         l2_mainstem_plot_lines = l2_mainstem_lines[mainstem_plot_startind:mainstem_plot_endind]
         l2_mainstem_plot_lines = [line.rstrip() for line in l2_mainstem_plot_lines]
-        plot_lines_out = L2Format.format_plots(l2_mainstem_plot_lines, pyfluxpro_ameriflux_labels)
+        plot_lines_out = L2Format.format_plots(l2_mainstem_plot_lines, ameriflux_labels)
         l2_output_lines.extend(plot_lines_out)
 
         # write output lines to file
@@ -183,15 +182,15 @@ class L2Format:
         return None
 
     @staticmethod
-    def get_variables_index(text, var_names, labels, var_pattern=VAR_PATTERN):
+    def get_variables_index(text, current_var_names, labels, var_pattern=VAR_PATTERN):
         """
             Get all variables and start and end index for each variable from L2.txt
             Read variable lines and updated var_names list with read variables. Avoid duplicates.
 
             Args:
                 text (list): list of strings with all variable lines from L1.txt
-                var_names (list): list of variable names read till now. Used to check for duplicates
-                labels (dict) : Mapping from pyfluxpro to ameriflux labels
+                current_var_names (list): list of variable names read till now. Used to check for duplicates
+                labels (dict) : Mapping of variable names to ameriflux labels
                 var_pattern (str): Regex pattern to find the starting line for [Variables] section
             Returns:
                 var_start_end (list): List of tuples with variable name, start and end index for each variable
@@ -205,7 +204,7 @@ class L2Format:
         # from var_startind, get starting and ending indexes
         for i in range(len(var_startind)-1):
             var_name = var_startind[i][0].strip('[]')
-            if var_name in var_names:
+            if var_name in current_var_names:
                 # var_name already written. Skip this variable
                 log.warning("Variable " + var_name + " is already read in L2. Skipping this variable.")
                 continue
@@ -218,11 +217,11 @@ class L2Format:
             # ending index is one less than the next starting index
             end_ind = var_startind[i + 1][1] - 1
             var_start_end.append((var_name, start_ind, end_ind))
-            var_names.append(var_name)  # append pyfluxpro label
-            var_names.append(labels[var_name])  # append ameriflux label
+            current_var_names.append(var_name)  # append pyfluxpro label
+            current_var_names.append(labels[var_name])  # append ameriflux label
         # add last variable
         var_name = var_startind[-1][0].strip('[]')
-        if var_name in var_names:
+        if var_name in current_var_names:
             # var_name already written. Skip this variable
             log.warning("Variable " + var_name + " is already read in L2. Skipping this variable.")
         elif var_name not in labels.keys():
@@ -230,13 +229,13 @@ class L2Format:
             log.warning("Variable " + var_name + " is not in L1. Skipping this variable.")
         else:
             var_start_end.append((var_startind[-1][0], var_startind[-1][1], len(text)))
-            var_names.append(var_name)  # append pyfluxpro label
-            var_names.append(labels[var_name])  # append ameriflux label
+            current_var_names.append(var_name)  # append pyfluxpro label
+            current_var_names.append(labels[var_name])  # append ameriflux label
 
-        return var_start_end, var_names
+        return var_start_end, current_var_names
 
     @staticmethod
-    def format_variables(variable_lines, var_start_end, labels, spaces=SPACES,
+    def format_variables(variable_lines, var_start_end, labels, l2_var_name_out, spaces=SPACES,
                          RangeCheck_pattern=RANGECHECK_PATTERN, DependencyCheck_pattern=DEPENDENCYCHECK_PATTERN):
         """
             Change variable names and units to AmeriFlux standard
@@ -245,26 +244,27 @@ class L2Format:
                 variable_lines (list): List of variable lines from L2 input file
                 var_start_end (list): List of tuple, the starting and ending index for each variable
                 labels (dict) : Mapping from pyfluxpro to ameriflux labels
+                l2_var_name_out (list): List of variable names written in l2_ameriflux output control file till now
                 spaces (str): Spaces to be inserted before each section and line
                 RangeCheck_pattern (str): Regex pattern to find the [[[RangeCheck]]] section within Variables section
                 DependencyCheck_pattern (str): Regex pattern to find the [[[DependencyCheck]]] section within Variables
             Returns:
                 variable_lines_out (list) : List of variables lines to be written to l2_ameriflux
+                l2_var_name_out (list): Updated list of l2 variable names written to l2_ameriflux control file
         """
         # define spaces for formatting in L1
         var_spaces = spaces
         check_spaces = spaces + spaces
         other_spaces = spaces + spaces + spaces
         variables_lines_out = []  # variable lines to be written to l2_ameriflux
-        var_name_out = []  # store variable names written to l2_ameriflux
         # iterate through each variable
         for var, var_start, var_end in var_start_end:
-            var_out = []  # empty list to append this variable lines
+            var_out = []  # initialize list to append current variable lines
             var_lines = variable_lines[var_start:var_end+1]
             # get variable name
             var_name = var_lines[0].strip('[]')
             # check if variable is already written to L2
-            if var_name in var_name_out:
+            if var_name in l2_var_name_out:
                 log.warning("Variable " + var_name + " is already written to L2. Skipping this variable.")
                 continue
 
@@ -275,8 +275,8 @@ class L2Format:
             ameriflux_var_name = labels[var_name]
             var_out.append(var_spaces + "[[" + ameriflux_var_name + "]]")
             # add variable names to var_name_out
-            var_name_out.append(ameriflux_var_name)
-            var_name_out.append(var_name)
+            l2_var_name_out.append(ameriflux_var_name)
+            l2_var_name_out.append(var_name)
 
             # get list of check, start and end indexes for this variable
             var_checks = L2Format.get_variable_check_indexes(var_lines)
@@ -338,7 +338,7 @@ class L2Format:
             # end of for loop for checks
             variables_lines_out.extend(var_out)
         # end of for loop for variables
-        return variables_lines_out
+        return variables_lines_out, l2_var_name_out
 
     @staticmethod
     def get_variable_check_indexes(var_lines):
