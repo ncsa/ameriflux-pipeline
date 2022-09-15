@@ -66,6 +66,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Check if eddypro executable file exists in eddypro bin loc. [#249](https://github.com/ncsa/ameriflux-pipeline/issues/249)
 - Create site-specific L1 and L2 from generic L1 and L2. [#144](https://github.com/ncsa/ameriflux-pipeline/issues/144)
 - Dynamic start and end dates for met data merge. [#184](https://github.com/ncsa/ameriflux-pipeline/issues/184)
+- GUI for met data merger. [#266](https://github.com/ncsa/ameriflux-pipeline/issues/266)
+- Timestamp checks for pyfluxpro input sheet processing. [#267](https://github.com/ncsa/ameriflux-pipeline/issues/267)
 - Met tower variable name mapping for 2020 data. [#260](https://github.com/ncsa/ameriflux-pipeline/issues/260)
 - Check for duplicate variable names in L1 and L2. [#263](https://github.com/ncsa/ameriflux-pipeline/issues/263)
 
