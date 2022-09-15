@@ -8,6 +8,7 @@ import pandas as pd
 import re
 import pathlib
 import os
+import sys
 from dateutil.parser import parse
 import logging
 
@@ -124,3 +125,23 @@ def get_valid_datetime(data):
     except ValueError as e:
         log.error("%s Incorrect date format %s", data, e)
         return None
+
+
+def get_platform():
+    """
+        Method to get the system platform
+        Args:
+            None
+        Returns:
+            (str): System platform
+    """
+    platforms = {
+        'linux1': 'Linux',
+        'linux2': 'Linux',
+        'darwin': 'OS X',
+        'win32': 'Windows'
+    }
+    if sys.platform not in platforms:
+        return sys.platform
+
+    return platforms[sys.platform]
