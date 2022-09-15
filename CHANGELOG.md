@@ -114,3 +114,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Moved common read and write methods to utils. [#44](https://github.com/ncsa/ameriflux-pipeline/issues/44)
 - Reading csv with multiple separators. [#148](https://github.com/ncsa/ameriflux-pipeline/issues/148)
 - Updated Readme file with new information. [#189](https://github.com/ncsa/ameriflux-pipeline/issues/189)
+- Moved readlines to utils. [#275](https://github.com/ncsa/ameriflux-pipeline/issues/275)
