@@ -10,6 +10,8 @@ import sys
 from datetime import datetime
 import logging
 
+import utils.data_util as data_util
+
 # create log object with current module name
 log = logging.getLogger(__name__)
 
@@ -51,8 +53,7 @@ class RunEddypro:
         log.info("Temporary project file created")
 
         # check the OS type
-        os_platform = RunEddypro.get_platform()
-        logfile = open("pre_pyfluxpro.log", 'a')
+        os_platform = data_util.get_platform()
 
         # create log file for eddypro run
         eddypro_logfile = os.path.join(out_path, "eddypro_" + datetime.now().strftime('%Y-%m-%d_%H-%M') + ".log")
@@ -203,26 +204,6 @@ class RunEddypro:
             return []
 
         return out_proj_file_line_list
-
-    @staticmethod
-    def get_platform():
-        """
-            Method to get the system platform
-            Args:
-                None
-            Returns:
-                (str): System platform
-        """
-        platforms = {
-            'linux1': 'Linux',
-            'linux2': 'Linux',
-            'darwin': 'OS X',
-            'win32': 'Windows'
-        }
-        if sys.platform not in platforms:
-            return sys.platform
-
-        return platforms[sys.platform]
 
     @staticmethod
     def save_string_list_to_file(in_list, outfile):
