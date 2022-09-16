@@ -274,27 +274,23 @@ def pyfluxpro_l1_ameriflux_processing(pyfluxpro_input, l1_mainstem, l1_ameriflux
         site_soil_temp_variables (dict): Dictionary for soil temperature variable details from Soils key file
 
     Returns:
-        pyfluxpro_ameriflux_label (dict): Mapping of pyfluxpro-friendly label to Ameriflux-friendly labels for
-                                          variables in L1_Ameriflux.txt
-        erroring_variable_flag (str): A flag denoting whether some PyFluxPro variables (erroring variables) have been
-                                     renamed to Ameriflux labels. Y is renamed, N if not. By default it is N.
+        ameriflux_mapping (dict): Mapping of variable names to Ameriflux-friendly labels in L1_Ameriflux.txt
     """
-    pyfluxpro_ameriflux_labels = \
+    ameriflux_mapping = \
         L1Format.data_formatting(pyfluxpro_input, l1_mainstem, l1_ameriflux_only, ameriflux_mainstem_key,
                                  file_meta_data_file, l1_run_output, l1_ameriflux_output,
                                  erroring_variable_flag, erroring_variable_key,
                                  site_soil_moisture_variables, site_soil_temp_variables)
-    return pyfluxpro_ameriflux_labels
+    return ameriflux_mapping
 
 
-def pyfluxpro_l2_ameriflux_processing(pyfluxpro_ameriflux_label, l2_mainstem, l2_ameriflux_only,
+def pyfluxpro_l2_ameriflux_processing(ameriflux_mapping, l2_mainstem, l2_ameriflux_only,
                                       l1_run_output, l2_run_output, l2_ameriflux_output):
     """
         Main function to run PyFluxPro L2 control file formatting for AmeriFlux. Calls other functions
 
         Args:
-            pyfluxpro_ameriflux_label (dict): Mapping of pyfluxpro-friendly label to Ameriflux-friendly labels for
-                                            variables in l1_ameriflux_output
+            ameriflux_mapping (dict): Mapping of variable names to Ameriflux-friendly labels computed in L1
             l2_mainstem (str): A file path for the input L2.txt. This is the PyFluxPro original L2 control file
             l2_ameriflux_only (str): A file path for the L2.txt that contains only Ameriflux-friendly variables
             l1_run_output (str): A file path for the output of L1 run. This typically has .nc extension
@@ -303,7 +299,7 @@ def pyfluxpro_l2_ameriflux_processing(pyfluxpro_ameriflux_label, l2_mainstem, l2
         Returns:
             None
     """
-    is_success = L2Format.data_formatting(pyfluxpro_ameriflux_label, l2_mainstem, l2_ameriflux_only, l1_run_output,
+    is_success = L2Format.data_formatting(ameriflux_mapping, l2_mainstem, l2_ameriflux_only, l1_run_output,
                                           l2_run_output, l2_ameriflux_output)
     return is_success
 
@@ -388,18 +384,18 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
         return False  # return failure
 
     # run ameriflux formatting of pyfluxpro L1 control file
-    pyfluxpro_ameriflux_labels = \
+    ameriflux_mapping = \
         pyfluxpro_l1_ameriflux_processing(cfg.PYFLUXPRO_INPUT_AMERIFLUX, cfg.L1_MAINSTEM_INPUT,
                                           cfg.L1_AMERIFLUX_ONLY_INPUT, cfg.L1_AMERIFLUX_MAINSTEM_KEY,
                                           file_meta_data_file, cfg.L1_AMERIFLUX_RUN_OUTPUT, cfg.L1_AMERIFLUX,
                                           erroring_variable_flag, cfg.L1_AMERIFLUX_ERRORING_VARIABLES_KEY,
                                           site_soil_moisture_variables, site_soil_temp_variables)
-    if pyfluxpro_ameriflux_labels is None:
+    if ameriflux_mapping is None:
         log.error('-' * 10 + "PyFluxPro L1 processing failed. Aborting" + '-' * 10)
         return False  # return failure
 
     # run ameriflux formatting of pyfluxpro L2 control file
-    is_success = pyfluxpro_l2_ameriflux_processing(pyfluxpro_ameriflux_labels, cfg.L2_MAINSTEM_INPUT,
+    is_success = pyfluxpro_l2_ameriflux_processing(ameriflux_mapping, cfg.L2_MAINSTEM_INPUT,
                                                    cfg.L2_AMERIFLUX_ONLY_INPUT, cfg.L1_AMERIFLUX_RUN_OUTPUT,
                                                    cfg.L2_AMERIFLUX_RUN_OUTPUT, cfg.L2_AMERIFLUX)
     if is_success:

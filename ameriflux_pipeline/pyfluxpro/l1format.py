@@ -64,7 +64,8 @@ class L1Format:
             spaces (str): Spaces to be inserted before each section and line
             level_line (str): Line specifying the level. L1 for this section.
         Returns:
-            dict: Mapping of pyfluxpro-friendly label to Ameriflux-friendly labels for variables in L1_Ameriflux.txt
+            ameriflux_mapping (dict): Mapping of variable names to Ameriflux-friendly labels
+                                        for variables in L1_Ameriflux.txt
         """
         # open input file in read mode
         l1_mainstem = open(l1_mainstem, 'r')
@@ -154,7 +155,7 @@ class L1Format:
         # get df with only variables and a list of variable start and end indexes
         mainstem_variables, mainstem_var_start_end = L1Format.get_variables_index(mainstem_var_df['Text'])
         # get the mainstem variable lines to be written and variable name mapping
-        mainstem_var_lines_out, mainstem_variables_mapping = \
+        mainstem_var_lines_out, mainstem_variable_ameriflux_mapping = \
             L1Format.format_mainstem_var(mainstem_var_df, mainstem_var_start_end,
                                          ameriflux_key, erroring_variable_key,
                                          site_soil_moisture_variables, site_soil_temp_variables)
@@ -169,15 +170,16 @@ class L1Format:
         # get df with only variables and a list of variable start and end indexes
         ameriflux_variables, ameriflux_var_start_end = L1Format.get_variables_index(ameriflux_var_df['Text'])
         # get the variable lines to be written
-        ameriflux_var_lines_out, ameriflux_variables_mapping = \
-            L1Format.format_ameriflux_var(ameriflux_var_df, ameriflux_var_start_end, ameriflux_key)
+        ameriflux_var_lines_out, ameriflux_variable_ameriflux_mapping = \
+            L1Format.format_ameriflux_var(ameriflux_var_df, ameriflux_var_start_end, ameriflux_key,
+                                          mainstem_variable_ameriflux_mapping)
 
         # write variables section lines to l1 output
         l1_output_lines.extend(ameriflux_var_lines_out)
 
-        # create dictionary mapping of variables . pyfluxpro labels : ameriflux labels
-        variable_mapping = mainstem_variables_mapping.copy()
-        variable_mapping.update(ameriflux_variables_mapping)
+        # create dictionary mapping of variables . variable names : ameriflux labels
+        ameriflux_mapping = mainstem_variable_ameriflux_mapping.copy()
+        ameriflux_mapping.update(ameriflux_variable_ameriflux_mapping)
 
         # write output lines to file
         log.info("Writting Ameriflux L1 control file to " + l1_ameriflux_output)
@@ -188,7 +190,7 @@ class L1Format:
         l1_ameriflux.close()
 
         # return pyfluxpro to ameriflux label mapping
-        return variable_mapping
+        return ameriflux_mapping
 
     @staticmethod
     def get_ameriflux_key(ameriflux_mainstem_key):
@@ -421,7 +423,7 @@ class L1Format:
                 spaces (str): Spaces to be inserted before each section and line
             Returns:
                 variable_lines_out (list) : List of variables lines to be written to l1_ameriflux
-                variables_mapping (dict) : Mapping of pyfluxpro-friendly to ameriflux-friendly variable names in L1
+                variables_mapping (dict) : Mapping of variable to ameriflux-friendly variable names in L1
         """
         # define spaces for formatting in L1
         var_spaces = spaces
@@ -431,7 +433,7 @@ class L1Format:
 
         variables_lines_out = []  # variable lines to be written
         # mapping for variables to be written
-        variables_mapping = {}  # dictionary of pyfluxpro-friendly names to ameriflux-friendly names
+        variable_ameriflux_mapping = {}  # dictionary of mapping variable names to ameriflux-friendly names
         # get xl and attr sections for soil moisture and temperature variables
         moisture_xl_df, moisture_attr_df, temp_xl_df, temp_attr_df = None, None, None, None
         # iterate over the variables
@@ -441,6 +443,10 @@ class L1Format:
             # get variable, xl and attr sections as separate dataframes
             var, xl_df, attr_df = L1Format.get_var_xl_attr_df(df, start, end)
             var_name = var['Text'].iloc[0].strip('[]')  # get variable name
+            # check if variable is already written to L1
+            if (var_name in variable_ameriflux_mapping.keys()) or (var_name in variable_ameriflux_mapping.values()):
+                log.warning("Variable " + var_name + " is already written to L1. Skipping this variable.")
+                continue
             var_name_index = var.index[0]  # get index of variable name
             # get met tower variable name
             name_row = xl_df[xl_df['Text'].apply(lambda x: x.strip().startswith("name"))]
@@ -472,7 +478,7 @@ class L1Format:
                 # do not replace the variable name with ameriflux label
                 var_flag = True
                 # add to the mapping
-                variables_mapping[var_name] = var_name
+                variable_ameriflux_mapping[var_name] = var_name
                 var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_name + "]]"
 
             # if the erroring variable is to be replaced, the Ameriflux friendly variable name is in ameriflux_key
@@ -481,9 +487,9 @@ class L1Format:
                 # check if var name should be changed for Ameriflux
                 var_ameriflux_name = ameriflux_key.loc[ameriflux_key['Input sheet variable name'] == met_tower_var_name,
                                                        'Ameriflux variable name'].iloc[0]
-                # add to the mapping, both met tower and original names
-                variables_mapping[var_name] = var_ameriflux_name
-                variables_mapping[met_tower_var_name] = var_ameriflux_name
+                # add to the mapping, both met tower and original pyfluxpro names
+                variable_ameriflux_mapping[var_name] = var_ameriflux_name
+                variable_ameriflux_mapping[met_tower_var_name] = var_ameriflux_name
                 var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_ameriflux_name + "]]"
 
                 if units_row.shape[0] > 0:
@@ -513,9 +519,9 @@ class L1Format:
                 # write to variable lines
                 var_flag = True
                 # add met tower name to the mapping
-                variables_mapping[met_tower_var_name] = var_ameriflux_name
+                variable_ameriflux_mapping[met_tower_var_name] = var_ameriflux_name
                 # add pyfluxpro name to the mapping
-                variables_mapping[var_pyfluxpro_name] = var_ameriflux_name
+                variable_ameriflux_mapping[var_pyfluxpro_name] = var_ameriflux_name
                 var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_ameriflux_name + "]]"
                 # change the unit to percentage
                 if units_row.shape[0] > 0:
@@ -554,11 +560,10 @@ class L1Format:
                 var_pyfluxpro_name = site_soil_temp_variables[met_tower_var_name]['Pyfluxpro label']
                 # write to variable lines
                 var_flag = True
-                var_ameriflux_name = var_ameriflux_name.upper()
                 # add met tower name to the mapping
-                variables_mapping[met_tower_var_name] = var_ameriflux_name
+                variable_ameriflux_mapping[met_tower_var_name] = var_ameriflux_name
                 # add pyfluxpro name to the mapping
-                variables_mapping[var_pyfluxpro_name] = var_ameriflux_name
+                variable_ameriflux_mapping[var_pyfluxpro_name] = var_ameriflux_name
                 var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_ameriflux_name + "]]"
 
                 # correct the height row
@@ -590,7 +595,7 @@ class L1Format:
             for key, value in site_soil_moisture_variables.items():
                 var_name_line = var_spaces + "[[" + value['Eddypro label'] + "]]"
                 variables_lines_out.append(var_name_line)
-                variables_mapping[key] = value['Eddypro label']  # add variable name to the mapping
+                variable_ameriflux_mapping[key] = value['Eddypro label']  # add variable name to the mapping
                 name_row = moisture_xl_df[moisture_xl_df['Text'].apply(lambda x: x.strip().startswith("name"))]
                 moisture_xl_df.iloc[moisture_xl_df.index == name_row.index[0]] = other_spaces + "name = " + key
                 height_row = moisture_attr_df[moisture_attr_df['Text'].apply(lambda x: x.strip().startswith("height"))]
@@ -615,7 +620,7 @@ class L1Format:
             for key, value in site_soil_temp_variables.items():
                 var_name_line = var_spaces + "[[" + value['Eddypro label'] + "]]"
                 variables_lines_out.append(var_name_line)
-                variables_mapping[key] = value['Eddypro label']  # add variable name to the mapping
+                variable_ameriflux_mapping[key] = value['Eddypro label']  # add variable name to the mapping
                 name_row = temp_xl_df[temp_xl_df['Text'].apply(lambda x: x.strip().startswith("name"))]
                 temp_xl_df.iloc[temp_xl_df.index == name_row.index[0]] = other_spaces + "name = " + key
                 height_row = temp_attr_df[temp_attr_df['Text'].apply(lambda x: x.strip().startswith("height"))]
@@ -635,10 +640,10 @@ class L1Format:
                 variables_lines_out.extend(temp_xl_df['Text'].tolist())
 
         # return the variables mapping and output list
-        return variables_lines_out, variables_mapping
+        return variables_lines_out, variable_ameriflux_mapping
 
     @staticmethod
-    def format_ameriflux_var(df, var_start_end, ameriflux_key, spaces=SPACES):
+    def format_ameriflux_var(df, var_start_end, ameriflux_key, mainstem_variables_mapping, spaces=SPACES):
         """
             Change variable units for Ameriflux only variables
 
@@ -646,10 +651,11 @@ class L1Format:
                 df (obj): Pandas dataframe with all variable lines from L1_ameriflux_only.txt
                 var_start_end (list): List of tuple, the starting and ending index for each ameriflux variable
                 ameriflux_key (obj): Pandas dataframe of AmeriFlux-Mainstem varible name sheet
+                mainstem_variables_mapping (dict) : Mapping of mainstem variables
                 spaces (str): Spaces to be inserted before each section and line
             Returns:
                 variable_lines_out (list) : List of variables lines to be written to l1_ameriflux
-                variables_mapping (dict) : Mapping of pyfluxpro-friendly to ameriflux-friendly variable names in L1
+                variables_mapping (dict) : Mapping of variables to ameriflux-friendly variable names in L1
         """
         # define spaces for formatting in L1
         var_spaces = spaces
@@ -658,17 +664,29 @@ class L1Format:
         other_spaces = spaces + spaces + spaces
 
         variables_out = []  # variable lines to be written
-        variables_mapping = {}
+        ameriflux_variables_mapping = {}
         # iterate over the variables
         for start, end in var_start_end:
             var_flag = False  # flag to see if variable has been changed or not
             # get variable, xl and attr sections as separate dataframes
             var, xl_df, attr_df = L1Format.get_var_xl_attr_df(df, start, end)
             var_name = var['Text'].iloc[0].strip('[]')  # get variable name
+            # check if variable is already written to L1
+            if (var_name in ameriflux_variables_mapping.keys()) or (var_name in ameriflux_variables_mapping.values()) \
+                    or (var_name in mainstem_variables_mapping.keys()) or \
+                    (var_name in mainstem_variables_mapping.values()):
+                log.warning("Variable " + var_name + " is already written to L1. Skipping this variable.")
+                continue
             # set the spacing for variable name line
-            var_name_index = var.index[0]
+            var_name_index = var.index[0]  # get index of variable name
             var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_name + "]]"
-            variables_mapping[var_name] = var_name
+            ameriflux_variables_mapping[var_name] = var_name
+
+            # get met tower variable name
+            name_row = xl_df[xl_df['Text'].apply(lambda x: x.strip().startswith("name"))]
+            met_tower_var_name = name_row['Text'].iloc[0].split('=')[1].strip()
+            # get the corrected met tower variable name
+            met_tower_var_name = L1Format.get_corrected_met_tower_var_name(met_tower_var_name)
 
             # format text as per L1
             xl_df['Text'].iloc[0] = xl_spaces + xl_df['Text'].iloc[0]
@@ -684,13 +702,20 @@ class L1Format:
 
             units_row = attr_df[attr_df['Text'].apply(lambda x: x.strip().startswith("units"))]
 
-            if ameriflux_key['Ameriflux variable name'].isin([var_name]).any():
+            if ameriflux_key['Input sheet variable name'].isin([met_tower_var_name]).any():
                 var_flag = True
+                # check if var name should be changed for Ameriflux
+                var_ameriflux_name = ameriflux_key.loc[ameriflux_key['Input sheet variable name'] == met_tower_var_name,
+                                                       'Ameriflux variable name'].iloc[0]
+                # add to the mapping, both met tower and original pyfluxpro names
+                ameriflux_variables_mapping[var_name] = var_ameriflux_name
+                ameriflux_variables_mapping[met_tower_var_name] = var_ameriflux_name
+                var['Text'].iloc[var.index == var_name_index] = var_spaces + "[[" + var_ameriflux_name + "]]"
                 if units_row.shape[0] > 0:
                     # check if units need to be changed
                     var_units_index = units_row.index[0]
                     var_ameriflux_units = \
-                        ameriflux_key.loc[ameriflux_key['Ameriflux variable name'] == var_name,
+                        ameriflux_key.loc[ameriflux_key['Ameriflux variable name'] == var_ameriflux_name,
                                           'Units after formatting'].iloc[0]
                     if not pd.isnull(var_ameriflux_units):
                         # if unit needs to be changed, if its not NaN in the ameriflux-mainstem sheet
@@ -702,4 +727,4 @@ class L1Format:
                 variables_out.extend(var['Text'].tolist())
 
         # end of for loop
-        return variables_out, variables_mapping
+        return variables_out, ameriflux_variables_mapping
