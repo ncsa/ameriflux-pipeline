@@ -166,4 +166,3 @@ def get_platform():
         return sys.platform
 
     return platforms[sys.platform]
-
