@@ -638,15 +638,16 @@ class L1Format:
                     variable_ameriflux_mapping[key] = value['Eddypro label']  # add variable name to the mapping
                     name_row = moisture_xl_df[moisture_xl_df['Text'].apply(lambda x: x.strip().startswith("name"))]
                     moisture_xl_df.iloc[moisture_xl_df.index == name_row.index[0]] = other_spaces + "name = " + key
-                    height_row = moisture_attr_df[moisture_attr_df['Text'].apply(lambda x: x.strip().startswith("height"))]
+                    height_row = moisture_attr_df[moisture_attr_df['Text'].apply(lambda x:
+                                                                                 x.strip().startswith("height"))]
                     # get height from met variable name
                     height_cm = value['Depth (cm)']
                     height = L1Format.get_corrected_height(height_cm)
                     moisture_attr_df.iloc[moisture_attr_df.index == height_row.index[0]] = \
                         other_spaces + "height = " + '-' + height + 'm'
                     # change instrument according to the met tower variable name
-                    instrument_row = moisture_attr_df[moisture_attr_df['Text'].apply(lambda x:
-                                                                                     x.strip().startswith("instrument"))]
+                    instrument_row = moisture_attr_df[moisture_attr_df['Text'].apply(
+                        lambda x: x.strip().startswith("instrument"))]
                     instrument = value['Instrument']
                     moisture_attr_df.iloc[moisture_attr_df.index == instrument_row.index[0]] = \
                         other_spaces + "instrument = " + instrument
@@ -655,7 +656,6 @@ class L1Format:
                     variables_lines_out.extend(moisture_xl_df['Text'].tolist())
                 else:
                     log.warning("Variable %s not found in met_data sheet. Skipping variable", key)
-
 
         if len(site_soil_temp_variables) > 0 and temp_attr_df is not None and temp_xl_df is not None:
             log.info("Writing additional soil temperature variables to L1 Variables")
