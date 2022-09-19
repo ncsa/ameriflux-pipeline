@@ -41,6 +41,7 @@ class L1Format:
     def data_formatting(pyfluxpro_input, l1_mainstem, l1_ameriflux_only, ameriflux_mainstem_key, file_meta_data_file,
                         outfile, l1_ameriflux_output, erroring_variable_flag, erroring_variable_key,
                         site_soil_moisture_variables, site_soil_temp_variables,
+                        full_output_variables, met_data_variables,
                         spaces=SPACES, level_line=LEVEL_LINE):
         """
         Main method for the class.
@@ -61,6 +62,8 @@ class L1Format:
                                         This is an excel file named L1_erroring_variables.xlsx
             site_soil_moisture_variables (dict): Dictionary for soil moisture variable details from Soils key file
             site_soil_temp_variables (dict): Dictionary for soil temperature variable details from Soils key file
+            full_output_variables (list): List of full_output variable names
+            met_data_variables (list): List of met_data variable names
             spaces (str): Spaces to be inserted before each section and line
             level_line (str): Line specifying the level. L1 for this section.
         Returns:
@@ -158,7 +161,8 @@ class L1Format:
         mainstem_var_lines_out, mainstem_variable_ameriflux_mapping = \
             L1Format.format_mainstem_var(mainstem_var_df, mainstem_var_start_end,
                                          ameriflux_key, erroring_variable_key,
-                                         site_soil_moisture_variables, site_soil_temp_variables)
+                                         site_soil_moisture_variables, site_soil_temp_variables,
+                                         full_output_variables, met_data_variables)
 
         # write variables section lines to l1 output
         l1_output_lines.extend(mainstem_var_lines_out)
@@ -337,6 +341,18 @@ class L1Format:
         return var, xl_df, attr_df
 
     @staticmethod
+    def check_variable_exists(var_name, variable_list):
+        """
+        Check if input variable exists in list
+        Args:
+            var_name (str): Variable name to be checked
+            variable_list (list): List of variable names
+        Returns:
+            (bool): True if variable name in list
+        """
+        return var_name in variable_list
+
+    @staticmethod
     def get_corrected_met_tower_var_name(met_tower_var_name):
         """
             Get corrected met tower variable name. See NOTES#20 for details.
@@ -408,7 +424,9 @@ class L1Format:
 
     @staticmethod
     def format_mainstem_var(df, var_start_end, ameriflux_key, erroring_variable_key,
-                            site_soil_moisture_variables, site_soil_temp_variables, spaces=SPACES):
+                            site_soil_moisture_variables, site_soil_temp_variables,
+                            full_output_variables, met_data_variables,
+                            spaces=SPACES):
         """
             Change variable names and units to AmeriFlux standard
 
@@ -450,9 +468,26 @@ class L1Format:
             var_name_index = var.index[0]  # get index of variable name
             # get met tower variable name
             name_row = xl_df[xl_df['Text'].apply(lambda x: x.strip().startswith("name"))]
-            met_tower_var_name = name_row['Text'].iloc[0].split('=')[1].strip()
+            xl_var_name = name_row['Text'].iloc[0].split('=')[1].strip()
             # get the corrected met tower variable name
-            met_tower_var_name = L1Format.get_corrected_met_tower_var_name(met_tower_var_name)
+            met_tower_var_name = L1Format.get_corrected_met_tower_var_name(xl_var_name)
+            # get which sheet
+            sheet_row = xl_df[xl_df['Text'].apply(lambda x: x.strip().startswith("sheet"))]
+            sheet_name = sheet_row['Text'].iloc[0].split('=')[1].strip()
+
+            # check if variable present in specified sheet
+            if sheet_name.lower().startswith("full"):
+                found_full_output = L1Format.check_variable_exists(xl_var_name, full_output_variables) or \
+                                    L1Format.check_variable_exists(met_tower_var_name, full_output_variables)
+                if not found_full_output:
+                    log.warning("Variable %s not found in full_output sheet. Skipping variable", xl_var_name)
+                    continue
+            elif sheet_name.lower().startswith("met"):
+                found_met_data = L1Format.check_variable_exists(xl_var_name, met_data_variables) or \
+                                 L1Format.check_variable_exists(met_tower_var_name, met_data_variables)
+                if not found_met_data:
+                    log.warning("Variable %s not found in met_data sheet. Skipping variable", xl_var_name)
+                    continue
 
             units_row = attr_df[attr_df['Text'].apply(lambda x: x.strip().startswith("unit"))]
             height_row = attr_df[attr_df['Text'].apply(lambda x: x.strip().startswith("height"))]

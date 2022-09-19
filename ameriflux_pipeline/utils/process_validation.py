@@ -398,6 +398,7 @@ class L1Validation:
     LONG_NAME_PATTERN = 'long_name'
     NAME_PATTERN = 'name'
     SHEET_PATTERN = 'sheet'
+    # TODO :Check if sheet name corresponds to cfg.FULL_OUTPUT_PYFLUXPRO and cfg.MET_DATA_30_PYFLUXPRO
 
     @staticmethod
     def check_l1_format(lines):
