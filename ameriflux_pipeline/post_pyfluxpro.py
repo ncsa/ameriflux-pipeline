@@ -51,7 +51,15 @@ def pyfluxpro_output_ameriflux_processing(l2_run_output, file_meta_data_file, er
     return True
 
 
-if __name__ == '__main__':
+def run():
+    """
+    Function for running whole post pyflux pro process
+
+    Args: None
+
+    return:
+        (boo): True if processing is successful, False if not
+    """
     # Main function which calls method for post processing of PyFluxPro output
     log.info('-' * 50)
     log.info("############# Process Started #############")
@@ -77,13 +85,21 @@ if __name__ == '__main__':
     # run ameriflux formatting of pyfluxpro run output
     start = time.time()
     log.info("Post-processing of PyFluxPro run output has been started")
-    is_success = pyfluxpro_output_ameriflux_processing(cfg.L2_AMERIFLUX_RUN_OUTPUT, file_meta_data_file,
-                                                       erroring_variable_flag, cfg.L1_AMERIFLUX_ERRORING_VARIABLES_KEY)
+    is_success = pyfluxpro_output_ameriflux_processing(
+        cfg.L2_AMERIFLUX_RUN_OUTPUT, file_meta_data_file, erroring_variable_flag,
+        cfg.L1_AMERIFLUX_ERRORING_VARIABLES_KEY)
     if is_success:
         log.info("Post-processing of PyFluxPro L2 run output is successful")
     else:
         log.error('-' * 10 + "Post-processing of PyFluxPro L2 run output has failed. Aborting" + '-' * 10)
+        return False
     end = time.time()
     hours, rem = divmod(end - start, 3600)
     minutes, seconds = divmod(rem, 60)
     log.info("Total elapsed time is : {:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
+
+    return True
+
+
+if __name__ == '__main__':
+    run()
