@@ -45,6 +45,9 @@ logging.basicConfig(level=logging.INFO, datefmt='%Y-%m-%dT%H:%M:%S',
 # create log object with current module name
 log = logging.getLogger(__name__)
 
+# flag to check if fulloutput and metdata sheet in pyfluxpro_input.xlsx sheet has overlapping timestamps
+pyfluxpro_overlap_timestamp_check = True  # setting to true checks for overlap
+
 
 def input_validation():
     """
@@ -153,9 +156,6 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
 
     # convert timestamp to datetime format so that pyfluxpro can read without error
     full_output_df['TIMESTAMP'][1:] = pd.to_datetime(full_output_df['TIMESTAMP'][1:])
-    # get the starting and ending timestamp of full output
-    full_output_timestamp_start = full_output_df['TIMESTAMP'][1]
-    full_output_timestamp_end = full_output_df['TIMESTAMP'][len(full_output_df['TIMESTAMP']) - 1]
 
     # write pyfluxpro formatted df to output path
     data_util.write_data_to_csv(full_output_df, full_output_pyfluxpro)
@@ -165,15 +165,23 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
     met_data_df = data_util.read_csv_file(met_data_30_pyfluxpro, dtype='unicode')
     # convert timestamp to datetime format so that pyfluxpro can read without error
     met_data_df['TIMESTAMP'][1:] = pd.to_datetime(met_data_df['TIMESTAMP'][1:])
-    # get the starting and ending timestamp of met data
-    met_data_timestamp_start = met_data_df['TIMESTAMP'][1]
-    met_data_timestamp_end = met_data_df['TIMESTAMP'][len(met_data_df['TIMESTAMP']) - 1]
 
-    # check if the met data file has data for the entire period of eddypro full output
-    # if not (met_data_timestamp_start == full_output_timestamp_start and
-    #         met_data_timestamp_end == full_output_timestamp_end):
-    #     log.error("The met data file does not have timestamps matching eddypro full output.")
-    #     return False
+    # check for timestamp overlap
+    if pyfluxpro_overlap_timestamp_check:
+        # get the starting and ending timestamp of met data
+        met_data_timestamp_start = met_data_df['TIMESTAMP'][1]
+        met_data_timestamp_end = met_data_df['TIMESTAMP'][len(met_data_df['TIMESTAMP']) - 1]
+        # get the starting and ending timestamp of full output
+        full_output_timestamp_start = full_output_df['TIMESTAMP'][1]
+        full_output_timestamp_end = full_output_df['TIMESTAMP'][len(full_output_df['TIMESTAMP']) - 1]
+        # get overlapping periods
+        latest_start = max(met_data_timestamp_start, full_output_timestamp_start)
+        earliest_end = min(met_data_timestamp_end, full_output_timestamp_end)
+        delta = (earliest_end - latest_start).total_seconds()  # find delta and convert to seconds
+        overlap = max(0, delta)
+        if not overlap:
+            log.error("The met data and full output does not have overlapping timestamps.")
+            return False
 
     full_output_col_list = full_output_df.columns
     met_data_col_list = met_data_df.columns
@@ -212,7 +220,8 @@ def pyfluxpro_ameriflux_processing(input_file, output_file):
         input_file (str): PyFluxPro input excel sheet file path
         output_file (str): Filename to write the PyFluxPro formatted for AmeriFlux
     Returns :
-        (bool) : True if pyfluxpro input sheet is successfully created, else False
+        ameriflux_full_output_df_col_list (list): List of full_output variable names
+        ameriflux_met_df_col_list (list): List of full_output variable names
     """
     full_output_sheet_name = os.path.splitext(os.path.basename(cfg.FULL_OUTPUT_PYFLUXPRO))[0]
     met_data_sheet_name = os.path.splitext(os.path.basename(cfg.MET_DATA_30_PYFLUXPRO))[0]
@@ -246,13 +255,14 @@ def pyfluxpro_ameriflux_processing(input_file, output_file):
     writer.save()
     log.info("AmeriFlux PyFluxPro excel sheet saved in %s", output_file)
     # all processing successful
-    return True
+    return ameriflux_full_output_df_col_list, ameriflux_met_df_col_list
 
 
 def pyfluxpro_l1_ameriflux_processing(pyfluxpro_input, l1_mainstem, l1_ameriflux_only, ameriflux_mainstem_key,
                                       file_meta_data_file, l1_run_output, l1_ameriflux_output,
                                       erroring_variable_flag, erroring_variable_key,
-                                      site_soil_moisture_variables, site_soil_temp_variables):
+                                      site_soil_moisture_variables, site_soil_temp_variables,
+                                      full_output_variables, met_data_variables):
     """
     Main function to run PyFluxPro L1 control file formatting for AmeriFlux. Calls other functions
     Args:
@@ -271,6 +281,8 @@ def pyfluxpro_l1_ameriflux_processing(pyfluxpro_input, l1_mainstem, l1_ameriflux
                                     This is an excel file named L1_erroring_variables.xlsx
         site_soil_moisture_variables(dict): Dictionary for soil moisture variable details from Soils key file
         site_soil_temp_variables (dict): Dictionary for soil temperature variable details from Soils key file
+        full_output_variables (list): List of full_output variable names
+        met_data_variables (list): List of met_data variable names
 
     Returns:
         ameriflux_mapping (dict): Mapping of variable names to Ameriflux-friendly labels in L1_Ameriflux.txt
@@ -279,7 +291,8 @@ def pyfluxpro_l1_ameriflux_processing(pyfluxpro_input, l1_mainstem, l1_ameriflux
         L1Format.data_formatting(pyfluxpro_input, l1_mainstem, l1_ameriflux_only, ameriflux_mainstem_key,
                                  file_meta_data_file, l1_run_output, l1_ameriflux_output,
                                  erroring_variable_flag, erroring_variable_key,
-                                 site_soil_moisture_variables, site_soil_temp_variables)
+                                 site_soil_moisture_variables, site_soil_temp_variables,
+                                 full_output_variables, met_data_variables)
     return ameriflux_mapping
 
 
@@ -418,19 +431,41 @@ def pre_processing(file_meta_data_file, erroring_variable_flag, run_flag):
             log.error('-' * 10 + "PyFluxPro L1 processing failed. Aborting" + '-' * 10)
             return False  # return failure
 
-        # run ameriflux formatting of pyfluxpro L2 control file
-        is_success = pyfluxpro_l2_ameriflux_processing(ameriflux_mapping, cfg.L2_MAINSTEM_INPUT,
-                                                       cfg.L2_AMERIFLUX_ONLY_INPUT, cfg.L1_AMERIFLUX_RUN_OUTPUT,
-                                                       cfg.L2_AMERIFLUX_RUN_OUTPUT, cfg.L2_AMERIFLUX)
-        if is_success:
-            log.info("Run PyFluxPro V3.3.2 with the generated L1 and L2 control files")
-            log.info("Generated control files in %s %s", cfg.L1_AMERIFLUX, cfg.L2_AMERIFLUX)
-            return True  # all processing done return success
-        else:
-            log.error('-' * 10 + "PyFluxPro L2 processing failed. Aborting" + '-' * 10)
+    # run ameriflux formatting of pyfluxpro input
+    full_output_variables, met_data_variables = [], []  # get list of fulloutput and metdata variable names
+    if os.path.exists(cfg.PYFLUXPRO_INPUT_SHEET):
+        full_output_variables, met_data_variables = \
+            pyfluxpro_ameriflux_processing(cfg.PYFLUXPRO_INPUT_SHEET, cfg.PYFLUXPRO_INPUT_AMERIFLUX)
+        if len(full_output_variables) == 0 and len(met_data_variables) == 0:
+            log.error('-' * 10 + "PyFluxpro input sheet formatting for Ameriflux failed. Aborting" + '-' * 10)
+
             return False  # return failure
 
-    return True
+
+    # run ameriflux formatting of pyfluxpro L1 control file
+    ameriflux_mapping = \
+        pyfluxpro_l1_ameriflux_processing(cfg.PYFLUXPRO_INPUT_AMERIFLUX, cfg.L1_MAINSTEM_INPUT,
+                                          cfg.L1_AMERIFLUX_ONLY_INPUT, cfg.L1_AMERIFLUX_MAINSTEM_KEY,
+                                          file_meta_data_file, cfg.L1_AMERIFLUX_RUN_OUTPUT, cfg.L1_AMERIFLUX,
+                                          erroring_variable_flag, cfg.L1_AMERIFLUX_ERRORING_VARIABLES_KEY,
+                                          site_soil_moisture_variables, site_soil_temp_variables,
+                                          full_output_variables, met_data_variables)
+    if ameriflux_mapping is None:
+        log.error('-' * 10 + "PyFluxPro L1 processing failed. Aborting" + '-' * 10)
+        return False  # return failure
+
+    # run ameriflux formatting of pyfluxpro L2 control file
+    is_success = pyfluxpro_l2_ameriflux_processing(ameriflux_mapping, cfg.L2_MAINSTEM_INPUT,
+                                                   cfg.L2_AMERIFLUX_ONLY_INPUT, cfg.L1_AMERIFLUX_RUN_OUTPUT,
+                                                   cfg.L2_AMERIFLUX_RUN_OUTPUT, cfg.L2_AMERIFLUX)
+    if is_success:
+        log.info("Run PyFluxPro V3.3.2 with the generated L1 and L2 control files")
+        log.info("Generated control files in %s %s", cfg.L1_AMERIFLUX, cfg.L2_AMERIFLUX)
+        return True  # all processing done return success
+    else:
+        log.error('-' * 10 + "PyFluxPro L2 processing failed. Aborting" + '-' * 10)
+        return False  # return failure
+
 
 
 def run(run_flag=1):

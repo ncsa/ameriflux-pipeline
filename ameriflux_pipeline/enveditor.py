@@ -12,12 +12,13 @@ from tkinter import filedialog, messagebox
 from dotenv import load_dotenv
 
 from eddypro.runeddypro import RunEddypro
+import utils.data_util as data_util
 
 
 class EnvEditor:
     def __init__(self):
         # check what is the current platform
-        self.OS_PLATFORM = RunEddypro.get_platform()
+        self.OS_PLATFORM = data_util.get_platform()
 
         # text variables
         self.SEPARATION_LABEL = "---------------------------------------------------------"

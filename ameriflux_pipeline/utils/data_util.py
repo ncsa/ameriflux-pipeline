@@ -128,6 +128,27 @@ def get_valid_datetime(data):
         return None
 
 
+def read_file_lines(filename):
+    """
+    Method to read file and return lines
+    Args:
+        filename (str): Input file to be read
+    Returns:
+        line_out (list): Lines read from file
+    """
+    try:
+        # open input file in read mode
+        log.info("Open file %s", filename)
+        file = open(filename, 'r')
+        # read lines from l1 inputs
+        file_lines = file.readlines()
+        file.close()
+        return file_lines
+    except Exception as e:
+        log.error("Error opening file %s. %s", filename, e)
+        return None
+
+
 def get_platform():
     """
         Method to get the system platform
