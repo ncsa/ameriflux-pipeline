@@ -361,39 +361,12 @@ class L1Format:
         # if TC change to TC1
         elif bool(re.match('^TC_', met_tower_var_name, re.I)):
             corrected_met_tower_var_name = 'TC1_' + met_tower_var_name.split('_')[1] + '_Avg'
-
-        # if CM3Dn and Solar_Wm2 columns, rename to SWDn
-        elif bool(re.match('^CM[1-9]Up', met_tower_var_name, re.I)):
-            corrected_met_tower_var_name = 'SWDn_Avg'
-        elif bool(re.match('^Solar_Wm[1-9]', met_tower_var_name, re.I)):
-            corrected_met_tower_var_name = 'SWDn_Avg'
-        # if CM3Dn and Sw_Out columns, rename to SWUp
-        elif bool(re.match('^CM[1-9]Dn', met_tower_var_name, re.I)):
-            corrected_met_tower_var_name = 'SWUp_Avg'
-        elif bool(re.match('^Sw_Out', met_tower_var_name, re.I)):
-            corrected_met_tower_var_name = 'SWUp_Avg'
-
-        # if CG3Dn and CG3Up columns, rename to LWDn and LWUp
-        elif bool(re.match('^CG[1-9]UpCo', met_tower_var_name, re.I)):
-            corrected_met_tower_var_name = 'LWDnCo_Avg'
-        elif bool(re.match('^CG[1-9]DnCo', met_tower_var_name, re.I)):
-            corrected_met_tower_var_name = 'LWUpCo_Avg'
-        # search for string ending with CG3Up or starting with CG3Up_Avg
-        elif bool(re.match('CG[1-9]Up$|^CG[1-9]Up_Avg', met_tower_var_name, re.I)):
-            corrected_met_tower_var_name = 'LWDn_Avg'
-        elif bool(re.match('CG[1-9]Dn$|^CG[1-9]Dn_Avg', met_tower_var_name, re.I)):
-            corrected_met_tower_var_name = 'LWUp_Avg'
-
-        # NetTot or Net_Rad column is renamed to Rn_Avg
-        elif bool(re.match('^NetTot', met_tower_var_name, re.I)):
-            corrected_met_tower_var_name = 'Rn_Avg'
-        elif bool(re.match('^Net_?Rad', met_tower_var_name, re.I)):
-            corrected_met_tower_var_name = 'Rn_Avg'
-
+        # remove numbers from CNRTC and CNRTK variables
         elif bool(re.match('^CNR[1-9]_?T_?C', met_tower_var_name, re.I)):
             corrected_met_tower_var_name = 'CNRTC_Avg'
         elif bool(re.match('^CNR[1-9]_?T_?K', met_tower_var_name, re.I)):
             corrected_met_tower_var_name = 'CNRTK_Avg'
+        # get NetRs and NetRl renamed
         elif bool(re.match('^Rs_net', met_tower_var_name, re.I)):
             corrected_met_tower_var_name = 'NetRs_Avg'
         elif bool(re.match('^Rl_net', met_tower_var_name, re.I)):
