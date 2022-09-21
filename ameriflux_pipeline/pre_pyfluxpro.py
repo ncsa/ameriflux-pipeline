@@ -106,9 +106,8 @@ def eddypro_preprocessing(file_meta_data_file):
 
     # create file for master met formatted for eddypro
     # filename is selected to be master_met_eddypro
-    output_filename = os.path.basename(cfg.MASTER_MET)
-    eddypro_formatted_met_name = os.path.splitext(output_filename)[0] + '_eddypro.csv'
-    eddypro_formatted_met_file = os.path.join(data_util.get_directory(cfg.MASTER_MET), eddypro_formatted_met_name)
+    eddypro_formatted_met_file = data_util.create_eddypro_output_met_file_name(cfg.MASTER_MET)
+
     # start formatting data
     df, site_soil_moisture_variables, site_soil_temp_variables = \
         EddyProFormat.data_formatting(cfg.MASTER_MET, cfg.INPUT_SOIL_KEY, file_meta, eddypro_formatted_met_file)
@@ -317,7 +316,7 @@ def pyfluxpro_l2_ameriflux_processing(ameriflux_mapping, l2_mainstem, l2_amerifl
     return is_success
 
 
-def pre_processing(file_meta_data_file, erroring_variable_flag):
+def pre_processing(file_meta_data_file, erroring_variable_flag, run_flag):
     """
        Function to run Master met, EddyPro and PyFluxPro file formatting for AmeriFlux. Calls other functions
 
@@ -325,108 +324,144 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
            file_meta_data_file (str): Filepath to write the meta data, typically the first line of Met data
            erroring_variable_flag (str): A flag denoting whether some PyFluxPro variables (erroring variables) have
                                        been renamed to Ameriflux labels. Y is renamed, N if not. By default it is N.
+           run_flag (int): Number that indicates the process.
+                        1: Run whole process,
+                        2: Run eddypro pre processing,
+                        3: Run EddyPro
+                        4: Run pyfluxpro input file processing
+
        Returns:
            (bool): True if method runs successfully, False if not
     """
     # sync data from the server
-    syncdata.sync_data()
+    if run_flag == 1:
+        syncdata.sync_data()
 
     # run eddypro preprocessing and formatting
-    eddypro_formatted_met_file, site_soil_moisture_variables, site_soil_temp_variables = \
-        eddypro_preprocessing(file_meta_data_file)
+    if run_flag == 1 or run_flag == 2:
+        eddypro_formatted_met_file, site_soil_moisture_variables, site_soil_temp_variables = \
+            eddypro_preprocessing(file_meta_data_file)
 
-    if not os.path.exists(eddypro_formatted_met_file):
-        # return failure
-        log.error("EddyPro Processing failed")
-        return False
+        if not os.path.exists(eddypro_formatted_met_file):
+            # return failure
+            log.error("EddyPro Processing failed")
+            return False
 
-    # archive old eddypro output path
-    outfile_list = os.listdir(cfg.EDDYPRO_OUTPUT_PATH)
-    if len(outfile_list) > 0:
-        # eddypro output dir not empty. move all files
-        source_dir = cfg.EDDYPRO_OUTPUT_PATH
-        # create a dir with timestamp name in the same path
-        dest_dir = os.path.dirname(cfg.EDDYPRO_OUTPUT_PATH) + '_run_result_' + datetime.now().strftime('%Y-%m-%d_%H-%M')
-        os.makedirs(dest_dir)
-        for f in outfile_list:
-            # move each file
-            source = os.path.join(source_dir, f)
-            dest = os.path.join(dest_dir, f)
-            shutil.move(source, dest)
+    if run_flag == 1 or run_flag == 3:
+        # check if edddypro_formatted_met_file variable got defined
+        try:
+            eddypro_formatted_met_file
+        except NameError:
+            eddypro_formatted_met_file = None
 
-    # run eddypro
-    run_eddypro(eddypro_formatted_met_file)
+        if eddypro_formatted_met_file is None:
+            eddypro_formatted_met_file = data_util.create_eddypro_output_met_file_name(cfg.MASTER_MET)
 
-    # grab eddypro full output
-    outfile_list = os.listdir(cfg.EDDYPRO_OUTPUT_PATH)
-    eddypro_full_outfile = None
-    is_pyfluxpro_processing_success = False
-    for outfile in outfile_list:
-        if 'full_output' in outfile:
-            eddypro_full_outfile = os.path.join(cfg.EDDYPRO_OUTPUT_PATH, outfile)
-            # filetype validation for eddypro_full_outfile
-            if not DataValidation.filetype_validation(eddypro_full_outfile, '.csv'):
-                log.error(".csv extension expected for file %s", eddypro_full_outfile)
-                # get the next full_output sheet if exists
-                continue
-            # run pyfluxpro formatting
-            is_pyfluxpro_processing_success = pyfluxpro_processing(eddypro_full_outfile, cfg.FULL_OUTPUT_PYFLUXPRO,
-                                                                   cfg.MASTER_MET, cfg.MET_DATA_30_PYFLUXPRO)
-            if is_pyfluxpro_processing_success:
-                # pyfluxpro formatting is success, break out of loop.
-                break
+        # archive old eddypro output path
+        outfile_list = os.listdir(cfg.EDDYPRO_OUTPUT_PATH)
+        if len(outfile_list) > 0:
+            # eddypro output dir not empty. move all files
+            source_dir = cfg.EDDYPRO_OUTPUT_PATH
+            # create a dir with timestamp name in the same path
+            dest_dir = os.path.dirname(
+                cfg.EDDYPRO_OUTPUT_PATH) + '_run_result_' + datetime.now().strftime('%Y-%m-%d_%H-%M')
+            os.makedirs(dest_dir)
+            for f in outfile_list:
+                # move each file
+                source = os.path.join(source_dir, f)
+                dest = os.path.join(dest_dir, f)
+                shutil.move(source, dest)
 
-    # if eddypro full output file not present
-    if not eddypro_full_outfile:
-        log.error('-' * 10 + "EddyPro full output not present. Aborting" + '-' * 10)
-        # return failure
-        return False
-    if not is_pyfluxpro_processing_success:
-        log.error('-' * 10 + "PyFluxpro processing failed. Aborting" + '-' * 10)
-        return False
+        # run eddypro
+        run_eddypro(eddypro_formatted_met_file)
 
-    # run ameriflux formatting of pyfluxpro input
-    full_output_variables, met_data_variables = [], []  # get list of fulloutput and metdata variable names
-    if os.path.exists(cfg.PYFLUXPRO_INPUT_SHEET):
-        full_output_variables, met_data_variables = \
-            pyfluxpro_ameriflux_processing(cfg.PYFLUXPRO_INPUT_SHEET, cfg.PYFLUXPRO_INPUT_AMERIFLUX)
-        if len(full_output_variables) == 0 and len(met_data_variables) == 0:
-            log.error('-' * 10 + "PyFluxpro input sheet formatting for Ameriflux failed. Aborting" + '-' * 10)
+    if run_flag == 1 or run_flag == 4:
+        try:
+            eddypro_formatted_met_file
+            site_soil_moisture_variables
+            site_soil_temp_variables
+        except NameError:
+            eddypro_formatted_met_file, site_soil_moisture_variables, site_soil_temp_variables = \
+                eddypro_preprocessing(file_meta_data_file)
+
+        # grab eddypro full output
+        outfile_list = os.listdir(cfg.EDDYPRO_OUTPUT_PATH)
+        eddypro_full_outfile = None
+        is_pyfluxpro_processing_success = False
+        for outfile in outfile_list:
+            if 'full_output' in outfile:
+                eddypro_full_outfile = os.path.join(cfg.EDDYPRO_OUTPUT_PATH, outfile)
+                # filetype validation for eddypro_full_outfile
+                if not DataValidation.filetype_validation(eddypro_full_outfile, '.csv'):
+                    log.error(".csv extension expected for file %s", eddypro_full_outfile)
+                    # get the next full_output sheet if exists
+                    continue
+                # run pyfluxpro formatting
+                is_pyfluxpro_processing_success = pyfluxpro_processing(eddypro_full_outfile, cfg.FULL_OUTPUT_PYFLUXPRO,
+                                                                       cfg.MASTER_MET, cfg.MET_DATA_30_PYFLUXPRO)
+                if is_pyfluxpro_processing_success:
+                    # pyfluxpro formatting is success, break out of loop.
+                    break
+
+        # if eddypro full output file not present
+        if not eddypro_full_outfile:
+            log.error('-' * 10 + "EddyPro full output not present. Aborting" + '-' * 10)
+            # return failure
+            return False
+        if not is_pyfluxpro_processing_success:
+            log.error('-' * 10 + "PyFluxpro processing failed. Aborting" + '-' * 10)
+            return False
+
+        # run ameriflux formatting of pyfluxpro input
+        full_output_variables, met_data_variables = [], []  # get list of fulloutput and metdata variable names
+        if os.path.exists(cfg.PYFLUXPRO_INPUT_SHEET):
+            full_output_variables, met_data_variables = \
+                pyfluxpro_ameriflux_processing(cfg.PYFLUXPRO_INPUT_SHEET, cfg.PYFLUXPRO_INPUT_AMERIFLUX)
+            if len(full_output_variables) == 0 and len(met_data_variables) == 0:
+                log.error('-' * 10 + "PyFluxpro input sheet formatting for Ameriflux failed. Aborting" + '-' * 10)
+                return False  # return failure
+        else:
+            log.error('-' * 10 + "%s path does not exist. Aborting" + '-' * 10, cfg.PYFLUXPRO_INPUT_SHEET)
             return False  # return failure
-    else:
-        log.error('-' * 10 + "%s path does not exist. Aborting" + '-' * 10, cfg.PYFLUXPRO_INPUT_SHEET)
-        return False  # return failure
 
-    # run ameriflux formatting of pyfluxpro L1 control file
-    ameriflux_mapping = \
-        pyfluxpro_l1_ameriflux_processing(cfg.PYFLUXPRO_INPUT_AMERIFLUX, cfg.L1_MAINSTEM_INPUT,
-                                          cfg.L1_AMERIFLUX_ONLY_INPUT, cfg.L1_AMERIFLUX_MAINSTEM_KEY,
-                                          file_meta_data_file, cfg.L1_AMERIFLUX_RUN_OUTPUT, cfg.L1_AMERIFLUX,
-                                          erroring_variable_flag, cfg.L1_AMERIFLUX_ERRORING_VARIABLES_KEY,
-                                          site_soil_moisture_variables, site_soil_temp_variables,
-                                          full_output_variables, met_data_variables)
-    if ameriflux_mapping is None:
-        log.error('-' * 10 + "PyFluxPro L1 processing failed. Aborting" + '-' * 10)
-        return False  # return failure
+        # run ameriflux formatting of pyfluxpro L1 control file
+        ameriflux_mapping = \
+            pyfluxpro_l1_ameriflux_processing(cfg.PYFLUXPRO_INPUT_AMERIFLUX, cfg.L1_MAINSTEM_INPUT,
+                                              cfg.L1_AMERIFLUX_ONLY_INPUT, cfg.L1_AMERIFLUX_MAINSTEM_KEY,
+                                              file_meta_data_file, cfg.L1_AMERIFLUX_RUN_OUTPUT, cfg.L1_AMERIFLUX,
+                                              erroring_variable_flag, cfg.L1_AMERIFLUX_ERRORING_VARIABLES_KEY,
+                                              site_soil_moisture_variables, site_soil_temp_variables,
+                                              full_output_variables, met_data_variables)
+        if ameriflux_mapping is None:
+            log.error('-' * 10 + "PyFluxPro L1 processing failed. Aborting" + '-' * 10)
+            return False  # return failure
 
-    # run ameriflux formatting of pyfluxpro L2 control file
-    is_success = pyfluxpro_l2_ameriflux_processing(ameriflux_mapping, cfg.L2_MAINSTEM_INPUT,
-                                                   cfg.L2_AMERIFLUX_ONLY_INPUT, cfg.L1_AMERIFLUX_RUN_OUTPUT,
-                                                   cfg.L2_AMERIFLUX_RUN_OUTPUT, cfg.L2_AMERIFLUX)
-    if is_success:
-        log.info("Run PyFluxPro V3.3.2 with the generated L1 and L2 control files")
-        log.info("Generated control files in %s %s", cfg.L1_AMERIFLUX, cfg.L2_AMERIFLUX)
-        return True  # all processing done return success
-    else:
-        log.error('-' * 10 + "PyFluxPro L2 processing failed. Aborting" + '-' * 10)
-        return False  # return failure
+        # run ameriflux formatting of pyfluxpro L2 control file
+        is_success = pyfluxpro_l2_ameriflux_processing(ameriflux_mapping, cfg.L2_MAINSTEM_INPUT,
+                                                       cfg.L2_AMERIFLUX_ONLY_INPUT, cfg.L1_AMERIFLUX_RUN_OUTPUT,
+                                                       cfg.L2_AMERIFLUX_RUN_OUTPUT, cfg.L2_AMERIFLUX)
+        if is_success:
+            log.info("Run PyFluxPro V3.3.2 with the generated L1 and L2 control files")
+            log.info("Generated control files in %s %s", cfg.L1_AMERIFLUX, cfg.L2_AMERIFLUX)
+            return True  # all processing done return success
+        else:
+            log.error('-' * 10 + "PyFluxPro L2 processing failed. Aborting" + '-' * 10)
+            return False  # return failure
+
+    return True
 
 
-def main():
+def run(run_flag=1):
     """
     Main function to run. Calls other function
-    Args : None
-    Returns : None
+    Args :
+        run_flag (int): Number that indicates the process.
+                        1: Run whole process,
+                        2: Run eddypro pre processing,
+                        3: Run EddyPro
+                        4: Run pyfluxpro input file processing
+
+    Returns : (bool)
     """
     # Main function
     is_valid_config = input_validation()
@@ -457,20 +492,23 @@ def main():
     start = time.time()
     log.info("Pre-processing of PyFluxPro run output has been started")
 
-    is_success = pre_processing(file_meta_data_file, erroring_variable_flag)
+    is_success = pre_processing(file_meta_data_file, erroring_variable_flag, run_flag)
     if is_success:
         log.info("Successfully completed pre-processing of PyFluxPro L1 and L2")
     else:
         log.error('-' * 10 + "Pre-processing resulted in an error." + '-' * 10)
+        return False
 
     end = time.time()
     hours, rem = divmod(end - start, 3600)
     minutes, seconds = divmod(rem, 60)
     log.info("Total elapsed time is : {:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
 
+    return True
+
 
 if __name__ == '__main__':
     log.info('-' * 50)
     log.info("############# Process Started #############")
     # Call main function
-    main()
+    run()
