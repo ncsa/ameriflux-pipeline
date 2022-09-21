@@ -67,23 +67,18 @@ class L1Format:
             ameriflux_mapping (dict): Mapping of variable names to Ameriflux-friendly labels
                                         for variables in L1_Ameriflux.txt
         """
-        # open input file in read mode
-        l1_mainstem = open(l1_mainstem, 'r')
-        l1_ameriflux = open(l1_ameriflux_only, 'r')
-        l1_output_lines = []  # comma separated list of lines to be written
-
         # read lines from l1 inputs
-        l1_mainstem_lines = l1_mainstem.readlines()
+        l1_mainstem_lines = data_util.read_file_lines(l1_mainstem)
         # check if input L1 have the same format as expected
-        if not L1Validation.check_l1_format(l1_mainstem_lines):
+        if (not l1_mainstem_lines) or (not L1Validation.check_l1_format(l1_mainstem_lines)):
             log.error("Check input L1.txt format %s", l1_mainstem)
-            l1_mainstem.close()
             return None
-        l1_ameriflux_lines = l1_ameriflux.readlines()
-        if not L1Validation.check_l1_format(l1_ameriflux_lines):
+        l1_ameriflux_lines = data_util.read_file_lines(l1_ameriflux_only)
+        if (not l1_ameriflux_lines) or (not L1Validation.check_l1_format(l1_ameriflux_lines)):
             log.error("Check input L1.txt format %s", l1_ameriflux_only)
-            l1_ameriflux.close()
             return None
+
+        l1_output_lines = []  # comma separated list of lines to be written
 
         # read file_meta
         file_meta = data_util.read_csv_file(file_meta_data_file)
@@ -184,10 +179,6 @@ class L1Format:
         # write output lines to file
         log.info("Writting Ameriflux L1 control file to " + l1_ameriflux_output)
         data_util.write_list_to_file(l1_output_lines, l1_ameriflux_output)
-
-        # close files
-        l1_mainstem.close()
-        l1_ameriflux.close()
 
         # return pyfluxpro to ameriflux label mapping
         return ameriflux_mapping
