@@ -70,6 +70,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Timestamp checks for pyfluxpro input sheet processing. [#267](https://github.com/ncsa/ameriflux-pipeline/issues/267)
 - Met tower variable name mapping for 2020 data. [#260](https://github.com/ncsa/ameriflux-pipeline/issues/260)
 - Check for duplicate variable names in L1 and L2. [#263](https://github.com/ncsa/ameriflux-pipeline/issues/263)
+- Timestamp overlap checks for pyfluxpro input sheet processing. [#277](https://github.com/ncsa/ameriflux-pipeline/issues/277)
 - Check if variables exists in met data and full output sheet before writing to L1. [#280](https://github.com/ncsa/ameriflux-pipeline/issues/280)
 
 ### Fixed
@@ -117,3 +118,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Reading csv with multiple separators. [#148](https://github.com/ncsa/ameriflux-pipeline/issues/148)
 - Updated Readme file with new information. [#189](https://github.com/ncsa/ameriflux-pipeline/issues/189)
 - Moved method to get OS platform. [#271](https://github.com/ncsa/ameriflux-pipeline/issues/271)
+- Moved readlines to utils. [#275](https://github.com/ncsa/ameriflux-pipeline/issues/275)

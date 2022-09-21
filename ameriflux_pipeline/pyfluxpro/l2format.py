@@ -47,23 +47,20 @@ class L2Format:
         Returns:
             (bool): True if success, False if not
         """
-        # open input file in read mode
-        l2_mainstem = open(l2_mainstem, 'r')
-        l2_ameriflux = open(l2_ameriflux_only, 'r')
-        l2_output_lines = []  # comma separated list of lines to be written
         # read lines from l1 inputs
-        l2_mainstem_lines = l2_mainstem.readlines()
-        l2_ameriflux_lines = l2_ameriflux.readlines()
-
-        # check if input L2 have the same format as expected
-        if not L2Validation.check_l2_format(l2_mainstem_lines) or not L2Validation.check_l2_format(l2_ameriflux_lines):
-            log.error("Check L2.txt format")
-            l2_mainstem.close()
-            l2_ameriflux.close()
+        l2_mainstem_lines = data_util.read_file_lines(l2_mainstem)
+        # check if input L1 have the same format as expected
+        if (not l2_mainstem_lines) or (not L2Validation.check_l2_format(l2_mainstem_lines)):
+            log.error("Check input L2.txt format %s", l2_mainstem)
+            return False
+        l2_ameriflux_lines = data_util.read_file_lines(l2_ameriflux_only)
+        if (not l2_ameriflux_lines) or (not L2Validation.check_l2_format(l2_ameriflux_lines)):
+            log.error("Check input L2.txt format %s", l2_ameriflux_only)
             return False
 
-        # writing to output file
+        l2_output_lines = []  # comma separated list of lines to be written
 
+        # writing to output file
         # write the level line
         l2_output_lines.append(level_line.strip())
 
