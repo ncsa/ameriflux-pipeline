@@ -455,19 +455,20 @@ def run(run_flag=1):
     """
     Main function to run. Calls other function
     Args :
-        run_flag (int): Number that indicates the process.
+        run_flag (int): Number that indicates the modules to run".
                         1: Run whole process,
                         2: Run eddypro pre processing,
                         3: Run EddyPro
                         4: Run pyfluxpro input file processing
 
-    Returns : (bool)
+    Returns :
+        (bool): True if success, False if failure
     """
     # Main function
     is_valid_config = input_validation()
     if not is_valid_config:
         log.error('-' * 10 + "Check .env file and fix configurations. Aborting" + '-' * 10)
-        return
+        return False
 
     # Some preprocessing
     # Filename to write file meta data

@@ -49,7 +49,8 @@ class Pipeline:
 
         # other variables
         self.MAIN_TITLE = " Run Pipeline"
-        self.DESC_MAIN_PROCESS = " All the variables in here are from env variables"
+        self.DESC_MAIN_PROCESS = " All variables used are from .env file. To set the variables use enveditor" \
+                                 " Please check the terminal or log file for program logs"
         self.INFO_OUT_DATA_GENERATED = "Output meteorology data has been generated."
         self.WORKING_DIRECTORY = ""
 
@@ -84,7 +85,7 @@ class Pipeline:
     def run(self):
         # create main gui window
         root = tk.Tk()
-        root.title("AmeriFlux Pipeline Environment Setter")
+        root.title("Ameriflux Pipeline Modular Runs")
         root.geometry("800x800")
 
         # create a main frame
