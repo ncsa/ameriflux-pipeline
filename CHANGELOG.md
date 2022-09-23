@@ -72,6 +72,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Check for duplicate variable names in L1 and L2. [#263](https://github.com/ncsa/ameriflux-pipeline/issues/263)
 - Timestamp overlap checks for pyfluxpro input sheet processing. [#277](https://github.com/ncsa/ameriflux-pipeline/issues/277)
 - Check if variables exists in met data and full output sheet before writing to L1. [#280](https://github.com/ncsa/ameriflux-pipeline/issues/280)
+- Update site name line in L1 Global section with respect to site name in met data file. [#284](https://github.com/ncsa/ameriflux-pipeline/issues/284)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
