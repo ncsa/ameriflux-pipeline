@@ -214,19 +214,18 @@ def pyfluxpro_processing(eddypro_full_output, full_output_pyfluxpro, met_data_30
     return True
 
 
-def pyfluxpro_ameriflux_processing(input_file, output_file):
+def pyfluxpro_ameriflux_processing(input_file, met_data_sheet_name, full_output_sheet_name, output_file):
     """
     Function to format PyFluxPro input excel sheet for AmeriFlux. Calls other functions
     Args:
         input_file (str): PyFluxPro input excel sheet file path
+        met_data_sheet_name (str): Sheet name for met_data sheet
+        full_output_sheet_name (str): Sheet name for full output
         output_file (str): Filename to write the PyFluxPro formatted for AmeriFlux
     Returns :
         ameriflux_full_output_df_col_list (list): List of full_output variable names
         ameriflux_met_df_col_list (list): List of full_output variable names
     """
-    full_output_sheet_name = os.path.splitext(os.path.basename(cfg.FULL_OUTPUT_PYFLUXPRO))[0]
-    met_data_sheet_name = os.path.splitext(os.path.basename(cfg.MET_DATA_30_PYFLUXPRO))[0]
-
     ameriflux_full_output_df, ameriflux_met_df = AmeriFluxFormat.data_formatting(input_file, full_output_sheet_name,
                                                                                  met_data_sheet_name)
     if ameriflux_full_output_df is None:
@@ -263,7 +262,8 @@ def pyfluxpro_l1_ameriflux_processing(pyfluxpro_input, l1_mainstem, l1_ameriflux
                                       file_meta_data_file, l1_run_output, l1_ameriflux_output,
                                       erroring_variable_flag, erroring_variable_key,
                                       site_soil_moisture_variables, site_soil_temp_variables,
-                                      full_output_variables, met_data_variables):
+                                      full_output_variables, met_data_variables,
+                                      met_data_sheet_name, full_output_sheet_name):
     """
     Main function to run PyFluxPro L1 control file formatting for AmeriFlux. Calls other functions
     Args:
@@ -284,6 +284,8 @@ def pyfluxpro_l1_ameriflux_processing(pyfluxpro_input, l1_mainstem, l1_ameriflux
         site_soil_temp_variables (dict): Dictionary for soil temperature variable details from Soils key file
         full_output_variables (list): List of full_output variable names
         met_data_variables (list): List of met_data variable names
+        met_data_sheet_name (str): Sheet name for met_data sheet
+        full_output_sheet_name (str): Sheet name for full output
 
     Returns:
         ameriflux_mapping (dict): Mapping of variable names to Ameriflux-friendly labels in L1_Ameriflux.txt
@@ -293,7 +295,8 @@ def pyfluxpro_l1_ameriflux_processing(pyfluxpro_input, l1_mainstem, l1_ameriflux
                                  file_meta_data_file, l1_run_output, l1_ameriflux_output,
                                  erroring_variable_flag, erroring_variable_key,
                                  site_soil_moisture_variables, site_soil_temp_variables,
-                                 full_output_variables, met_data_variables)
+                                 full_output_variables, met_data_variables,
+                                 met_data_sheet_name, full_output_sheet_name)
     return ameriflux_mapping
 
 
@@ -386,10 +389,13 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
         return False
 
     # run ameriflux formatting of pyfluxpro input
+    full_output_sheet_name = os.path.splitext(os.path.basename(cfg.FULL_OUTPUT_PYFLUXPRO))[0]
+    met_data_sheet_name = os.path.splitext(os.path.basename(cfg.MET_DATA_30_PYFLUXPRO))[0]
     full_output_variables, met_data_variables = [], []  # get list of fulloutput and metdata variable names
     if os.path.exists(cfg.PYFLUXPRO_INPUT_SHEET):
         full_output_variables, met_data_variables = \
-            pyfluxpro_ameriflux_processing(cfg.PYFLUXPRO_INPUT_SHEET, cfg.PYFLUXPRO_INPUT_AMERIFLUX)
+            pyfluxpro_ameriflux_processing(cfg.PYFLUXPRO_INPUT_SHEET, met_data_sheet_name,
+                                           full_output_sheet_name, cfg.PYFLUXPRO_INPUT_AMERIFLUX)
         if len(full_output_variables) == 0 and len(met_data_variables) == 0:
             log.error('-' * 10 + "PyFluxpro input sheet formatting for Ameriflux failed. Aborting" + '-' * 10)
             return False  # return failure
@@ -404,7 +410,8 @@ def pre_processing(file_meta_data_file, erroring_variable_flag):
                                           file_meta_data_file, cfg.L1_AMERIFLUX_RUN_OUTPUT, cfg.L1_AMERIFLUX,
                                           erroring_variable_flag, cfg.L1_AMERIFLUX_ERRORING_VARIABLES_KEY,
                                           site_soil_moisture_variables, site_soil_temp_variables,
-                                          full_output_variables, met_data_variables)
+                                          full_output_variables, met_data_variables,
+                                          met_data_sheet_name, full_output_sheet_name,)
     if ameriflux_mapping is None:
         log.error('-' * 10 + "PyFluxPro L1 processing failed. Aborting" + '-' * 10)
         return False  # return failure
