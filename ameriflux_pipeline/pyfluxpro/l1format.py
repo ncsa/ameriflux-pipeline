@@ -39,7 +39,7 @@ class L1Format:
     # set site name regex pattern.
     # Starts with site_name followed by optional space and then equal sign followed by
     # a word with min of 3 and max of 50 characters
-    SITE_NAME_LINE_PATTERN = "^site_?name\s?=\s?[\w\W]{3,50}$"
+    SITE_NAME_LINE_PATTERN = "^site_?name\\s?=\\s?[\\w\\W]{3,50}$"
 
     # main method which calls other functions
     @staticmethod
