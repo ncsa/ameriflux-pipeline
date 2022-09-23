@@ -31,7 +31,7 @@ class L1Format:
     # characters and/or digits within two square brackets and ends with new line
     VAR_PATTERN_WITH_SPACE = '^ {4}\\[\\[[a-zA-Z0-9_]+\\]\\]\n$'
     XL_PATTERN = '^\\[\\[\\[xl\\]\\]\\]$'  # to match [[[xl]]] line
-    ATTR_PATTERN = '^\\[\\[\\[Attr\\]\\]\\]$|^\\[\\[\\[attr\\]\\]\\]$'  # to match [[Attr]] or [[attr]] line
+    ATTR_PATTERN = '^\\[\\[\\[Attr\\]\\]\\]$|^\\[\\[\\[attr\\]\\]\\]$'  # to match [[[Attr]]] or [[[attr]]] line
     UNITS_PATTERN = 'units'
     LONG_NAME_PATTERN = 'long_name'
     NAME_PATTERN = 'name'
