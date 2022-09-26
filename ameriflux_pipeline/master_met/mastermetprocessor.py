@@ -101,7 +101,14 @@ class MasterMetProcessor:
         # TODO : test with old data (non-critical)
         if MasterMetProcessor.soil_heat_flux_check(df):
             try:
-                shf_mV, shf_cal = df['shf_mV_Avg(1)'], df['shf_cal_Avg(1)']
+                # regex pattern to match shg_mv_Avg, shg_avg_mv
+                shg_mv_col = df.filter(regex=re.compile('^shg_?mv_?avg|^shg_?avg_?mv', re.IGNORECASE)).\
+                    columns.to_list()[0]
+                # regex pattern to match shf_cal_Avg, shf_cal_avg1. Use non-capturing group (?:...)
+                shf_cal_col = df.filter(regex=re.compile(
+                    '^shf(?:\\(1\\))_?cal(?:\\(1\\))_?avg(?:\\(1\\))|^shf(?:\\(1\\))_?avg_?cal(?:\\(1\\))',
+                    re.IGNORECASE)).columns.to_list()[0]
+                shf_mV, shf_cal = df[shg_mv_col], df[shf_cal_col]
                 df['shf_1_Avg'] = MasterMetProcessor.soil_heat_flux_calculation(shf_mV, shf_cal)
             except KeyError:
                 log.warning("Soil heat flux calculation failed. "
@@ -109,7 +116,11 @@ class MasterMetProcessor:
 
         # Step 6 in guide. Absolute humidity check
         try:
-            T, RH = df['AirTC_Avg'], df['RH_Avg']
+            # regex pattern for airtc col
+            airtc_col = df.filter(regex=re.compile('^air_?tc_?Avg$', re.IGNORECASE)).columns.to_list()[0]
+            # regex pattern matching for rh col
+            rh_col = df.filter(regex=re.compile('^rh_?Avg$', re.IGNORECASE)).columns.to_list()[0]
+            T, RH = df[airtc_col], df[rh_col]
             df['Ah_fromRH'] = MasterMetProcessor.AhFromRH(T, RH)
             # add Ah_fromRH column and unit to df_meta
             Ah_fromRH_unit = 'g/m^3'
@@ -566,9 +577,17 @@ class MasterMetProcessor:
         Returns:
             bool : True or False
         """
-        if 'shf_Avg(1)' in df.columns and 'shf_Avg(2)' in df.columns:
+        # regex pattern to match shf(1)_Avg, shf_1_Avg, shf_Avg(1), shf_Avg_1
+        shf1_col = df.filter(regex=re.compile('^shf_?\\(?1\\)?_?Avg|^shf_?Avg_?\\(?1\\)?', re.IGNORECASE))\
+            .columns.to_list()
+        # regex pattern to match shf(2)_Avg, shf_2_Avg, shf_Avg(2), shf_Avg_2
+        shf2_col = df.filter(regex=re.compile('^shf_?\\(?2\\)?_?Avg|^shf_?Avg_?\\(?2\\)?', re.IGNORECASE)) \
+            .columns.to_list()
+        # regex pattern to match shg_mv_Avg, shg_avg_mv
+        shg_mv_col = df.filter(regex=re.compile('^shg_?mv_?avg|^shg_?avg_?mv', re.IGNORECASE)).columns.to_list()
+        if shf1_col and shf2_col:
             return False
-        elif 'shg_mV_Avg' in df.columns:
+        elif shg_mv_col:
             return True
         else:
             return False
