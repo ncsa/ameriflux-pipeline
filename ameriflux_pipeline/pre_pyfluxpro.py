@@ -344,7 +344,7 @@ def pre_processing(file_meta_data_file, erroring_variable_flag, run_flag):
 
         if not os.path.exists(eddypro_formatted_met_file):
             # return failure
-            log.error("EddyPro Processing failed")
+            log.error("EddyPro Processing failed: " + eddypro_formatted_met_file + " does not exists.")
             return False
 
     if run_flag == 1 or run_flag == 3:
@@ -356,6 +356,12 @@ def pre_processing(file_meta_data_file, erroring_variable_flag, run_flag):
 
         if eddypro_formatted_met_file is None:
             eddypro_formatted_met_file = data_util.create_eddypro_output_met_file_name(cfg.MASTER_MET)
+
+        # check if the eddypro_formatted_met_file exists
+        if not os.path.exists(eddypro_formatted_met_file):
+            # return failure
+            log.error("EddyPro Processing failed: " + eddypro_formatted_met_file + " does not exists.")
+            return False
 
         # archive old eddypro output path
         outfile_list = os.listdir(cfg.EDDYPRO_OUTPUT_PATH)
