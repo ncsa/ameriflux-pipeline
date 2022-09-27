@@ -120,3 +120,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Updated Readme file with new information. [#189](https://github.com/ncsa/ameriflux-pipeline/issues/189)
 - Moved method to get OS platform. [#271](https://github.com/ncsa/ameriflux-pipeline/issues/271)
 - Moved readlines to utils. [#275](https://github.com/ncsa/ameriflux-pipeline/issues/275)
+- Met variable name changes are removed from code to be added in ameriflux-mainstem-key.xlsx file. [#279](https://github.com/ncsa/ameriflux-pipeline/issues/279)

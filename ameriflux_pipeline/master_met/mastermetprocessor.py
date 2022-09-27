@@ -292,7 +292,6 @@ class MasterMetProcessor:
         # perform qa qc checks for precip data
         df = MasterMetProcessor.precip_qaqc(df, precip_lower, precip_upper, missing_time_threshold, user_confirmation)
         # convert precipitation from in to mm
-        # TODO : import cf_units and use to convert units. / udunits
         df['Precipitation_mm'] = df['Precipitation_in'] * 25.4  # convert inches to millimeter
         df.drop(['Precipitation_in'], axis=1, inplace=True)  # drop unwanted columns
         # convert 5min samples to 30min samples by taking the sum

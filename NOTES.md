@@ -70,7 +70,8 @@
 - The timestamps are shifted 30min behind in the mastermet processing, to reflect the starting time of the 30min period. This way the master met output will have timestamps from 00:00 to 23:30.
 ### 20
 - In 2021 there has been a program change resulting in the change of some datalogger met variables names. Hence when merging the met data, certain old variables names are to be changed to newer standardized variable names.
-- {'CM3Up_Avg'-> 'SWDn_Avg', 'CM3Dn_Avg'-> 'SWUp_Avg', Solar_Wm2_Avg -> SWDn_Avg, Sw_Out_Avg -> SWUp_Avg, 'CG3UpCo_Avg'-> 'LWDnCo_Avg', 'CG3DnCo_Avg'-> 'LWUpCo_Avg', 'NetTot_Avg'-> 'Rn_Avg', Net_Rad_Avg -> Rn_Avg, 'cnr<num>_T_C_Avg' -> 'CNRTC_Avg', 'cnr<num>_T_K_Avg' -> 'CNRTK_Avg', 'Rs_net_Avg'-> 'NetRs_Avg', 'Rl_net_Avg'-> 'NetRl_Avg' , 'VWC_' -> 'VWC1_', 'TC_' -> 'TC1_'}
+- These name changes are implemented in code { 'Rs_net_Avg'-> 'NetRs_Avg', 'Rl_net_Avg'-> 'NetRl_Avg', 'cnr<num>_T_C_Avg' -> 'CNRTC_Avg', 'cnr<num>_T_K_Avg' -> 'CNRTK_Avg', 'VWC_' -> 'VWC1_', 'TC_' -> 'TC1_'}
+- These name changes can be included in Ameriflux-Mainstem-Key.xlsx file { 'CM3Up_Avg'-> 'SWDn_Avg', 'CM3Dn_Avg'-> 'SWUp_Avg', Solar_Wm2_Avg -> SWDn_Avg, Sw_Out_Avg -> SWUp_Avg, 'CG3UpCo_Avg'-> 'LWDnCo_Avg', 'CG3DnCo_Avg'-> 'LWUpCo_Avg', 'NetTot_Avg'-> 'Rn_Avg', Net_Rad_Avg -> Rn_Avg }
 ### 21
 - In L2.txt, the RangeCheck should have lower and upper. 
 - The lower and upper have comma separated items. The number of items can be 1 or 12.
