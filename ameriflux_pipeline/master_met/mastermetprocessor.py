@@ -101,14 +101,14 @@ class MasterMetProcessor:
         # TODO : test with old data (non-critical)
         if MasterMetProcessor.soil_heat_flux_check(df):
             try:
-                # regex pattern to match shg_mv_Avg, shg_avg_mv
-                shg_mv_col = df.filter(regex=re.compile('^shg_?mv_?avg|^shg_?avg_?mv', re.IGNORECASE)).\
+                # regex pattern to match shf_mv_Avg, shf_avg_mv
+                shf_mv_col = df.filter(regex=re.compile('^shf_?mv_?avg|^shf_?avg_?mv', re.IGNORECASE)).\
                     columns.to_list()[0]
                 # regex pattern to match shf_cal_Avg, shf_cal_avg1. Use non-capturing group (?:...)
                 shf_cal_col = df.filter(regex=re.compile(
                     '^shf(?:\\(1\\))_?cal(?:\\(1\\))_?avg(?:\\(1\\))|^shf(?:\\(1\\))_?avg_?cal(?:\\(1\\))',
                     re.IGNORECASE)).columns.to_list()[0]
-                shf_mV, shf_cal = df[shg_mv_col], df[shf_cal_col]
+                shf_mV, shf_cal = df[shf_mv_col], df[shf_cal_col]
                 df['shf_1_Avg'] = MasterMetProcessor.soil_heat_flux_calculation(shf_mV, shf_cal)
             except KeyError:
                 log.warning("Soil heat flux calculation failed. "
