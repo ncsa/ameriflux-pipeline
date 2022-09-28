@@ -583,11 +583,11 @@ class MasterMetProcessor:
         # regex pattern to match shf(2)_Avg, shf_2_Avg, shf_Avg(2), shf_Avg_2
         shf2_col = df.filter(regex=re.compile('^shf_?\\(?2\\)?_?Avg|^shf_?Avg_?\\(?2\\)?', re.IGNORECASE)) \
             .columns.to_list()
-        # regex pattern to match shg_mv_Avg, shg_avg_mv
-        shg_mv_col = df.filter(regex=re.compile('^shg_?mv_?avg|^shg_?avg_?mv', re.IGNORECASE)).columns.to_list()
+        # regex pattern to match shf_mv_Avg, shf_avg_mv
+        shf_mv_col = df.filter(regex=re.compile('^shf_?mv_?avg|^shf_?avg_?mv', re.IGNORECASE)).columns.to_list()
         if shf1_col and shf2_col:
             return False
-        elif shg_mv_col:
+        elif shf_mv_col:
             return True
         else:
             return False
