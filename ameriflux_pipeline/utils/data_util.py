@@ -166,3 +166,18 @@ def get_platform():
         return sys.platform
 
     return platforms[sys.platform]
+
+
+def create_eddypro_output_met_file_name(master_met):
+    """
+        Method for getting the eddypro output met file name
+        Args:
+            master_met (str): Master met data file path
+        Returns:
+            eddypro_formatted_met_file (str): Output eddypro formatted met file path
+    """
+    output_filename = os.path.basename(master_met)
+    eddypro_formatted_met_name = os.path.splitext(output_filename)[0] + '_eddypro.csv'
+    eddypro_formatted_met_file = os.path.join(get_directory(master_met), eddypro_formatted_met_name)
+
+    return eddypro_formatted_met_file

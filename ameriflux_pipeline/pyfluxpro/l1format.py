@@ -27,14 +27,19 @@ class L1Format:
     # define patterns to match
     # variable names have alphanumeric characters and underscores with two square brackets
     VAR_PATTERN = '^\\[\\[[a-zA-Z0-9_]+\\]\\]$'
-    # variable name lines starts with 4 spaces and ends with new line
+    # variable name lines starts with 4 spaces followed by
+    # characters and/or digits within two square brackets and ends with new line
     VAR_PATTERN_WITH_SPACE = '^ {4}\\[\\[[a-zA-Z0-9_]+\\]\\]\n$'
-    XL_PATTERN = '^\\[\\[\\[xl\\]\\]\\]$'  # to match [[xl]] line
-    ATTR_PATTERN = '^\\[\\[\\[Attr\\]\\]\\]$|^\\[\\[\\[attr\\]\\]\\]$'  # to match [[Attr]] or [[attr]] line
+    XL_PATTERN = '^\\[\\[\\[xl\\]\\]\\]$'  # to match [[[xl]]] line
+    ATTR_PATTERN = '^\\[\\[\\[Attr\\]\\]\\]$|^\\[\\[\\[attr\\]\\]\\]$'  # to match [[[Attr]]] or [[[attr]]] line
     UNITS_PATTERN = 'units'
     LONG_NAME_PATTERN = 'long_name'
     NAME_PATTERN = 'name'
     SHEET_PATTERN = 'sheet'
+    # set site name regex pattern.
+    # Starts with site_name followed by optional space and then equal sign followed by
+    # a word with min of 3 and max of 50 characters
+    SITE_NAME_LINE_PATTERN = "^site_?name\\s?=\\s?[\\w\\W]{3,50}$"
 
     # main method which calls other functions
     @staticmethod
@@ -87,7 +92,7 @@ class L1Format:
         file_meta = data_util.read_csv_file(file_meta_data_file)
         # get the site name
         file_site_name = file_meta.iloc[0][5]
-        site_name = data_util.get_site_name(file_site_name)  # TODO : use this site_name to modify Global section
+        site_name = data_util.get_site_name(file_site_name)
 
         # get AmeriFlux-Mainstem variable name matching key
         ameriflux_key = L1Format.get_ameriflux_key(ameriflux_mainstem_key)
@@ -136,9 +141,8 @@ class L1Format:
         l1_output_lines.extend(files_lines)
 
         # get Global section
-        # TODO changes in global section : site_name, title, vegetation lines
-        mainstem_global_lines, mainstem_variable_ind = L1Format.get_global_lines(l1_mainstem_lines)
-        ameriflux_global_lines, ameriflux_variable_ind = L1Format.get_global_lines(l1_ameriflux_lines)
+        mainstem_global_lines, mainstem_variable_ind = L1Format.get_global_lines(l1_mainstem_lines, site_name)
+        ameriflux_global_lines, ameriflux_variable_ind = L1Format.get_global_lines(l1_ameriflux_lines, site_name)
         # write global section lines to l1 output
         l1_output_lines.extend(mainstem_global_lines)
 
@@ -219,12 +223,14 @@ class L1Format:
         return df_ameriflux_key
 
     @staticmethod
-    def get_global_lines(lines, spaces=SPACES):
+    def get_global_lines(lines, site_name, site_name_line_pattern=SITE_NAME_LINE_PATTERN, spaces=SPACES):
         """
             Get Global section from L1.txt
 
             Args:
                 lines (list): List of the strings that are read fom L1.txt
+                site_name (str): Name of site read from met data
+                site_name_line_pattern (str): Regex pattern to match site name line
                 spaces (str): Spaces to be inserted before each section and line
 
             Returns:
@@ -239,10 +245,17 @@ class L1Format:
                 global_start_writing = True
                 continue
             if global_start_writing:
-                if line.strip() == "[Variables]":
+                site_line_matched = re.match(site_name_line_pattern, line.strip().lower())
+                if bool(site_line_matched):
+                    site_name_parameter = line.strip().split('=')[0]  # get the portion with site name
+                    site_name_line = site_name_parameter + ' = ' + site_name
+                    global_lines.append(spaces + site_name_line)
+                elif line.strip() == "[Variables]":
                     global_start_writing = False
                     return global_lines, ind
-                global_lines.append(spaces + line.strip())
+                else:
+                    # write line
+                    global_lines.append(spaces + line.strip())
 
     @staticmethod
     def get_variable_line_index(lines):
@@ -361,39 +374,12 @@ class L1Format:
         # if TC change to TC1
         elif bool(re.match('^TC_', met_tower_var_name, re.I)):
             corrected_met_tower_var_name = 'TC1_' + met_tower_var_name.split('_')[1] + '_Avg'
-
-        # if CM3Dn and Solar_Wm2 columns, rename to SWDn
-        elif bool(re.match('^CM[1-9]Up', met_tower_var_name, re.I)):
-            corrected_met_tower_var_name = 'SWDn_Avg'
-        elif bool(re.match('^Solar_Wm[1-9]', met_tower_var_name, re.I)):
-            corrected_met_tower_var_name = 'SWDn_Avg'
-        # if CM3Dn and Sw_Out columns, rename to SWUp
-        elif bool(re.match('^CM[1-9]Dn', met_tower_var_name, re.I)):
-            corrected_met_tower_var_name = 'SWUp_Avg'
-        elif bool(re.match('^Sw_Out', met_tower_var_name, re.I)):
-            corrected_met_tower_var_name = 'SWUp_Avg'
-
-        # if CG3Dn and CG3Up columns, rename to LWDn and LWUp
-        elif bool(re.match('^CG[1-9]UpCo', met_tower_var_name, re.I)):
-            corrected_met_tower_var_name = 'LWDnCo_Avg'
-        elif bool(re.match('^CG[1-9]DnCo', met_tower_var_name, re.I)):
-            corrected_met_tower_var_name = 'LWUpCo_Avg'
-        # search for string ending with CG3Up or starting with CG3Up_Avg
-        elif bool(re.match('CG[1-9]Up$|^CG[1-9]Up_Avg', met_tower_var_name, re.I)):
-            corrected_met_tower_var_name = 'LWDn_Avg'
-        elif bool(re.match('CG[1-9]Dn$|^CG[1-9]Dn_Avg', met_tower_var_name, re.I)):
-            corrected_met_tower_var_name = 'LWUp_Avg'
-
-        # NetTot or Net_Rad column is renamed to Rn_Avg
-        elif bool(re.match('^NetTot', met_tower_var_name, re.I)):
-            corrected_met_tower_var_name = 'Rn_Avg'
-        elif bool(re.match('^Net_?Rad', met_tower_var_name, re.I)):
-            corrected_met_tower_var_name = 'Rn_Avg'
-
+        # remove numbers from CNRTC and CNRTK variables
         elif bool(re.match('^CNR[1-9]_?T_?C', met_tower_var_name, re.I)):
             corrected_met_tower_var_name = 'CNRTC_Avg'
         elif bool(re.match('^CNR[1-9]_?T_?K', met_tower_var_name, re.I)):
             corrected_met_tower_var_name = 'CNRTK_Avg'
+        # get NetRs and NetRl renamed
         elif bool(re.match('^Rs_net', met_tower_var_name, re.I)):
             corrected_met_tower_var_name = 'NetRs_Avg'
         elif bool(re.match('^Rl_net', met_tower_var_name, re.I)):
