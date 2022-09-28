@@ -116,57 +116,14 @@ def read_met_data(data_path):
     albedo_col = df.filter(regex=re.compile('^albedo', re.IGNORECASE)).columns.to_list()
     if len(albedo_col) > 0:
         col_labels[albedo_col[0]] = 'Albedo_Avg'
-    # find CM3Up or Solar_Wm2_Avg col and rename to SWDn_Avg
-    # and CM3Dn columns and rename to SWDn and SWUp
-    cm3up_col = df.filter(regex=re.compile('^CM[1-9]Up', re.IGNORECASE)).columns.to_list()
-    if cm3up_col:
-        col_labels[cm3up_col[0]] = 'SWDn_Avg'
-    else:
-        # check if Solar_Wm2_Avg is present
-        solar_col = df.filter(regex=re.compile('^Solar_Wm[1-9]', re.IGNORECASE)).columns.to_list()
-        if solar_col:
-            col_labels[solar_col[0]] = 'SWDn_Avg'
-    # find CM3Dn or Sw_Out_Avg col and rename to SWUp_Avg
-    cm3dn_col = df.filter(regex=re.compile('^CM[1-9]Dn', re.IGNORECASE)).columns.to_list()
-    if cm3dn_col:
-        col_labels[cm3dn_col[0]] = 'SWUp_Avg'
-    else:
-        # check if Sw_Out_Avg is present
-        sw_out_col = df.filter(regex=re.compile('^Sw_Out', re.IGNORECASE)).columns.to_list()
-        if sw_out_col:
-            col_labels[sw_out_col[0]] = 'SWUp_Avg'
-
-    # find CG3Dn and CG3Up columns and rename to LWDn and LWUp
-    cg3upco_col = df.filter(regex=re.compile('^CG[1-9]UpCo', re.IGNORECASE)).columns.to_list()
-    if cg3upco_col:
-        col_labels[cg3upco_col[0]] = 'LWDnCo_Avg'
-    cg3dnco_col = df.filter(regex=re.compile('^CG[1-9]DnCo', re.IGNORECASE)).columns.to_list()
-    if cg3dnco_col:
-        col_labels[cg3dnco_col[0]] = 'LWUpCo_Avg'
-    # search for string ending with CG3Up or starting with CG3Up_Avg
-    cg3up_col = df.filter(regex=re.compile('CG[1-9]Up$|^CG[1-9]Up_Avg', re.IGNORECASE)).columns.to_list()
-    if cg3up_col:
-        col_labels[cg3up_col[0]] = 'LWDn_Avg'
-    cg3dn_col = df.filter(regex=re.compile('^CG[1-9]Dn$|^CG[1-9]Dn_Avg', re.IGNORECASE)).columns.to_list()
-    if cg3dn_col:
-        col_labels[cg3dn_col[0]] = 'LWUp_Avg'
-
-    # find NetTot_Avg or Net_Rad_Avg column and rename to Rn_Avg
-    netto_col = df.filter(regex=re.compile('^NetTot', re.IGNORECASE)).columns.to_list()
-    if netto_col:
-        col_labels[netto_col[0]] = 'Rn_Avg'
-    else:
-        # check if Net_Rad_Avg is present
-        net_rad_col = df.filter(regex=re.compile('^Net_?Rad', re.IGNORECASE)).columns.to_list()
-        if net_rad_col:
-            col_labels[net_rad_col[0]] = 'Rn_Avg'
-
+    # remove sensor number from CNRTC and CNRTK
     cnrtc_col = df.filter(regex=re.compile('^CNR[1-9]_?T_?C', re.IGNORECASE)).columns.to_list()
     if cnrtc_col:
         col_labels[cnrtc_col[0]] = 'CNRTC_Avg'
     cnrtk_col = df.filter(regex=re.compile('^CNR[1-9]_?T_?K', re.IGNORECASE)).columns.to_list()
     if cnrtk_col:
         col_labels[cnrtk_col[0]] = 'CNRTK_Avg'
+    # get NetRs and NetRl renamed
     netrs_col = df.filter(regex=re.compile('^Rs_net', re.IGNORECASE)).columns.to_list()
     if netrs_col:
         col_labels[netrs_col[0]] = 'NetRs_Avg'
