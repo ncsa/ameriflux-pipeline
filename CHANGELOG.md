@@ -123,3 +123,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Moved readlines to utils. [#275](https://github.com/ncsa/ameriflux-pipeline/issues/275)
 - Met variable name changes are removed from code to be added in ameriflux-mainstem-key.xlsx file. [#279](https://github.com/ncsa/ameriflux-pipeline/issues/279)
 - Make sync data turn on and off from env editor. [#294](https://github.com/ncsa/ameriflux-pipeline/issues/294)
+- Deleted unneccessary test modules. [#300](https://github.com/ncsa/ameriflux-pipeline/issues/300)
