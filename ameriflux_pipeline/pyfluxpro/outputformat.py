@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 import os.path
+import re
 # NOTES 18
 from netCDF4 import Dataset, num2date
 import logging
@@ -216,11 +217,18 @@ class OutputFormat:
         Returns:
             (str): matching ameriflux site name
         """
-        if site_name.lower() == 'sorghum':
-            return 'E'
-        elif site_name.lower() in ['miscanthus-basalt', 'miscanthus-control']:
-            return 'B'
-        elif site_name.lower() in ['maize-basalt', 'maize-control']:
-            return 'C'
-        elif site_name.lower() == 'switchgrass':
-            return 'A'
+        sorghum_pattern = "sorghum"
+        miscanthus_basalt_pattern = "miscanthus-?_?\\s?basalt"
+        miscanthus_control_pattern = "miscanthus-?_?\\s?control"
+        maize_basalt_pattern = "maize-?_?\\s?basalt"
+        maize_control_pattern = "maize-?_?\\s?control"
+        switchgrass_pattern = "switch\\s?grass"
+        # make dictionary to map pattern and ameriflux site name
+        # NOTES 25
+        site_name_patterns_dict = {switchgrass_pattern: 'A', sorghum_pattern: 'E',
+                                   miscanthus_basalt_pattern: 'B', miscanthus_control_pattern: 'F',
+                                   maize_basalt_pattern: 'C', maize_control_pattern: 'G'}
+        for pattern in site_name_patterns_dict.keys():
+            if re.search(pattern, site_name.lower()):
+                # if the search is true, return ameriflux site name
+                return site_name_patterns_dict(pattern)
