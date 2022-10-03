@@ -83,7 +83,7 @@ def get_key_df(key_file):
     # get column names matching Original
     original_col = key_df.filter(regex=re.compile("^original", re.IGNORECASE)).columns.to_list()[0]
     # rename columns
-    key_df.rename(columns={target_col[0]: 'Target', original_col: 'Original'}, inplace=True)
+    key_df.rename(columns={target_col: 'Target', original_col: 'Original'}, inplace=True)
 
     return key_df
 
@@ -132,18 +132,15 @@ def read_met_data(data_path, key_df):
     df_meta.columns = df_meta.iloc[0]  # set column names
     df_meta = df_meta.iloc[1:, :]
     df_meta.reset_index(drop=True, inplace=True)  # reset index after dropping rows
-    # rename columns according to key_df, if not None
-    if key_df:
-        # NOTES 24
-        df_meta.rename(columns=key_df.set_index('Original')['Target'], inplace=True)
-
     # process df to get met data
     df = df.applymap(lambda x: str(x).replace('"', ''))
     df = df.applymap(lambda x: str(x).replace('*', ''))
     df.columns = df.iloc[0]  # set column names
+
     # rename columns according to key_df, if not None
-    if key_df:
+    if key_df is not None:
         # NOTES 24
+        df_meta.rename(columns=key_df.set_index('Original')['Target'], inplace=True)
         df.rename(columns=key_df.set_index('Original')['Target'], inplace=True)
 
     # NOTES 20
