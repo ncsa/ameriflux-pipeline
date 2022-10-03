@@ -78,7 +78,7 @@ pip install -r requirements.txt
 - key parameter takes in an excel file that lets user rename met tower variables. If not specified, variables are not renamed. This is the default behaviour.
 - To run the python module with default parameters run ```python met_data_merge.py```
 - Run command example with all arguments:  
-``` python met_data_merge.py --data /Users/xx/data/master_met/input/FluxSB_EC.dat,/Users/xx/data/master_met/input/FluxSB_EC.dat.9.backup,/Users/xx/data/master_met/input/FluxSB_EC.dat.10.backup --start 2021-01-01 --end 2021-12-31 --output /Users/xx/data/master_met/input/Flux.csv ```
+``` python met_data_merge.py --data /Users/xx/data/master_met/input/FluxSB_EC.dat,/Users/xx/data/master_met/input/FluxSB_EC.dat.9.backup,/Users/xx/data/master_met/input/FluxSB_EC.dat.10.backup --start 2021-01-01 --end 2021-12-31 --key /Users/xx/master_met/input/metmerger_key.xlsx --output /Users/xx/data/master_met/input/Flux.csv ```
 - There is a GUI application for this. Run metmerger.py under ameriflux_pipeline directory
   by typing `python metmerger.py` in command prompt after cd into ameriflux_pipleline directory.
 - This creates a csv file with merged data from the raw dat files and a log file met_merger.log.
