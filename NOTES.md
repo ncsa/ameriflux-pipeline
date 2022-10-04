@@ -81,5 +81,9 @@
 - Hence the TIMESTAMP column of the full_output sheet is shifted 30min behind to get the correct timestamp, which reflects the starting of the 30min interval.
 ### 23
 - In pyfluxpro input excel sheet for ameriflux, Albedo values are to be converted to percentage values. Desirable albedo values are between 0 and 1. Values outside of this range are converted to NaNs.
+### 25
+- Ameriflux site names for all sites are as follows
+- Miscanthus control: US-UiF , Maize Control: US-UiG , Miscanthus Basalt: US-UiB , Maize Basalt: US-UiC , Sorghum: US-UiE, Switchgrass: US-UiA
+
 
 

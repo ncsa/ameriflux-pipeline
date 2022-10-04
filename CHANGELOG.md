@@ -74,6 +74,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Timestamp overlap checks for pyfluxpro input sheet processing. [#277](https://github.com/ncsa/ameriflux-pipeline/issues/277)
 - Check if variables exists in met data and full output sheet before writing to L1. [#280](https://github.com/ncsa/ameriflux-pipeline/issues/280)
 - Update site name line in L1 Global section with respect to site name in met data file. [#284](https://github.com/ncsa/ameriflux-pipeline/issues/284)
+- Regex matching for met tower variable names. [#289](https://github.com/ncsa/ameriflux-pipeline/issues/289), [#299](https://github.com/ncsa/ameriflux-pipeline/issues/299)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
@@ -123,4 +124,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Moved readlines to utils. [#275](https://github.com/ncsa/ameriflux-pipeline/issues/275)
 - Met variable name changes are removed from code to be added in ameriflux-mainstem-key.xlsx file. [#279](https://github.com/ncsa/ameriflux-pipeline/issues/279)
 - Make sync data turn on and off from env editor. [#294](https://github.com/ncsa/ameriflux-pipeline/issues/294)
+- Ameriflux sitename updated. [#302](https://github.com/ncsa/ameriflux-pipeline/issues/302)
 - Deleted unneccessary test modules. [#300](https://github.com/ncsa/ameriflux-pipeline/issues/300)
