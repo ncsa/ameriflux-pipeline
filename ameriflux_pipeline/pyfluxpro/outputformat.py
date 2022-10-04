@@ -231,4 +231,4 @@ class OutputFormat:
         for pattern in site_name_patterns_dict.keys():
             if re.search(pattern, site_name.lower()):
                 # if the search is true, return ameriflux site name
-                return site_name_patterns_dict(pattern)
+                return site_name_patterns_dict[pattern]
