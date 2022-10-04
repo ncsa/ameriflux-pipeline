@@ -398,21 +398,27 @@ class L1Validation:
     LONG_NAME_PATTERN = 'long_name'
     NAME_PATTERN = 'name'
     SHEET_PATTERN = 'sheet'
+    # set site name regex pattern.
+    # Starts with site_name followed by optional space and then equal sign followed by
+    # a word with min of 3 and max of 50 characters
+    SITE_NAME_LINE_PATTERN = "^site_?name\\s?=\\s?[\\w\\W]{3,50}$"
     # TODO :Check if sheet name corresponds to cfg.FULL_OUTPUT_PYFLUXPRO and cfg.MET_DATA_30_PYFLUXPRO
 
     @staticmethod
-    def check_l1_format(lines):
+    def check_l1_format(lines, met_data_sheet_name, full_output_sheet_name):
         """
             Check if the formatting for L1 is as expected
             Args:
                 lines (list): List of strings. Lines in L1.txt
+                met_data_sheet_name (str): Sheet name for met_data sheet
+                full_output_sheet_name (str): Sheet name for full output
             Returns:
                 (bool) : Returns True if the format is as expected, else return False
         """
         # check Level section
         line0 = lines[0].rstrip('\n')
         if not L1Validation.check_level_line(line0):
-            log.error("Incorrect format in Level section")
+            log.error("Incorrect format in Level line")
             return False
         # check Files section
         files_line_index = lines.index('[Files]\n')
@@ -423,7 +429,8 @@ class L1Validation:
         if files_line_index and global_line_index:
             if L1Validation.check_files_line(lines[files_line_index + 1:global_line_index]):
                 if L1Validation.check_global_line(lines[global_line_index + 1:variables_line_index]):
-                    if L1Validation.check_variables_line(lines[variables_line_index + 1:]):
+                    if L1Validation.check_variables_line(lines[variables_line_index + 1:],
+                                                         met_data_sheet_name, full_output_sheet_name):
                         return True
                     else:
                         log.error("Incorrect format in L1 Variables section")
@@ -439,19 +446,19 @@ class L1Validation:
             return False
 
     @staticmethod
-    def check_level_line(line):
+    def check_level_line(line, level_line=LEVEL_LINE):
         """
             Check if the formatting for L1 Level section is as expected
             Args:
                 line (str): Level line from input L1.txt
+                level_line (str): Expected level line pattern
             Returns:
                 (bool) : Returns True if the format is as expected, else return False
         """
-        if line:
-            line_split = line.split('=')
-            if line_split[0].lower().strip() == 'level' and line_split[1].strip() == 'L1':
-                return True
-        return False
+        if line.strip() == level_line:
+            return True
+        else:
+            return False
 
     @staticmethod
     def check_space(test_string):
@@ -495,36 +502,46 @@ class L1Validation:
             return False
 
     @staticmethod
-    def check_global_line(lines):
+    def check_global_line(lines, site_name_line_pattern=SITE_NAME_LINE_PATTERN):
         """
             Check if the formatting for L1 Global section is as expected
             Args:
                 lines (list): List of strings. Lines in L1.txt
+                site_name_line_pattern (str): Regex pattern to match site name line
             Returns:
                 (bool) : Returns True if the format is as expected, else return False
         """
         acknowledgement_flag = False  # flag for acknowledgement line
+        site_name_flag = False  # flag for site_name line
         for line in lines:
             if line.strip().lower().startswith('acknowledgement'):
                 acknowledgement_flag = True  # found acknowledgment line
                 if L1Validation.check_space(line.split('=')[0].rstrip()) != 4:
                     return False
-            if acknowledgement_flag:
+            site_line_matched = re.match(site_name_line_pattern, line.strip().lower())
+            if bool(site_line_matched):
+                site_name_flag = True
+            if acknowledgement_flag and site_name_flag:
                 # test is complete, break out of for loop
                 break
-        if acknowledgement_flag:
+        if acknowledgement_flag and site_name_flag:
             return True
         else:
+            log.error("Check acknowledgement and site name lines in L1 Global section")
             return False
 
     @staticmethod
-    def check_variables_line(lines, var_pattern=VAR_PATTERN, xl_pattern=XL_PATTERN, attr_pattern=ATTR_PATTERN,
+    def check_variables_line(lines, met_data_sheet_name, full_output_sheet_name,
+                             var_pattern=VAR_PATTERN, xl_pattern=XL_PATTERN, attr_pattern=ATTR_PATTERN,
                              units_pattern=UNITS_PATTERN, long_name_pattern=LONG_NAME_PATTERN,
                              name_pattern=NAME_PATTERN, sheet_pattern=SHEET_PATTERN):
         """
-            Check if the formatting for L1 Variables section is as expected
+            Check if the formatting for L1 Variables section is as expected.
+            This check if done only for the first variable
             Args:
                 lines (list): List of strings. Lines in L1.txt
+                met_data_sheet_name (str): Sheet name for met_data sheet
+                full_output_sheet_name (str): Sheet name for full output
                 var_pattern (str): Regex pattern to find the starting line for [Variables] section
                 xl_pattern (str): Regex pattern to find the [[[xl]]] section within Variables section
                 attr_pattern (str): Regex pattern to find the [[[Attr]]] section within Variables section
@@ -571,7 +588,9 @@ class L1Validation:
                 if L1Validation.check_space(line.split('=')[0].rstrip()) != 4 * 3:
                     return False
             if line.strip().lower().startswith(sheet_pattern):
-                sheet_flag = True
+                sheet_name = line.split('=')[1].strip()
+                if (sheet_name == met_data_sheet_name) or (sheet_name == full_output_sheet_name):
+                    sheet_flag = True
                 if L1Validation.check_space(line.split('=')[0].rstrip()) != 4 * 3:
                     return False
             # test if all flag values are true
@@ -645,19 +664,19 @@ class L2Validation:
                 return False
 
     @staticmethod
-    def check_level_line(line):
+    def check_level_line(line, level_line=LEVEL_LINE):
         """
             Check if the formatting for L1 Level section is as expected
             Args:
                 line (str): Level line from input L1.txt
+                level_line (str): Expected level line pattern
             Returns:
                 (bool) : Returns True if the format is as expected, else return False
         """
-        if line:
-            line_split = line.split('=')
-            if line_split[0].lower().strip() == 'level' and line_split[1].strip() == 'L2':
-                return True
-        return False
+        if line.strip() == level_line:
+            return True
+        else:
+            return False
 
     @staticmethod
     def check_variables_line(lines, var_pattern=VAR_PATTERN_WITH_SPACE, dependencycheck_pattern=DEPENDENCYCHECK_PATTERN,
