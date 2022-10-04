@@ -84,4 +84,7 @@
 ### 24
 - Some met tower variable names are to be changed in the metmerger phase. Eg: { 'CM3Up_Avg'-> 'SWDn_Avg', 'CM3Dn_Avg'-> 'SWUp_Avg', Solar_Wm2_Avg -> SWDn_Avg, Sw_Out_Avg -> SWUp_Avg, 'CG3UpCo_Avg'-> 'LWDnCo_Avg', 'CG3DnCo_Avg'-> 'LWUpCo_Avg', 'NetTot_Avg'-> 'Rn_Avg', Net_Rad_Avg -> Rn_Avg }
 - These should be done in met merger as for some years, both the variable names can be present in a whole year run.
+### 25
+- Ameriflux site names for all sites are as follows
+- Miscanthus control: US-UiF , Maize Control: US-UiG , Miscanthus Basalt: US-UiB , Maize Basalt: US-UiC , Sorghum: US-UiE, Switchgrass: US-UiA
 
