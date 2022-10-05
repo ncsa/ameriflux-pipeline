@@ -374,7 +374,8 @@ class EnvEditor:
             # create user confirmation
             label_sftp_confirm = tk.Label(second_frame, text=self.SFTP_LABEL, font=self.MAIN_BOLD_FONT). \
                 grid(sticky="w", row=i, columnspan=3)
-            label_separation = tk.Label(second_frame, text=self.SEPARATION_LABEL).grid(sticky="w", row=i+1, columnspan=3)
+            label_separation = tk.Label(second_frame, text=self.SEPARATION_LABEL).\
+                grid(sticky="w", row=i+1, columnspan=3)
             browse_sftp_confirm = tk.Label(second_frame, text=self.BROWSE_SFTP_CONFIRMATION, font=self.BOLD_FONT). \
                 grid(sticky="w", row=i+2, column=0)
             button_sftp_confirm = tk.Button(second_frame, text=self.INFO_TITLE, command=self.on_click_sftp_confirm). \
