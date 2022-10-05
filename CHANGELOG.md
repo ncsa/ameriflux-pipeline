@@ -74,7 +74,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Timestamp overlap checks for pyfluxpro input sheet processing. [#277](https://github.com/ncsa/ameriflux-pipeline/issues/277)
 - Check if variables exists in met data and full output sheet before writing to L1. [#280](https://github.com/ncsa/ameriflux-pipeline/issues/280)
 - Update site name line in L1 Global section with respect to site name in met data file. [#284](https://github.com/ncsa/ameriflux-pipeline/issues/284)
+- Checks for sheet name in L1 input validation and generation. [#285](https://github.com/ncsa/ameriflux-pipeline/issues/285)
 - Regex matching for met tower variable names. [#289](https://github.com/ncsa/ameriflux-pipeline/issues/289), [#299](https://github.com/ncsa/ameriflux-pipeline/issues/299)
+- Documentation files. [#297](https://github.com/ncsa/ameriflux-pipeline/issues/297)
 - Key file for variable renaming in met merger. [#301](https://github.com/ncsa/ameriflux-pipeline/issues/301)
 
 ### Fixed

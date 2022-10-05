@@ -47,6 +47,7 @@ class L1Format:
                         outfile, l1_ameriflux_output, erroring_variable_flag, erroring_variable_key,
                         site_soil_moisture_variables, site_soil_temp_variables,
                         full_output_variables, met_data_variables,
+                        met_data_sheet_name, full_output_sheet_name,
                         spaces=SPACES, level_line=LEVEL_LINE):
         """
         Main method for the class.
@@ -69,6 +70,8 @@ class L1Format:
             site_soil_temp_variables (dict): Dictionary for soil temperature variable details from Soils key file
             full_output_variables (list): List of full_output variable names
             met_data_variables (list): List of met_data variable names
+            met_data_sheet_name (str): Sheet name for met_data sheet
+            full_output_sheet_name (str): Sheet name for full output
             spaces (str): Spaces to be inserted before each section and line
             level_line (str): Line specifying the level. L1 for this section.
         Returns:
@@ -78,11 +81,13 @@ class L1Format:
         # read lines from l1 inputs
         l1_mainstem_lines = data_util.read_file_lines(l1_mainstem)
         # check if input L1 have the same format as expected
-        if (not l1_mainstem_lines) or (not L1Validation.check_l1_format(l1_mainstem_lines)):
+        if (not l1_mainstem_lines) or \
+                (not L1Validation.check_l1_format(l1_mainstem_lines, met_data_sheet_name, full_output_sheet_name)):
             log.error("Check input L1.txt format %s", l1_mainstem)
             return None
         l1_ameriflux_lines = data_util.read_file_lines(l1_ameriflux_only)
-        if (not l1_ameriflux_lines) or (not L1Validation.check_l1_format(l1_ameriflux_lines)):
+        if (not l1_ameriflux_lines) or \
+                (not L1Validation.check_l1_format(l1_ameriflux_lines, met_data_sheet_name, full_output_sheet_name)):
             log.error("Check input L1.txt format %s", l1_ameriflux_only)
             return None
 
@@ -161,7 +166,8 @@ class L1Format:
             L1Format.format_mainstem_var(mainstem_var_df, mainstem_var_start_end,
                                          ameriflux_key, erroring_variable_key,
                                          site_soil_moisture_variables, site_soil_temp_variables,
-                                         full_output_variables, met_data_variables)
+                                         full_output_variables, met_data_variables,
+                                         met_data_sheet_name, full_output_sheet_name)
 
         # write variables section lines to l1 output
         l1_output_lines.extend(mainstem_var_lines_out)
@@ -176,6 +182,7 @@ class L1Format:
         ameriflux_var_lines_out, ameriflux_variable_ameriflux_mapping = \
             L1Format.format_ameriflux_var(ameriflux_var_df, ameriflux_var_start_end, ameriflux_key,
                                           full_output_variables, met_data_variables,
+                                          met_data_sheet_name, full_output_sheet_name,
                                           mainstem_variable_ameriflux_mapping)
 
         # write variables section lines to l1 output
@@ -404,6 +411,7 @@ class L1Format:
     def format_mainstem_var(df, var_start_end, ameriflux_key, erroring_variable_key,
                             site_soil_moisture_variables, site_soil_temp_variables,
                             full_output_variables, met_data_variables,
+                            met_data_sheet_name, full_output_sheet_name,
                             spaces=SPACES):
         """
             Change variable names and units to AmeriFlux standard
@@ -418,6 +426,8 @@ class L1Format:
                 site_soil_temp_variables (dict): Dictionary for soil temperature variable details from Soils key file
                 full_output_variables (list): List of full_output variable names
                 met_data_variables (list): List of met_data variable names
+                met_data_sheet_name (str): Sheet name for met_data sheet
+                full_output_sheet_name (str): Sheet name for full output
                 spaces (str): Spaces to be inserted before each section and line
             Returns:
                 variable_lines_out (list) : List of variables lines to be written to l1_ameriflux
@@ -456,16 +466,22 @@ class L1Format:
             sheet_name = sheet_row['Text'].iloc[0].split('=')[1].strip()
 
             # check if variable present in specified sheet
-            if sheet_name.lower().startswith("full"):
+            if sheet_name == full_output_sheet_name:
                 found_full_output = L1Format.check_variable_exists(met_tower_var_name, full_output_variables)
                 if not found_full_output:
-                    log.warning("Variable %s not found in full_output sheet. Skipping variable", met_tower_var_name)
+                    log.warning("Variable %s not found in %s sheet. Skipping variable",
+                                met_tower_var_name, full_output_sheet_name)
                     continue
-            elif sheet_name.lower().startswith("met"):
+            elif sheet_name == met_data_sheet_name:
                 found_met_data = L1Format.check_variable_exists(met_tower_var_name, met_data_variables)
                 if not found_met_data:
-                    log.warning("Variable %s not found in met_data sheet. Skipping variable", met_tower_var_name)
+                    log.warning("Variable %s not found in %s sheet. Skipping variable",
+                                met_tower_var_name, met_data_sheet_name)
                     continue
+            else:
+                # sheet name is not found
+                log.warning("Sheet name %s not found for %s. Skipping variable", sheet_name, var_name)
+                continue
 
             units_row = attr_df[attr_df['Text'].apply(lambda x: x.strip().startswith("unit"))]
             height_row = attr_df[attr_df['Text'].apply(lambda x: x.strip().startswith("height"))]
@@ -632,7 +648,7 @@ class L1Format:
                     variables_lines_out.extend(moisture_attr_df['Text'].tolist())
                     variables_lines_out.extend(moisture_xl_df['Text'].tolist())
                 else:
-                    log.warning("Variable %s not found in met_data sheet. Skipping variable", key)
+                    log.warning("Variable %s not found in %s sheet. Skipping variable", key, met_data_sheet_name)
 
         if len(site_soil_temp_variables) > 0 and temp_attr_df is not None and temp_xl_df is not None:
             log.info("Writing additional soil temperature variables to L1 Variables")
@@ -661,13 +677,14 @@ class L1Format:
                     variables_lines_out.extend(temp_attr_df['Text'].tolist())
                     variables_lines_out.extend(temp_xl_df['Text'].tolist())
                 else:
-                    log.warning("Variable %s not found in met_data sheet. Skipping variable", key)
+                    log.warning("Variable %s not found in %s sheet. Skipping variable", key, met_data_sheet_name)
 
         # return the variables mapping and output list
         return variables_lines_out, variable_ameriflux_mapping
 
     @staticmethod
     def format_ameriflux_var(df, var_start_end, ameriflux_key, full_output_variables, met_data_variables,
+                             met_data_sheet_name, full_output_sheet_name,
                              mainstem_variables_mapping, spaces=SPACES):
         """
             Change variable units for Ameriflux only variables
@@ -678,6 +695,8 @@ class L1Format:
                 ameriflux_key (obj): Pandas dataframe of AmeriFlux-Mainstem varible name sheet
                 full_output_variables (list): List of full_output variable names
                 met_data_variables (list): List of met_data variable names
+                met_data_sheet_name (str): Sheet name for met_data sheet
+                full_output_sheet_name (str): Sheet name for full output
                 mainstem_variables_mapping (dict) : Mapping of mainstem variables
                 spaces (str): Spaces to be inserted before each section and line
             Returns:
@@ -719,16 +738,23 @@ class L1Format:
             sheet_name = sheet_row['Text'].iloc[0].split('=')[1].strip()
 
             # check if variable present in specified sheet
-            if sheet_name.lower().startswith("full"):
+            if sheet_name == full_output_sheet_name:
                 found_full_output = L1Format.check_variable_exists(met_tower_var_name, full_output_variables)
                 if not found_full_output:
-                    log.warning("Variable %s not found in full_output sheet. Skipping variable", met_tower_var_name)
+                    log.warning("Variable %s not found in %s sheet. Skipping variable",
+                                met_tower_var_name, full_output_sheet_name)
                     continue
-            elif sheet_name.lower().startswith("met"):
+            elif sheet_name == met_data_sheet_name:
                 found_met_data = L1Format.check_variable_exists(met_tower_var_name, met_data_variables)
                 if not found_met_data:
-                    log.warning("Variable %s not found in met_data sheet. Skipping variable", met_tower_var_name)
+                    log.warning("Variable %s not found in %s sheet. Skipping variable",
+                                met_tower_var_name, met_data_sheet_name)
                     continue
+            else:
+                # sheet name is not found
+                log.warning("Sheet name %s not found for %s. Skipping variable", sheet_name, var_name)
+                continue
+
             # format text as per L1
             xl_name_row_index = xl_name_row.index[0]
             xl_df['Text'].iloc[xl_df.index == xl_name_row_index] = "name = " + met_tower_var_name
