@@ -7,3 +7,5 @@ This document will describe the GUI enveditor application.
 - Using the GUI, the user is able to browse through files, choose and type in various settings.
 - On clicking the "Save" button, a .env file is generated in the working directory.
 - This .env file is used by the pipeline to read in the user settings and runs the pipeline accordingly.
+- [Sync module](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/utils/syncdata.md) is skipped by default.
+- If the Sync module needs to be run, the user inputs can be configured by setting SHOW_DATA_SYNC to be True in [enveditor.py](https://github.com/ncsa/ameriflux-pipeline/blob/develop/ameriflux_pipeline/enveditor.py#L29)
