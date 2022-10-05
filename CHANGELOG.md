@@ -77,6 +77,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Checks for sheet name in L1 input validation and generation. [#285](https://github.com/ncsa/ameriflux-pipeline/issues/285)
 - Regex matching for met tower variable names. [#289](https://github.com/ncsa/ameriflux-pipeline/issues/289), [#299](https://github.com/ncsa/ameriflux-pipeline/issues/299)
 - Documentation files. [#297](https://github.com/ncsa/ameriflux-pipeline/issues/297)
+- Documentation on enveditor. [#298](https://github.com/ncsa/ameriflux-pipeline/issues/298)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
