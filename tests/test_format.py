@@ -9,8 +9,7 @@ import os
 ROOT_FOLDER = os.path.dirname(os.path.dirname(__file__))
 
 paths = [
-    os.path.join(ROOT_FOLDER, 'ameriflux_pipeline'),
-    os.path.join(ROOT_FOLDER, 'tests/ameriflux_pipeline/'),
+    os.path.join(ROOT_FOLDER, 'ameriflux_pipeline')
 ]
 
 
