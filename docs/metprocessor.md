@@ -28,7 +28,7 @@ This document will describe met_data_processor.py and the GUI metprocessor.py
     - The "Original" column contains the variable names that are to be changed, and "Target" column contains the new variable names.
     - If the argument is present, the module reads the user input file and renames the variables present in "Original" column to their corresponding "Target" column values.
     - This is same as "key" command line argument.
-- On clicking the "Run" button, the met_data_processor.py module is called with the user settings and the output file is generated.
+- On clicking the "Generate" button, the met_data_processor.py module is called with the user settings and the output file is generated.
 
 ### Using command line
 - To run using the default arguments, use command ```python met_data_processor.py```
