@@ -130,3 +130,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Make sync data turn on and off from env editor. [#294](https://github.com/ncsa/ameriflux-pipeline/issues/294)
 - Ameriflux sitename updated. [#302](https://github.com/ncsa/ameriflux-pipeline/issues/302)
 - Deleted unneccessary test modules. [#300](https://github.com/ncsa/ameriflux-pipeline/issues/300)
+- Metmerger modules renamed. [#312](https://github.com/ncsa/ameriflux-pipeline/issues/312)
