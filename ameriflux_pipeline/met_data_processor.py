@@ -65,6 +65,7 @@ def validate_inputs(files, start_date, end_date, output_file, key_file):
     # all validations done
     return True
 
+
 def get_key_df(key_file):
     """
     Method to get metmerger key dataframe. Refer to NOTES #24
