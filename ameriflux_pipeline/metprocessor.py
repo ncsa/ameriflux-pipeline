@@ -7,7 +7,7 @@
 import os
 import tkinter as tk
 import datetime
-import met_data_merge as mm
+import met_data_processor as mm
 
 from tkinter import ttk as ttk
 from tkinter import filedialog, messagebox
