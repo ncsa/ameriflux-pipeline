@@ -28,7 +28,7 @@ logging.basicConfig(level=logging.INFO, datefmt='%Y-%m-%dT%H:%M:%S',
 log = logging.getLogger(__name__)
 
 
-def validate_inputs(files, start_date, end_date, output_file):
+def validate_inputs(files, start_date, end_date, output_file, key_file):
     """
     Method to check if inputs are valid
 
@@ -37,6 +37,7 @@ def validate_inputs(files, start_date, end_date, output_file):
         start_date (str): start date for merger
         end_date (str): end date for merger
         output_file (str): output file path to write merged csv
+        key_file (str): file for metmerger variable name change. None by default
     Returns:
         (bool): True if inputs are valid, False if not
     """
@@ -57,16 +58,44 @@ def validate_inputs(files, start_date, end_date, output_file):
     if not DataValidation.filetype_validation(output_file, '.csv'):
         log.error(".csv extension expected for file %s", output_file)
         return False
+    if key_file != 'None':
+        # if key file exists, validate it
+        if not DataValidation.filetype_validation(key_file, '.xlsx'):
+            log.error(".xlsx extension expected for file %s", key_file)
     # all validations done
     return True
 
 
-def read_met_data(data_path):
+def get_key_df(key_file):
+    """
+    Method to get metmerger key dataframe. Refer to NOTES #24
+    Args :
+        key_file (str): filepath for metmerger variable name change. None by default
+    Returns :
+        key_df (obj): met merger key dataframe
+    """
+    # read met variable name matching key file
+    key_df = data_util.read_excel(key_file)
+    if not DataValidation.is_valid_met_key(key_df):
+        log.error("%s file invalid format.", key_file)
+        return None
+    # get column names matching Target
+    target_col = key_df.filter(regex=re.compile("^target", re.IGNORECASE)).columns.to_list()[0]
+    # get column names matching Original
+    original_col = key_df.filter(regex=re.compile("^original", re.IGNORECASE)).columns.to_list()[0]
+    # rename columns
+    key_df.rename(columns={target_col: 'Target', original_col: 'Original'}, inplace=True)
+
+    return key_df
+
+
+def read_met_data(data_path, key_df):
     """
     Reads data and returns dataframe containing the met data and another df containing meta data
-
+    Changes some met tower variable names as required
     Args:
         data_path(str): input data file path
+        key_df (obj): Pandas dataframe object with metmerger key mapping
     Returns:
         df (obj): Pandas DataFrame object - dataframe with met data
         file_meta (str): The first line of met file
@@ -104,11 +133,17 @@ def read_met_data(data_path):
     df_meta.columns = df_meta.iloc[0]  # set column names
     df_meta = df_meta.iloc[1:, :]
     df_meta.reset_index(drop=True, inplace=True)  # reset index after dropping rows
-
     # process df to get met data
     df = df.applymap(lambda x: str(x).replace('"', ''))
     df = df.applymap(lambda x: str(x).replace('*', ''))
     df.columns = df.iloc[0]  # set column names
+
+    # rename columns according to key_df, if not None
+    if key_df is not None:
+        # NOTES 24
+        df_meta.rename(columns=key_df.set_index('Original')['Target'], inplace=True)
+        df.rename(columns=key_df.set_index('Original')['Target'], inplace=True)
+
     # NOTES 20
     # rename certain columns
     col_labels = {}
@@ -123,13 +158,6 @@ def read_met_data(data_path):
     cnrtk_col = df.filter(regex=re.compile('^CNR[1-9]_?T_?K', re.IGNORECASE)).columns.to_list()
     if cnrtk_col:
         col_labels[cnrtk_col[0]] = 'CNRTK_Avg'
-    # get NetRs and NetRl renamed
-    netrs_col = df.filter(regex=re.compile('^Rs_net', re.IGNORECASE)).columns.to_list()
-    if netrs_col:
-        col_labels[netrs_col[0]] = 'NetRs_Avg'
-    netrl_col = df.filter(regex=re.compile('^Rl_net', re.IGNORECASE)).columns.to_list()
-    if netrl_col:
-        col_labels[netrl_col[0]] = 'NetRl_Avg'
 
     # rename columns
     df.rename(columns=col_labels, inplace=True)
@@ -170,7 +198,7 @@ def read_met_data(data_path):
     return df, file_meta, df_meta, site_name
 
 
-def data_processing(files, start_date, end_date):
+def data_processing(files, start_date, end_date, key_file):
     """
        Function to preprocess the data.
        This method merges several .dat files into one csv file, sorts the file to have data between start and end dates
@@ -179,6 +207,7 @@ def data_processing(files, start_date, end_date):
            files (list(str)): List of filepath to read met data
            start_date (str): Start date for met data to be merged
            end_date (str): End date for met data to be merged
+           key_file (str): file for metmerger variable name change. None by default
        Returns:
            (df): Pandas dataframe object - merged met data including units and meta data
            (str): First line of file - meta data of file
@@ -186,6 +215,11 @@ def data_processing(files, start_date, end_date):
     dfs = []  # list of dataframes for each file
     meta_dfs = []  # list of meta data from each file
     site_names = []
+    key_df = None  # dataframe for key file
+
+    # read key file if exists
+    if key_file != 'None':
+        key_df = get_key_df(key_file)
 
     for file in files:
         root = os.getcwd()
@@ -193,13 +227,13 @@ def data_processing(files, start_date, end_date):
         filename = os.path.splitext(basename)[0]
         directory_name = os.path.dirname(file)
         # input files in .dat extension. Change to .csv extension
-        output_file = os.path.join(root, directory_name, filename + '.csv')
+        csv_file = os.path.join(root, directory_name, filename + '.csv')
         input_file = os.path.join(root, directory_name, basename)
         # copy and rename
-        shutil.copyfile(input_file, output_file)
-        df, file_meta, df_meta, site_name = read_met_data(output_file)
+        shutil.copyfile(input_file, csv_file)
+        df, file_meta, df_meta, site_name = read_met_data(csv_file, key_df)
         if df is None:
-            log.error("%s not readable", output_file)
+            log.error("%s not readable", csv_file)
             return None, None
         # check if the sites are the same for all metdata
         site_names.append(site_name)
@@ -210,10 +244,11 @@ def data_processing(files, start_date, end_date):
         dfs.append(df)
         meta_dfs.append(df_meta)
 
-    # concat all dataframes in list
+    # concat all met dataframes in list
     met_data = pd.concat(dfs, axis=0, ignore_index=True)
     # replace empty string and string with only spaces with NAN
     met_data.replace(r'^\s*$', np.nan, regex=True, inplace=True)
+    # concat all meta dataframes in list
     meta_df = pd.concat(meta_dfs, axis=0, ignore_index=True)
     meta_df.replace(r'^\s*$', np.nan, regex=True, inplace=True)
     meta_df = meta_df.head(2)  # first 2 rows will give units and min/avg
@@ -260,7 +295,7 @@ def data_processing(files, start_date, end_date):
         return None, None
 
 
-def main(files, start_date, end_date, output_file):
+def main(files, start_date, end_date, output_file, key_file):
     """
        Main function to pre-process dat files. Calls other functions
        Args:
@@ -268,10 +303,11 @@ def main(files, start_date, end_date, output_file):
            start_date (str): Start date for met data to be merged
            end_date (str): End date for met data to be merged
            output_file (str): Full file path to write the merged csv
+           key_file (str): file for metmerger variable name change. None by default
        Returns:
            None
     """
-    df, file_meta = data_processing(files, start_date, end_date)
+    df, file_meta = data_processing(files, start_date, end_date, key_file)
     if df is not None:
         # make file_meta and df the same length to read as proper csv
         num_columns = df.shape[1]
@@ -301,6 +337,8 @@ if __name__ == '__main__':
     parser.add_argument("--start", action="store", default="9999-99-99", help="Start date for merging in yyyy-mm-dd")
     # get the end date. default will be Dec 31 of the year in met data file
     parser.add_argument("--end", action="store", default='9999-99-99', help="End date for merging in yyyy-mm-dd")
+    # get the key file. default is None
+    parser.add_argument("--key", action="store", default=None, help="Full file path for met merger variable keys")
     parser.add_argument("--output", action="store",
                         default=os.path.join(os.getcwd(), "data", "master_met", "input", "Flux.csv"),
                         help="File path to write the output merged csv file")
@@ -326,9 +364,11 @@ if __name__ == '__main__':
     start_date = str(args.start)
     end_date = str(args.end)
     output_file = str(args.output)
+    key_file = str(args.key)  # default is None
+
     # check if file exists
-    is_valid = validate_inputs(files, start_date, end_date, output_file)
+    is_valid = validate_inputs(files, start_date, end_date, output_file, key_file)
     if is_valid:
-        main(files, start_date, end_date, output_file)
+        main(files, start_date, end_date, output_file, key_file)
     else:
         log.error('-' * 10 + "Inputs not valid. Data merge failed. Aborting" + '-' * 10)

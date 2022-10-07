@@ -327,13 +327,39 @@ class DataValidation:
         return True
 
     @staticmethod
+    def is_valid_met_key(df):
+        """
+        Method to check if the metmerger key for met variable name change is as expected.
+        Checks for columns : 'Original variable name', 'Target variable name'
+        Returns True if valid, else returns False
+        Args:
+            df (obj): Pandas dataframe object to check for valid met key file
+        Returns:
+            (bool): True if df is valid, else False
+        """
+        # check if required columns are present. required columns are given below
+        req_cols = ['Original variable name', 'Targer variable name']
+        df_cols = df.columns.to_list()
+        original_pattern = re.compile(r'^original', re.IGNORECASE)
+        target_pattern = re.compile(r'^target', re.IGNORECASE)
+        original_col = list(filter(original_pattern.search, df_cols))
+        target_col = list(filter(target_pattern.search, df_cols))
+        if original_col and target_col:
+            # all required columns are present
+            return True
+        else:
+            log.error("Check for required columns in Metmerger KEy file: "
+                      "Original variable name, Target variable name ")
+            return False
+
+    @staticmethod
     def is_valid_ameriflux_mainstem_key(df):
         """
         Method to check if the Ameriflux-Mainstem key for PyFluxPro L1 formatting is as expected.
         Checks for columns : 'Original variable name', 'Ameriflux variable name', 'Units after formatting'
         Returns True if valid, else returns False
         Args:
-            df (obj): Pandas dataframe object to check for valid erroring varaibles input sheet
+            df (obj): Pandas dataframe object to check for valid ameriflux-mainstem variable key input sheet
         Returns:
             (bool): True if df is valid, else False
         """

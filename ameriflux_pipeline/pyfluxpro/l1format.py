@@ -211,7 +211,7 @@ class L1Format:
         # read AmeriFlux-Mainstem variable name matching file
         df_ameriflux_key = data_util.read_excel(ameriflux_mainstem_key)
         if not DataValidation.is_valid_ameriflux_mainstem_key(df_ameriflux_key):
-            log.error("Ameriflux-Mainstem-Key.xlsx file invalid format.")
+            log.error("%s file invalid format.", ameriflux_mainstem_key)
             return None
         # get column names matching Ameriflux
         ameriflux_cols = df_ameriflux_key.filter(regex=re.compile("^ameriflux", re.IGNORECASE)).columns.to_list()
