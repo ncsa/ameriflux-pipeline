@@ -327,7 +327,7 @@ class DataValidation:
         return True
 
     @staticmethod
-    def is_valid_metmerger_key(df):
+    def is_valid_met_key(df):
         """
         Method to check if the metmerger key for met variable name change is as expected.
         Checks for columns : 'Original variable name', 'Target variable name'

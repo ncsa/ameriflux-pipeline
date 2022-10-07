@@ -75,7 +75,7 @@ def get_key_df(key_file):
     """
     # read met variable name matching key file
     key_df = data_util.read_excel(key_file)
-    if not DataValidation.is_valid_metmerger_key(key_df):
+    if not DataValidation.is_valid_met_key(key_df):
         log.error("%s file invalid format.", key_file)
         return None
     # get column names matching Target
