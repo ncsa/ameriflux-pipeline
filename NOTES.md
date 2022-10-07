@@ -70,7 +70,7 @@
 - The timestamps are shifted 30min behind in the mastermet processing, to reflect the starting time of the 30min period. This way the master met output will have timestamps from 00:00 to 23:30.
 ### 20
 - In 2021 there has been a program change resulting in the change of some datalogger met variables names. Hence when merging the met data, certain old variables names are to be changed to newer standardized variable names.
-- These name changes are implemented in code { 'Rs_net_Avg'-> 'NetRs_Avg', 'Rl_net_Avg'-> 'NetRl_Avg', 'cnr<num>_T_C_Avg' -> 'CNRTC_Avg', 'cnr<num>_T_K_Avg' -> 'CNRTK_Avg', 'VWC_' -> 'VWC1_', 'TC_' -> 'TC1_'}
+- These name changes are implemented in code { 'cnr<num>_T_C_Avg' -> 'CNRTC_Avg', 'cnr<num>_T_K_Avg' -> 'CNRTK_Avg', 'VWC_' -> 'VWC1_', 'TC_' -> 'TC1_'}
 - These name changes can be included in Ameriflux-Mainstem-Key.xlsx file { 'CM3Up_Avg'-> 'SWDn_Avg', 'CM3Dn_Avg'-> 'SWUp_Avg', Solar_Wm2_Avg -> SWDn_Avg, Sw_Out_Avg -> SWUp_Avg, 'CG3UpCo_Avg'-> 'LWDnCo_Avg', 'CG3DnCo_Avg'-> 'LWUpCo_Avg', 'NetTot_Avg'-> 'Rn_Avg', Net_Rad_Avg -> Rn_Avg }
 ### 21
 - In L2.txt, the RangeCheck should have lower and upper. 
@@ -81,9 +81,10 @@
 - Hence the TIMESTAMP column of the full_output sheet is shifted 30min behind to get the correct timestamp, which reflects the starting of the 30min interval.
 ### 23
 - In pyfluxpro input excel sheet for ameriflux, Albedo values are to be converted to percentage values. Desirable albedo values are between 0 and 1. Values outside of this range are converted to NaNs.
+### 24
+- Some met tower variable names are to be changed in the metmerger phase. Eg: { 'CM3Up_Avg'-> 'SWDn_Avg', 'CM3Dn_Avg'-> 'SWUp_Avg', Solar_Wm2_Avg -> SWDn_Avg, Sw_Out_Avg -> SWUp_Avg, 'CG3UpCo_Avg'-> 'LWDnCo_Avg', 'CG3DnCo_Avg'-> 'LWUpCo_Avg', 'NetTot_Avg'-> 'Rn_Avg', Net_Rad_Avg -> Rn_Avg }
+- These should be done in met merger as for some years, both the variable names can be present in a whole year run.
 ### 25
 - Ameriflux site names for all sites are as follows
 - Miscanthus control: US-UiF , Maize Control: US-UiG , Miscanthus Basalt: US-UiB , Maize Basalt: US-UiC , Sorghum: US-UiE, Switchgrass: US-UiA
-
-
 
