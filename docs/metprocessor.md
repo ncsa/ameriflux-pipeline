@@ -1,19 +1,19 @@
-# Documentation on met merger module
-This document will describe met_data_merge.py and the GUI metmerger.py
+# Documentation on met processor module
+This document will describe met_data_processor.py and the GUI metprocessor.py
 
 ## Overview
 - The first step of the pipeline is to create a met data file that spans the required timeperiod.
-- The module [met_data_merge.py](https://github.com/ncsa/ameriflux-pipeline/blob/develop/ameriflux_pipeline/met_data_merge.py) is responsible for this task.
+- The module [met_data_processor.py](https://github.com/ncsa/ameriflux-pipeline/blob/develop/ameriflux_pipeline/met_data_processor.py) is responsible for this task.
 - Sometimes the data for the required timespan (typically a year) is scattered in multiple .dat files
-- These .dat files, the start and end dates and the output file path are given as input to the met_data_merge module.
-- met_data_merge processes each .dat files, sorts it by timestamp and concatenates the files to give one csv met data file spanning the entire timestamp.
+- These .dat files, the start and end dates and the output file path are given as input to the met_data_processor module.
+- met_data_processor processes each .dat files, sorts it by timestamp and concatenates the files to give one csv met data file spanning the entire timestamp.
 - An optional user input is a key file. Some raw met tower variable names need to be changed to match newer variable naming standards. This can be done by providing a key file containing the "Original" variable name and the "Target" variable name.
-- The process creates a log file named "met_merger.log".
+- The process creates a log file named "met_processor.log".
 
 ## Instructions to run
 
 ### Using GUI
-- The command ```python metmerger.py``` launches a GUI that is used to configure the settings and user inputs required to run the met_data_merge module.
+- The command ```python metprocessor.py``` launches a GUI that is used to configure the settings and user inputs required to run the met_data_processor module.
 - The GUI application is implemented using [tkinter](https://docs.python.org/3/library/tk.html) python library.
 - Using the GUI, the user is able to browse through files, and choose various settings.
   - User can choose multiple files to process and merge. 
@@ -28,12 +28,12 @@ This document will describe met_data_merge.py and the GUI metmerger.py
     - The "Original" column contains the variable names that are to be changed, and "Target" column contains the new variable names.
     - If the argument is present, the module reads the user input file and renames the variables present in "Original" column to their corresponding "Target" column values.
     - This is same as "key" command line argument.
-- On clicking the "Run" button, the met_data_merge.py module is called with the user settings and the output file is generated.
+- On clicking the "Run" button, the met_data_processor.py module is called with the user settings and the output file is generated.
 
 ### Using command line
-- To run using the default arguments, use command ```python met_data_merge.py```
-- To request all command line parameters, please run ```python met_data_merge.py --help```
-- If using the python command line, met_data_merge uses the following arguments
+- To run using the default arguments, use command ```python met_data_processor.py```
+- To get information on all command line parameters, please run ```python met_data_processor.py --help```
+- If using the python command line, met_data_processor uses the following arguments
   - data : 
     - This argument takes in multiple filepaths that are comma separated. This will be read, processed and sorted by timestamp to generate a single csv file output.
     - This is a mandatory input field. If not specified, the code will ask for user inputs at runtime.
@@ -52,24 +52,24 @@ This document will describe met_data_merge.py and the GUI metmerger.py
     - This argument takes in an excel (.xlsx) file that maps the old met tower names to newer standardised names.
     - This is an optional argument.
     - By default (if the parameter is not mentioned in the command), variables are not renamed.
-    - A typical user input for this parameter would be ```/Users/xx/data/master_met/input/metmerger_key.xlsx```. 
+    - A typical user input for this parameter would be ```/Users/xx/data/master_met/input/metprocessor_key.xlsx```. 
     - This key file is expected to contain two columns named "Original" and "Target". The "Original" column contains the variable names that are to be changed, and "Target" column contains the new variable names.
     - If the argument is present, the module reads the user input file and renames the variables present in "Original" column to their corresponding "Target" column values.
   - output :
     - This argument takes in the full output path of a csv file to which the processed and merged .dat files will be written.
     - By default (if the parameter is not mentioned in the command), the processed and merged data will be written to ```/Users/xx/data/master_met/input/Flux.csv```.
 - A typical run command with all arguments:
-```python met_data_merge.py --data /Users/xx/data/master_met/input/FluxSB_EC.dat,/Users/xx/data/master_met/input/FluxSB_EC.dat.9.backup,/Users/xx/data/master_met/input/FluxSB_EC.dat.10.backup --start 2021-01-01 --end 2021-12-31 --key /Users/xx/data/master_met/input/metmerger_key.xlsx --output /Users/xx/data/master_met/input/Flux.csv```
+```python met_data_processor.py --data /Users/xx/data/master_met/input/FluxSB_EC.dat,/Users/xx/data/master_met/input/FluxSB_EC.dat.9.backup,/Users/xx/data/master_met/input/FluxSB_EC.dat.10.backup --start 2021-01-01 --end 2021-12-31 --key /Users/xx/data/master_met/input/metprocessor_key.xlsx --output /Users/xx/data/master_met/input/Flux.csv```
 
 ## Process
-- met_data_merge module is usually the first step in the pipeline. 
+- met_data_processor module is usually the first step in the pipeline. 
 - This creates a single meteorological data csv file that spans the required timeframe. 
-- All logs are captured in met_merger.log file.
+- All logs are captured in met_processor.log file.
 
 ### 1
 - The first step is to validate all user inputs to this module. 
 - This includes the multiple files (in the ```data``` argument), start and end dates (```start``` and ```end``` arguments), output file path (```output``` argument) and key file (```key``` argument).
-- Validations are performed by ```validate_inputs()```  and ```DataValidation.is_valid_metmerger_key()``` method.
+- Validations are performed by ```validate_inputs()```  and ```DataValidation.is_valid_met_key()``` method.
 - Validations include :
   - Check if the input files exists.
   - Check if the start and end dates are valid.
@@ -95,7 +95,7 @@ This document will describe met_data_merge.py and the GUI metmerger.py
 - The rest of the data is read and stored in another dataframe.
 
 ### 4
-- As mentioned in NOTES #24, some variables can be renamed in the met merger process.
+- As mentioned in NOTES #24, some variables can be renamed in the met process.
 - The variables in the key file (```key``` argument) and variables mentioned in the NOTES #24 are renamed.
   - Checks are done to make sure that the renaming is done correctly and the column names are unique.
 
