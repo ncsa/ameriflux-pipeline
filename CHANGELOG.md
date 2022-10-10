@@ -80,6 +80,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Documentation on enveditor. [#298](https://github.com/ncsa/ameriflux-pipeline/issues/298)
 - Key file for variable renaming in met merger. [#301](https://github.com/ncsa/ameriflux-pipeline/issues/301)
 - Documentation on prepyfluxpro module. [#311](https://github.com/ncsa/ameriflux-pipeline/issues/311)
+- Documentation on postpyfluxpro module. [#320](https://github.com/ncsa/ameriflux-pipeline/issues/320)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
