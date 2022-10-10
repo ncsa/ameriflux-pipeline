@@ -1,6 +1,7 @@
 # Documentation on enveditor
 This document will describe the GUI enveditor application.
 
+## Overview 
 - The ameriflux_pipeline module uses several user inputs and settings to run. 
 - The command ```python enveditor.py``` launches a GUI that is used to configure the settings and user inputs required to run the pipeline.
 - The GUI application is implemented using [tkinter](https://docs.python.org/3/library/tk.html) python library.
