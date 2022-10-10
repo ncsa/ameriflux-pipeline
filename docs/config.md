@@ -8,5 +8,6 @@ This document will describe the config.py module
 - This module also adds additional configurations that are not user-defined.
   - QC_PRECIP_LOWER gives the precipitation lower threshold value in inches. This is set as 0.0
   - QC_PRECIP_UPPER gives the precipitation upper threshold value in inches. This is set as 0.2
+  - User can modify these settings [here](https://github.com/ncsa/ameriflux-pipeline/blob/develop/ameriflux_pipeline/config.py#L132).
 - Users can change the configuration settings by modifying the [config](https://github.com/ncsa/ameriflux-pipeline/blob/develop/ameriflux_pipeline/config.py) module.
 - The default values can be changed by modifying the second parameter in ```os.getenv()``` function for the corresponding settings.
