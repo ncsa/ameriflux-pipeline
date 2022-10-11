@@ -75,7 +75,7 @@ class MetMergerGUI:
         self.CHECK_ON_OFF = 0
         self.LABEL_CHECKBOX = " Variable Key File"
         self.DESC_KEY_FILE = " input key file for variable name change"
-        self.INFO_KEY_FILE = "The key file that will be used for the varialbe name changes. " \
+        self.INFO_KEY_FILE = "The key file that will be used for the variable name changes. " \
                              "The file should have the information about the variable names in " \
                              "the met data and the names to be changed."
 
@@ -259,7 +259,7 @@ class MetMergerGUI:
         tk.messagebox.showinfo("Info", self.INFO_END_DATE)
 
     def on_click_input_data(self):
-        tk.messagebox.showinfo("Info", self.INFO_END_DATE)
+        tk.messagebox.showinfo("Info", self.INFO_INPUT_DATA)
 
     def on_click_output_path(self):
         tk.messagebox.showinfo("Info", self.INFO_OUTPUT_PATH)
