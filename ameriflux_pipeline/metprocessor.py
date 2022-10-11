@@ -9,7 +9,6 @@ import tkinter as tk
 import datetime
 import met_data_processor as mm
 
-from tkinter import ttk as ttk
 from tkinter import filedialog, messagebox
 from tkcalendar import Calendar
 
@@ -23,6 +22,7 @@ class MetMergerGUI:
         self.OUT_DATA = ""
         self.START_DATE = ""
         self.END_DATE = ""
+        self.KEY_FILE = ""
 
         self.OS_PLATFORM = data_util.get_platform()
 
@@ -34,8 +34,10 @@ class MetMergerGUI:
         self.LINE_START_DATE = 2
         self.LINE_END_DATE = 6
         self.LINE_IN_DATA = 10
-        self.LINE_OUT_DATA = 15 + len(self.INPUT_DATA)
-        self.LINE_CREATE = 20 + len(self.INPUT_DATA)
+        self.LINE_CHECKBOX = 16 + len(self.INPUT_DATA)
+        self.LINE_KEYFILE = 21 + len(self.INPUT_DATA)
+        self.LINE_OUT_DATA = 27 + len(self.INPUT_DATA)
+        self.LINE_CREATE = 32 + len(self.INPUT_DATA)
 
         # font variables
         self.MAIN_BOLD_FONT = "Times 14 bold"
@@ -44,7 +46,7 @@ class MetMergerGUI:
         self.DESC_FONT = "Times 10 italic"
 
         # other variables
-        self.MAIN_TITLE = " Merge Met Data"
+        self.MAIN_TITLE = " Met Data Processor"
         self.IS_CALENDAR_START = True
         self.ERROR_DATE = "The end date is earlier than start date."
         self.ERROR_IN_DATE = "No input data has been selected."
@@ -68,6 +70,14 @@ class MetMergerGUI:
         self.BROWSE_INPUT_DATA = " input meteorology data."
         self.DESC_INPUT_DATA = " input meteorology data."
         self.INFO_INPUT_DATA = "The date will be used for creating the output meteorology data."
+
+        # key file checkbox
+        self.CHECK_ON_OFF = 0
+        self.LABEL_CHECKBOX = " Variable Key File"
+        self.DESC_KEY_FILE = " input key file for variable name change"
+        self.INFO_KEY_FILE = "The key file that will be used for the varialbe name changes. " \
+                             "The file should have the information about the variable names in " \
+                             "the met data and the names to be changed."
 
         # out data
         self.BROWSE_OUTPUT_PATH = " Output meteorology data"
@@ -97,9 +107,9 @@ class MetMergerGUI:
         self.main_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
 
         # add a scrollbar to the canvas
-        x_scrollbar = ttk.Scrollbar(sec, orient=tk.HORIZONTAL, command=self.main_canvas.xview)
+        x_scrollbar = tk.Scrollbar(sec, orient=tk.HORIZONTAL, command=self.main_canvas.xview)
         x_scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
-        y_scrollbar = ttk.Scrollbar(main_frame, orient=tk.VERTICAL, command=self.main_canvas.yview)
+        y_scrollbar = tk.Scrollbar(main_frame, orient=tk.VERTICAL, command=self.main_canvas.yview)
         y_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
         # configure the canvas
@@ -163,7 +173,7 @@ class MetMergerGUI:
         ##################################################
         # create input data list
         i = self.LINE_IN_DATA
-        label_input_data = tk.Label(master=second_frame, text=self.BROWSE_INPUT_DATA, font=self.BOLD_FONT). \
+        label_input_data = tk.Label(master=second_frame, text=self.LABEL_INPUT_DATA, font=self.BOLD_FONT). \
             grid(sticky="w", row=i+1, column=0)
         button_info_input_data = tk.Button(second_frame, text=self.INFO_TITLE, command=self.on_click_input_data). \
             grid(sticky="w", row=i+1, column=1)
@@ -181,6 +191,35 @@ class MetMergerGUI:
             grid(sticky="w", row=i+5+len(self.INPUT_DATA), column=0, columnspan=3)
 
         ##################################################
+        # key file checkbox
+        self.CB_VALUE = tk.IntVar()
+        i = self.LINE_CHECKBOX
+        label_checkbox = tk.Label(master=second_frame, text=self.LABEL_CHECKBOX, font=self.BOLD_FONT). \
+            grid(sticky="w", row=i+1, column=0)
+        button_info_checkbox = tk.Button(second_frame, text=self.INFO_TITLE, command=self.on_click_key_file).\
+            grid(sticky="w", row=i+1, column=1)
+        self.key_checkbox = tk.Checkbutton(master=second_frame, text='use keyfile', variable=self.CB_VALUE,
+                                           onvalue=1, offvalue=0, command=self.keyfile_check_on_off)
+        self.key_checkbox.grid(sticky="w", row=i+1, column=2)
+        desc_key_file = tk.Label(second_frame, text=self.DESC_KEY_FILE, font=self.DESC_FONT). \
+            grid(sticky="w", row=i+2, column=0, columnspan=3)
+        self.button_browse_key_file = tk.Button(
+            master=second_frame, text="Browse", font=self.MAIN_FONT, command=self.browse_key_file_path)
+        self.button_browse_key_file.grid(sticky="w", row=i+3, column=2)
+        self.key_btn_row = self.button_browse_key_file.grid_info()['row']      # Row of the button
+        self.key_btn_column = self.button_browse_key_file.grid_info()['column']
+        self.button_browse_key_file.grid_forget()
+        self.path_key_file_path = tk.Label(master=second_frame, text=self.OUT_DATA, font=self.MAIN_FONT)
+        self.path_key_file_path.grid(sticky="w", row=i+4, column=0, columnspan=3)
+        self.key_file_path_row = self.path_key_file_path.grid_info()['row']
+        self.key_file_path_column = self.path_key_file_path.grid_info()['column']
+        self.path_key_file_path.grid_forget()
+        label_separation = tk.Label(master=second_frame, text=""). \
+            grid(sticky="w", row=i+5, column=0, columnspan=3)
+        label_separation = tk.Label(master=second_frame, text=self.SEPARATION_LABEL_SUB). \
+            grid(sticky="w", row=i+6, column=0, columnspan=3)
+
+        # ##################################################
         # out met data
         i = self.LINE_OUT_DATA
         label_output_path = tk.Label(master=second_frame, text=self.BROWSE_OUTPUT_PATH,
@@ -225,6 +264,9 @@ class MetMergerGUI:
     def on_click_output_path(self):
         tk.messagebox.showinfo("Info", self.INFO_OUTPUT_PATH)
 
+    def on_click_key_file(self):
+        tk.messagebox.showinfo("Info", self.INFO_KEY_FILE)
+
     def browse_input_path(self):
         filepath = self.WORKING_DIRECTORY
         initialdir = os.getcwd() if filepath == "" else filepath
@@ -251,6 +293,26 @@ class MetMergerGUI:
         self.INPUT_DATA_STR = ""
         self.INPUT_DATA = []
         self.path_input_data.config(text="")
+
+    def keyfile_check_on_off(self):
+        if self.CB_VALUE.get() == 0:
+            self.button_browse_key_file.grid_forget()
+            self.path_key_file_path.grid_forget()
+        if self.CB_VALUE.get() == 1:
+            self.button_browse_key_file.grid(sticky="w", row=self.key_btn_row, column=self.key_btn_column)
+            self.path_key_file_path.grid(sticky="w", row=self.key_file_path_row, column=self.key_file_path_column,
+                                         columnspan=3)
+
+    def browse_key_file_path(self):
+        filepath = self.WORKING_DIRECTORY
+        initialdir = os.getcwd() if filepath == "" else filepath
+        filepath = filedialog.askopenfilename(
+            initialdir=initialdir, title="select a file", filetypes=[("excel files", "*.xlsx")])
+        if filepath != "":
+            filepath = self.check_extension_and_add(filepath, ".xlsx")
+            self.path_key_file_path.config(text=filepath)
+            self.KEY_FILE = filepath
+            self.WORKING_DIRECTORY = filepath
 
     def browse_output_path(self):
         filepath = self.WORKING_DIRECTORY
@@ -364,10 +426,13 @@ class MetMergerGUI:
                 # create final output
                 if not is_output_error:
                     files = list(set(self.INPUT_DATA))
+                    keyfile = 'None'
+                    if self.CB_VALUE.get() == 1:  # key file exists
+                        keyfile = self.KEY_FILE
                     # check if file exists
-                    is_valid = mm.validate_inputs(files, start_date, end_date, self.OUT_DATA)
+                    is_valid = mm.validate_inputs(files, start_date, end_date, self.OUT_DATA, keyfile)
                     if is_valid:
-                        mm.main(files, start_date, end_date, self.OUT_DATA)
+                        mm.main(files, start_date, end_date, self.OUT_DATA, keyfile)
                         tk.messagebox.showinfo("INFO", self.INFO_OUT_DATA_GENERATED)
                     else:
                         tk.messagebox.showerror("ERROR", "Inputs are not valid. Data merge failed. Aborting")
