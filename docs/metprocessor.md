@@ -6,8 +6,8 @@ This document will describe met_data_processor.py and the GUI metprocessor.py
 - The module [met_data_processor.py](https://github.com/ncsa/ameriflux-pipeline/blob/develop/ameriflux_pipeline/met_data_processor.py) is responsible for this task.
 - Sometimes the data for the required timespan (typically a year) is scattered in multiple .dat files
 - These .dat files, the start and end dates and the output file path are given as input to the met_data_processor module.
-- met_data_processor processes each .dat files, sorts it by timestamp and concatenates the files to give one csv met data file spanning the entire timestamp.
-- An optional user input is a key file. Some raw met tower variable names need to be changed to match newer variable naming standards. This can be done by providing a key file containing the "Original" variable name and the "Target" variable name.
+- met_data_processor processes each .dat files, sorts them by timestamp and concatenates the files to give one csv met data file spanning the entire timestamp.
+- An optional user input is a key file. Some raw met tower variable names need to be changed to match variable naming standards used from 2021 onwards. This can be done by providing a key file containing the "Original" variable name and the "Target" variable name.
 - The process creates a log file named "met_processor.log".
 
 ## Instructions to run
