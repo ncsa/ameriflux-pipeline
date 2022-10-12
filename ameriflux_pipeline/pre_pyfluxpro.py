@@ -444,7 +444,7 @@ def pre_processing(file_meta_data_file, erroring_variable_flag, run_flag):
                                               erroring_variable_flag, cfg.L1_AMERIFLUX_ERRORING_VARIABLES_KEY,
                                               site_soil_moisture_variables, site_soil_temp_variables,
                                               full_output_variables, met_data_variables,
-                                              met_data_sheet_name, full_output_sheet_name,)
+                                              met_data_sheet_name, full_output_sheet_name)
         if ameriflux_mapping is None:
             log.error('-' * 10 + "PyFluxPro L1 processing failed. Aborting" + '-' * 10)
             return False  # return failure
