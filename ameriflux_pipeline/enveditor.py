@@ -205,58 +205,101 @@ class EnvEditor:
         # PyFluxPro L1 related data
         self.PYFLUXPROPRO_L1_VARIABLE = " Variables for PyFluxPro AmeriFlux formatting"
         self.BROWSE_AMERIFLUX_VARIABLE_USER_CONFIRMATION = " User decision on erroring variable names in PyFlux Pro L1"
-        self.DESC_AMERIFLUX_VARIABLE_USER_CONFIRMATION = " User decision on handling erroring variable names in " \
+        self.DESC_AMERIFLUX_VARIABLE_USER_CONFIRMATION = " user decision on handling erroring variable names in " \
                                                          "PyFluxPro L1."
-        self.INFO_AMERIFLUX_VARIABLE_USER_CONFIRMATION = "User decision on whether to replace, ignore or ask during " \
-                                                         "runtime in case of erroring variable names in PyFluxPro L1."
-        self.BROWSE_L1_MAINSTEM_INPUT = " PyFluxPro L1.txt file"
-        self.DESC_L1_MAINSTEM_INPUT = " filename for L1 control file for mainstem variables"
-        self.INFO_L1_MAINSTEM_INPUT = "PyFluxpro input L1 control file for mainstem variables"
-        self.BROWSE_L1_AMERIFLUX_ONLY_INPUT = " L1.txt file formatted for AmeriFlux"
-        self.DESC_L1_AMERIFLUX_ONLY_INPUT = " PyFluxpro input L1 control file for ameriflux-only variables."
-        self.INFO_L1_AMERIFLUX_ONLY_INPUT = "The txt file needed by the process with AmeriFlux " \
-                                            "specific formatting for PyFluxPro's L1 process."
-        self.BROWSE_L1_AMERIFLUX_MAINSTEM_KEY = " L1 file's variable matching key excel File"
-        self.DESC_L1_AMERIFLUX_MAINSTEM_KEY = " key file for converting L1 file's variables for AmeriFlux formatting."
-        self.INFO_L1_AMERIFLUX_MAINSTEM_KEY = "Variable name mapping from PyFluxPro friendly names to Ameriflux " \
-                                              "friendly names. This is an excel sheet containing all the variables " \
-                                              "to be included in L1_AMERIFLUX with name changes and unit changes " \
-                                              "when necessary."
-        self.BROWSE_L1_AMERIFLUX_RUN_OUTPUT = " L1 output nc file name that will be generated"
-        self.DESC_L1_AMERIFLUX_RUN_OUTPUT = " output .nc file that will be generated after PyFluxPro L1 run " \
-                                            "with AmeriFlux format."
-        self.INFO_L1_AMERIFLUX_RUN_OUTPUT = "The outfile that is to be written after PyFluxPro L1 run with " \
-                                            "AmeriFlux L1 control file. This is to be present in the out_filename " \
-                                            "info in L1."
-        self.BROWSE_L1_AMERIFLUX = " L1 output txt file name with AmeriFlux standards "
-        self.DESC_L1_AMERIFLUX = " L1 control file generated as per AmeriFlux friendly variables."
-        self.INFO_L1_AMERIFLUX = "The output L1 control txt file that has the format with AmeriFlux friendly " \
-                                 "variable names."
+        self.INFO_AMERIFLUX_VARIABLE_USER_CONFIRMATION = "As of 2022, PyFluxPro does not recognize certain Ameriflux " \
+                                                         "variable names (find these in “erroring variables” excel " \
+                                                         "sheet) and will break unless it’s given names it wants. " \
+                                                         "If (Y), the pipeline will temporarily replace the " \
+                                                         "Ameriflux variable names with PyFluxPro friendly names and " \
+                                                         "switch back to Ameriflux names later in the pipeline. " \
+                                                         "If (N), the names will not be changed and those variables " \
+                                                         "will be ignored by PyFluxPro; until PyFluxPro is updated " \
+                                                         "to recognize all Ameriflux names this option is not " \
+                                                         "advised. (A) will stop the pipeline and ask the user " \
+                                                         "whether to change the variable names. This may be useful " \
+                                                         "if you are unsure whether the unrecognized names are still " \
+                                                         "a problem but will require you to stick around to answer " \
+                                                         "this question later. "
+        self.BROWSE_L1_MAINSTEM_INPUT = " PyFluxPro L1 template control file"
+        self.DESC_L1_MAINSTEM_INPUT = " template L1 control file (.txt) with mainstem variable names [FILE]"
+        self.INFO_L1_MAINSTEM_INPUT = "A template PyFluxPro L1 control file using internal (“mainstem”) variable " \
+                                      "names. As long as datalogger met data names are the standardized with year " \
+                                      "2021+ names, the same template file will work for all sites with no further " \
+                                      "action. If the datalogger met data names have changed, or are different for " \
+                                      "this site, you will need to edit the “Input sheet variable name” section of " \
+                                      "the “Ameriflux-Mainstem Key” accordingly"
+        self.BROWSE_L1_AMERIFLUX_ONLY_INPUT = " PyFluxPro L1 template control file with variables unique to Ameriflux"
+        self.DESC_L1_AMERIFLUX_ONLY_INPUT = " template L1 control file (.txt) with variables unique to Ameriflux [FILE]"
+        self.INFO_L1_AMERIFLUX_ONLY_INPUT = "A template PyFluxPro L1 control file containing a handful of variables " \
+                                            "that Ameriflux wants but that we don’t use internally. As long as " \
+                                            "datalogger met data names are the standardized with year 2021+ names, " \
+                                            "the same template file will work for all sites with no further action. " \
+                                            "If the datalogger met data names have changed, or are different for " \
+                                            "this site, you will need to edit the “Input sheet variable name” " \
+                                            "section of the “Ameriflux-Mainstem Key” accordingly."
+        self.BROWSE_L1_AMERIFLUX_MAINSTEM_KEY = " Ameriflux-mainstem variable name key"
+        self.DESC_L1_AMERIFLUX_MAINSTEM_KEY = " excel file key matching Ameriflux-type names to internal/mainstem " \
+                                              "variable type names [KEY]"
+        self.INFO_L1_AMERIFLUX_MAINSTEM_KEY = "This is an excel sheet probably titled “Ameriflux-Mainstem Key” with " \
+                                              "headers “Ameriflux Variable Name, Original Variable name, Input " \
+                                              "sheet variable name, Input Sheet, Input requires additional " \
+                                              "formatting?, Units after formatting”. This lets the pipeline " \
+                                              "translate between our internal variable names and Ameriflux variable " \
+                                              "names"
+        self.BROWSE_L1_AMERIFLUX_RUN_OUTPUT = " Name of the .nc data output from PyFluxPro L1"
+        self.DESC_L1_AMERIFLUX_RUN_OUTPUT = " location and file name of output .nc file that will be generated after " \
+                                            "PyFluxPro L1 run with AmeriFlux format.[FILE NAME]"
+        self.INFO_L1_AMERIFLUX_RUN_OUTPUT = "Name of the file generated by running L1 in PyFluxPro. This directory " \
+                                            "+ file name will be written into both the output portion of the L1 " \
+                                            "control file and the input portion of the L2 control file so that you " \
+                                            "can run L2 without tracking down the L1 output. "
+        self.BROWSE_L1_AMERIFLUX = " Name of the generated Ameriflux-type L1 Control file "
+        self.DESC_L1_AMERIFLUX = " location and file name of the automatically generated PyFluxPro L1 control file " \
+                                 "with Ameriflux formatting [FILE NAME]"
+        self.INFO_L1_AMERIFLUX = "This is the location and name of a pipeline-generated PyFluxPro L1 control file " \
+                                 "with Ameriflux variable names. You will run this control file in PyFluxPro when " \
+                                 "processing for Ameriflux. "
         self.BROWSE_L1_AMERIFLUX_ERRORING_VARIABLES_KEY = " Erroring variable key file for AmeriFlux variables"
-        self.DESC_L1_AMERIFLUX_ERRORING_VARIABLES_KEY = " Variable name key file for matching the original variable " \
-                                                        "names to AmeriFlux names"
-        self.INFO_L1_AMERIFLUX_ERRORING_VARIABLES_KEY = "Variable name key used to match the original variable names " \
-                                                        "to AmeriFlux names for variables throwing an error " \
-                                                        "in PyFluxPro L1."
+        self.DESC_L1_AMERIFLUX_ERRORING_VARIABLES_KEY = " excel file key specifying which variable names must be " \
+                                                        "temporarily changed for PyFluxPro to run correctly [KEY]"
+        self.INFO_L1_AMERIFLUX_ERRORING_VARIABLES_KEY = "As of 2022, PyFluxPro does not recognize certain Ameriflux " \
+                                                        "variable names (listed in this key) and will break unless " \
+                                                        "it’s given names it wants. This key, probably called " \
+                                                        "something with “erroring variables” and with headers " \
+                                                        "“Ameriflux label, PyFluxPro label” tells the pipeline " \
+                                                        "which variables to change. Don’t worry; they’ll be changed " \
+                                                        "back before the final output. "
 
         # PyFluxPro L2 related data
-        self.BROWSE_L2_MAINSTEM_INPUT = " PyFluxPro L2.txt file"
-        self.DESC_L2_MAINSTEM_INPUT = " filename for L2 control file for mainstem variables"
-        self.INFO_L2_MAINSTEM_INPUT = "PyFluxpro input L2 control file for mainstem variables"
-        self.BROWSE_L2_AMERIFLUX_ONLY_INPUT = " L2.txt file formatted for AmeriFlux"
-        self.DESC_L2_AMERIFLUX_ONLY_INPUT = " PyFluxpro input L2 control file for ameriflux-only variables."
-        self.INFO_L2_AMERIFLUX_ONLY_INPUT = "The txt file needed by the process with AmeriFlux specific " \
-                                            "formatting for PyFluxPro's L2 process."
-        self.BROWSE_L2_AMERIFLUX_RUN_OUTPUT = " L2 output nc file name that will be generated"
-        self.DESC_L2_AMERIFLUX_RUN_OUTPUT = " output .nc file that will be generated after PyFluxPro L2 run " \
-                                            "with AmeriFlux format."
-        self.INFO_L2_AMERIFLUX_RUN_OUTPUT = "The outfile that is to be written after PyFluxPro L2 run with " \
-                                            "AmeriFlux L2 control file. This is to be present in the out_filename " \
-                                            "info in L2."
-        self.BROWSE_L2_AMERIFLUX = " L2 output txt file name with AmeriFlux standards"
-        self.DESC_L2_AMERIFLUX = " L2 control file generated as per AmeriFlux friendly variables."
-        self.INFO_L2_AMERIFLUX = "The output L2 control txt file that has the format with AmeriFlux friendly " \
-                                 "variable names."
+        self.BROWSE_L2_MAINSTEM_INPUT = " PyFluxPro L2 template control file"
+        self.DESC_L2_MAINSTEM_INPUT = " template L3 control file (.txt) with mainstem variable names [FILE]"
+        self.INFO_L2_MAINSTEM_INPUT = "A template PyFluxPro L2 control file using internal (“mainstem”) variable " \
+                                      "names. It contains directions for PyFluxPro’s QC operations (see guide at " \
+                                      "[Bernacchi server address]. By default, this template contains range limits " \
+                                      "only; spike removals and other manual QC should be done by hand in PyFluxPro " \
+                                      "after running pre_pyfluxpro but before running post_pyfluxpro."
+        self.BROWSE_L2_AMERIFLUX_ONLY_INPUT = " PyFluxPro L2 template control file with variables unique to Ameriflux"
+        self.DESC_L2_AMERIFLUX_ONLY_INPUT = " template L2 control file (.txt) with variables unique to Ameriflux [FILE]"
+        self.INFO_L2_AMERIFLUX_ONLY_INPUT = "A template PyFluxPro L2 control file containing a handful of variables " \
+                                            "that Ameriflux wants but that we don’t use internally. It contains " \
+                                            "directions for PyFluxPro’s QC operations (see guide on the Bernacchi " \
+                                            "lab server). By default, this template contains range limits only; " \
+                                            "spike removals and other manual QC should be done by hand in PyFluxPro " \
+                                            "after running pre_pyfluxpro but before running post_pyfluxpro"
+        self.BROWSE_L2_AMERIFLUX_RUN_OUTPUT = " Name of the .nc data output from PyFluxPro L2"
+        self.DESC_L2_AMERIFLUX_RUN_OUTPUT = " location and file name of output .nc file that will be generated after " \
+                                            "PyFluxPro L2 run with AmeriFlux format [FILE NAME]"
+        self.INFO_L2_AMERIFLUX_RUN_OUTPUT = "Name of the file generated by running L2 in PyFluxPro. This directory " \
+                                            "+ file name will be written into the output portion of the L2 control " \
+                                            "file and, once PyFluxPro is run, become the name of the main data input " \
+                                            "for post_pyfluxpro."
+        self.BROWSE_L2_AMERIFLUX = " Name of the generated Ameriflux-type L2 control file"
+        self.DESC_L2_AMERIFLUX = " location and file name of the automatically generated PyFluxPro L1 control file " \
+                                 "with Ameriflux formatting [FILE NAME]"
+        self.INFO_L2_AMERIFLUX = "This is the location and name of a pipeline-generated PyFluxPro L1 control file " \
+                                 "with Ameriflux variable names. You will run this control file in PyFluxPro when " \
+                                 "processing for Ameriflux."
 
         # save
         self.SAVE_LABEL = "Save .env file"

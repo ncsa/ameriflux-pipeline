@@ -54,6 +54,8 @@ This document will describe the pre_pyfluxpro.py module
 ### 4
 - If env variable SFTP_CONFIRMATION is "Y", user has requested to sync the local machine with a remote desktop location.
 - As per user request, the [Sync module](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/utils/syncdata.md) is executed.
+- Sync module is skipped by default.
+- If the Sync module needs to be run, the user inputs can be configured by setting SHOW_DATA_SYNC to be True in [enveditor.py](https://github.com/ncsa/ameriflux-pipeline/blob/develop/ameriflux_pipeline/enveditor.py#L29)
 
 ### 5
 - The env variable INPUT_MET is read as the input meteorological file that is to be processed to create a master meteorological data.
@@ -61,6 +63,7 @@ This document will describe the pre_pyfluxpro.py module
 ### 6
 - A file meta data (csv file) is created in the same path as the INPUT_MET.
 - This file stores the file meta data information (first row of INPUT_MET).
+- The file would contain the site name, which is used for further processing.
 
 ### 7
 - In the pre_pyfluxpro module, the [pre_processing()](https://github.com/ncsa/ameriflux-pipeline/blob/develop/ameriflux_pipeline/pre_pyfluxpro.py#L322) method is the main method that calls other functions.
@@ -78,7 +81,8 @@ This document will describe the pre_pyfluxpro.py module
 - The eddypro output path that is chosen by the user in the env variable EDDYPRO_OUTPUT_PATH is checked for empty directory.
 - If the directory is not empty, all contents are moved to another directory named "_run_result_<timestamp>".
 - This is done as the headless run would overwrite the eddypro output directory.
-- The pre_processing() method now calls the [runeddypro](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/eddypro/runeddypro.md) module, which runs the EddyPro V7.0.6 software in a headless manner.
+- The pre_processing() method now calls the [runeddypro](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/eddypro/runeddypro.md) module, which runs the EddyPro software in a headless manner.
+- Please check the README [requirements](https://github.com/ncsa/ameriflux-pipeline#requirements) section for suitable EddyPro software version.
 
 ### 10
 - On successful run of the runeddypro module, the eddypro 'full_output' file is checked in the EDDYPRO_OUTPUT_PATH variable.
@@ -178,3 +182,4 @@ This document will describe the pre_pyfluxpro.py module
 - With the generated L1 and L2 control files for ameriflux processing, users can run PyFluxPro V3.3.2 software and generate plots.
 - Technicians can make neccessary adjustments to the L1 and L2 control files and re-run the PyFluxPro software if neccessary.
 - Launching and running PyFluxPro software is a manual process.
+- Logs can be found in file pre_pyfluxpro.log.
