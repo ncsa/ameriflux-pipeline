@@ -70,18 +70,18 @@ conda activate venv
 pip install -r requirements.txt
 ```
 
-5. If multiple dat files for met data needs to be merged, run ```python met_data_merge.py```.
-- To request all command line parameters, please run ```python met_data_merge.py --help``` 
+5. If multiple dat files for met data needs to be merged, run ```python met_data_processor.py```.
+- To request all command line parameters, please run ```python met_data_processor.py --help``` 
 - data parameter takes in comma separated file paths. This is a mandatory field. If not specified, the code will ask for user inputs at run time.
 - start parameter takes in the start date for merger, given in yyyy-mm-dd format. This will later be expanded to support any plausible date formats. If not given, by default it takes in 2021-01-01
 - end parameter takes in the end date for merger, given in yyyy-mm-dd format. This will later be expanded to support any plausible date formats. If not given, by default it takes in 2021-12-31
 - output parameter takes in the full output path of a csv file which will write the merged output to. By default it will write to master_met/input/Flux.csv
 - key parameter takes in an excel file that lets user rename met tower variables. If not specified, variables are not renamed. This is the default behaviour.
-- To run the python module with default parameters run ```python met_data_merge.py```
+- To run the python module with default parameters run ```python met_data_processor.py```
 - Run command example with all arguments:  
-``` python met_data_merge.py --data /Users/xx/data/master_met/input/FluxSB_EC.dat,/Users/xx/data/master_met/input/FluxSB_EC.dat.9.backup,/Users/xx/data/master_met/input/FluxSB_EC.dat.10.backup --start 2021-01-01 --end 2021-12-31 --key /Users/xx/master_met/input/metmerger_key.xlsx --output /Users/xx/data/master_met/input/Flux.csv ```
+``` python met_data_processor.py --data /Users/xx/data/master_met/input/FluxSB_EC.dat,/Users/xx/data/master_met/input/FluxSB_EC.dat.9.backup,/Users/xx/data/master_met/input/FluxSB_EC.dat.10.backup --start 2021-01-01 --end 2021-12-31 --key /Users/xx/master_met/input/metmerger_key.xlsx --output /Users/xx/data/master_met/input/Flux.csv ```
 - There is a GUI application for this. Run metmerger.py under ameriflux_pipeline directory
-  by typing `python metmerger.py` in command prompt after cd into ameriflux_pipleline directory.
+  by typing `python metprocessor.py` in command prompt after cd into ameriflux_pipleline directory.
 - This creates a csv file with merged data from the raw dat files and a log file met_merger.log.
 
 6. Set necessary parameters for pre and post processing of PyFluxPro and EddyPro
