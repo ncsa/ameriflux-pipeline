@@ -505,6 +505,7 @@ class MasterMetProcessor:
                 df2 = df[i:]  # slice the lower half of df
                 # insert rows between df1 and df2. number of rows given by timedelta/timeinterval
                 missing_num_rows = int(df2['timedelta'].iloc[0] // time_interval) - 1
+                # if timedelta is less than time_interval, missing_num_rows is -1 and no timestamps are inserted.
                 if missing_num_rows > 0:
                     # insert only if missing_num_rows is a positive integer.
                     # is there are duplicate timestamps, missing_num_rows is either negative or 0.
