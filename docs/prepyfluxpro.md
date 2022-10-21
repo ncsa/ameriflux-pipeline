@@ -182,4 +182,3 @@ This document will describe the pre_pyfluxpro.py module
 - With the generated L1 and L2 control files for ameriflux processing, users can run PyFluxPro V3.3.2 software and generate plots.
 - Technicians can make neccessary adjustments to the L1 and L2 control files and re-run the PyFluxPro software if neccessary.
 - Launching and running PyFluxPro software is a manual process.
-- Logs can be found in file pre_pyfluxpro.log.
