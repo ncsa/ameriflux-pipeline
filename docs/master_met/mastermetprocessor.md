@@ -38,5 +38,12 @@ This document is a code walkthrough on master_met/mastermetprocessor.py module
 ### 5
 - Input precipitation data file is read and checked if it meets the expected format.
 - The data is checked to see if there are any missing timestamps and if the data is within the expected range.
-- User can change the expected range as mentioned in the [config](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/config.md) module.
-- The expected timeperiod for each record in precipitation data is 5min. User can change this by 
+- User can change the expected range and timeperiod as mentioned in the [config](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/config.md) module.
+- The timeperiod for each record in precipitation data is currently set as 5min and that of meteorological data is set as 30min. 
+- The expected range is currently set to be between 0 inches and 0.2 inches.
+- If there are missing timestamps, the missing timestamps are inserted as long as the missing timespan is less than the 'Missing timestamps threshold' user input.
+- If the missing timespans greater than the threshold, process continues as per "User confirmation on inserting timestamps" input.
+  - If the user confirmation is "Y/Yes", the code inserts the missing timestamps.
+  - If user confirmation is "N/No", the code ignores the missing timestamps and proceeds to the next step.
+  - If user confirmation is "A/Ask", the code asks during runtime whether or not to insert the missing timestamps.
+
