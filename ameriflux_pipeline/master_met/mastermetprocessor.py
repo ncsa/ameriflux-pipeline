@@ -529,19 +529,31 @@ class MasterMetProcessor:
                         log.info("inserting %d row(s) between %s and %s",
                                  missing_num_rows, str(start_timestamp), str(end_timestamp))
                         # create a series of time_interval timestamps
-                        if time_interval == 5.0:
+                        if (time_interval == 5.0) or (time_interval == 5):
                             freq = '5T'  # set frequency to 5min
                             # set start timestamp to the next 5min
                             start_timestamp = start_timestamp + timedelta(minutes=5)
-                        elif time_interval == 30.0:
+                        elif (time_interval == 30.0) or (time_interval == 30):
                             freq = '30T'  # set frequency to 30min
                             # set start timestamp to the next 30min
                             start_timestamp = start_timestamp + timedelta(minutes=30)
                         else:
-                            print(time_interval, "is invalid")
+                            # time period other than 30min and 5min
+                            try:
+                                time_interval_int = int(time_interval)
+                                freq = str(time_interval_int) + 'T'
+                                # set start timestamp to the next time interval integer
+                                start_timestamp = start_timestamp + timedelta(minutes=time_interval_int)
+                            except Exception as e:
+                                log.error("Time interval {} is invalid. Error {}".format(time_interval, e))
+                                return df, 'N'
+                        # create timeseries
+                        try:
+                            timestamp_series = pd.date_range(start=start_timestamp, end=end_timestamp, freq=freq)
+                        except Exception as e:
+                            log.error("Creating timestamp series from {} to {} unsuccessful. Error {}".
+                                      format(start_timestamp, end_timestamp, e))
                             return df, 'N'
-
-                        timestamp_series = pd.date_range(start=start_timestamp, end=end_timestamp, freq=freq)
 
                         # create new dataframe with blank rows
                         new_df = pd.DataFrame(np.zeros([missing_num_rows, df1.shape[1]]) * np.nan, columns=df1.columns)
