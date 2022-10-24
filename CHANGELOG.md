@@ -137,3 +137,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Metmerger modules renamed. [#312](https://github.com/ncsa/ameriflux-pipeline/issues/312)
 - Added key file process in metprocessor. [#316](https://github.com/ncsa/ameriflux-pipeline/issues/316)
 - Updated the texts in enveditor. [#324](https://github.com/ncsa/ameriflux-pipeline/issues/324)
+- Metprocessor documentation. [#326](https://github.com/ncsa/ameriflux-pipeline/issues/326)
