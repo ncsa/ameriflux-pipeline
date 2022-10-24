@@ -99,7 +99,7 @@ class MasterMetProcessor:
         df = MasterMetProcessor.timestamp_format(df)
 
         # step 5 in guide. Calculation of soil heat flux
-        # TODO : test with old data (non-critical)
+        # Soil heat flux need to be calculated for old data. This is currently not needed for new data
         if MasterMetProcessor.soil_heat_flux_check(df):
             try:
                 # regex pattern to match shf_mv_Avg, shf_avg_mv
@@ -201,7 +201,7 @@ class MasterMetProcessor:
                       format(df.shape[1], df_meta.shape[1]))
             return None, None
 
-        # return processed and merged df. should contain 81 columns
+        # return processed and merged df and metadata.
         return df, file_meta
 
     @staticmethod
