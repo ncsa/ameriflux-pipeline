@@ -37,7 +37,7 @@
 - SW_out_Avg = Shortwave In - Net Shortwave = CM3Dn_Avg = SWUp_Avg
 - Albedo_Avg = Shortwave Out / Shortwave In = CM3Dn_Avg / CM3Up_Avg = SWUp_Avg / SWDn_Avg = albedo_avg
 - If albedo is already in the dataset, the calculation is not done in the code.
-- The dataset will contain either the SWUp/Dn measurements of the CM3UP/Dn measurements, and never both.
+- The dataset will contain either the SWUp/Dn measurements of the CM3Up/Dn measurements, and never both.
 ### 11
 - In Soils key, the EddyPro labels are the same as those used for PyFluxPro L1 and L2 control file variables to meet AmeriFlux standards.
 - PyFluxPro formatting to AmeriFlux standards uses two L1.txt files. 
