@@ -81,6 +81,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Documentation on enveditor. [#298](https://github.com/ncsa/ameriflux-pipeline/issues/298)
 - Key file for variable renaming in met merger. [#301](https://github.com/ncsa/ameriflux-pipeline/issues/301)
 - Documentation on prepyfluxpro module. [#311](https://github.com/ncsa/ameriflux-pipeline/issues/311)
+- Documentation on config module. [#317](https://github.com/ncsa/ameriflux-pipeline/issues/317)
+- Documentation on postpyfluxpro module. [#320](https://github.com/ncsa/ameriflux-pipeline/issues/320)
 - Documentation on mastermetprocessor module. [#329](https://github.com/ncsa/ameriflux-pipeline/issues/329)
 
 ### Fixed
@@ -136,3 +138,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Metmerger modules renamed. [#312](https://github.com/ncsa/ameriflux-pipeline/issues/312)
 - Added key file process in metprocessor. [#316](https://github.com/ncsa/ameriflux-pipeline/issues/316)
 - Updated the texts in enveditor. [#324](https://github.com/ncsa/ameriflux-pipeline/issues/324)
+- Metprocessor documentation. [#326](https://github.com/ncsa/ameriflux-pipeline/issues/326)
