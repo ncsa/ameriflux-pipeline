@@ -10,7 +10,7 @@ This document is a code walkthrough on master_met/mastermetprocessor.py module
 ### Using the GUI
 - There is an option to run this module independently. 
 - This can be achieved using the [pipeline.py](https://github.com/ncsa/ameriflux-pipeline/blob/develop/ameriflux_pipeline/pipeline.py) GUI and clicking the "Run" button in the "Run EddyPro data preparation" section.
-- This runs the mastermetprocessor and the eddyproformat modules.
+- This runs the mastermetprocessor and the [eddyproformat](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/eddypro/eddyproformat.md) modules.
 
 ## Process
 - mastermetprocessor module is typically the first module executed within the [pre-pyfluxpro](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/prepyfluxpro.md) module.
