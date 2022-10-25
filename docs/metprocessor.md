@@ -5,17 +5,18 @@ This document will describe met_data_processor.py and the GUI metprocessor.py
 - The first step of the pipeline is to create a met data file that spans the required timeperiod.
 - The module [met_data_processor.py](https://github.com/ncsa/ameriflux-pipeline/blob/develop/ameriflux_pipeline/met_data_processor.py) is responsible for this task.
 - Sometimes the data for the required timespan (typically a year) is scattered in multiple .dat files. These data need to be appended together to create continuous, yearlong data sets before being useable for analyses. 
-- These .dat files, the start and end dates and the output file path are given as input to the met_data_processor module.
+- The met_data_processor module takes these .dat files, the start and end dates and the output file path as inputs.
 - met_data_processor processes each .dat files, sorts them by timestamp and concatenates the files to give one csv met data file spanning the entire timestamp.
 - An optional user input is a key file. Some raw met tower variable names need to be changed to match variable naming standards used from 2021 onwards. This can be done by providing a key file containing the "Original" variable name and the "Target" variable name.
 - The process creates a log file named "met_processor.log".
+- The met_data_processor module can be used with a GUI or command line.
 
 ## Instructions to run
 
-### Using GUI
+### Using the GUI
 - The command ```python metprocessor.py``` launches a GUI that is used to configure the settings and user inputs required to run the met_data_processor module.
 - The GUI application is implemented using [tkinter](https://docs.python.org/3/library/tk.html) python library.
-- Using the GUI, the user is able to browse through files, and choose various settings.
+- Using the GUI, the user is able to specify input and output files and choose settings.
   - User can choose multiple files to process and merge. 
     - This is same as the "data" command line argument
   - User can choose the start and end date of the timespan of the processed and merged csv file. 
@@ -23,14 +24,15 @@ This document will describe met_data_processor.py and the GUI metprocessor.py
   - User can choose the output location the processed file should be written to.
     - A csv file is expected.
     - This is same as "output" command line argument.
-  - User also has the option to include a key file, if variable renaming is required. 
+  - The user may also include a key file if variable renaming is required.
+    - Variable renaming is required when two .dat files intended to be merged have different names for the same physical variable, e.g. ‘Solar_in’ and ‘SW_in’ for incoming shortwave energy.
     - An excel (.xlsx) file with columns "Original" and "Target" is expected.
-    - The "Original" column contains the variable names that are to be changed, and "Target" column contains the new variable names.
+    - The "Original" column contains the variable names that are to be changed, and "Target" column contains the new (desired, final) variable names.
     - If the argument is present, the module reads the user input file and renames the variables present in "Original" column to their corresponding "Target" column values.
     - This is same as "key" command line argument.
 - On clicking the "Generate" button, the met_data_processor.py module is called with the user settings and the output file is generated.
 
-### Using command line
+### Using the command line
 - To run using the default arguments, use command ```python met_data_processor.py```
 - To get information on all command line parameters, please run ```python met_data_processor.py --help```
 - If using the python command line, met_data_processor uses the following arguments
@@ -53,7 +55,7 @@ This document will describe met_data_processor.py and the GUI metprocessor.py
     - This is an optional argument.
     - By default (if the parameter is not mentioned in the command), variables are not renamed.
     - A typical user input for this parameter would be ```/Users/xx/data/master_met/input/metprocessor_key.xlsx```. 
-    - This key file is expected to contain two columns named "Original" and "Target". The "Original" column contains the variable names that are to be changed, and "Target" column contains the new variable names.
+    - This key file is expected to contain two columns named "Original" and "Target". The "Original" column contains the variable names that are to be changed, and "Target" column contains the new (desired, final) variable names.
     - If the argument is present, the module reads the user input file and renames the variables present in "Original" column to their corresponding "Target" column values.
   - output :
     - This argument takes in the full output path of a csv file to which the processed and merged .dat files will be written.
@@ -76,18 +78,18 @@ This document will describe met_data_processor.py and the GUI metprocessor.py
   - Check if the directory path for the output file exists
   - Check if the output file is a csv
   - Check if the key file is an excel (.xlsx) file and the format is as expected, if present in argument.
-- If any of the above validations fail, it returns an error and the process is aborted.
+- If any of the above validations fail, an error is logged and the process is aborted.
 
 ### 2
-- The module reads each input files (typically .dat/csv files) given in the ```data``` argument and process each file.
+- The module reads each input files (typically .dat/csv files) given in the ```data``` argument and processes each file.
 - The separate .dat files are converted to separate csv files without any processing. These csv files are written to the same location as each input file. 
-- The files are read in a robust manner with separators of comma, semicolon and tab.
+- The files are read in a robust manner, looking for comma, semicolon and/or tab separators.
 - If files can't be read, an error is logged and the process is aborted.
 
 ### 3
-- On reading each input file, the first line of each file is taken as the file meta data. This contains the site name and is stored for future use.
-- The next three rows are taken as the meta data and stored in a separate dataframe for future use.
-- Validations are done for the meta data. Validations include :
+- On reading each input file, the first line of each file is taken as the metadata for the file itself. This contains the site name and is stored for future use.
+- The next three rows are taken as the metadata for the data and stored in a separate dataframe for future use.
+- Validations are done for the metadata. Validations include :
   - Check if 'TIMESTAMP' column is present (first row).
   - Check if 'TS' is present in the units row (second row).
   - Check if 'Min' or 'Avg' is present in the third row.
@@ -95,20 +97,19 @@ This document will describe met_data_processor.py and the GUI metprocessor.py
 - The rest of the data is read and stored in another dataframe.
 
 ### 4
-- As mentioned in NOTES #24, some variables can be renamed in the met process.
+- As mentioned in [NOTES #24](https://github.com/ncsa/ameriflux-pipeline/blob/develop/NOTES.md#24), some variables can be renamed in the met process.
 - The variables in the key file (```key``` argument) and variables mentioned in the NOTES #24 are renamed.
   - Checks are done to make sure that the renaming is done correctly and the column names are unique.
 
 ### 5 
 - For each input file, the process stores
   - met data, 
-  - the file meta data (first row), 
-  - the site name extracted from the file meta data, 
-  - the meta data (second, third and fourth row)
+  - the file metadata (first row), 
+  - the site name extracted from the file metadata, 
+  - the metadata (second, third and fourth row)
 
 ### 6
-- If the site name extracted from different input files are different, an error message is logged, as data merge for different sites is not recommended.
-- The process is aborted.
+- If the site names extracted from different input files do not match, an error message is logged and the process is aborted, as data merge for different sites is not recommended.
 
 ### 7
 - All the met data from different files are concatenated.
@@ -117,14 +118,15 @@ This document will describe met_data_processor.py and the GUI metprocessor.py
 ### 8
 - The timestamp column of the met data is converted to python-readable datetime format.
 - The met data is sorted by timestamp (ascending).
-- If there is an input start date, the met data starts from +30 minutes from the input start date.
+- If there are overlapping/duplicate timestamps, all duplicate timestamps are dropped except from the first met data .dat file. The order of the files from user input is taken into consideration for duplicate timestamps. 
+- If there is an input start date, the met data starts from +30 minutes from the input start date. This is because the data will be shifted 30min back later in the process. See [NOTES #19](https://github.com/ncsa/ameriflux-pipeline/blob/develop/NOTES.md#19).
 - If there is an input end date, the met data ends at 00:00 for the next day from the input end date.
 - For example, if start date is "2021-01-01" and end date is "2021-12-31", met data will span the time from "2021-01-01 00:30" to 2022-01-01 00:00".
 - If input start and end dates are not present, the met data will span the entire timeframe present in the input files.
 
 ### 9
-- The met data and meta data are merged.
-- A validation check on the column names is done before merge. If validation fails, an error message is logged and process aborted.
+- The met data and metadata are merged.
+- A validation check on the column names is done before merge. If validation fails, an error message is logged and the process aborted.
 
 ### 10
 - The processed and merged data is written to the output location mentioned in ```output``` argument.
