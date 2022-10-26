@@ -19,7 +19,7 @@ This document will describe the pre_pyfluxpro.py module
 
 ## Instructions to run
 
-## Using the GUI
+### Using the GUI
 - Please run command ```python pipeline.py```.
 - On launch of GUI, click "Run" button under the "Pre-Pyfluxpro Process".
 - The required settings are read from .env file.
