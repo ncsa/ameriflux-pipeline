@@ -15,8 +15,8 @@ This document will describe runeddypro.py
 - The parameters can be set using enveditor.
 - 'EddyPro Bin Folder' is the directory that contains the eddypro executable file.
 - 'EddyPro Project Template' is the template file for creating the executable eddypro project file. 
-    - It can be found in the repository and can be other eddypro project file.
-- 'EddyProj Project File' is the directory that the actual eddypro project file will be generated from templated file, saved, and used.
+    - It can be found in the repository or can be other eddypro project file.
+- 'EddyProj Project File' is the directory that the actual eddypro project file will be generated from template file.
 - 'EddyPro Project ID' is the identifier for the project that can be decided by the user.
 - 'EddyPro File Prototype' is the string that shows the format of the ghg file naming.
     - This can be obtained from the naming convention of ghg files.
@@ -29,4 +29,4 @@ This document will describe runeddypro.py
 ### Using the GUI
 - The module can be run inside the pipeline, or the module process alone
 - The command ```python pipeline.py``` launches a GUI that runs the whole pipeline or each individual module.
-- In the GUI, the button 'Run EddyPro Application' will run the module
+- In the GUI, the button 'Run EddyPro Application' will run only the module
