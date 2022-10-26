@@ -140,6 +140,8 @@ class OutputFormat:
         file_site_name = file_meta.iloc[0][5]
         site_name = data_util.get_site_name(file_site_name)
         ameriflux_site_name = OutputFormat.get_ameriflux_site_name(site_name)
+        if ameriflux_site_name == ' ':
+            log.warning("Site name not as expected.")
         start_time = df['TIMESTAMP_START'].iloc[0]
         end_time = df['TIMESTAMP_END'].iloc[-1]
         ameriflux_file_name = 'US-Ui' + str(ameriflux_site_name) + '_HH_' + str(start_time) + '_' + str(end_time)
@@ -232,3 +234,6 @@ class OutputFormat:
             if re.search(pattern, site_name.lower()):
                 # if the search is true, return ameriflux site name
                 return site_name_patterns_dict[pattern]
+
+        # if not pattern is matched, return empty string.
+        return ' '
