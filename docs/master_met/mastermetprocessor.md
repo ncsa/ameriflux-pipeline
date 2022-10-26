@@ -1,5 +1,5 @@
 # Documentation on mastermetprocessor module
-This document is a code walkthrough on master_met/mastermetprocessor.py module
+This document is a code walk-through on master_met/mastermetprocessor.py module
 
 ## Overview
 - The [mastermetprocessor](https://github.com/ncsa/ameriflux-pipeline/blob/develop/ameriflux_pipeline/master_met/mastermetprocessor.py) module creates the master meteorological data.
