@@ -83,7 +83,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Documentation on prepyfluxpro module. [#311](https://github.com/ncsa/ameriflux-pipeline/issues/311)
 - Documentation on config module. [#317](https://github.com/ncsa/ameriflux-pipeline/issues/317)
 - Documentation on postpyfluxpro module. [#320](https://github.com/ncsa/ameriflux-pipeline/issues/320)
-
+- Documentation on runeddypro module. [#338](https://github.com/ncsa/ameriflux-pipeline/issues/338)
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
 - Precipitation threshold values read as floating numbers. [#75](https://github.com/ncsa/ameriflux-pipeline/issues/75)
