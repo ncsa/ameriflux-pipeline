@@ -84,7 +84,8 @@ class MasterMetProcessor:
         # create missing timestamps
         # NOTE 7
         log.info("Checking for missing timestamps in met data")
-        df, insert_flag = MasterMetProcessor.insert_missing_timestamp(df, 'timestamp', 30.0,
+        met_timeperiod = 30.0
+        df, insert_flag = MasterMetProcessor.insert_missing_timestamp(df, 'timestamp', met_timeperiod,
                                                                       missing_time_threshold, user_confirmation)
         if insert_flag == 'N':
             # user confirmed not to insert missing timestamps. Return to main program
@@ -98,7 +99,7 @@ class MasterMetProcessor:
         df = MasterMetProcessor.timestamp_format(df)
 
         # step 5 in guide. Calculation of soil heat flux
-        # TODO : test with old data (non-critical)
+        # Soil heat flux need to be calculated for old data. This is currently not needed for new data
         if MasterMetProcessor.soil_heat_flux_check(df):
             try:
                 # regex pattern to match shf_mv_Avg, shf_avg_mv
@@ -200,7 +201,7 @@ class MasterMetProcessor:
                       format(df.shape[1], df_meta.shape[1]))
             return None, None
 
-        # return processed and merged df. should contain 81 columns
+        # return processed and merged df and metadata.
         return df, file_meta
 
     @staticmethod
@@ -400,8 +401,9 @@ class MasterMetProcessor:
         # check timestamps, if present for every 5 min
         df['timedelta'] = MasterMetProcessor.get_timedelta(df['Timestamp'])
         log.info("Checking for missing timestamps in precip data")
+        precip_timeperiod = 5.0
         df, insert_flag = \
-            MasterMetProcessor.insert_missing_timestamp(df, 'Timestamp', 5.0,
+            MasterMetProcessor.insert_missing_timestamp(df, 'Timestamp', precip_timeperiod,
                                                         missing_time_threshold, user_confirmation)
         if insert_flag == 'N':
             # user confirmed not to insert missing timestamps.
