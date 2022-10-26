@@ -84,6 +84,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Documentation on config module. [#317](https://github.com/ncsa/ameriflux-pipeline/issues/317)
 - Documentation on postpyfluxpro module. [#320](https://github.com/ncsa/ameriflux-pipeline/issues/320)
 - Documentation on sync module. [#335](https://github.com/ncsa/ameriflux-pipeline/issues/335)
+- Documentation on mastermetprocessor module. [#329](https://github.com/ncsa/ameriflux-pipeline/issues/329)
 - Variables for met data and precip data time period for each record. [#331](https://github.com/ncsa/ameriflux-pipeline/issues/331)
 
 ### Fixed
