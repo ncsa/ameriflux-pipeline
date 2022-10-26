@@ -85,6 +85,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Documentation on postpyfluxpro module. [#320](https://github.com/ncsa/ameriflux-pipeline/issues/320)
 - Documentation on sync module. [#335](https://github.com/ncsa/ameriflux-pipeline/issues/335)
 - Documentation on mastermetprocessor module. [#329](https://github.com/ncsa/ameriflux-pipeline/issues/329)
+- Documentation on amerifluxformat module. [#344](https://github.com/ncsa/ameriflux-pipeline/issues/344)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
