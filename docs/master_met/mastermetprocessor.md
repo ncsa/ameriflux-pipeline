@@ -10,6 +10,7 @@ This document is a code walk-through on master_met/mastermetprocessor.py module
 ### Using the GUI
 - There is an option to run this module independently. 
 - This can be achieved using the [pipeline.py](https://github.com/ncsa/ameriflux-pipeline/blob/develop/ameriflux_pipeline/pipeline.py) GUI and clicking the "Run" button in the "Run EddyPro data preparation" section.
+- This runs the mastermetprocessor and the [eddyproformat](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/eddypro/eddyproformat.md) modules.
 
 ## Process
 - mastermetprocessor module is typically the first module executed within the [pre-pyfluxpro](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/prepyfluxpro.md) module.
@@ -100,5 +101,5 @@ This document is a code walk-through on master_met/mastermetprocessor.py module
 - If there are extra timestamps in the meteorological data, the additional records are created in the precipitation data to match meteorological data and filled with 'NAN'.
 
 ### 15
-- At the end of this module execution, we have a master meteorological data written to the location specified by the user in settings.
+- At the end of this module execution, we have a master meteorological data written to the location specified by the user in settings(MASTER_MET).
 - The file metadata(mentioned in step 3) is also written to the same location as another csv file.
