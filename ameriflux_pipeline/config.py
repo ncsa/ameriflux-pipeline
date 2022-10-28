@@ -129,11 +129,12 @@ class Config:
                              '/Users/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/generated/L2_ameriflux.txt')
 
     # QA/QC values
-    # precipitation threshold values used in creating Eddypro master meteorology data
+    # precipitation threshold values used in creating master meteorological data
     QC_PRECIP_LOWER = 0.0  # precipitation lower threshold value (inches)
     QC_PRECIP_UPPER = 0.2  # precipitation upper threshold value (inches)
 
-    # Connect to dataserver
-    SFTP_SERVER = os.getenv('SFTP_SERVER', '')
-    SFTP_USERNAME = os.getenv('SFTP_USERNAME', '')
-    SFTP_PASSWORD = os.getenv('SFTP_PASSWORD', '')
+    # Data timeperiods
+    # set meteorological data timeperiod
+    MET_TIMEPERIOD = 30.0
+    # set precipitation data timeperiod
+    PRECIP_TIMEPERIOD = 5.0
