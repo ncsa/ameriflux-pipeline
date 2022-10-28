@@ -24,13 +24,13 @@ This document is a code walkthrough on eddypro/eddyproformat.py process
 ### 2
 - The input soil key is checked for expected format.
 - The site name is extracted from the metadata file created in [mastermetprocessor](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/master_met/mastermetprocessor.md) step 3.
-- Soil temperature and soil mositure variables of the particular site is extracted from the soils key.
+- Soil temperature and soil moisture variables of the particular site is extracted from the soils key.
 - This contains the met tower variable names, EddyPro labels and PyFluxpro labels.
 
 ### 3
 - Certain variable names are renamed. These variables are matched using regex pattern matching.
 - Soil temperature and moisture variables are renamed as per the Soils key.
-- Rename AirTC_Avg, RTD_C_Avg to Ta_1_1_1 and Ta_1_1_2, where Ta_1_1_1 must be present. RTD being more accurate measurement, rename RTD_C_Avg to Ta_1_1_1 for eddypro. If not present, rename AirTC_Avg
+- Rename AirTC_Avg, RTD_C_Avg to Ta_1_1_1 and Ta_1_1_2, where Ta_1_1_1 must be present. RTD being more accurate measurement, rename RTD_C_Avg to Ta_1_1_1 for eddypro. If not present, rename AirTC_Avg to Ta_1_1_1.
 - Soil heat flux measurements shf_Avg(1) and shf_Avg(2) to be renamed as SHF_1_1_1 and SHF_2_1_1.
 - Other variables that are renamed are : 'RH_Avg' -> 'RH', 'TargTempK_Avg'-> 'Tc', 'albedo_Avg'-> 'Rr', 'Rn_Avg'-> 'Rn', 'LWDnCo_Avg'-> 'LWin', 'LWUpCo_Avg'-> 'LWout', 'SWDn_Avg'-> 'SWin', 'SWUp_Avg'-> 'SWout', 'PARDown_Avg'-> 'PPFD', 'PARUp_Avg'-> 'PPFDr', 'Precip_IWS'-> 'P_rain', 'WindSpeed_Avg'-> 'MWS', 'WindDir_Avg'-> 'WD'.
 - Units are formatted to match EddyPro formats. W/m^2'-> 'W+1m-2', 'Kelvin'-> 'K', 'm/s'-> 'm+1s-1', 'Deg'-> 'degrees', 'vwc'-> 'm+3m-3'
