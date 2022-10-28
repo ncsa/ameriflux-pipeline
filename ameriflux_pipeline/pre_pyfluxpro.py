@@ -86,15 +86,20 @@ def eddypro_preprocessing(file_meta_data_file):
         site_soil_moisture_variables (dict): Dictionary for soil moisture variable details from Soils key file
         site_soil_temp_variables (dict): Dictionary for soil temperature variable details from Soils key file
     """
-    # start preprocessing data
-    missing_time = cfg.MISSING_TIME
-    qc_precip_lower = cfg.QC_PRECIP_LOWER
-    qc_precip_upper = cfg.QC_PRECIP_UPPER
+    # set configuration variables
+    missing_time = int(cfg.MISSING_TIME)
+    qc_precip_lower = float(cfg.QC_PRECIP_LOWER)
+    qc_precip_upper = float(cfg.QC_PRECIP_UPPER)
+    # time periods
+    met_timeperiod = float(cfg.MET_TIMEPERIOD)
+    precip_timeperiod = float(cfg.PRECIP_TIMEPERIOD)
 
+    # start preprocessing data
     df, file_meta = \
-        MasterMetProcessor.data_preprocess(cfg.INPUT_MET, cfg.INPUT_PRECIP, float(qc_precip_lower),
-                                           float(qc_precip_upper), int(missing_time),
-                                           cfg.MISSING_TIME_USER_CONFIRMATION)
+        MasterMetProcessor.data_preprocess(cfg.INPUT_MET, cfg.INPUT_PRECIP, qc_precip_lower,
+                                           qc_precip_upper, missing_time,
+                                           cfg.MISSING_TIME_USER_CONFIRMATION,
+                                           met_timeperiod, precip_timeperiod)
     if df is None:
         log.error("Creation of master met data has failed.")
         return None
