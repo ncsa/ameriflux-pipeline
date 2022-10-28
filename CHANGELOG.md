@@ -89,6 +89,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Variables for met data and precip data time period for each record. [#331](https://github.com/ncsa/ameriflux-pipeline/issues/331)
 - Documentation on eddyproformat process. [#336](https://github.com/ncsa/ameriflux-pipeline/issues/336)
 - Documentation on outputformat process. [#347](https://github.com/ncsa/ameriflux-pipeline/issues/347)
+- Documentation on pyfluxproformat process. [#340](https://github.com/ncsa/ameriflux-pipeline/issues/340)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
