@@ -146,3 +146,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Added key file process in metprocessor. [#316](https://github.com/ncsa/ameriflux-pipeline/issues/316)
 - Updated the texts in enveditor. [#324](https://github.com/ncsa/ameriflux-pipeline/issues/324)
 - Metprocessor documentation. [#326](https://github.com/ncsa/ameriflux-pipeline/issues/326)
+- Config documentation to include met and precip timeperiod. [#334](https://github.com/ncsa/ameriflux-pipeline/issues/334)
