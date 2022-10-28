@@ -29,7 +29,7 @@ class MasterMetProcessor:
     # main method which calls other functions
     @staticmethod
     def data_preprocess(input_met_path, input_precip_path, precip_lower, precip_upper,
-                        missing_time_threshold, user_confirmation):
+                        missing_time_threshold, user_confirmation, met_timeperiod, precip_timeperiod):
         """
         Cleans and process the dataframe as per the guide. Process dataframe inplace
         Returns processed df and file meta df which is used in eddyproformat.py
@@ -42,6 +42,8 @@ class MasterMetProcessor:
             missing_time_threshold (int): Number of missing timeslot threshold. Used for both met data and precip data
             user_confirmation (str) : User decision on whether to insert,
                                         ignore or ask during runtime in case of large number of missing timestamps
+            met_timeperiod (int): Time period for one record of meteorological data
+            precip_timeperiod (int): Time period for one record of precipitation data
         Returns:
             df (obj): Pandas DataFrame object, processed df
             file_meta (obj) : Pandas DataFrame object, meta data of file
@@ -64,7 +66,7 @@ class MasterMetProcessor:
         # read input precipitation data file
         user_confirmation = user_confirmation.lower()
         df_precip = MasterMetProcessor.read_precip_data(input_precip_path, precip_lower, precip_upper,
-                                                        missing_time_threshold, user_confirmation)
+                                                        missing_time_threshold, user_confirmation, precip_timeperiod)
         if df_precip is None:
             log.warning("Merging of precipitation data is not possible.")
         # change column data types
@@ -84,7 +86,6 @@ class MasterMetProcessor:
         # create missing timestamps
         # NOTE 7
         log.info("Checking for missing timestamps in met data")
-        met_timeperiod = 30.0
         df, insert_flag = MasterMetProcessor.insert_missing_timestamp(df, 'timestamp', met_timeperiod,
                                                                       missing_time_threshold, user_confirmation)
         if insert_flag == 'N':
@@ -279,7 +280,8 @@ class MasterMetProcessor:
         return df
 
     @staticmethod
-    def read_precip_data(data_path, precip_lower, precip_upper, missing_time_threshold, user_confirmation):
+    def read_precip_data(data_path, precip_lower, precip_upper, missing_time_threshold, user_confirmation,
+                         precip_timeperiod):
         """
         Reads precipitation data from excel file and returns processed dataframe.
         Precip data is read for every 5min and the values are in inches.
@@ -291,6 +293,7 @@ class MasterMetProcessor:
             precip_upper (int) : Upper threshold value for precipitation in inches
             missing_time_threshold (int): Value for missing timeslot threshold. used for insert_missing_time method
             user_confirmation (str) : Option to either insert or ignore missing timestamps
+            precip_timeperiod (int): Time period for one record of precipitation data
         Returns:
             obj: Pandas DataFrame object
         """
@@ -302,7 +305,8 @@ class MasterMetProcessor:
 
         # NOTE 5
         # perform qa qc checks for precip data
-        df = MasterMetProcessor.precip_qaqc(df, precip_lower, precip_upper, missing_time_threshold, user_confirmation)
+        df = MasterMetProcessor.precip_qaqc(df, precip_lower, precip_upper, missing_time_threshold, user_confirmation,
+                                            precip_timeperiod)
         # convert precipitation from in to mm
         df['Precipitation_mm'] = df['Precipitation_in'] * 25.4  # convert inches to millimeter
         df.drop(['Precipitation_in'], axis=1, inplace=True)  # drop unwanted columns
@@ -382,7 +386,7 @@ class MasterMetProcessor:
             return None
 
     @staticmethod
-    def precip_qaqc(df, precip_lower, precip_upper, missing_time_threshold, user_confirmation):
+    def precip_qaqc(df, precip_lower, precip_upper, missing_time_threshold, user_confirmation, precip_timeperiod):
         """
         Function to preform QA/QC check on precip data.
         Check if there are missing timestamps and if the precip value is between precip_lower and precip_upper
@@ -395,6 +399,7 @@ class MasterMetProcessor:
             precip_upper (float) : Upper threshold value for precipitation in inches
             missing_time_threshold (int): Value for missing timeslot threshold. used for insert_missing_time method
             user_confirmation (str) : Option to either insert or ignore missing timestamps
+            precip_timeperiod (int): Time period for one record of precipitation data
         Returns:
             obj (Pandas DataFrame object): processed and cleaned precip dataframe
         """
@@ -501,6 +506,7 @@ class MasterMetProcessor:
                 df2 = df[i:]  # slice the lower half of df
                 # insert rows between df1 and df2. number of rows given by timedelta/timeinterval
                 missing_num_rows = int(df2['timedelta'].iloc[0] // time_interval) - 1
+                # if timedelta is less than time_interval, missing_num_rows is -1 and no timestamps are inserted.
                 if missing_num_rows > 0:
                     # insert only if missing_num_rows is a positive integer.
                     # is there are duplicate timestamps, missing_num_rows is either negative or 0.
@@ -525,19 +531,31 @@ class MasterMetProcessor:
                         log.info("inserting %d row(s) between %s and %s",
                                  missing_num_rows, str(start_timestamp), str(end_timestamp))
                         # create a series of time_interval timestamps
-                        if time_interval == 5.0:
+                        if (time_interval == 5.0) or (time_interval == 5):
                             freq = '5T'  # set frequency to 5min
                             # set start timestamp to the next 5min
                             start_timestamp = start_timestamp + timedelta(minutes=5)
-                        elif time_interval == 30.0:
+                        elif (time_interval == 30.0) or (time_interval == 30):
                             freq = '30T'  # set frequency to 30min
                             # set start timestamp to the next 30min
                             start_timestamp = start_timestamp + timedelta(minutes=30)
                         else:
-                            print(time_interval, "is invalid")
+                            # time period other than 30min and 5min
+                            try:
+                                time_interval_int = int(time_interval)
+                                freq = str(time_interval_int) + 'T'
+                                # set start timestamp to the next time interval integer
+                                start_timestamp = start_timestamp + timedelta(minutes=time_interval_int)
+                            except Exception as e:
+                                log.error("Time interval {} is invalid. Error {}".format(time_interval, e))
+                                return df, 'N'
+                        # create timeseries
+                        try:
+                            timestamp_series = pd.date_range(start=start_timestamp, end=end_timestamp, freq=freq)
+                        except Exception as e:
+                            log.error("Creating timestamp series from {} to {} unsuccessful. Error {}".
+                                      format(start_timestamp, end_timestamp, e))
                             return df, 'N'
-
-                        timestamp_series = pd.date_range(start=start_timestamp, end=end_timestamp, freq=freq)
 
                         # create new dataframe with blank rows
                         new_df = pd.DataFrame(np.zeros([missing_num_rows, df1.shape[1]]) * np.nan, columns=df1.columns)
