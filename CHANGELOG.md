@@ -87,6 +87,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Documentation on sync module. [#335](https://github.com/ncsa/ameriflux-pipeline/issues/335)
 - Documentation on mastermetprocessor module. [#329](https://github.com/ncsa/ameriflux-pipeline/issues/329)
 - Variables for met data and precip data time period for each record. [#331](https://github.com/ncsa/ameriflux-pipeline/issues/331)
+- Documentation on eddyproformat process. [#336](https://github.com/ncsa/ameriflux-pipeline/issues/336)
 - Documentation on outputformat process. [#347](https://github.com/ncsa/ameriflux-pipeline/issues/347)
 
 ### Fixed
