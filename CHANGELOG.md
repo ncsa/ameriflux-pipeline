@@ -86,6 +86,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Documentation on runeddypro module. [#338](https://github.com/ncsa/ameriflux-pipeline/issues/338)
 - Documentation on sync module. [#335](https://github.com/ncsa/ameriflux-pipeline/issues/335)
 - Documentation on mastermetprocessor module. [#329](https://github.com/ncsa/ameriflux-pipeline/issues/329)
+- Variables for met data and precip data time period for each record. [#331](https://github.com/ncsa/ameriflux-pipeline/issues/331)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
