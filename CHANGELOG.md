@@ -93,6 +93,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Documentation on pyfluxproformat process. [#340](https://github.com/ncsa/ameriflux-pipeline/issues/340)
 - Return empty string if no matching site name is found. [#323](https://github.com/ncsa/ameriflux-pipeline/issues/323)
 
+
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
 - Precipitation threshold values read as floating numbers. [#75](https://github.com/ncsa/ameriflux-pipeline/issues/75)
@@ -147,3 +148,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Added key file process in metprocessor. [#316](https://github.com/ncsa/ameriflux-pipeline/issues/316)
 - Updated the texts in enveditor. [#324](https://github.com/ncsa/ameriflux-pipeline/issues/324)
 - Metprocessor documentation. [#326](https://github.com/ncsa/ameriflux-pipeline/issues/326)
+- Updated documentation based on feedback. [#351](https://github.com/ncsa/ameriflux-pipeline/issues/351)
