@@ -19,6 +19,7 @@
 - U_Avg and V_Avg are missing units in the input met data. The cells for the units are empty in the input met file. Add 'm/s' units to these variables in df_meta.
 ### 5
 - Raw precip data is to be present for every 5 min and the valid range is between 0-0.2 inches. If a timestamp is missing, insert the timestamp with a fill value of NAN. If the precip data is not within the valid range limit, replace the value with NAN.
+- The precipitation data with 5min timestamps are resampled to 30min timestamps. 00-30 is summed and stored in 00min (beginning of timestamp).
 - When aggregating the 5min data to 30min, if there is an NAN in any of the 5min timestamps, put the aggregated value of the 30min timestamp to be NAN as well. 
 ### 6
 - Some new variables are required for processing and formatting of met data. These are kept track in a new_variable list and deleted at the end.
