@@ -26,7 +26,7 @@ This document is a code walk-through on process_validation.py module
 - Data comparison
   - Equality validation checks if the two inputs are equal in value and datatype
   - Path validation checks if the input is a file or a directory 
-  - Filetype validation checks if the input file meets the expected filetype (csv/txt/excel)
+  - Filetype validation checks if the input file meets the expected filetype (csv/txt/excel etc)
   - Is_file_in_directory checks if the input file exists in the given directory
 
 ### 3
