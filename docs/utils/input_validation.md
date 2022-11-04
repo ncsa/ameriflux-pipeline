@@ -7,7 +7,7 @@ This document is a code walk-through on input_validation.py module
 - This is not a standalone module and does not produce any output files.
 
 ## Process
-- The [input_validation](https://github.com/ncsa/ameriflux-pipeline/blob/develop/ameriflux_pipeline/utils/input_validation.py) module ensures that the user inputs / settings are valid.
+- The [input_validation](https://github.com/ncsa/ameriflux-pipeline/blob/develop/ameriflux_pipeline/utils/input_validation.py) module ensures that the user inputs/settings are valid.
 - The module contains multiple methods for input and data validations.
 - The functionalities of this module is explained below.
 
