@@ -28,9 +28,9 @@ This document is a code walk-through on l2format.py module
 - The L2 files are checked if the "[Variables]", and "[Plots]" section exists and if the "level" is "L2".
 - For the input L2 files, each variable is checked if excludedates, rangecheck and dependencycheck follow the expected format. 
 - Validates :
-  - If rangecheck has lower and upper lines and if in the right format. See [NOTES #21](https://github.com/ncsa/ameriflux-pipeline/blob/develop/NOTES.md#21).
+  - If RangeCheck has lower and upper lines and if in the right format. See [NOTES #21](https://github.com/ncsa/ameriflux-pipeline/blob/develop/NOTES.md#21).
   - If source line exists for DependencyCheck. 
-  - If excludedates has from and to dates that are comma separated and if the dates are valid.
+  - If ExcludeDates has from and to dates that are comma separated and if the dates are valid.
 - If the validations fail, an error message is logged and process aborted.
 
 ### 3
@@ -41,8 +41,9 @@ This document is a code walk-through on l2format.py module
 
 ### 4
 - The soil moisture variables are converted to percentage values. The lower and upper ranges in the RangeCheck dependency are converted to percentage values.
-- For DependancyCheck, the source H2O_SIGMA is used instead of H2O_IRGA_Vr. See [NOTES #14](https://github.com/ncsa/ameriflux-pipeline/blob/develop/NOTES.md#14) and the footprint values (x_[0-9]) are removed.
+- For DependencyCheck, the source H2O_SIGMA is used instead of H2O_IRGA_Vr. See [NOTES #14](https://github.com/ncsa/ameriflux-pipeline/blob/develop/NOTES.md#14).
+- For DependencyCheck the footprint values (x_[0-9]) are removed.
 
 ### 5
-- On successful completion of L2 format, a message is logged and output L2 file written to the user specified location.
+- On successful completion of L2 format, a message will be logged and output L2 file written to the user specified location.
 
