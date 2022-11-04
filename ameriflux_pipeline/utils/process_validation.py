@@ -338,7 +338,7 @@ class DataValidation:
             (bool): True if df is valid, else False
         """
         # check if required columns are present. required columns are given below
-        req_cols = ['Original variable name', 'Targer variable name']
+        req_cols = ['Original variable name', 'Target variable name']
         df_cols = df.columns.to_list()
         original_pattern = re.compile(r'^original', re.IGNORECASE)
         target_pattern = re.compile(r'^target', re.IGNORECASE)
