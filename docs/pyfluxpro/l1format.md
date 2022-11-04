@@ -37,13 +37,13 @@ This document is a code walk-through on l1format.py module
 ### 4
 - For the "[Variables]" section, each variable will be written to output L1 only if it is present in the Ameriflux-Mainstem Key or in the Soils key.
 - Each variable is checked to see if it is present in the input sheet mentioned in the "xl" attribute. If a variable is not present in the sheet, a warning message is logged.
-- The meteorological variable names (from the xl attribute) is renamed and units changed if necessary, as per the key files (Ameriflux-Mainstem Key, Soils key, Erroring variables key).
+- The meteorological variable names (from the xl attribute) will be renamed and units changed if necessary, as per the key files (Ameriflux-Mainstem Key, Soils key, Erroring variables key).
 - For soil variables, the height is given in centimeter in Soils key. Convert cm to m, reverse the sign and write the corrected height (a negative value) in the height attribute in L1.
 - For soil variables, get the instrument from Soils key and write in "instrument" attribute.
 - When writing to L1, validation is done to check if there are duplicate variables.
 
 ### 5
-- On successful completion, a message is logged and output L1 file written to the user specified location.
+- On successful completion, a message will be logged and output L1 file will be written to the user specified location.
 
 
 
