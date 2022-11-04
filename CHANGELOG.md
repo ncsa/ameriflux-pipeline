@@ -94,6 +94,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Return empty string if no matching site name is found. [#323](https://github.com/ncsa/ameriflux-pipeline/issues/323)
 - Documentation for l2format process. [#354](https://github.com/ncsa/ameriflux-pipeline/issues/354)
 - Documentation on data util module. [#360](https://github.com/ncsa/ameriflux-pipeline/issues/360)
+- Documentation on L1format module. [#350](https://github.com/ncsa/ameriflux-pipeline/issues/350)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
