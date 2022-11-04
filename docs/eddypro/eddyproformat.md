@@ -19,6 +19,17 @@ This document is a code walkthrough on eddypro/eddyproformat.py process
 
 ### 1
 - This process takes the output of mastermetprocessor module and soils key as input.
+- The Soils key is an excel file which provides a mapping between datalogger/meteorological names and Eddypro and Pyfluxpro labels for the soil temperature and moisture variables for each site.
+- A typical soils key file has the following columns :
+  - Site name
+  - Site ID
+  - Instrument name
+  - Datalogger/met water variable name
+  - Datalogger/met temperature variable name
+  - Pyfluxpro water variable name
+  - Pyfluxpro temperature variable name
+  - EddyPro water variable name
+  - Eddypro temperature variable name
 - The output is a meteorological data file formatted for EddyPro input.
 
 ### 2

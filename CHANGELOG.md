@@ -95,6 +95,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Documentation for l2format process. [#354](https://github.com/ncsa/ameriflux-pipeline/issues/354)
 - Documentation on data util module. [#360](https://github.com/ncsa/ameriflux-pipeline/issues/360)
 - Documentation for input validation module. [#357](https://github.com/ncsa/ameriflux-pipeline/issues/357)
+- Documentation on L1format module. [#350](https://github.com/ncsa/ameriflux-pipeline/issues/350)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
