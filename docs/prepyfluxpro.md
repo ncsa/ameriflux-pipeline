@@ -63,8 +63,8 @@ This document will describe the pre_pyfluxpro.py module
 -  The env variable INPUT_MET is the meteorological file (likely created with the metprocessor module) used to create the master meteorological data
 
 ### 6
-- A file meta data (csv file) is created in the same path as the INPUT_MET.
-- This file stores the file meta data information (first row of INPUT_MET).
+- A file metadata (csv file) is created in the same path as the INPUT_MET.
+- This file stores the file metadata information (first row of INPUT_MET).
 - The file would contain the site name, which is used for further processing.
 
 ### 7
