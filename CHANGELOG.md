@@ -92,6 +92,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Documentation on outputformat process. [#347](https://github.com/ncsa/ameriflux-pipeline/issues/347)
 - Documentation on pyfluxproformat process. [#340](https://github.com/ncsa/ameriflux-pipeline/issues/340)
 - Return empty string if no matching site name is found. [#323](https://github.com/ncsa/ameriflux-pipeline/issues/323)
+- Documentation for l2format process. [#354](https://github.com/ncsa/ameriflux-pipeline/issues/354)
 - Documentation for input validation module. [#357](https://github.com/ncsa/ameriflux-pipeline/issues/357)
 
 
