@@ -20,9 +20,10 @@ This document is a code walk-through on pyfluxpro/outputformat.py module
 'fsd_syn', 'solar_altitude', 'co2_sigma', 'h2o_sigma'] are also removed.
 
 ### 2
-- The 'time' variable is renamed as 'TIMESTAMP_START' and 'TIMESTAMP_END' variable is created with 'time'+30min values.
+- The 'time' variable is renamed as 'TIMESTAMP_START' 
+- A 'TIMESTAMP_END' variable is created with 'time' + 30min values.
 - See [NOTES#16](https://github.com/ncsa/ameriflux-pipeline/blob/develop/NOTES.md#16) for details.
-- A warning message is logged if the timestamp columns does not span the entire year.
+- A warning message is logged if the timestamp columns do not span the entire year.
 
 ### 3
 - Some additional variables are also renamed as per user settings in AMERIFLUX_VARIABLE_USER_CONFIRMATION and L1_AMERIFLUX_ERRORING_VARIABLES_KEY.
