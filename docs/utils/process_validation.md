@@ -7,8 +7,9 @@ This document is a code walk-through on process_validation.py module
 - This is not a standalone module and does not produce any output files.
 
 ## Process
+- The [process_validation](https://github.com/ncsa/ameriflux-pipeline/blob/develop/ameriflux_pipeline/utils/process_validation.py) module ensures that each process in the pipeline works as expected.
 - The module contains multiple methods for data validation and validations for L1 and L2 file formats.
-- The functionalities of this module is explained below
+- The functionalities of this module is explained below.
 
 ### 1
 - Datatype validation 
