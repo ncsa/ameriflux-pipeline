@@ -1517,13 +1517,13 @@ class EnvEditor:
         eddypro_output_path_line = "EDDYPRO_OUTPUT_PATH=" + self.EDDYPRO_OUTPUT_PATH
         eddypro_input_ghg_path_line = "EDDYPRO_INPUT_GHG_PATH=" + self.EDDYPRO_INPUT_GHG_PATH
 
-        pyfluxpro_title_line = "# Variables for PyFluxPro running"
+        pyfluxpro_title_line = "# Variables for PyFluxPro input sheet"
         pyfluxpro_full_output_line = "FULL_OUTPUT_PYFLUXPRO=" + self.FULL_OUTPUT_PYFLUXPRO
         pyfluxpro_met_data_line = "MET_DATA_30_PYFLUXPRO=" + self.MET_DATA_30_PYFLUXPRO
         pyfluxpro_input_sheet_line = "PYFLUXPRO_INPUT_SHEET=" + self.PYFLUXPRO_INPUT_SHEET
         pyfluxpro_input_ameriflux_line = "PYFLUXPRO_INPUT_AMERIFLUX=" + self.PYFLUXPRO_INPUT_AMERIFLUX
 
-        pyfluxpro_l1_line = "# Variables for PyFluxPro AmeriFlux formatting"
+        pyfluxpro_l1_line = "# Variables for PyFluxPro control files"
         pyfluxpro_l1_user_confirmation_line = "AMERIFLUX_VARIABLE_USER_CONFIRMATION=" + \
                                               self.combo_ameriflux_variable_confirm.get()
         pyfluxpro_l1_mainstem_input_line = "L1_MAINSTEM_INPUT=" + self.L1_MAINSTEM_INPUT
