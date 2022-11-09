@@ -1,10 +1,12 @@
 # Crop2Ameriflux
 
+## Overview
 **Crop2Ameriflux** is an automated data pipeline that converts raw data files to Ameriflux FP format with minimal user interaction. 
 
 **Ameriflux-Pipeline** is a suite of python modules designed for this purpose. We integrate EddyPro and PyFluxPro software using high-quality open-source tools and libraries, reducing processing time and human error to enable more frequent contributions to Ameriflux. The raw data undergo a series of transformations including time format conventions, variable processing and handling of missing data. The final output of this streamlined process is a csv file that is publishable to Ameriflux. By integrating EddyPro and PyFluxPro along with automating all data transformation and quality checks, Crop2Ameriflux increases the reliability and accuracy of data while reducing the processing time.
 This automated code creates master meteorological data, runs EddyPro automatically and creates inputs for PyfluxPro software.
-**Features**
+
+### Features
 - Automation of data processing for Eddypro and Pyfluxpro.
 - Seamless run of EddyPro software within the pipeline.
 - Highly modularized, robust and documented code
