@@ -34,7 +34,7 @@ This automated code creates master meteorological data, runs EddyPro automatical
 - In terminal, cd to repository by ```cd ameriflux-pipeline```
 
 3. Set up python virtual environment
-  - Using conda (preferred)
+  - Using conda (recommended)
   ```
   conda create --prefix=venv python=3.8
   conda activate venv
