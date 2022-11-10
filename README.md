@@ -79,7 +79,7 @@ pip install -r requirements.txt
 - Execute `python enveditor.py` in command prompt to launch the GUI.
 - Or if you prefer to modify the .env file
   - Give the full path to all input and output file location.
-- Details about the parameters are describes in the section 10 below
+- Details about the parameters are described in [enveditor](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/enveditor.md).
 
 7. To execute the pipeline as per user configurations, users can choose to run via GUI (recommended) by using command line.
    1. Execute the [pre-pyfluxpro](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/prepyfluxpro.md) module, which does all processing till the generation of Pyfluxpro L1 and L2 control files
