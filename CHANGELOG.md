@@ -97,6 +97,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Documentation for input validation module. [#357](https://github.com/ncsa/ameriflux-pipeline/issues/357)
 - Documentation on L1format module. [#350](https://github.com/ncsa/ameriflux-pipeline/issues/350)
 - Documentation on process validation module. [#356](https://github.com/ncsa/ameriflux-pipeline/issues/356)
+- Documentation on pipeline module. [#362](https://github.com/ncsa/ameriflux-pipeline/issues/362)
 - Added example env file. [#368](https://github.com/ncsa/ameriflux-pipeline/issues/368)
 
 
@@ -156,3 +157,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Metprocessor documentation. [#326](https://github.com/ncsa/ameriflux-pipeline/issues/326)
 - Updated documentation based on feedback. [#351](https://github.com/ncsa/ameriflux-pipeline/issues/351)
 - Config documentation to include met and precip timeperiod. [#334](https://github.com/ncsa/ameriflux-pipeline/issues/334)
+- Updated documentation based on feedback. [#364](https://github.com/ncsa/ameriflux-pipeline/issues/364)

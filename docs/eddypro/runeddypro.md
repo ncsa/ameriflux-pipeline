@@ -5,14 +5,13 @@ This document will describe runeddypro.py
 - The runeddypro module is for running eddypro application in the pipeline without any human interaction.
 - The module [runeddypro.py](https://github.com/ncsa/ameriflux-pipeline/blob/develop/ameriflux_pipeline/eddypro/runeddypro.py) 
   is responsible for this task.
-- The process only works in Windows or Mac, not supported Linux or Mac with M1 chips.  
-- EddyPro application that is an independent software will be run as headless manner by the module
+- The process only works in Windows or Mac; Linux or Mac with M1 chips are not supported
+- EddyPro is an independent software application. It will be run in a headless manner (initiated programmatically without human interaction) by the module.
 - The log of the process will be recorded in pre_fylufxpro.log with 'eddypro.runeddypro' header.
-- Also each eddypro run log will also be available in the 'EDDYPRO_OUTPUT_PATH' explained below, 
-  and a timestamped log file will be created for each run as well.
+- Each eddypro run will also generated a timestamped log file in the 'EDDYPRO_OUTPUT_PATH'.
 - The runeddypro module can be run with a pipeline.py GUI.
 
-## Instructions to run
+## How to run
 
 ### Set parameters
 - There are serveral parameters to set to run the module.
@@ -36,6 +35,5 @@ This document will describe runeddypro.py
 - In the GUI, the button 'Run EddyPro Application' will run only the module
 
 ### Using the EddyPro application
-- The user can run EddyPro application manually by using the outputs created by the pipeline, mainly outputs from 
-  [mastermetprocessor.py](https://github.com/ncsa/ameriflux-pipeline/blob/develop/ameriflux_pipeline/master_met/mastermetprocessor.py), 
-  and other input files using the application's GUI or headless command. 
+- The user can run EddyPro application manually by using outputs from ‘earlier’ parts of the pipeline, mainly outputs from [mastermetprocessor.py](https://github.com/ncsa/ameriflux-pipeline/blob/develop/ameriflux_pipeline/master_met/mastermetprocessor.py) and [eddyproformat](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/eddypro/eddyproformat.md).
+- The command ```python pipeline.py``` launches a GUI. In the GUI, the button 'Run EddyPro data preparation' calls the modules which generates the inputs required to run EddyPro software.
