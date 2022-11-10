@@ -21,7 +21,7 @@ This document describes the GUI for executing pipeline and modules.
 - Run Post-PyFluxPro process
   - The "Run" button executes the [post-pyfluxpro](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/postpyfluxpro.md) module.
   - This module creates Ameriflux submission-ready csv file with filename 'US-Ui<ameriflux_site_name>HH<start_time>_<end_time>
-  - This is typically the last step in the pipeline, executed after runnning the PyFluxPro software and after the technician is satisfied with the generated plots.
+  - This is typically the last step in the pipeline, executed after running the PyFluxPro software and after the technician is satisfied with the generated plots.
 ### 3
 - Run EddyPro data preparation
   - The "Run" button executes the [mastermetprocessor](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/master_met/mastermetprocessor.md) and the [eddyproformat](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/eddypro/eddyproformat.md) modules within the pre-pyfluxpro module.
