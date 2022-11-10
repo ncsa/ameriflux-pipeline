@@ -19,8 +19,7 @@ This document is a code walkthrough on eddypro/eddyproformat.py process
 
 ### 1
 - This process takes the output of mastermetprocessor module and soils key as input.
-- The Soils key is an excel file which provides a mapping between datalogger/meteorological names and Eddypro and Pyfluxpro labels for the soil temperature and moisture variables for each site.
-- A typical soils key file has the following columns :
+- The Soils key is an excel file which maps datalogger/meteorological variable names to Eddypro and Pyfluxpro variable names for the soil temperature and moisture variables for each site. A typical soils key file has the following columns :
   - Site name
   - Site ID
   - Instrument name
@@ -39,7 +38,8 @@ This document is a code walkthrough on eddypro/eddyproformat.py process
 - This contains the met tower variable names, EddyPro labels and PyFluxpro labels.
 
 ### 3
-- Certain variable names are renamed. These variables are matched using regex pattern matching.
+- Certain variable names are renamed to match Eddypro conventions. These variables are matched using regex pattern matching.
+- In addition to more straightforward renaming such as RH_Avg' -> 'RH', variables with replicate measurements are given postscripts following [European Fluxes Database Cluster](http://www.europe-fluxdata.eu/home/guidelines/how-to-submit-data/general-information) conventions as per EddyPro conventions. 
 - Soil temperature and moisture variables are renamed as per the Soils key.
 - Rename AirTC_Avg, RTD_C_Avg to Ta_1_1_1 and Ta_1_1_2, where Ta_1_1_1 must be present. RTD being more accurate measurement, rename RTD_C_Avg to Ta_1_1_1 for eddypro. If not present, rename AirTC_Avg to Ta_1_1_1.
 - Soil heat flux measurements shf_Avg(1) and shf_Avg(2) to be renamed as SHF_1_1_1 and SHF_2_1_1.
@@ -56,5 +56,5 @@ This document is a code walkthrough on eddypro/eddyproformat.py process
 
 ### 6
 - At the end of execution, we have a meteorological data file formatted for eddypro. 
-- The filename will be the env.MASTER_MET filename + '_eddypro'.
+- The filename will be a concatenation between the MASTER_MET filename set in the .env and "_eddypro".
 - This csv file is written to the same location specified by the user in settings(MASTER_MET).

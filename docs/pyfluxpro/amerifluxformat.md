@@ -23,11 +23,13 @@ Document is a code walk-through on pyfluxpro/amerifluxformat.py module
 
 ### 2
 - Unit changes and name changes for selected variables in the full_output and met_data sheet are done.
-- Albedo column is renamed as ALB and unit is converted to percentage.
-- VPD column unit is changed to hPa.
-- The TAU column values are sign reversed (multiplied by -1.0) and unit changed to 'kg+1m-1s-2'.
-- All soil moisture variables are converted to percentage values.
-- Variances are converted to standard deviations in full_output sheet and units are changed from 'm+2s-2' to 'm+1s-1' and from 'K+2' to 'K'.
+- Conversions done to met_data sheet :
+  - Albedo column is renamed as ALB and unit is converted to percentage.
+  - VPD column unit is changed to hPa.
+  - All soil moisture variables are converted to percentage values.
+- Conversions done to full_output sheet :
+  - The TAU column values are sign reversed (multiplied by -1.0) and unit changed to 'kg+1m-1s-2'.
+  - Variances are converted to standard deviations and units are changed from 'm+2s-2' to 'm+1s-1' and from 'K+2' to 'K'.
 
 ### 3
 - The formatted sheets are written to an excel sheet specified by the user in [enveditor](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/enveditor.md) settings(PYFLUXPRO_INPUT_AMERIFLUX).
