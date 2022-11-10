@@ -16,7 +16,7 @@ This document describes the GUI for executing pipeline and modules.
 - Run Pre-Pyfluxpro process
   - The "Run" button executes the [pre-pyfluxpro](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/prepyfluxpro.md) module and all its sub-modules.
   - By executing this section, all the processing till the generation of PyFluxPro L1 and L2 control files will be done.
-  - Typically this is executed right after [metprocessor](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/metprocessor.md) and [enveditor](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/enveditor.md).
+  - Typically, this is executed right after [metprocessor](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/metprocessor.md) and [enveditor](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/enveditor.md).
 ### 2
 - Run Post-PyFluxPro process
   - The "Run" button executes the [post-pyfluxpro](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/postpyfluxpro.md) module.
