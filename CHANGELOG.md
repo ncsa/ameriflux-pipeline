@@ -157,3 +157,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Updated documentation based on feedback. [#351](https://github.com/ncsa/ameriflux-pipeline/issues/351)
 - Config documentation to include met and precip timeperiod. [#334](https://github.com/ncsa/ameriflux-pipeline/issues/334)
 - Updated documentation based on feedback. [#364](https://github.com/ncsa/ameriflux-pipeline/issues/364)
+- Updated README. [#366](https://github.com/ncsa/ameriflux-pipeline/issues/366)
