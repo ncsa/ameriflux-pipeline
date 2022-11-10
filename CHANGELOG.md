@@ -98,6 +98,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Documentation on L1format module. [#350](https://github.com/ncsa/ameriflux-pipeline/issues/350)
 - Documentation on process validation module. [#356](https://github.com/ncsa/ameriflux-pipeline/issues/356)
 - Documentation on pipeline module. [#362](https://github.com/ncsa/ameriflux-pipeline/issues/362)
+- Added example env file. [#368](https://github.com/ncsa/ameriflux-pipeline/issues/368)
 
 
 ### Fixed

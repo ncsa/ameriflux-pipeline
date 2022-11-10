@@ -1,0 +1,49 @@
+## This is an example env file. Remove "example-" from the name and replace "xxx" appropriately
+# Sync files from the server
+SFTP_CONFIRMATION=N
+SFTP_SERVER=remote.server.url
+SFTP_USERNAME=username
+SFTP_PASSWORD=password
+SFTP_GHG_REMOTE_PATH=/path/in/the/remote/server/
+SFTP_GHG_LOCAL_PATH=/path/in/the/local/machine/
+SFTP_MET_REMOTE_PATH=/path/in/the/remote/server/
+SFTP_MET_LOCAL_PATH=/path/in/the/local/machine/
+
+# Variables for master met and EddyPro formatting
+MISSING_TIME_USER_CONFIRMATION=Y
+INPUT_MET=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/master_met/input/FLUXSB_EC_JanMar2021.csv
+INPUT_PRECIP=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/master_met/input/Precip_IWS_Jan-Feb_2021.xlsx
+MISSING_TIME=96
+MASTER_MET=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/master_met/output/met_output.csv
+INPUT_SOIL_KEY=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/eddypro/input/Soils_key.xlsx
+
+# Variables for running EddyPro
+EDDYPRO_BIN_LOC=/Applications/eddypro.app/Contents/MacOS/bin
+EDDYPRO_PROJ_FILE_NAME=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/eddypro/input/EddyPro_Run_Template.eddypro
+EDDYPRO_PROJ_TITLE=AmeriFlux_Pipeline
+EDDYPRO_PROJ_ID=ameriflux_pipeline
+EDDYPRO_FILE_PROTOTYPE=yyyy-mm-ddTHHMM??_Sorghum-00137.ghg
+EDDYPRO_PROJ_FILE=/Users/xxx/2021-01-01T000000_Sorghum-00137.metadata
+EDDYPRO_DYN_METADATA=/Users/xxx/Sorghum_2021_dynamic_metadata.csv
+EDDYPRO_OUTPUT_PATH=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/eddypro/output/
+EDDYPRO_INPUT_GHG_PATH=/Users/xxx/Raw_Jan-Mar_2021_GHG_Files/
+
+# Variables for PyFluxPro input sheet
+FULL_OUTPUT_PYFLUXPRO=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/input/full_output.csv
+MET_DATA_30_PYFLUXPRO=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/input/Met_data_30.csv
+PYFLUXPRO_INPUT_SHEET=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/input/pyfluxpro_input.xlsx
+PYFLUXPRO_INPUT_AMERIFLUX=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/generated/pyfluxpro_input_ameriflux.xlsx
+
+# Variables for PyFluxPro control files
+AMERIFLUX_VARIABLE_USER_CONFIRMATION=N
+L1_MAINSTEM_INPUT=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/input/L1.txt
+L1_AMERIFLUX_ONLY_INPUT=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/generated/L1_ameriflux_only.txt
+L1_AMERIFLUX_MAINSTEM_KEY=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/input/Ameriflux-Mainstem-Key.xlsx
+L1_AMERIFLUX_RUN_OUTPUT=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/generated/Sorghum_2021_L1.nc
+L1_AMERIFLUX=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/generated/L1_ameriflux.txt
+L1_AMERIFLUX_ERRORING_VARIABLES_KEY=/Users/xxx/ameriflux-pipeline/ameriflux_pipeline/data/pyfluxpro/input/L1_erroring_variables.xlsx
+
+L2_MAINSTEM_INPUT=/Users/xxx/data/pyfluxpro/input/L2_mainstem.txt
+L2_AMERIFLUX_ONLY_INPUT=/Users/xxx/data/pyfluxpro/input/L2_AF.txt
+L2_AMERIFLUX_RUN_OUTPUT=/Users/xxx/data/pyfluxpro/generated/Sorghum_2021_L2.nc
+L2_AMERIFLUX=/Users/xxx/data/pyfluxpro/generated/L2_ameriflux.txt
