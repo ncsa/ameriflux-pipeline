@@ -69,7 +69,7 @@ pip install -r requirements.txt
     - To run the python module with default parameters run ```python met_data_processor.py```
     - Run command example with all arguments:  
     ``` python met_data_processor.py --data /Users/xx/data/master_met/input/FluxSB_EC.dat,/Users/xx/data/master_met/input/FluxSB_EC.dat.9.backup,/Users/xx/data/master_met/input/FluxSB_EC.dat.10.backup --start 2021-01-01 --end 2021-12-31 --key /Users/xx/master_met/input/metmerger_key.xlsx --output /Users/xx/data/master_met/input/Flux.csv ```
-    - For more information on the parameters check the [metprocessor](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/metprocessor.md) documentation
+    - For more information on the parameters, check the [metprocessor](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/metprocessor.md) documentation
 - This creates a csv file with merged data from the raw dat files and a log file met_processor.log.
 
 7. Set necessary parameters for the pipeline execution
