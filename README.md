@@ -31,7 +31,7 @@ This automated code creates master meteorological data, runs EddyPro automatical
   - OR if you prefer to download a zip file, click "Download ZIP button" in [repo](https://github.com/ncsa/ameriflux-pipeline).
 
 2. Change working directory
-- In terminal, cd to repository by ```cd ameriflux-pipeline```
+- In terminal, cd to repository by typing ```cd ameriflux-pipeline```
 
 3. Set up python virtual environment
   - Using conda (recommended)
