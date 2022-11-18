@@ -55,6 +55,7 @@ This automated code creates master meteorological data, runs EddyPro automatical
 - The pipeline is tested on Python 3.8, with dependencies listed in [requirements.txt](https://github.com/ncsa/ameriflux-pipeline/blob/develop/requirements.txt).
 - To install these Python dependencies, please run following command terminal within the newly created virtual environment
 ```
+python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
