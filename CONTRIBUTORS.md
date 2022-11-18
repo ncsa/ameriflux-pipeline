@@ -1,9 +1,9 @@
 The following is a list of contributors in alphabetical order
 =============================================================
 
-* **Yong Wook Kim**
-* **Carl Bernacchi**
-* **Rob Kooper**
-* **Minu Mathew**
 * **Bethany Blakely**
-* **Katie Bowman**
+* **Carl Bernacchi**
+* **Minu Mathew**
+* **Rob Kooper**
+* **Taylor Pederson**
+* **Yong Wook Kim**
