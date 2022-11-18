@@ -100,7 +100,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Documentation on pipeline module. [#362](https://github.com/ncsa/ameriflux-pipeline/issues/362)
 - Added example env file. [#368](https://github.com/ncsa/ameriflux-pipeline/issues/368)
 
-
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
 - Precipitation threshold values read as floating numbers. [#75](https://github.com/ncsa/ameriflux-pipeline/issues/75)
@@ -129,6 +128,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Input validation and error logs for Pyfluxpro L1 and L2. [#247](https://github.com/ncsa/ameriflux-pipeline/issues/247)
 - Eddypro run finish log message. [#245](https://github.com/ncsa/ameriflux-pipeline/issues/245)
 - Pyfluxpro label variable mapping in L2. [#261](https://github.com/ncsa/ameriflux-pipeline/issues/261)
+- File path converted to raw string in eddypro project file. [#372](https://github.com/ncsa/ameriflux-pipeline/issues/372)
 
 ### Changed
 - AmeriFlux L1 formatting variable names in env editor [#118](https://github.com/ncsa/ameriflux-pipeline/issues/118)

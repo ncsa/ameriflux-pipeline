@@ -155,7 +155,7 @@ class RunEddypro:
                 # 'file_name'
                 if words[0].lower() == 'file_name':
                     if len(words[1]) > 0 and len(file_name) > 0:
-                        line = 'file_name=' + os.path.abspath(outfile)
+                        line = 'file_name=' + os.path.abspath(fr"{outfile}")
 
                 # 'project_title'
                 if words[0].lower() == 'project_title':
@@ -175,27 +175,27 @@ class RunEddypro:
                 # 'proj_file'
                 if words[0].lower() == 'proj_file':
                     if len(words[1]) > 0 and len(proj_file) > 0:
-                        line = 'proj_file=' + os.path.abspath(proj_file)
+                        line = 'proj_file=' + os.path.abspath(fr"{proj_file}")
 
                 # 'dyn_metadata_file'
                 if words[0].lower() == 'dyn_metadata_file':
                     if len(words[1]) > 0 and len(dyn_metadata_file) > 0:
-                        line = 'dyn_metadata_file=' + os.path.abspath(dyn_metadata_file)
+                        line = 'dyn_metadata_file=' + os.path.abspath(fr"{dyn_metadata_file}")
 
                 # 'out_path'
                 if words[0].lower() == 'out_path':
                     if len(words[1]) > 0 and len(out_path) > 0:
-                        line = 'out_path=' + os.path.abspath(out_path)
+                        line = 'out_path=' + os.path.abspath(fr"{out_path}")
 
                 # 'data_path'
                 if words[0].lower() == 'data_path':
                     if len(words[1]) > 0 and len(data_path) > 0:
-                        line = 'data_path=' + os.path.abspath(data_path)
+                        line = 'data_path=' + os.path.abspath(fr"{data_path}")
 
                 # 'biom_file'
                 if words[0].lower() == 'biom_file':
                     if len(words[1]) > 0 and len(biom_file) > 0:
-                        line = 'biom_file=' + os.path.abspath(biom_file)
+                        line = 'biom_file=' + os.path.abspath(fr"{biom_file}")
 
                 out_proj_file_line_list.append(line.strip())
 
