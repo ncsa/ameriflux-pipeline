@@ -359,7 +359,7 @@ def pre_processing(file_meta_data_file, erroring_variable_flag, run_flag):
         # check if edddypro_formatted_met_file variable got defined
         try:
             eddypro_formatted_met_file
-        except NameError:
+        except (NameError, UnboundLocalError) as e:
             eddypro_formatted_met_file = None
 
         if eddypro_formatted_met_file is None:
@@ -394,7 +394,7 @@ def pre_processing(file_meta_data_file, erroring_variable_flag, run_flag):
             eddypro_formatted_met_file
             site_soil_moisture_variables
             site_soil_temp_variables
-        except NameError:
+        except (NameError, UnboundLocalError) as e:
             eddypro_formatted_met_file, site_soil_moisture_variables, site_soil_temp_variables = \
                 eddypro_preprocessing(file_meta_data_file)
 
