@@ -25,10 +25,10 @@ This automated code creates master meteorological data, runs EddyPro automatical
 
 ## Installation
 
-1. Get the GitHub repository
-- Get a copy of the repository by either
-  - git clone command using Git ```git clone https://github.com/ncsa/ameriflux-pipeline.git``` or
-  - downloading the repository from [github](https://github.com/ncsa/ameriflux-pipeline) "Download ZIP" button.
+1. Get the code from GitHub repository
+- Get a copy of the repository to your local machine.
+  - Using Git clone ```git clone https://github.com/ncsa/ameriflux-pipeline.git``` 
+  - OR if you prefer to download a zip file, click "Download ZIP button" in [repo](https://github.com/ncsa/ameriflux-pipeline).
 
 2. Change working directory
 - In terminal, cd to repository by ```cd ameriflux-pipeline```
@@ -39,7 +39,7 @@ This automated code creates master meteorological data, runs EddyPro automatical
   conda create --prefix=venv python=3.8
   conda activate venv
   ```
-  - Using Python virtualenv package
+  - OR if you prefer python virtualenv package
     - Linux or MAC:
     ```
     virtualenv -p python3.8 venv
@@ -47,13 +47,13 @@ This automated code creates master meteorological data, runs EddyPro automatical
     ```
     - Windows:
     ```
-    python -m venv env
+    python3 -m venv env
     .\env\Scripts\activate
     ```
 
 4. Install dependencies:
-- The pipeline is tested on Python 3.8, with dependencies listed in requirements.txt.
-- To install these Python dependencies, please run following command in your virtual environment
+- The pipeline is tested on Python 3.8, with dependencies listed in [requirements.txt](https://github.com/ncsa/ameriflux-pipeline/blob/develop/requirements.txt).
+- To install these Python dependencies, please run following command terminal within the newly created virtual environment
 ```
 pip install -r requirements.txt
 ```
@@ -61,31 +61,37 @@ pip install -r requirements.txt
 5. To run python modules, cd to ameriflux_pipeline directory ```cd ameriflux_pipeline```
 
 6. If multiple dat files needs to be merged for a specific time span of meteorological data, user can execute the [metprocessor](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/metprocessor.md) module by either GUI or command line.
-- run ```python metprocessor.py``` to launch a GUI 
-- run ```python met_data_processor.py``` in command line
-  - To request all command line parameters, please run ```python met_data_processor.py --help``` 
-  - data parameter takes in comma separated file paths. This is a mandatory field. If not specified, the code will ask for user inputs at run time.
-  - start parameter takes in the start date for merger, given in yyyy-mm-dd format. This will later be expanded to support any plausible date formats. If not given, by default it takes in 2021-01-01
-  - end parameter takes in the end date for merger, given in yyyy-mm-dd format. This will later be expanded to support any plausible date formats. If not given, by default it takes in 2021-12-31
-  - output parameter takes in the full output path of a csv file which will write the merged output to. By default it will write to master_met/input/Flux.csv
-  - key parameter takes in an excel file that lets user rename met tower variables. If not specified, variables are not renamed. This is the default behaviour.
-  - To run the python module with default parameters run ```python met_data_processor.py```
-  - Run command example with all arguments:  
-  ``` python met_data_processor.py --data /Users/xx/data/master_met/input/FluxSB_EC.dat,/Users/xx/data/master_met/input/FluxSB_EC.dat.9.backup,/Users/xx/data/master_met/input/FluxSB_EC.dat.10.backup --start 2021-01-01 --end 2021-12-31 --key /Users/xx/master_met/input/metmerger_key.xlsx --output /Users/xx/data/master_met/input/Flux.csv ```
+- Using GUI (recommended)
+  - type ```python metprocessor.py``` in command prompt/terminal. 
+- OR if you prefer to use command line
+  - type ```python met_data_processor.py``` in command prompt/terminal
+    - To request all command line parameters, please run ```python met_data_processor.py --help``` 
+    - To run the python module with default parameters run ```python met_data_processor.py```
+    - Run command example with all arguments:  
+    ``` python met_data_processor.py --data /Users/xx/data/master_met/input/FluxSB_EC.dat,/Users/xx/data/master_met/input/FluxSB_EC.dat.9.backup,/Users/xx/data/master_met/input/FluxSB_EC.dat.10.backup --start 2021-01-01 --end 2021-12-31 --key /Users/xx/master_met/input/metmerger_key.xlsx --output /Users/xx/data/master_met/input/Flux.csv ```
+    - For more information on the parameters check the [metprocessor](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/metprocessor.md) documentation
 - This creates a csv file with merged data from the raw dat files and a log file met_processor.log.
 
-6. Set necessary parameters for the pipeline execution
-- Users can configure the settings for the pipeline by using the [GUI](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/enveditor.md)(recommended) or directly modifying the .env file
-- Execute `python enveditor.py` in command prompt to launch the GUI.
-- Or if you prefer to modify the .env file
-  - Give the full path to all input and output file location.
+7. Set necessary parameters for the pipeline execution
+- Users can configure the settings for the pipeline by using the [enveditor GUI](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/enveditor.md) (recommended) or directly modifying the .env file
+  - Using GUI
+    - Type `python enveditor.py` in command prompt/terminal to launch the GUI.
+    - There are buttons for more information and description on each item. 
+    - All settings have a default value (including input file paths and file types).
+    - Save button at the bottom will generate .env file in the proper location.
+  - OR if you prefer to modify the .env file
+    - Give the full path to all input and output file locations.
+    - See [.example-env](https://github.com/ncsa/ameriflux-pipeline/blob/develop/ameriflux_pipeline/.example-env) for a template .env file
+- These settings will be used to run the pipeline as described in step 8.
 - Details about the parameters are described in [enveditor](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/enveditor.md).
 
-7. To execute the pipeline as per user configurations, users can choose to run via GUI (recommended) by using command line.
+8. Once the configurations are set, users can run by pipeline via GUI (recommended) or command line. The [pipeline](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/pipeline.md) is modularized to enable users to run each module separately.
    1. Execute the [pre-pyfluxpro](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/prepyfluxpro.md) module, which does all processing till the generation of Pyfluxpro L1 and L2 control files
-      - run ```python pipeline.py``` to launch a GUI and click the "Run" button for "Run Pre-Pyfluxpro process" OR 
-      - run ```python pre_pyfluxpro.py``` in command line
-      - This creates 
+      - Using GUI (recommended)
+        - Type ```python pipeline.py``` in command prompt/terminal to launch a GUI and click the "Run" button for "Run Pre-Pyfluxpro process".
+      - Or if you prefer command line
+        - Type ```python pre_pyfluxpro.py``` in command prompt/terminal.
+      - The pre-pyfluxpro module creates 
         - master meteorological data, 
         - master meteorological data formatted for eddypro, 
         - eddypro full output, 
@@ -95,21 +101,16 @@ pip install -r requirements.txt
         - log file pre_pyfluxpro.log, and log file for eddypro run in eddypro output folder.
    2. Launch the PyFluxPro software by following the instructions [here](https://github.com/OzFlux/PyFluxPro).
       - Run PyFluxPro version 3.3.2 with the generated L1 and L2 control files to produce graphs and perform quality checks on the data.
-      - Make changes to the [settings](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/enveditor.md) or data if neccessary and re-run the pre-pyfluxpro module
+      - Make changes to the [settings](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/enveditor.md) or data and re-run the pre-pyfluxpro module (or sub-modules) if necessary.
    3. Execute the [post-pyfluxpro](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/postpyfluxpro.md) module to create the Ameriflux submission-ready csv file.
-      - run ```python pipeline.py``` to launch a GUI and click the "Run" button for "Run Post-Pyfluxpro process" OR 
-      - run ```python post_pyfluxpro.py``` in command line
-      - The log file is post_pyfluxpro.log.
-   4. Users can choose to execute sub-modules within the pre-pyfluxpro module. See [pipeline](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/pipeline.md) module for details
-
-8. Example .env file
-- User settings for the entire pipeline run is read from the .env file
-- Using [enveditor](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/enveditor.md) GUI is recommended to change the configurations, rather than directly modifying config.py file or .env file.
-- There are buttons for more information and description on each item. 
-- All settings has a default set value (including input file paths and file types).
-- Save button at the bottom will generate .env file in the proper location.
-- See .example.env for a template .env file
-  
+      - Using GUI (recommended)
+        - Type ```python pipeline.py``` in command prompt/terminal to launch a GUI and click the "Run" button for "Run Post-Pyfluxpro process".
+      - OR if you prefer command line
+        - Type ```python post_pyfluxpro.py``` in command prompt/terminal. 
+      - The post-pyfluxpro module creates 
+        - Ameriflux submission-ready csv file,
+        - log file post_pyfluxpro.log
+   4. Users can choose to execute sub-modules within the pre-pyfluxpro module. See [pipeline](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/pipeline.md) module for details. 
 
 ## Repository Files :
 - ameriflux-pipeline is the main github repo
