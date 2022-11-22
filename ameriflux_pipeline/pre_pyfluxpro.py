@@ -46,7 +46,7 @@ logging.basicConfig(level=logging.INFO, datefmt='%Y-%m-%dT%H:%M:%S',
 log = logging.getLogger(__name__)
 
 # flag to check if fulloutput and metdata sheet in pyfluxpro_input.xlsx sheet has overlapping timestamps
-pyfluxpro_overlap_timestamp_check = True  # setting to true checks for overlap
+pyfluxpro_overlap_timestamp_check = cfg.PYFLUXPRO_OVERLAP_TIMESTAMP  # setting to true checks for overlap
 
 
 def input_validation():
