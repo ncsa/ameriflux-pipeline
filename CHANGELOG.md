@@ -130,6 +130,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Pyfluxpro label variable mapping in L2. [#261](https://github.com/ncsa/ameriflux-pipeline/issues/261)
 - File path converted to raw string in eddypro project file. [#372](https://github.com/ncsa/ameriflux-pipeline/issues/372)
 - Catch UnboundLocalError exception. [#374](https://github.com/ncsa/ameriflux-pipeline/issues/374)
+- Use validate method for all input validations. [#314](https://github.com/ncsa/ameriflux-pipeline/issues/314)
 
 ### Changed
 - AmeriFlux L1 formatting variable names in env editor [#118](https://github.com/ncsa/ameriflux-pipeline/issues/118)
