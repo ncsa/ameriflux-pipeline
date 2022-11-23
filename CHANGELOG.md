@@ -162,3 +162,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Updated README. [#366](https://github.com/ncsa/ameriflux-pipeline/issues/366)
 - Updated README to make command line vs GUI explicit. [#371](https://github.com/ncsa/ameriflux-pipeline/issues/371)
 - Moved pyfluxpro overlap timestamp check to config. [#341](https://github.com/ncsa/ameriflux-pipeline/issues/341)
+- Minor changes to precipitation QAQC. [#330](https://github.com/ncsa/ameriflux-pipeline/issues/330)
