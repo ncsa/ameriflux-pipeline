@@ -42,8 +42,8 @@ class MasterMetProcessor:
             missing_time_threshold (int): Number of missing timeslot threshold. Used for both met data and precip data
             user_confirmation (str) : User decision on whether to insert,
                                         ignore or ask during runtime in case of large number of missing timestamps
-            met_timeperiod (int): Time period for one record of meteorological data
-            precip_timeperiod (int): Time period for one record of precipitation data
+            met_timeperiod (float): Time period for one record of meteorological data
+            precip_timeperiod (float): Time period for one record of precipitation data
         Returns:
             df (obj): Pandas DataFrame object, processed df
             file_meta (obj) : Pandas DataFrame object, meta data of file
@@ -293,7 +293,7 @@ class MasterMetProcessor:
             precip_upper (int) : Upper threshold value for precipitation in inches
             missing_time_threshold (int): Value for missing timeslot threshold. used for insert_missing_time method
             user_confirmation (str) : Option to either insert or ignore missing timestamps
-            precip_timeperiod (int): Time period for one record of precipitation data
+            precip_timeperiod (float): Time period for one record of precipitation data
         Returns:
             obj: Pandas DataFrame object
         """
@@ -360,16 +360,21 @@ class MasterMetProcessor:
                 time_flag = True
                 break
 
-        # there are more than 1 column that matches precipitation. There could be precip in inches and mm.
+        # there are more than 1 column that matches precipitation. There could be precip in inches, mm or cm.
         for col in precip_col:
             if DataValidation.float_validation(df[col].iloc[df[col].first_valid_index()]):
-                if any(inch_unit in col for inch_unit in ['(in)', 'inches', '(inches)']):
+                if any(inch_unit in col.lower() for inch_unit in ['(in)', 'inches', '(inches)']):
                     df['Precipitation_in'] = df[col]
                     precip_flag = True
                     break
-                elif any(mm_unit in col for mm_unit in ['(mm)', 'mm', 'millimeter', 'millimeters',
-                                                        '(millimeter)', '(millimeters)']):
+                elif any(mm_unit in col.lower() for mm_unit in ['(mm)', 'mm', 'millimeter', 'millimeters',
+                                                                '(millimeter)', '(millimeters)']):
                     df['Precipitation_in'] = df[col] / 25.4  # convert mm to inches
+                    precip_flag = True
+                    break
+                elif any(cm_unit in col.lower() for cm_unit in ['(cm)', 'cm', 'centimeter', 'centimeters',
+                                                                '(centimeter)', '(centimeters)']):
+                    df['Precipitation_in'] = df[col] / 2.54  # convert cm to inches
                     precip_flag = True
                     break
 
@@ -399,14 +404,14 @@ class MasterMetProcessor:
             precip_upper (float) : Upper threshold value for precipitation in inches
             missing_time_threshold (int): Value for missing timeslot threshold. used for insert_missing_time method
             user_confirmation (str) : Option to either insert or ignore missing timestamps
-            precip_timeperiod (int): Time period for one record of precipitation data
+            precip_timeperiod (float): Time period for one record of precipitation data
         Returns:
             obj (Pandas DataFrame object): processed and cleaned precip dataframe
         """
         # check timestamps, if present for every 5 min
         df['timedelta'] = MasterMetProcessor.get_timedelta(df['Timestamp'])
         log.info("Checking for missing timestamps in precip data")
-        precip_timeperiod = 5.0
+
         df, insert_flag = \
             MasterMetProcessor.insert_missing_timestamp(df, 'Timestamp', precip_timeperiod,
                                                         missing_time_threshold, user_confirmation)
