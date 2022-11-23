@@ -56,23 +56,12 @@ def input_validation():
     Returns :
         (bool): True if input data is valid, False if not
     """
-    if not InputValidation.server_sync():
+    if InputValidation.validate():
+        log.info("User input validations complete")
+        return True
+    else:
+        log.error("Error in user settings")
         return False
-    if not InputValidation.master_met():
-        return False
-    if not InputValidation.master_met_eddypro():
-        return False
-    if not InputValidation.eddypro_headless():
-        return False
-    if not InputValidation.pyfluxpro():
-        return False
-    if not InputValidation.l1format():
-        return False
-    if not InputValidation.l2format():
-        return False
-
-    log.info("User input validations complete")
-    return True
 
 
 def eddypro_preprocessing(file_meta_data_file):
