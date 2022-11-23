@@ -50,26 +50,26 @@ class MetMergerGUI:
         self.IS_CALENDAR_START = True
         self.ERROR_DATE = "The end date is earlier than start date."
         self.ERROR_IN_DATE = "No input data has been selected."
-        self.INFO_OUT_DATA_GENERATED = "Output meteorology data has been generated."
+        self.INFO_OUT_DATA_GENERATED = "Output meteorological data has been generated."
         self.WORKING_DIRECTORY = ""
 
         # start date
         self.START_DATE_LOCAL_VALUE = ""
         self.LABEL_START_DATE = " Set start date"
-        self.DESC_START_DATE = " start date for the output Meteorology data."
-        self.INFO_START_DATE = "The date will be used as the start date for the output meteorology data."
+        self.DESC_START_DATE = " start date for the output meteorological data."
+        self.INFO_START_DATE = "The date will be used as the start date for the output meteorological data."
 
         # end date
         self.END_DATE_LOCAL_VALUE = ""
         self.LABEL_END_DATE = " Set end date"
-        self.DESC_END_DATE = " end date for the output meteorology data."
-        self.INFO_END_DATE = "The date will be used as the end date for the output meteorology data."
+        self.DESC_END_DATE = " end date for the output meteorological data."
+        self.INFO_END_DATE = "The date will be used as the end date for the output meteorological data."
 
         # input data
         self.LABEL_INPUT_DATA = " Select input data"
-        self.BROWSE_INPUT_DATA = " input meteorology data."
-        self.DESC_INPUT_DATA = " input meteorology data."
-        self.INFO_INPUT_DATA = "The date will be used for creating the output meteorology data."
+        self.BROWSE_INPUT_DATA = " input meteorological data."
+        self.DESC_INPUT_DATA = " input meteorological data."
+        self.INFO_INPUT_DATA = "The date will be used for creating the output meteorological data."
 
         # key file checkbox
         self.CHECK_ON_OFF = 0
@@ -80,18 +80,18 @@ class MetMergerGUI:
                              "the met data and the names to be changed."
 
         # out data
-        self.BROWSE_OUTPUT_PATH = " Output meteorology data"
-        self.DESC_OUTPUT_PATH = " output meteorology data after all input data get merged."
-        self.INFO_OUTPUT_PATH = "The output meteorology data after all input data get merged from start to end date"
+        self.BROWSE_OUTPUT_PATH = " Output meteorological data"
+        self.DESC_OUTPUT_PATH = " output meteorological data after all input data get merged."
+        self.INFO_OUTPUT_PATH = "The output meteorological data after all input data get merged from start to end date"
 
         # create button
-        self.SAVE_LABEL = "Generate output meteorology data"
+        self.SAVE_LABEL = "Generate output meteorological data"
         self.GENERATE = "Generate"
 
     def run(self):
         # create main gui window
         root = tk.Tk()
-        root.title("AmeriFlux Pipeline Environment Setter")
+        root.title("AmeriFlux Pipeline Met-Processor")
         root.geometry("800x800")
 
         # create a main frame

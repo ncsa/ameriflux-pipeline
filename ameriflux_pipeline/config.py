@@ -138,3 +138,7 @@ class Config:
     MET_TIMEPERIOD = 30.0
     # set precipitation data timeperiod
     PRECIP_TIMEPERIOD = 5.0
+
+    # PyFluxpro overlap timestamp
+    # flag to check if fulloutput and metdata sheet in pyfluxpro_input.xlsx sheet has overlapping timestamps
+    PYFLUXPRO_OVERLAP_TIMESTAMP = True  # setting to true checks for overlap

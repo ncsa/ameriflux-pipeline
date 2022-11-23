@@ -96,9 +96,9 @@ This document will describe the pre_pyfluxpro.py module
 - This method calls the [pyfluxproformat](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/pyfluxpro/pyfluxproformat.md) module to format the eddypro full output sheet (one of several EddyPro outputs) to pyfluxpro standards.
 - If formatting of the full_output sheet is not successful, an error message is logged and process aborted.
 - The PyFluxPro software will throw an error if the met data sheet and the full output sheet do not have an overlapping timestamps.
-- This is checked by setting the [pyfluxpro_overlap_timestamp_check](https://github.com/ncsa/ameriflux-pipeline/blob/develop/ameriflux_pipeline/pre_pyfluxpro.py#L49) to True.
+- This is checked by setting the [PYFLUXPRO_OVERLAP_TIMESTAMP](https://github.com/ncsa/ameriflux-pipeline/blob/develop/ameriflux_pipeline/config.py#L142) flag to True.
 - If this is set to True, the pyfluxpro_input excel sheet is created only if the met data sheet and eddypro full output sheet has at least 1 common timestamp.
-- If this condition is to be ignored, set the pyfluxpro_overlap_timestamp_check to False.
+- If this condition is to be ignored, set the PYFLUXPRO_OVERLAP_TIMESTAMP to False. See [config.md](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/config.md) for details.
 
 ### 12
 - Two sheets are needed to create the PyFluxPro input sheet: the eddypro full output and the master meteorological data. The pyfluxpro_processing() method writes the eddypro full_output sheet to env variable FULL_OUTPUT_PYFLUXPRO and writes the master meteorological data to MET_DATA_30_PYFLUXPRO.
