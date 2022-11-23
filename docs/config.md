@@ -13,8 +13,8 @@ This document will describe the config.py module
   - PRECIP_TIMEPERIOD gives the timeperiod (in minutes) of one record in percipitation data file. This is set as 5.0.
     - User can modify these settings [here](https://github.com/ncsa/ameriflux-pipeline/blob/develop/ameriflux_pipeline/config.py#L137).
   - PYFLUXPRO_OVERLAP_TIMESTAMP flag checks if eddypro fulloutput sheet and metdata sheet in pyfluxpro_input.xlsx sheet need to have overlapping timestamps.
-    - If set to true, eddypro fulloutput sheet and metdata sheet needs to have overlapping timestamps. If not, the pyfluxpro data processing is aborted.
-    - If set to False, the check for overlapping timestamp is not performed.
+    - If set to true, eddypro fulloutput sheet and metdata sheet needs to have overlapping timestamps. If not, the pyfluxpro data processing will be aborted.
+    - If set to False, the check for overlapping timestamp will not be executed.
     - User can modify these settings [here](https://github.com/ncsa/ameriflux-pipeline/blob/develop/ameriflux_pipeline/config.py#L142).
 - Users can change the configuration settings by modifying the [config](https://github.com/ncsa/ameriflux-pipeline/blob/develop/ameriflux_pipeline/config.py) module.
 - The default values can be changed by modifying the second parameter in ```os.getenv()``` function for the corresponding settings.
