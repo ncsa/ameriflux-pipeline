@@ -55,31 +55,31 @@ class Pipeline:
         self.WORKING_DIRECTORY = ""
 
         # Run Pre PyFluxPro
-        self.RUN_PRE_PYFLUXPRO = "Run pre PyfluxPro process"
-        self.DESC_PRE_PYFLUXPRO = " run whole pre pyfluxpro pipeline."
+        self.RUN_PRE_PYFLUXPRO = "Run Pre-PyfluxPro Process"
+        self.DESC_PRE_PYFLUXPRO = " run entire Pre-PyFluxPro pipeline."
         self.INFO_PRE_PYFLUXPRO = "This will run whole pre pyfluxpro pipeline process, " \
                                   "including eddypro run and input files for pyfluxpro."
 
         # Run Post PyFluxPro
-        self.RUN_POST_PYFLUXPRO = "Run post PyfluxPro process"
-        self.DESC_POST_PYFLUXPRO = " run whole post pyfluxpro pipeline."
+        self.RUN_POST_PYFLUXPRO = "Run Post-PyfluxPro Process"
+        self.DESC_POST_PYFLUXPRO = " run entire Post-PyFluxPro pipeline."
         self.INFO_POST_PYFLUXPRO = "This will run whole post pyfluxpro pipeline process, " \
                                    "including the generation of AmeriFlux site submission file."
 
         # Run Eddypro data processor
-        self.RUN_EDDYPRO_PROCESSOR = "Run EddyPro data preparation"
-        self.DESC_EDDYPRO_PROCESSOR = " run eddypro data preparation process."
+        self.RUN_EDDYPRO_PROCESSOR = "Run EddyPro Data Preparation"
+        self.DESC_EDDYPRO_PROCESSOR = " run EddyPro data preparation process."
         self.INFO_EDDYPRO_PROCESSOR = "This will run eddypro data preparation process that will " \
                                       "needed for running the eddypro."
 
         # Run Eddypro
-        self.RUN_EDDYPRO = "Run EddyPro application"
-        self.DESC_EDDYPRO_RUN = " run eddypro application."
+        self.RUN_EDDYPRO = "Run EddyPro Application"
+        self.DESC_EDDYPRO_RUN = " run EddyPro application."
         self.INFO_EDDYPRO_RUN = "This will run eddypro application with given datasets."
 
         # PyFluxPro data preparation
-        self.RUN_PYFLUXPRO = "Run PyFluxPro data preparation"
-        self.DESC_PYFLUXPRO = " run pypluxpro data prepartion."
+        self.RUN_PYFLUXPRO = "Run PyFluxPro Data Preparation"
+        self.DESC_PYFLUXPRO = " run PyFluxPro data preparation."
         self.INFO_PYFLUXPRO = "This will run pyfluxpro data preparation process for running pyfluxpro."
 
     def run(self):
