@@ -99,6 +99,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Documentation on process validation module. [#356](https://github.com/ncsa/ameriflux-pipeline/issues/356)
 - Documentation on pipeline module. [#362](https://github.com/ncsa/ameriflux-pipeline/issues/362)
 - Added example env file. [#368](https://github.com/ncsa/ameriflux-pipeline/issues/368)
+- Version recommendation on running EddyPro and PyFluxPro in README. [#381](https://github.com/ncsa/ameriflux-pipeline/issues/381)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
