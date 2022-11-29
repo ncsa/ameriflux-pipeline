@@ -1,0 +1,917 @@
+level = L1
+[Files]
+    file_path = C:\sorghum\
+    in_filename = Sorghum_2020_L1_20211019.xlsx
+    in_headerrow = 2
+    in_firstdatarow = 5
+    out_filename = Sorghum_2020_L1.nc
+[Global]
+    acknowledgement = '''This work used eddy covariance data collected by the University of Illinois. Data
+were processed using the PyFluxPro system developed by Dr Peter Isaac and OzFlux.'''
+    contact = Carl Bernacchi - bernacch@illinois.edu, Bethany Blakely - blakely6@illionois.edu, Caitlin Moore - caitlinm@illinois.edu
+    canopy_height = 0.1 m to 4.0 m
+    comment = CF metadata, OzFlux standard variable names
+    history = June 2021 processing
+    institution = University of Illinois, Urbana-Champaign
+    latitude = 40.062819
+    longitude = -88.203277
+    references = None
+    site_name = Sorghum
+    site_pi = Carl Bernacchi
+    soil = silt loam Flanagan
+    source = Flux tower above the canopy
+    title = Flux tower data set from the Sorghum site for the calendar year 2020
+    time_step = 30
+    time_zone = US/Central
+    tower_height = 1.5-4m
+    vegetation = Sorghum bicolor annual crop
+    altitude = 224m
+    fluxnet_id = 
+    data_link = 
+    metadata_link = 
+    ozflux_link = http://ozflux.org.au/
+    Conventions = CF-1.8
+    license_name = CC BY 4.0
+    license = https://creativecommons.org/licenses/by/4.0/
+    publisher_name = TERN Ecosystem Processes,OzFlux
+[Variables]
+    [[AH_HMP_3m]]
+        [[[Attr]]]
+            height = 5m
+            instrument = HMP60
+            long_name = Absolute humidity
+            standard_name = mass_concentration_of_water_vapor_in_air
+            statistic_type = average
+            units = g/m^3
+        [[[xl]]]
+            name = Ah_fromRH
+            sheet = Met_data_30
+    [[CO2_IRGA_Av]]
+        [[[Attr]]]
+            height = 4m
+            instrument = LI-7500DS
+            long_name = CO2 concentration
+            statistic_type = average
+            units = umol/mol
+            standard_name = mole_fraction_of_carbon_dioxide_in_air
+        [[[xl]]]
+            name = co2_mixing_ratio
+            sheet = full_output
+    [[CO2_IRGA_Vr]]
+        [[[Attr]]]
+            height = 4m
+            instrument = LI-7500DS
+            long_name = CO2 concentration
+            statistic_type = variance
+            units = mmol^2/m^6
+        [[[xl]]]
+            name = co2_var
+            sheet = full_output
+    [[ET]]
+        [[[Attr]]]
+            height = 4m
+            instrument = LI-7500DS & RM Young 81000
+            long_name = Evapotranspiration
+            standard_name = water_evapotranspiration_flux
+            statistic_type = average
+        [[[xl]]]
+            name = ET
+            sheet = full_output
+    [[Fco2]]
+        [[[Attr]]]
+            height = 4m
+            instrument = LI-7500DS & RM Young 81000
+            long_name = CO2 flux
+            statistic_type = average
+            units = umol/m^2/s
+            standard_name = surface_upward_mole_flux_of_carbon_dioxide
+        [[[xl]]]
+            name = co2_flux
+            sheet = full_output
+    [[Fco2_EP_QC]]
+        [[[Attr]]]
+            height = 4m
+            instrument = LI-7500DS & RM Young 81000
+            long_name = CO2 flux EddyPro QC flag
+            units = 1
+            statistic_type = average
+        [[[xl]]]
+            name = qc_co2_flux
+            sheet = full_output
+    [[Fco2_Rerr]]
+        [[[Attr]]]
+            instrument = LI-7500DS & RM young 81000
+            long_name = CO2 flux
+            standard_name = surface_upward_mole_flux_of_carbon_dioxide
+            statistic_type = average
+            units = umol/m^2/s
+        [[[xl]]]
+            name = rand_err_co2_flux
+            sheet = full_output
+    [[Fe]]
+        [[[Attr]]]
+            height = 4m
+            instrument = LI-7500DS & RM Young 81000
+            long_name = Latent heat flux
+            standard_name = surface_upward_latent_heat_flux
+            statistic_type = average
+            units = W/m^2
+        [[[xl]]]
+            name = LE
+            sheet = full_output
+    [[Fe_EP_QC]]
+        [[[Attr]]]
+            height = 4m
+            instrument = LI-7500DS & RM Young 81000
+            long_name = Latent heat flux EddyPro QC flag
+            units = 1
+            statistic_type = average
+        [[[xl]]]
+            name = qc_LE
+            sheet = full_output
+    [[Fe_Rerr]]
+        [[[Attr]]]
+            instrument = LI-7500DS & RM young 81000
+            long_name = Latent heat flux
+            standard_name = surface_upward_latent_heat_flux
+            statistic_type = average
+            units = W/m^2
+        [[[xl]]]
+            name = rand_err_LE
+            sheet = full_output
+    [[Fg_10cma]]
+        [[[Attr]]]
+            height = -0.1m
+            instrument = Hukseflux
+            long_name = Ground heat flux
+            standard_name = downward_heat_flux_at_ground_level_in_soil
+            statistic_type = average
+            units = W/m^2
+        [[[xl]]]
+            name = shf_Avg(1)
+            sheet = Met_data_30
+    [[Fg_10cmb]]
+        [[[Attr]]]
+            height = -0.1m
+            instrument = Hukseflux
+            long_name = Ground heat flux
+            standard_name = downward_heat_flux_at_ground_level_in_soil
+            statistic_type = average
+            units = W/m^2
+        [[[xl]]]
+            name = shf_Avg(2)
+            sheet = Met_data_30
+    [[Fh]]
+        [[[Attr]]]
+            height = 4m
+            instrument = LI-7500DS & RM Young 81000
+            long_name = Sensible heat flux
+            standard_name = surface_upward_sensible_heat_flux
+            statistic_type = average
+            units = W/m^2
+        [[[xl]]]
+            name = H
+            sheet = full_output
+    [[Fh_EP_QC]]
+        [[[Attr]]]
+            height = 4m
+            instrument = LI-7500DS & RM Young 81000
+            long_name = Sensible heat flux EddyPro QC flag
+            units = 1
+            statistic_type = average
+        [[[xl]]]
+            name = qc_H
+            sheet = full_output
+    [[Fh_Rerr]]
+        [[[Attr]]]
+            instrument = LI-7500DS & RM young 81000
+            long_name = Sensible heat flux
+            standard_name = surface_upward_sensible_heat_flux
+            statistic_type = average
+            units = W/m^2
+        [[[xl]]]
+            name = rand_err_H
+            sheet = full_output
+    [[Fld]]
+        [[[Attr]]]
+            height = 5m
+            instrument = Kipp and Zonen CNR4
+            long_name = Down-welling longwave radiation
+            standard_name = surface_downwelling_longwave_flux_in_air
+            statistic_type = average
+            units = W/m^2
+        [[[xl]]]
+            name = LWDnCo_Avg
+            sheet = Met_data_30
+    [[Flu]]
+        [[[Attr]]]
+            height = 5m
+            instrument = Kipp and Zonen CNR4
+            long_name = Up-welling longwave radiation
+            standard_name = surface_upwelling_longwave_flux_in_air
+            statistic_type = average
+            units = W/m^2
+        [[[xl]]]
+            name = LWUpCo_Avg
+            sheet = Met_data_30
+    [[Fm]]
+        [[[Attr]]]
+            height = 4m
+            instrument = RM Young 81000
+            long_name = Momentum flux
+            statistic_type = average
+            units = kg/m/s^2
+            standard_name = magnitude_of_surface_downward_stress
+        [[[xl]]]
+            name = Tau
+            sheet = full_output
+    [[Fm_EP_QC]]
+        [[[Attr]]]
+            height = 4m
+            instrument = RM Young 81000
+            long_name = Momentum flux EddyPro QC flag
+            units = 1
+            statistic_type = average
+        [[[xl]]]
+            name = qc_Tau
+            sheet = full_output
+    [[Fn_NR]]
+        [[[Attr]]]
+            height = 5m
+            instrument = Kipp and Zonen CNR4
+            long_name = Net radiation
+            standard_name = surface_net_downward_radiative_flux
+            statistic_type = average
+            units = W/m^2
+        [[[xl]]]
+            name = Rn_Avg
+            sheet = Met_data_30
+    [[Fpard]]
+        [[[Attr]]]
+            height = 5m
+            instrument = 190R Quantum Sensor
+            long_name = Down-welling photosynthetically active radiation
+            standard_name = surface_downwelling_photon_flux_in_air
+            units = umol/m^2/s
+            statistic_type = average
+        [[[xl]]]
+            name = PARDown_Avg
+            sheet = Met_data_30
+    [[Fparu]]
+        [[[Attr]]]
+            height = 5m
+            instrument = 190R Quantum Sensor
+            long_name = Reflected photosynthetically active radiation
+            standard_name = surface_upwelling_photon_flux_in_air
+            units = umol/m^2/s
+            statistic_type = average
+        [[[xl]]]
+            name = PARUp_Avg
+            sheet = Met_data_30
+    [[Fsd]]
+        [[[Attr]]]
+            height = 5m
+            instrument = Kipp and Zonen CNR4
+            long_name = Down-welling shortwave radiation
+            standard_name = surface_downwelling_shortwave_flux_in_air
+            statistic_type = average
+            units = W/m^2
+        [[[xl]]]
+            name = SWDn_Avg
+            sheet = Met_data_30
+    [[Fsu]]
+        [[[Attr]]]
+            height = 5m
+            instrument = Kipp and Zonen CNR4
+            long_name = Up-welling shortwave radiation
+            standard_name = surface_upwelling_shortwave_flux_in_air
+            statistic_type = average
+            units = W/m^2
+        [[[xl]]]
+            name = SWUp_Avg
+            sheet = Met_data_30
+    [[H2O_IRGA_Av]]
+        [[[Attr]]]
+            height = 4m
+            instrument = LI-7500DS
+            long_name = H2O concentration
+            statistic_type = average
+            units = mmol/mol
+            standard_name = mole_fraction_of_water_vapor_in_air
+        [[[xl]]]
+            name = h2o_mixing_ratio
+            sheet = full_output
+    [[H2O_IRGA_Vr]]
+        [[[Attr]]]
+            height = 4m
+            instrument = LI-7500DS
+            long_name = H2O concentration
+            statistic_type = variance
+            units = mmol^2/m^6
+        [[[xl]]]
+            name = h2o_var
+            sheet = full_output
+    [[Precip_IWS]]
+        [[[Attr]]]
+            long_name = Rainfall
+            standard_name = thickness_of_rainfall_amount
+            statistic_type = sum
+            units = mm
+        [[[xl]]]
+            name = Precip_IWS
+            sheet = Met_data_30
+    [[Sws_100cma]]
+        [[[Attr]]]
+            height = -1.0m
+            instrument = soilVUE
+            long_name = Soil water content
+            standard_name = volume_fraction_of_condensed_water_in_soil
+            statistic_type = average
+            units = m^3/m^3
+        [[[xl]]]
+            name = VWC1_100cm_Avg
+            sheet = Met_data_30
+    [[Sws_10cma]]
+        [[[Attr]]]
+            height = -0.1m
+            instrument = Hydra probe
+            long_name = Soil water content
+            standard_name = volume_fraction_of_condensed_water_in_soil
+            statistic_type = average
+            units = m^3/m^3
+        [[[xl]]]
+            name = Moisture6_Avg
+            sheet = Met_data_30
+    [[Sws_10cmb]]
+        [[[Attr]]]
+            height = -0.1m
+            instrument = Hydra probe
+            long_name = Soil water content
+            standard_name = volume_fraction_of_condensed_water_in_soil
+            statistic_type = average
+            units = m^3/m^3
+        [[[xl]]]
+            name = Moisture7_Avg
+            sheet = Met_data_30
+    [[Sws_10cmc]]
+        [[[Attr]]]
+            height = -0.1m
+            instrument = soilVUE
+            long_name = Soil water content
+            standard_name = volume_fraction_of_condensed_water_in_soil
+            statistic_type = average
+            units = m^3/m^3
+        [[[xl]]]
+            name = VWC1_10cm_Avg
+            sheet = Met_data_30
+    [[Sws_20cma]]
+        [[[Attr]]]
+            height = -0.2m
+            instrument = Hydra probe
+            long_name = Soil water content
+            standard_name = volume_fraction_of_condensed_water_in_soil
+            statistic_type = average
+            units = m^3/m^3
+        [[[xl]]]
+            name = Moisture4_Avg
+            sheet = Met_data_30
+    [[Sws_20cmb]]
+        [[[Attr]]]
+            height = -0.2m
+            instrument = Hydra probe
+            long_name = Soil water content
+            standard_name = volume_fraction_of_condensed_water_in_soil
+            statistic_type = average
+            units = m^3/m^3
+        [[[xl]]]
+            name = Moisture5_Avg
+            sheet = Met_data_30
+    [[Sws_20cmc]]
+        [[[Attr]]]
+            height = -0.2m
+            instrument = soilVUE
+            long_name = Soil water content
+            standard_name = volume_fraction_of_condensed_water_in_soil
+            statistic_type = average
+            units = m^3/m^3
+        [[[xl]]]
+            name = VWC1_20cm_Avg
+            sheet = Met_data_30
+    [[Sws_30cma]]
+        [[[Attr]]]
+            height = -0.3m
+            instrument = soilVUE
+            long_name = Soil water content
+            standard_name = volume_fraction_of_condensed_water_in_soil
+            statistic_type = average
+            units = m^3/m^3
+        [[[xl]]]
+            name = VWC1_30cm_Avg
+            sheet = Met_data_30
+    [[Sws_40cma]]
+        [[[Attr]]]
+            height = -0.4m
+            instrument = soilVUE
+            long_name = Soil water content
+            standard_name = volume_fraction_of_condensed_water_in_soil
+            statistic_type = average
+            units = m^3/m^3
+        [[[xl]]]
+            name = VWC1_40cm_Avg
+            sheet = Met_data_30
+    [[Sws_50cma]]
+        [[[Attr]]]
+            height = -0.5m
+            instrument = Hydra probe
+            long_name = Soil water content
+            standard_name = volume_fraction_of_condensed_water_in_soil
+            statistic_type = average
+            units = m^3/m^3
+        [[[xl]]]
+            name = Moisture2_Avg
+            sheet = Met_data_30
+    [[Sws_50cmb]]
+        [[[Attr]]]
+            height = -0.5m
+            instrument = Hydra probe
+            long_name = Soil water content
+            standard_name = volume_fraction_of_condensed_water_in_soil
+            statistic_type = average
+            units = m^3/m^3
+        [[[xl]]]
+            name = Moisture3_Avg
+            sheet = Met_data_30
+    [[Sws_50cmc]]
+        [[[Attr]]]
+            height = -0.5m
+            instrument = Hydra probe
+            long_name = Soil water content
+            standard_name = volume_fraction_of_condensed_water_in_soil
+            statistic_type = average
+            units = m^3/m^3
+        [[[xl]]]
+            name = VWC1_50cm_Avg
+            sheet = Met_data_30
+    [[Sws_5cma]]
+        [[[Attr]]]
+            height = -0.05m
+            instrument = Hydra probe
+            long_name = Soil water content
+            standard_name = volume_fraction_of_condensed_water_in_soil
+            statistic_type = average
+            units = m^3/m^3
+        [[[xl]]]
+            name = Moisture8_Avg
+            sheet = Met_data_30
+    [[Sws_5cmb]]
+        [[[Attr]]]
+            height = -0.05m
+            instrument = Hydra probe
+            long_name = Soil water content
+            standard_name = volume_fraction_of_condensed_water_in_soil
+            statistic_type = average
+            units = m^3/m^3
+        [[[xl]]]
+            name = Moisture9_Avg
+            sheet = Met_data_30
+    [[Sws_5cmc]]
+        [[[Attr]]]
+            height = -0.1m
+            instrument = soilVUE
+            long_name = Soil water content
+            standard_name = volume_fraction_of_condensed_water_in_soil
+            statistic_type = average
+            units = m^3/m^3
+        [[[xl]]]
+            name = VWC1_5cm_Avg
+            sheet = Met_data_30
+    [[Sws_60cma]]
+        [[[Attr]]]
+            height = -0.6m
+            instrument = soilVUE
+            long_name = Soil water content
+            standard_name = volume_fraction_of_condensed_water_in_soil
+            statistic_type = average
+            units = m^3/m^3
+        [[[xl]]]
+            name = VWC1_60cm_Avg
+            sheet = Met_data_30
+    [[Sws_75cma]]
+        [[[Attr]]]
+            height = -0.75m
+            instrument = Hydra probe
+            long_name = Soil water content
+            standard_name = volume_fraction_of_condensed_water_in_soil
+            statistic_type = average
+            units = m^3/m^3
+        [[[xl]]]
+            name = Moisture0_Avg
+            sheet = Met_data_30
+    [[Sws_75cmb]]
+        [[[Attr]]]
+            height = -0.75m
+            instrument = Hydra probe
+            long_name = Soil water content
+            standard_name = volume_fraction_of_condensed_water_in_soil
+            statistic_type = average
+            units = m^3/m^3
+        [[[xl]]]
+            name = Moisture1_Avg
+            sheet = Met_data_30
+    [[Sws_75cmc]]
+        [[[Attr]]]
+            height = -0.75m
+            instrument = soilVUE
+            long_name = Soil water content
+            standard_name = volume_fraction_of_condensed_water_in_soil
+            statistic_type = average
+            units = m^3/m^3
+        [[[xl]]]
+            name = VWC1_75cm_Avg
+            sheet = Met_data_30
+    [[Ta_HMP_3m]]
+        [[[Attr]]]
+            height = 5m
+            instrument = HMP45C
+            long_name = Air temperature
+            standard_name = air_temperature
+            statistic_type = average
+            units = degC
+        [[[xl]]]
+            name = AirTC_Avg
+            sheet = Met_data_30
+    [[Ta_RTD_3m]]
+        [[[Attr]]]
+            height = 3m
+            instrument = 43347 Resistance Temperature Device, Temperature Probe
+            long_name = Air temperature
+            standard_name = air_temperature
+            statistic_type = average
+            units = degC
+        [[[xl]]]
+            name = RTD_C_Avg
+            sheet = Met_data_30
+    [[Tc]]
+        [[[Attr]]]
+            height = 5m
+            instrument = Apogee IRR
+            long_name = Plant canopy temperature, average
+            standard_name = canopy_temperature
+            units = degC
+            statistic_type = average
+        [[[xl]]]
+            name = TargTempC_Avg
+            sheet = Met_data_30
+    [[Tpanel]]
+        [[[Attr]]]
+            instrument = Campbell Scientific CR1000X logger
+            long_name = Panel temperature at logger
+            units = degC
+            statistic_type = average
+        [[[xl]]]
+            name = PTemp_Avg
+            sheet = Met_data_30
+    [[Ts_100cma]]
+        [[[Attr]]]
+            height = -1.0m
+            instrument = soilVUE
+            long_name = Soil temperature
+            standard_name = soil_temperature
+            statistic_type = average
+            units = degC
+        [[[xl]]]
+            name = TC1_100cm_Avg
+            sheet = Met_data_30
+    [[Ts_10cma]]
+        [[[Attr]]]
+            height = -0.1m
+            instrument = Hydra probe
+            long_name = Soil temperature
+            standard_name = soil_temperature
+            statistic_type = average
+            units = degC
+        [[[xl]]]
+            name = SoilTemp6_Avg
+            sheet = Met_data_30
+    [[Ts_10cmb]]
+        [[[Attr]]]
+            height = -0.1m
+            instrument = Hydra probe
+            long_name = Soil temperature
+            standard_name = soil_temperature
+            statistic_type = average
+            units = degC
+        [[[xl]]]
+            name = SoilTemp7_Avg
+            sheet = Met_data_30
+    [[Ts_10cmc]]
+        [[[Attr]]]
+            height = -0.1m
+            instrument = soilVUE
+            long_name = Soil temperature
+            standard_name = soil_temperature
+            statistic_type = average
+            units = degC
+        [[[xl]]]
+            name = TC1_10cm_Avg
+            sheet = Met_data_30
+    [[Ts_20cma]]
+        [[[Attr]]]
+            height = -0.2m
+            instrument = Hydra probe
+            long_name = Soil temperature
+            standard_name = soil_temperature
+            statistic_type = average
+            units = degC
+        [[[xl]]]
+            name = SoilTemp4_Avg
+            sheet = Met_data_30
+    [[Ts_20cmb]]
+        [[[Attr]]]
+            height = -0.2m
+            instrument = Hydra probe
+            long_name = Soil temperature
+            standard_name = soil_temperature
+            statistic_type = average
+            units = degC
+        [[[xl]]]
+            name = SoilTemp5_Avg
+            sheet = Met_data_30
+    [[Ts_20cmc]]
+        [[[Attr]]]
+            height = -0.2m
+            instrument = soilVUE
+            long_name = Soil temperature
+            standard_name = soil_temperature
+            statistic_type = average
+            units = degC
+        [[[xl]]]
+            name = TC1_20cm_Avg
+            sheet = Met_data_30
+    [[Ts_30cma]]
+        [[[Attr]]]
+            height = -0.3m
+            instrument = soilVUE
+            long_name = Soil temperature
+            standard_name = soil_temperature
+            statistic_type = average
+            units = degC
+        [[[xl]]]
+            name = TC1_30cm_Avg
+            sheet = Met_data_30
+    [[Ts_40cma]]
+        [[[Attr]]]
+            height = -0.4m
+            instrument = soilVUE
+            long_name = Soil temperature
+            standard_name = soil_temperature
+            statistic_type = average
+            units = degC
+        [[[xl]]]
+            name = TC1_40cm_Avg
+            sheet = Met_data_30
+    [[Ts_50cma]]
+        [[[Attr]]]
+            height = -0.5m
+            instrument = Hydra probe
+            long_name = Soil temperature
+            standard_name = soil_temperature
+            statistic_type = average
+            units = degC
+        [[[xl]]]
+            name = SoilTemp2_Avg
+            sheet = Met_data_30
+    [[Ts_50cmb]]
+        [[[Attr]]]
+            height = -0.5m
+            instrument = Hydra probe
+            long_name = Soil temperature
+            standard_name = soil_temperature
+            statistic_type = average
+            units = degC
+        [[[xl]]]
+            name = SoilTemp3_Avg
+            sheet = Met_data_30
+    [[Ts_50cmc]]
+        [[[Attr]]]
+            height = -0.5m
+            instrument = soilVUE
+            long_name = Soil temperature
+            standard_name = soil_temperature
+            statistic_type = average
+            units = degC
+        [[[xl]]]
+            name = TC1_50cm_Avg
+            sheet = Met_data_30
+    [[Ts_5cma]]
+        [[[Attr]]]
+            height = -0.05m
+            instrument = Hydra probe
+            long_name = Soil temperature
+            standard_name = soil_temperature
+            statistic_type = average
+            units = degC
+        [[[xl]]]
+            name = SoilTemp8_Avg
+            sheet = Met_data_30
+    [[Ts_5cmb]]
+        [[[Attr]]]
+            height = -0.05m
+            instrument = Hydra probe
+            long_name = Soil temperature
+            standard_name = soil_temperature
+            statistic_type = average
+            units = degC
+        [[[xl]]]
+            name = SoilTemp9_Avg
+            sheet = Met_data_30
+    [[Ts_5cmc]]
+        [[[Attr]]]
+            height = -0.05m
+            instrument = soilVUE
+            long_name = Soil temperature
+            standard_name = soil_temperature
+            statistic_type = average
+            units = degC
+        [[[xl]]]
+            name = TC1_5cm_Avg
+            sheet = Met_data_30
+    [[Ts_60cma]]
+        [[[Attr]]]
+            height = -0.6m
+            instrument = soilVUE
+            long_name = Soil temperature
+            standard_name = soil_temperature
+            statistic_type = average
+            units = degC
+        [[[xl]]]
+            name = TC1_60cm_Avg
+            sheet = Met_data_30
+    [[Ts_75cma]]
+        [[[Attr]]]
+            height = -0.75m
+            instrument = Hydra probe
+            long_name = Soil temperature
+            standard_name = soil_temperature
+            statistic_type = average
+            units = degC
+        [[[xl]]]
+            name = SoilTemp0_Avg
+            sheet = Met_data_30
+    [[Ts_75cmb]]
+        [[[Attr]]]
+            height = -0.75m
+            instrument = Hydra probe
+            long_name = Soil temperature
+            standard_name = soil_temperature
+            statistic_type = average
+            units = degC
+        [[[xl]]]
+            name = SoilTemp1_Avg
+            sheet = Met_data_30
+    [[Ts_75cmc]]
+        [[[Attr]]]
+            height = -0.75m
+            instrument = soilVUE
+            long_name = Soil temperature
+            standard_name = soil_temperature
+            statistic_type = average
+            units = degC
+        [[[xl]]]
+            name = TC1_75cm_Avg
+            sheet = Met_data_30
+    [[Tv_SONIC_Av]]
+        [[[Attr]]]
+            height = 4m
+            instrument = RM Young 81000
+            long_name = Virtual temperature
+            standard_name = virtual_temperature
+            statistic_type = average
+            units = degC
+        [[[xl]]]
+            name = sonic_temperature_C
+            sheet = full_output
+    [[U]]
+        [[[Attr]]]
+            height = 5m
+            instrument = RM Young 81000
+            long_name = Wind speed, longitudinal component, coordinate rotated
+            units = m/s
+            statistic_type = average
+        [[[xl]]]
+            name = u_rot
+            sheet = full_output
+    [[V]]
+        [[[Attr]]]
+            height = 5m
+            instrument = RM Young 81000
+            long_name = Wind speed, lateral component, coordinate rotated
+            units = m/s
+            statistic_type = average
+        [[[xl]]]
+            name = v_rot
+            sheet = full_output
+    [[Vbat]]
+        [[[Attr]]]
+            instrument = Campbell Scientific CR1000X logger
+            long_name = Battery voltage at logger
+            units = V
+            statistic_type = average
+        [[[xl]]]
+            name = batt_volt_Min
+            sheet = Met_data_30
+    [[W]]
+        [[[Attr]]]
+            height = 5m
+            instrument = RM Young 81000
+            long_name = Wind speed, vertical component, coordinate rotated
+            units = m/s
+            statistic_type = average
+        [[[xl]]]
+            name = w_rot
+            sheet = full_output
+    [[Wd_SONIC]]
+        [[[Attr]]]
+            height = 5m
+            instrument = RM Young 81000
+            long_name = Wind direction
+            standard_name = wind_from_direction
+            statistic_type = average
+            units = degrees
+        [[[xl]]]
+            name = wind_dir
+            sheet = full_output
+    [[Wd_alt]]
+        [[[Attr]]]
+            height = 5m
+            instrument = RM Yound 8500 2D anemometer
+            long_name = Wind direction
+            standard_name = wind_from_direction
+            statistic_type = average
+            units = degrees
+        [[[xl]]]
+            name = WindDir_Avg
+            sheet = Met_data_30
+    [[Ws_SONIC]]
+        [[[Attr]]]
+            height = 5m
+            instrument = RM Young 81000
+            long_name = Wind speed
+            standard_name = wind_speed
+            statistic_type = average
+            units = m/s
+        [[[xl]]]
+            name = wind_speed
+            sheet = full_output
+    [[Ws_alt]]
+        [[[Attr]]]
+            height = 5m
+            instrument = RM Yound 8500 2D anemometer
+            long_name = Wind speed
+            standard_name = wind_speed
+            statistic_type = average
+            units = m/s
+        [[[xl]]]
+            name = WindSpeed_Avg
+            sheet = Met_data_30
+    [[ps]]
+        [[[Attr]]]
+            height = 5m
+            instrument = LI-7500DS
+            long_name = Surface air pressure
+            standard_name = surface_air_pressure
+            statistic_type = average
+            units = kPa
+        [[[xl]]]
+            name = air_pressure_kPa
+            sheet = full_output
+    [[ustar]]
+        [[[Attr]]]
+            height = 4m
+            instrument = RM Young 81000
+            long_name = Friction velocity
+            statistic_type = average
+            units = m/s
+        [[[xl]]]
+            name = u*
+            sheet = full_output
+    [[x_50]]
+        [[[Attr]]]
+            instrument = LI-7500DS & RM Young 81000
+            long_name = Flux footprint calculation, 50% flux
+            standard_name = 50%_flux_foorprint
+            units = m
+            statistic_type = average
+        [[[xl]]]
+            name = x_50%
+            sheet = full_output
+    [[x_70]]
+        [[[Attr]]]
+            instrument = LI-7500DS & RM Young 81000
+            long_name = Flux footprint calculation, 70% flux
+            standard_name = 70%_flux_foorprint
+            units = m
+            statistic_type = average
+        [[[xl]]]
+            name = x_70%
+            sheet = full_output
