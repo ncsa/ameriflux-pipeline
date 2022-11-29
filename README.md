@@ -149,7 +149,7 @@ pip install -r requirements.txt
     - master_met/ output : data outputs from mastermetprocessor module.
     - eddypro/ input : all data required for eddypro module.
     - eddypro/ templates : eddypro project template file to run EddyPro software.
-    - eddypro/ output : data outputs from eddypro module.
+    - eddypro/ output : data outputs from eddypro module. This directory is required to be empty.
     - pyfluxpro/ input : data inputs for pyfluxpro module.
     - pyfluxpro/ output : data outputs from pyfluxpro module.
     - Users are free to choose any data storage location. This is just a recommended approach.
