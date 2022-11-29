@@ -22,7 +22,7 @@ This automated code creates master meteorological data, runs EddyPro automatical
 - Python 3.8 (preferred)
 - EddyPro 7.0.6 (preferred) (https://www.licor.com/env/support/EddyPro/software.html)
 - PyFluxPro 3.3.2 (preferred) (https://github.com/OzFlux/PyFluxPro)
-- Tested with EddyPro 7.0.9 and PyFluxPro 3.4.7 as well. However, If there is any problem in running Eddypro or Pyfluxpro, please revert to the preferred versions specified above.
+- Tested with EddyPro 7.0.9 and PyFluxPro 3.4.7 as well. However, if there is any problem in running Eddypro or Pyfluxpro, please revert to the preferred versions specified above.
 
 ## Installation
 
