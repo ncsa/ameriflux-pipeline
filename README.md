@@ -30,6 +30,9 @@ This automated code creates master meteorological data, runs EddyPro automatical
 - Get a copy of the repository to your local machine.
   - Using Git clone ```git clone https://github.com/ncsa/ameriflux-pipeline.git``` 
   - OR if you prefer to download a zip file, click "Download ZIP button" in [repo](https://github.com/ncsa/ameriflux-pipeline).
+- To get the latest updates from this repo, 
+  - cd to your local repository.
+  - type `git pull` in the command line.
 
 2. Change working directory
 - In terminal, cd to repository by typing ```cd ameriflux-pipeline```
@@ -149,7 +152,7 @@ pip install -r requirements.txt
     - master_met/ output : data outputs from mastermetprocessor module.
     - eddypro/ input : all data required for eddypro module.
     - eddypro/ templates : eddypro project template file to run EddyPro software.
-    - eddypro/ output : data outputs from eddypro module.
+    - eddypro/ output : data outputs from eddypro module. This directory is required to be empty.
     - pyfluxpro/ input : data inputs for pyfluxpro module.
     - pyfluxpro/ output : data outputs from pyfluxpro module.
     - Users are free to choose any data storage location. This is just a recommended approach.

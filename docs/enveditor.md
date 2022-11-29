@@ -33,6 +33,7 @@ This document will describe the GUI enveditor application.
 3. Variables for running EddyPro
     - files and parameters needed for running the EddyPro software in a headless manner.
     - The env variables selected for this section are as described [here](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/eddypro/runeddypro.md#set-parameters).
+      - Of the env variables, the EddyPro output path should be an empty directory. See Pre-pyfluxpro module [step#9](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/prepyfluxpro.md#9) for details.
 4. Variables for PyFluxPro input sheet
     - files and parameters needed for creating Pyfluxpro input excel sheet
     - The env variables selected for this section are :
