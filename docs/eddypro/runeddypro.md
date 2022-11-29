@@ -7,7 +7,7 @@ This document will describe runeddypro.py
   is responsible for this task.
 - The process only works in Windows or Mac; Linux or Mac with M1 chips are not supported
 - EddyPro is an independent software application. It will be run in a headless manner (initiated programmatically without human interaction) by the module.
-- The log of the process will be recorded in pre_fylufxpro.log with 'eddypro.runeddypro' header.
+- The log of the process will be recorded in pre_pyfluxpro.log with 'eddypro.runeddypro' header.
 - Each eddypro run will also generated a timestamped log file in the 'EDDYPRO_OUTPUT_PATH'.
 - The runeddypro module can be run with a pipeline.py GUI.
 
