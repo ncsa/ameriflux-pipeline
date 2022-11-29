@@ -26,7 +26,7 @@ This document will describe runeddypro.py
 - 'EddyPro Metadata File from GHG File' is the metadata file that can be found after unzipping a ghg file.
     - Unzipping any ghg file should be fine.
 - 'EddyPro Dynamic Metadata' is a dynamic metadata file recorded from the field.
-- 'EddyPro Output Path' is a directory path that the EddyPro run output will be saved.
+- 'EddyPro Output Path' is a directory path that the EddyPro run output will be saved. This directory needs to be empty. See Pre-pyfluxpro module [step#9](https://github.com/ncsa/ameriflux-pipeline/blob/develop/docs/prepyfluxpro.md#9) for details.
 - 'EddyPro Input GHG Path' is a directory path that contains all the input ghg files.
 
 ### Using the GUI
