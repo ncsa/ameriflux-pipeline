@@ -101,6 +101,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Added example env file. [#368](https://github.com/ncsa/ameriflux-pipeline/issues/368)
 - Version recommendation on running EddyPro and PyFluxPro in README. [#381](https://github.com/ncsa/ameriflux-pipeline/issues/381)
 - Example input files. [#370](https://github.com/ncsa/ameriflux-pipeline/issues/370)
+- Removed precipitation data from post-pyfluxpro process. [#264](https://github.com/ncsa/ameriflux-pipeline/issues/264)
 
 ### Fixed
 - Python packaging of the codes so it can run in command prompt. [#70](https://github.com/ncsa/ameriflux-pipeline/issues/70)
