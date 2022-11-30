@@ -17,7 +17,7 @@ This document is a code walk-through on pyfluxpro/outputformat.py module
 - The L2 run output (netCDF file) is read and validated for expected format.
 - The QCFlag variables (variable names ending with '_QCFlag') are deleted. 
 - Additional variables like ['latitude', 'longitude', 'crs', 'station_name', 'xldatetime', 'time', 'hour', 'second', 'minute', 'day', 'month', 'year', 'hdh', 'ddd',
-'fsd_syn', 'solar_altitude', 'co2_sigma', 'h2o_sigma'] are also removed.
+'fsd_syn', 'solar_altitude', 'co2_sigma', 'h2o_sigma', 'precip_iws', 'p_rain', 'rain', 'rainfall'] are also removed.
 
 ### 2
 - The 'time' variable is renamed as 'TIMESTAMP_START' 
