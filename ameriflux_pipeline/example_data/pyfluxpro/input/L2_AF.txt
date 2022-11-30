@@ -1,0 +1,107 @@
+level = L2
+[Files]
+    file_path = C:\Sorghum\ForAmeriflux\
+    in_filename = Sorghum_AF_Pipeline_2021_L1.nc
+    out_filename = Sorghum_AF_Pipeline_2021_L2.nc
+[Variables]
+    [[ALB]]
+        [[[RangeCheck]]]
+            lower = 0.5
+            upper = 99.5
+    [[CO2]]
+        [[[ExcludeDates]]]
+            0 = 2021-03-01 00:00,2021-03-01 05:30
+            1 = 2021-01-01 06:30,2021-01-02 01:00
+            2 = 2021-01-25 19:00,2021-01-26 21:30
+            3 = 2021-01-04 00:00,2021-01-04 11:00
+            4 = 2021-06-12 16:00,2021-06-12 18:00
+        [[[RangeCheck]]]
+            lower = 250.0
+            upper = 1000.0
+    [[CO2_SIGMA]]
+        [[[RangeCheck]]]
+            lower = 0.0
+            upper = 100.0
+    [[FETCH_90]]
+        [[[RangeCheck]]]
+            lower = -100.0
+            upper = 110.0
+    [[FETCH_MAX]]
+        [[[RangeCheck]]]
+            lower = 0.0
+            upper = 2000.0
+    [[H2O]]
+        [[[ExcludeDates]]]
+            0 = 2021-03-01 00:00,2021-03-01 05:30
+            1 = 2021-01-01 06:30,2021-01-02 01:00
+            2 = 2021-01-25 19:00,2021-01-26 21:30
+            3 = 2021-01-04 00:00,2021-01-04 11:00
+            4 = 2021-06-12 16:00,2021-06-12 18:00
+        [[[RangeCheck]]]
+            lower = -100.0
+            upper = 3000.0
+    [[H2O_SIGMA]]
+        [[[RangeCheck]]]
+            lower = 0.0
+            upper = 55.0
+    [[MO_LENGTH]]
+        [[[RangeCheck]]]
+            lower = -20000.0
+            upper = 20000.0
+    [[RH]]
+        [[[ExcludeDates]]]
+            0 = 2021-04-26 13:30,2021-05-21 07:30
+        [[[RangeCheck]]]
+            lower = 0.0
+            upper = 100.0
+    [[SC]]
+        [[[RangeCheck]]]
+            lower = -20.0
+            upper = 20.0
+    [[SH]]
+        [[[RangeCheck]]]
+            lower = -50.0
+            upper = 50.0
+    [[SLE]]
+        [[[RangeCheck]]]
+            lower = -20.0
+            upper = 20.0
+    [[U_SIGMA]]
+        [[[RangeCheck]]]
+            lower = 0.0
+            upper = 20.0
+    [[VPD]]
+        [[[RangeCheck]]]
+            lower = 0.01
+            upper = 80.0
+    [[V_SIGMA]]
+        [[[RangeCheck]]]
+            lower = 0.0
+            upper = 20.0
+    [[W_SIGMA]]
+        [[[RangeCheck]]]
+            lower = 0.0
+            upper = 20.0
+[Plots]
+    [[Radiative fluxes]]
+        variables = NETRAD,LW_IN,LW_OUT,SW_IN,SW_OUT,ALB,PPFD_IN,PPFD_OUT
+    [[Fluxes]]
+        variables = TAU,H,LE,FC,USTAR,CO2,H2O
+    [[Storage]]
+        variables = SC,SH,SLE
+    [[Air temperature, humidity and CO2]]
+        variables = RH,TA_1_1_1,TA_1_1_2,T_CANOPY,T_SONIC,VPD
+    [[Soil water content, 10-20cm]]
+        variables = SWC_1_2_1,SWC_1_3_1,SWC_2_2_1,SWC_2_3_1
+    [[Soil water content, 50-100cm]]
+        variables = SWC_3_6_1,SWC_4_6_1,SWC_3_8_1,SWC_4_8_1,SWC_3_9_1,SWC_4_9_1
+    [[Soil temperature, 10-20cm]]
+        variables = TS_1_2_1,TS_1_3_1,TS_2_2_1,TS_2_3_1
+    [[Soil temperature, 50-100cm]]
+        variables = TS_3_6_1,TS_4_6_1,TS_3_8_1,TS_4_8_1,TS_3_9_1,TS_4_9_1
+    [[Soil temperature, heat flux]]
+        variables = TS_1_2_1,SWC_1_2_1,G_1_1_1,G_2_1_1
+    [[Pressure, wind speed, wind direction]]
+        variables = PA,WS,WD,U_SIGMA,V_SIGMA,W_SIGMA,MO_LENGTH
+    [[Flux footprint parameters]]
+        variables = FETCH_70,FETCH_90,FETCH_MAX

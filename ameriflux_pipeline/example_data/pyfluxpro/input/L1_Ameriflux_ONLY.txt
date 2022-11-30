@@ -1,0 +1,248 @@
+level = L1
+[Files]
+    file_path = C:\Sorghum\ForAmeriflux\
+    in_filename = PyFluxPro_L1_PipeDemo_AF.xlsx
+    in_firstdatarow = 3
+    in_headerrow = 1
+    out_filename = Sorghum_AF_Pipeline_2021_L1.nc
+[Global]
+    Conventions = CF-1.8
+    acknowledgement = '''This work used eddy covariance data collected by the University of Illinois. Data
+were processed using the PyFluxPro system developed by Dr Peter Isaac and OzFlux.'''
+    altitude = 224m
+    canopy_height = 0.1 m to 2.6 m
+    comment = CF metadata, OzFlux standard variable names
+    contact = Carl Bernacchi - bernacch@illinois.edu or Caitlin Moore - caitlinm@illinois.edu
+    data_link = ""
+    fluxnet_id = ""
+    history = June 2021 processing
+    institution = University of Illinois, Urbana-Champaign
+    latitude = 40.062832
+    license = https://creativecommons.org/licenses/by/4.0/
+    license_name = CC BY 4.0
+    longitude = -88.196107
+    metadata_link = ""
+    ozflux_link = http://ozflux.org.au/
+    publisher_name = TERN Ecosystem Processes,OzFlux
+    references = None
+    site_name = Maize
+    site_pi = Carl Bernacchi
+    soil = silt loam Flanagan
+    source = 2.65 to 3.7m flux tower above the canopy
+    time_step = 30
+    time_zone = US/Central
+    title = Flux tower data set from the Maize-Maize-Soy rotation site for the calendar year 2015
+    tower_height = 2.65 m to 3.74 m
+    vegetation = Zea mays annual crop
+[Variables]
+    [[TIMESTAMP_END]]
+        [[[Attr]]]
+            group_name = none
+            height = none
+            instrument = none
+            long_name = Date/time End in Excel format
+            standard_name = not defined
+            units = none
+        [[[xl]]]
+            name = TIMESTAMP_END
+            sheet = Met_data_30
+    [[TIMESTAMP_START]]
+        [[[Attr]]]
+            group_name = none
+            height = none
+            instrument = none
+            long_name = Date/time Start in Excel format
+            standard_name = not defined
+            units = none
+        [[[xl]]]
+            name = TIMESTAMP_START
+            sheet = Met_data_30
+    [[ALB]]
+        [[[Attr]]]
+            height = 5m
+            instrument = Kipp and Zonen CNR1
+            long_name = surface reflectance
+            standard_name = Surface_reflectance
+            statistic_type = average
+            units = percent
+        [[[xl]]]
+            name = ALB
+            sheet = Met_data_30
+    [[CO2]]
+        [[[Attr]]]
+            height = 3.0
+            instrument = Li-7500DS
+            long_name = CO2 concentration
+            standard_name = mole_fraction_of_carbon_dioxide_in_air
+            statistic_type = average
+            units = umol/mol
+        [[[xl]]]
+            name = co2_mole_fraction
+            sheet = full_output
+    [[CO2_SIGMA]]
+        [[[Attr]]]
+            instrument = Li-7500DS
+            long_name = CO2 concentration
+            standard_name = mole_fraction_of_carbon_dioxide_in_air
+            statistic_type = average
+            units = umol/mol
+            height = 3.0
+        [[[xl]]]
+            name = co2_sd
+            sheet = full_output
+    [[FETCH_90]]
+        [[[Attr]]]
+            height = 3.0
+            instrument = Li-7500DS & Gill Windmaster Pro
+            long_name = Flux footprint calculation, 90% flux
+            standard_name = 90%_flux_footprint
+            statistic_type = average
+            units = m
+        [[[xl]]]
+            name = x_90%
+            sheet = full_output
+    [[FETCH_MAX]]
+        [[[Attr]]]
+            height = 3.0
+            instrument = Li-7500DS & Gill Windmaster Pro
+            long_name = Flux footprint calculation, peak flux
+            standard_name = Peak_flux_footprint
+            statistic_type = average
+            units = m
+        [[[xl]]]
+            name = x_peak
+            sheet = full_output
+    [[H2O]]
+        [[[Attr]]]
+            height = 3.0
+            instrument = Li-7500DS
+            long_name = Water (H2O) vapor mole fraction
+            statistic_type = average
+            units = mmol/mol
+        [[[xl]]]
+            name = h2o_mole_fraction
+            sheet = full_output
+    [[H2O_SIGMA]]
+        [[[Attr]]]
+            height = 3.0
+            instrument = Li-7500DS
+            long_name = Standard deviation of water vapor mole fraction
+            statistic_type = average
+            units = mmol/mol
+        [[[xl]]]
+            name = h2o_sd
+            sheet = full_output
+    [[MO_LENGTH]]
+        [[[Attr]]]
+            height = 3.0
+            instrument = Gill Windmaster Pro
+            long_name = Monin-Obukhov length
+            statistic_type = average
+            units = m
+        [[[xl]]]
+            name = L
+            sheet = full_output
+    [[RH]]
+        [[[Attr]]]
+            height = 5m
+            instrument = Vaisala HMP
+            long_name = Relative humidity
+            standard_name = relative_humidity
+            statistic_type = average
+            units = percent
+        [[[xl]]]
+            name = RH_Avg
+            sheet = Met_data_30
+    [[SC]]
+        [[[Attr]]]
+            height = 3.0
+            instrument = Li-7500DS & Gill Windmaster Pro
+            long_name = CO2 storage flux
+            statistic_type = average
+            units = umol/mol
+        [[[xl]]]
+            name = co2_strg
+            sheet = full_output
+    [[SH]]
+        [[[Attr]]]
+            height = 3.0
+            instrument = Li-7500DS
+            long_name = Heat storage flux in the air
+            statistic_type = average
+            units = W/m^2
+        [[[xl]]]
+            name = H_strg
+            sheet = full_output
+    [[SLE]]
+        [[[Attr]]]
+            height = 3.0
+            instrument = Li-7500DS
+            long_name = Latent heat storage flux
+            statistic_type = average
+            units = W/m^2
+        [[[xl]]]
+            name = LE_strg
+            sheet = full_output
+    [[U_SIGMA]]
+        [[[Attr]]]
+            height = 3.0
+            instrument = Gill Windmaster Pro
+            long_name = Along wind velocity component
+            standard_name = eastward_wind
+            statistic_type = average
+            units = m/s
+        [[[xl]]]
+            name = u_sd
+            sheet = full_output
+    [[VPD]]
+        [[[Attr]]]
+            height = 5.0
+            instrument = Vaisala HMP
+            long_name = Vapour pressure deficit
+            standard_name = water_vapor_saturation_deficit_in_air
+            statistic_type = average
+            units = hPa
+        [[[xl]]]
+            name = VPD
+            sheet = full_output
+    [[V_SIGMA]]
+        [[[Attr]]]
+            height = 3.0
+            instrument = Gill Windmaster Pro
+            long_name = Across wind velocity component
+            standard_name = northward_wind
+            statistic_type = average
+            units = m/s
+        [[[xl]]]
+            name = v_sd
+            sheet = full_output
+    [[WS_MAX]]
+        [[[Attr]]]
+            height = 3.0
+            instrument = Gill Windmaster Pro
+            long_name = maximum wind speed in the averaging period
+            statistic_type = average
+            units = m/s
+        [[[xl]]]
+            name = max_wind_speed
+            sheet = full_output
+    [[W_SIGMA]]
+        [[[Attr]]]
+            height = 3.0
+            instrument = Gill Windmaster Pro
+            long_name = Vertical wind velocity component
+            statistic_type = average
+            units = m/s
+        [[[xl]]]
+            name = w_sd
+            sheet = full_output
+    [[ZL]]
+        [[[Attr]]]
+            height = 3.0
+            instrument = Gill Windmaster Pro
+            long_name = Monin-Obukhov Stability
+            statistic_type = average
+            units = 1
+        [[[xl]]]
+            name = (z-d)/L
+            sheet = full_output
