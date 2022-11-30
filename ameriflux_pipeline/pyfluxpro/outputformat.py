@@ -104,9 +104,11 @@ class OutputFormat:
 
         # drop some met data columns if exists
         # step 2 in guide
+        # remove precipitation data from met sheet
         unwanted_met_data = ['xldatetime', 'time', 'hour', 'second', 'minute', 'day', 'month', 'year', 'hdh', 'ddd',
-                             'fsd_syn', 'solar_altitude', 'co2_sigma', 'h2o_sigma']
-        # get columns that match unwanted met data. The method will convert the column name to lowercase and compare
+                             'fsd_syn', 'solar_altitude', 'co2_sigma', 'h2o_sigma',
+                             'precip_iws', 'p_rain', 'rain', 'rainfall']
+        # get columns that match unwanted met data.
         met_data_col_delete = OutputFormat.find_met_data_cols(df, unwanted_met_data)
         df.drop(columns=met_data_col_delete, errors='ignore', inplace=True)
 
